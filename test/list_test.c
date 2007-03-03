@@ -1,0 +1,379 @@
+#include "test.h"
+
+
+LIST_IMPLEMENT(UCharList, unsigned char)
+LIST_IMPLEMENT(IntList, int)
+LIST_IMPLEMENT(StrList, char *)
+LIST_IMPLEMENT(HogeList, Hoge)
+
+
+static HogeList *hl;
+
+#define NELEMS(array)	(sizeof(array) / sizeof(array[0]))
+
+static Hoge hogetab[] = {
+	{"000",  0}, 
+	{"001",  1}, 
+	{"002",  2}, 
+	{"003",  3}, 
+	{"004",  4}, 
+	{"005",  5}, 
+	{"006",  6}, 
+	{"007",  7}, 
+	{"008",  8}, 
+	{"009",  9}, 
+	{"010", 10}, 
+	{"011", 11}, 
+	{"012", 12}, 
+	{"013", 13}, 
+	{"014", 14}, 
+	{"015", 15}, 
+	{"016", 16}, 
+	{"017", 17}, 
+	{"018", 18}, 
+};
+
+
+
+void ListTest_test_1_1(void)
+{
+	Hoge hoge;
+	printf("***** test_1_1 *****\n");
+	/* 初期状態 */
+	assert(HogeList_size(hl) == 0);
+	assert(HogeList_empty(hl));
+	assert(HogeList_begin(hl) == HogeList_end(hl));
+	assert(HogeList_rbegin(hl) == HogeList_rend(hl));
+	/* clear */
+	hoge = hogetab[0];
+	assert(HogeList_push_back(hl, hoge));
+	assert(HogeList_push_back(hl, hoge));
+	assert(HogeList_push_back(hl, hoge));
+	HogeList_clear(hl);
+	assert(HogeList_size(hl) == 0);
+	assert(HogeList_empty(hl));
+}
+
+void ListTest_test_1_2(void)
+{
+	Hoge hoge;
+	int i;
+	printf("***** test_1_2 *****\n");
+	/* push_back */
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		assert(HogeList_push_back(hl, hogetab[i]));
+	}
+	assert(HogeList_size(hl) == NELEMS(hogetab));
+	assert(!HogeList_empty(hl));
+	/* pop_front */
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		/* front */
+		hoge = HogeList_front(hl);
+		assert(!strcmp(hoge.key, hogetab[i].key));
+		assert(hoge.value == hogetab[i].value);
+		/* back */
+		hoge = HogeList_back(hl);
+		assert(!strcmp(hoge.key, hogetab[NELEMS(hogetab)-1].key));
+		assert(hoge.value == hogetab[NELEMS(hogetab)-1].value);
+		/* pop_front */
+		hoge = HogeList_pop_front(hl);
+		assert(!strcmp(hoge.key, hogetab[i].key));
+		assert(hoge.value == hogetab[i].value);
+	}
+	assert(HogeList_size(hl) == 0);
+	assert(HogeList_empty(hl));
+	/* push_front */
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		assert(HogeList_push_front(hl, hogetab[i]));
+	}
+	assert(HogeList_size(hl) == NELEMS(hogetab));
+	assert(!HogeList_empty(hl));
+	/* pop_back */
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		/* front */
+		hoge = HogeList_front(hl);
+		assert(!strcmp(hoge.key, hogetab[NELEMS(hogetab)-1].key));
+		assert(hoge.value == hogetab[NELEMS(hogetab)-1].value);
+		/* back */
+		hoge = HogeList_back(hl);
+		assert(!strcmp(hoge.key, hogetab[i].key));
+		assert(hoge.value == hogetab[i].value);
+		/* pop_back */
+		hoge = HogeList_pop_back(hl);
+		assert(!strcmp(hoge.key, hogetab[i].key));
+		assert(hoge.value == hogetab[i].value);
+	}
+	assert(HogeList_size(hl) == 0);
+	assert(HogeList_empty(hl));
+}
+
+void ListTest_test_1_3(void)
+{
+	Hoge hoge;
+	int c = 0;
+	printf("***** test_1_3 *****\n");
+	/* 大量にpush_back */
+	hoge = hogetab[0];
+	while (c < 1000000 && HogeList_push_back(hl, hoge)) {
+		c++;
+	}
+/*    printf("size: %d, c: %d\n", HogeList_size(hl), c);*/
+	assert(HogeList_size(hl) == c);
+	assert(!HogeList_empty(hl));
+	/* 大量にpush_front */
+	HogeList_clear(hl);
+	assert(HogeList_size(hl) == 0);
+	assert(HogeList_empty(hl));
+	c = 0;
+	while (c < 1000000 && HogeList_push_front(hl, hoge)) {
+		c++;
+	}
+/*    printf("size: %d, c: %d\n", HogeList_size(hl), c);*/
+	assert(HogeList_size(hl) == c);
+	assert(!HogeList_empty(hl));
+	HogeList_clear(hl);
+	assert(HogeList_size(hl) == 0);
+	assert(HogeList_empty(hl));
+}
+
+void ListTest_test_1_4(void)
+{
+	Hoge hoge;
+	int i;
+	HogeListIterator pos;
+	printf("***** test_1_4 *****\n");
+	/* push_back */
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		assert(HogeList_push_back(hl, hogetab[i]));
+	}
+	assert(HogeList_size(hl) == NELEMS(hogetab));
+	assert(!HogeList_empty(hl));
+	/* at */
+	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos), i++) {
+		hoge = *HogeList_at(pos);
+		assert(!strcmp(hoge.key, hogetab[i].key));
+		assert(hoge.value == hogetab[i].value);
+	}
+	assert(i == NELEMS(hogetab));
+	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos), i++) {
+		*HogeList_at(pos) = hogetab[0];
+	}
+	assert(i == NELEMS(hogetab));
+	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
+		hoge = *HogeList_at(pos);
+		assert(!strcmp(hoge.key, hogetab[0].key));
+		assert(hoge.value == hogetab[0].value);
+	}
+	while (!HogeList_empty(hl)) {
+		HogeList_pop_front(hl);
+	}
+	assert(HogeList_size(hl) == 0);
+}
+
+void ListTest_test_1_5(void)
+{
+	Hoge hoge;
+	int i;
+	int flag = 0;
+	HogeListIterator pos;
+	printf("***** test_1_5 *****\n");
+	/* beginの位置にinsert */
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		assert(HogeList_insert(hl, HogeList_begin(hl), hogetab[i]) == HogeList_begin(hl));
+	}
+	HogeList_clear(hl);
+	/* endの位置にinsert */
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		assert(HogeList_insert(hl, HogeList_end(hl), hogetab[i]) == HogeList_rbegin(hl));
+	}
+	assert(HogeList_size(hl) == NELEMS(hogetab));
+	assert(!HogeList_empty(hl));
+	/* 真ん中の位置にinsert */
+	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos), i++) {
+		hoge = *HogeList_at(pos);
+		assert(!strcmp(hoge.key, hogetab[i].key));
+		assert(hoge.value == hogetab[i].value);
+		if (i == NELEMS(hogetab)/2) {
+			hoge = hogetab[0];
+			assert(HogeList_insert(hl, pos, hoge) == HogeList_prev(pos));
+			break;
+		}
+	}
+	assert(HogeList_size(hl) == NELEMS(hogetab)+1);
+	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos), i++) {
+		hoge = *HogeList_at(pos);
+		if (!flag && i == NELEMS(hogetab)/2) {
+			assert(!strcmp(hoge.key, hogetab[0].key));
+			assert(hoge.value == hogetab[0].value);
+			flag = 1;
+			i--;
+		} else {
+			assert(!strcmp(hoge.key, hogetab[i].key));
+			assert(hoge.value == hogetab[i].value);
+		}
+	}
+	HogeList_clear(hl);
+}
+
+void ListTest_test_1_6(void)
+{
+	Hoge hoge;
+	int i;
+	HogeListIterator pos;
+	size_t size;
+	printf("***** test_1_6 *****\n");
+	/* push_back */
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		assert(HogeList_push_back(hl, hogetab[i]));
+	}
+	assert(HogeList_size(hl) == NELEMS(hogetab));
+	assert(!HogeList_empty(hl));
+	/* beginの位置の要素をerase */
+	size = HogeList_size(hl);
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		pos = HogeList_begin(hl);
+		assert(HogeList_next(pos) == HogeList_erase(hl, pos));
+		assert(HogeList_size(hl) == --size);
+	}
+	assert(HogeList_size(hl) == 0);
+	assert(HogeList_empty(hl));
+	/* push_back */
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		assert(HogeList_push_back(hl, hogetab[i]));
+	}
+	assert(HogeList_size(hl) == NELEMS(hogetab));
+	assert(!HogeList_empty(hl));
+	/* endの前の位置の要素をerase */
+	size = HogeList_size(hl);
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		pos = HogeList_rbegin(hl);
+		assert(HogeList_next(pos) == HogeList_erase(hl, pos));
+		assert(HogeList_size(hl) == --size);
+	}
+	assert(HogeList_size(hl) == 0);
+	assert(HogeList_empty(hl));
+	/* push_back */
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		assert(HogeList_push_back(hl, hogetab[i]));
+	}
+	assert(HogeList_size(hl) == NELEMS(hogetab));
+	assert(!HogeList_empty(hl));
+	/* 真ん中の位置の要素をerase */
+	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); i++) {
+		if (i == NELEMS(hogetab)/2) {
+			pos = HogeList_erase(hl, pos);
+		} else {
+			pos = HogeList_next(pos);
+		}
+	}
+	assert(HogeList_size(hl) == NELEMS(hogetab)-1);
+	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos), i++) {
+		hoge = *HogeList_at(pos);
+		if (i >= NELEMS(hogetab)/2) {
+			assert(!strcmp(hoge.key, hogetab[i+1].key));
+			assert(hoge.value == hogetab[i+1].value);
+		} else {
+			assert(!strcmp(hoge.key, hogetab[i].key));
+			assert(hoge.value == hogetab[i].value);
+		}
+	}
+	/* erase_range */
+	assert(!HogeList_empty(hl));
+	assert(HogeList_end(hl) == HogeList_erase_range(hl, HogeList_begin(hl), HogeList_end(hl)));
+	assert(HogeList_empty(hl));
+}
+
+void ListTest_test_1_7(void)
+{
+	Hoge hoge;
+	int i;
+	HogeListIterator pos;
+	printf("***** test_1_7 *****\n");
+	/* push_back */
+	for (i = 0; i < NELEMS(hogetab); i++) {
+		assert(HogeList_push_back(hl, hogetab[i]));
+	}
+	assert(HogeList_size(hl) == NELEMS(hogetab));
+	assert(!HogeList_empty(hl));
+	/* rbegin/rend 逆順に走査 */
+	for (i = 0, pos = HogeList_rbegin(hl); pos != HogeList_rend(hl); pos = HogeList_prev(pos), i++) {
+		hoge = *HogeList_at(pos);
+		assert(!strcmp(hoge.key, hogetab[NELEMS(hogetab)-1 - i].key));
+		assert(hoge.value == hogetab[NELEMS(hogetab)-1 - i].value);
+	}
+	assert(i == NELEMS(hogetab));
+	assert(HogeList_next(HogeList_rbegin(hl)) == HogeList_end(hl));
+	assert(HogeList_prev(HogeList_begin(hl)) == HogeList_rend(hl));
+	HogeList_clear(hl);
+}
+
+
+void ListTest_test_2_1(void)
+{
+	IntList *il = IntList_new();
+	IntList *x;
+	IntListIterator pos;
+	IntListIterator pos2;
+	int buf[32];
+	int i;
+	printf("***** test_2_1 *****\n");
+	for (i = 0; i < 32; i++) buf[i] = i;
+	/* assign */
+	assert(IntList_size(il) == 0);
+	assert(IntList_assign(il, buf, 32));
+	assert(IntList_size(il) == 32);
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		assert(*IntList_at(pos) == i);
+	}
+	/* resize */
+	assert(IntList_resize(il, 64, 100));
+	assert(IntList_size(il) == 64);
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		if (i < 32) {
+			assert(*IntList_at(pos) == i);
+		} else {
+			assert(*IntList_at(pos) == 100);
+		}
+	}
+	assert(IntList_resize(il, 16, 99));
+	assert(IntList_size(il) == 16);
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		assert(*IntList_at(pos) == i);
+	}
+	assert(IntList_resize(il, 0, 99));
+	assert(IntList_size(il) == 0);
+	assert(IntList_resize(il, 100, 99));
+	/* new_copy */
+	x = IntList_new_copy(il);
+	assert(IntList_size(x) == IntList_size(il));
+	pos2 = IntList_begin(x);
+	for (pos = IntList_begin(il); pos != IntList_end(il); pos = IntList_next(pos)) {
+		assert(*IntList_at(pos) == *IntList_at(pos2));
+		pos2 = IntList_next(pos2);
+	}
+
+	IntList_delete(il);
+	IntList_delete(x);
+}
+
+
+
+void ListTest_run(void)
+{
+	printf("\n===== list test =====\n");
+	hl = HogeList_new();
+	assert(hl);
+
+	ListTest_test_1_1();
+	ListTest_test_1_2();
+	ListTest_test_1_3();
+	ListTest_test_1_4();
+	ListTest_test_1_5();
+	ListTest_test_1_6();
+	ListTest_test_1_7();
+	ListTest_test_2_1();
+
+	HogeList_delete(hl);
+}
+
+
