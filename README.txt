@@ -5,6 +5,10 @@ CSTL
   list, set, multiset, map, multimap, stringを提供します。
 
 
+SourceForge.jp CSTL
+  http://sourceforge.jp/projects/cstl/
+
+
 ディレクトリ・ファイル構成
   cstl/
     vector.h      vector
@@ -36,9 +40,7 @@ CSTL
 
 単体テストについて
   gcc3.4.4で動作確認をしています。(stringのみstd::stringを使用してテストしてい
-  るのでg++を使用) makeを実行すればビルドからテスト実行までを行います。ただし
-  g++のバージョンが古い場合、std::string::findの動作が違うのでstringのテストが
-  失敗する可能性があります。
+  るのでg++を使用) makeを実行すればビルドからテスト実行までを行います。
 
 
 ドキュメント生成について
