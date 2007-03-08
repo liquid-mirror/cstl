@@ -35,7 +35,7 @@
  * \code
  * #include "heap.h"
  * Heap heap;
- * char buf[1024];
+ * double buf[256];
  * #define malloc(s)        Heap_alloc(&heap, s)
  * #define realloc(p, s)    Heap_realloc(&heap, p, s)
  * #define free(p)          Heap_free(&heap, p)
@@ -114,7 +114,7 @@ struct Heap_t {
 #ifdef __cplusplus
 extern "C" {
 #endif
-void Heap_init(Heap *self, void *buf, size_t size);
+void Heap_init(Heap *self, double *buf, size_t size);
 void Heap_free(Heap *self, void *ptr);
 #ifdef HEAP_DEBUG
 void *Heap_alloc_debug(Heap *self, size_t size, char *file, size_t line);

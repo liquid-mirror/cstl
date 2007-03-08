@@ -33,18 +33,26 @@
 #include "heap.h"
 
 
-#define HEADER_SIZE		(sizeof(BlockHeader))
-#define SPLIT_MIN		16		/* 分割されたブロックの最小サイズ */
-#define MAGIC_NO		0x17	/* マジックナンバー */
+/* アラインメントのサイズ。環境に合わせて変更してもよい。 */
+#define ALIGN_SIZE		(sizeof(double))
+/* ALIGN_SIZE単位の切り上げ */
+#define ALIGN_UP(s)		(((s) + ALIGN_SIZE - 1) & (~ALIGN_SIZE + 1))
+/* ALIGN_SIZE単位の切り捨て */
+#define ALIGN_DOWN(s)	((s) & (~ALIGN_SIZE + 1))
 
+#define SPLIT_MIN		(ALIGN_SIZE*4)	/* 分割された空きブロックのヘッダサイズ分を除いた最小サイズ */
+#define MAGIC_NO		0x17			/* マジックナンバー */
+
+/* ヘッダサイズ */
+static const size_t HEADER_SIZE = ALIGN_UP(sizeof(BlockHeader));
 
 /*! 
  * \brief ヒープの初期化
  * \param self ヒープへのポインタ
  * \param buf バッファへのポインタ
- * \param size バッファのサイズ
+ * \param size バッファのサイズ(バイト数)
  */
-void Heap_init(Heap *self, void *buf, size_t size)
+void Heap_init(Heap *self, double *buf, size_t size)
 {
 	BlockHeader *p = (BlockHeader *) buf;
 
@@ -56,7 +64,7 @@ void Heap_init(Heap *self, void *buf, size_t size)
 	self->list_term.prev = p;
 #endif
 
-	p->size = size;
+	p->size = ALIGN_DOWN(size);
 	p->occupied = 0;
 	p->magic = MAGIC_NO;
 	p->next = &self->list_term;
@@ -84,7 +92,7 @@ void *Heap_alloc(Heap *self, size_t size)
 {
 	BlockHeader *p;
 	BlockHeader *s;
-	size_t alloc_block_size = HEADER_SIZE + size;
+	size_t alloc_block_size = ALIGN_UP(HEADER_SIZE + size);
 
 	if (self->init_flag != self) {
 		assert(0);
@@ -92,8 +100,8 @@ void *Heap_alloc(Heap *self, size_t size)
 	}
 	for (p = self->loop_p->next; p != self->loop_p; p = p->next) {
 		if (!p->occupied && p->size >= alloc_block_size) {
-			if (p->size - alloc_block_size >= HEADER_SIZE + SPLIT_MIN) {
-				s = (BlockHeader *) ((unsigned char *) p + alloc_block_size);
+			if (p->size >= alloc_block_size + HEADER_SIZE + SPLIT_MIN) {
+				s = (BlockHeader *) ((char *) p + alloc_block_size);
 				s->size = p->size - alloc_block_size;
 				s->occupied = 0;
 				s->magic = MAGIC_NO;
@@ -111,7 +119,7 @@ void *Heap_alloc(Heap *self, size_t size)
 			p->line = line;
 #endif
 			self->loop_p = p;
-			return (unsigned char *) p + HEADER_SIZE;
+			return (char *) p + HEADER_SIZE;
 		}
 	}
 	return 0;
@@ -150,13 +158,13 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 		Heap_free(self, ptr);
 		return 0;
 	}
-	p = (BlockHeader *) ((unsigned char *) ptr - HEADER_SIZE);
+	p = (BlockHeader *) ((char *) ptr - HEADER_SIZE);
 	if (p->magic != MAGIC_NO || !p->occupied) return 0;
-	new_alloc_block_size = newsize + HEADER_SIZE;
+	new_alloc_block_size = ALIGN_UP(HEADER_SIZE + newsize);
 	if (p->size >= new_alloc_block_size) {
-		if (p->size >= 2 * new_alloc_block_size && newsize >= SPLIT_MIN) {
+		if (p->size >= 2 * new_alloc_block_size && new_alloc_block_size >= HEADER_SIZE + SPLIT_MIN) {
 			/* 縮んだ分を空き領域として回収 */
-			s = (BlockHeader *) ((unsigned char *) p + new_alloc_block_size);
+			s = (BlockHeader *) ((char *) p + new_alloc_block_size);
 			s->occupied = 0;
 			s->magic = MAGIC_NO;
 #ifndef SLIST_BLOCK
@@ -183,6 +191,7 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 		}
 		return ptr;
 	}
+	/* 以下、拡張 */
 	if (p->next->occupied || p->size + p->next->size < new_alloc_block_size) {
 		size_t i;
 #ifdef HEAP_DEBUG
@@ -194,7 +203,7 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 			return 0;
 		}
 		for (i = 0; i < p->size - HEADER_SIZE; i++) {
-			((unsigned char *) newptr)[i] = ((unsigned char *) ptr)[i];
+			((char *) newptr)[i] = ((char *) ptr)[i];
 		}
 		Heap_free(self, ptr);
 		return newptr;
@@ -202,9 +211,9 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 	if (self->loop_p == p->next) {
 		self->loop_p = p->next->next;
 	}
-	if (p->size + p->next->size - new_alloc_block_size >= HEADER_SIZE + SPLIT_MIN) {
+	if (p->size + p->next->size >= new_alloc_block_size + HEADER_SIZE + SPLIT_MIN) {
 		BlockHeader tmp = *p->next;
-		s = (BlockHeader *) ((unsigned char *) p + new_alloc_block_size);
+		s = (BlockHeader *) ((char *) p + new_alloc_block_size);
 		s->size = p->size + p->next->size - new_alloc_block_size;
 		s->occupied = 0;
 		s->magic = MAGIC_NO;
@@ -253,7 +262,7 @@ void Heap_free(Heap *self, void *ptr)
 	prev = &self->list_term;
 	pprev = &self->list_term;
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
-		if (p == (BlockHeader *) ((unsigned char *) ptr - HEADER_SIZE)) {
+		if (p == (BlockHeader *) ((char *) ptr - HEADER_SIZE)) {
 			if (p->magic != MAGIC_NO || !p->occupied) {
 				assert(0);
 				return;
@@ -294,7 +303,7 @@ void Heap_free(Heap *self, void *ptr)
 	if (!ptr) {
 		return;
 	}
-	p = (BlockHeader *) ((unsigned char *) ptr - HEADER_SIZE);
+	p = (BlockHeader *) ((char *) ptr - HEADER_SIZE);
 	if (p->magic != MAGIC_NO || !p->occupied) {
 		assert(0);
 		return;
@@ -395,7 +404,7 @@ size_t dump_memory_leak(Heap *self, int dump)
 				printf("...\n");
 			}
 			if (dump) {
-				hex_dump((unsigned char *) p + HEADER_SIZE, p->size - HEADER_SIZE);
+				hex_dump((char *) p + HEADER_SIZE, p->size - HEADER_SIZE);
 			}
 			n++;
 			total += p->size - HEADER_SIZE;
@@ -419,7 +428,7 @@ void dump_memory_block(Heap *self, void *ptr)
 		return;
 	}
 	if (!ptr) goto NG_block;
-	p = (BlockHeader *) ((unsigned char *) ptr - HEADER_SIZE);
+	p = (BlockHeader *) ((char *) ptr - HEADER_SIZE);
 	if (p->magic != MAGIC_NO) goto NG_block;
 
 	if (p->occupied) {
@@ -434,8 +443,8 @@ void dump_memory_block(Heap *self, void *ptr)
 #else
 	printf("prev(%p): next(%p)\n", p->prev, p->next);
 #endif
-	hex_dump((unsigned char *) p, HEADER_SIZE);
-	hex_dump((unsigned char *) p + HEADER_SIZE, p->size - HEADER_SIZE);
+	hex_dump((char *) p, HEADER_SIZE);
+	hex_dump((char *) p + HEADER_SIZE, p->size - HEADER_SIZE);
 	printf("\n");
 	return;
 NG_block:
@@ -462,10 +471,10 @@ void dump_memory_list(Heap *self)
 #else
 	printf("prev(%p): next(%p)\n", self->list_term.prev, self->list_term.next);
 #endif
-	hex_dump((unsigned char *) (&self->list_term), HEADER_SIZE);
+	hex_dump((char *) (&self->list_term), HEADER_SIZE);
 	printf("\n");
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
-		dump_memory_block(self, (unsigned char *) p + HEADER_SIZE);
+		dump_memory_block(self, (char *) p + HEADER_SIZE);
 	}
 }
 #endif

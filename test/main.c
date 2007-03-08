@@ -1,6 +1,6 @@
 #include "test.h"
 
-char buf[1024*1024];
+double buf[1024*1024/sizeof(double)];
 Heap heap;
 
 int main(void)

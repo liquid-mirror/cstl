@@ -512,7 +512,7 @@ void StringTest_run(void)
 	StringTest_test_1_5();
 }
 
-char buf[1024*1024];
+double buf[1024*1024/sizeof(double)];
 Heap heap;
 
 int main(void)
