@@ -56,12 +56,11 @@
  * \param Type 要素の型
  */
 #define LIST_INTERFACE(Name, Type)	\
-typedef struct Name##Node_t Name##Node;\
 typedef struct Name##_t Name;\
 /*! 
  * \brief イテレータ
  */\
-typedef Name##Node *Name##Iterator;\
+typedef struct Name##Node_t *Name##Iterator;\
 \
 LIST_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
@@ -98,6 +97,7 @@ LIST_END_EXTERN_C()\
  * \param Type 要素の型
  */
 #define LIST_IMPLEMENT(Name, Type)	\
+typedef struct Name##Node_t Name##Node;\
 /*! 
  * \brief listノード構造体
  */\
