@@ -36,9 +36,9 @@
 /* アラインメントのサイズ。環境に合わせて変更してもよい。 */
 #define ALIGN_SIZE		(sizeof(double))
 /* ALIGN_SIZE単位の切り上げ */
-#define ALIGN_UP(s)		(((s) + ALIGN_SIZE - 1) & (~ALIGN_SIZE + 1))
+#define ALIGN_UP(s)		(((s) + (ALIGN_SIZE - 1)) & (~(ALIGN_SIZE - 1)))
 /* ALIGN_SIZE単位の切り捨て */
-#define ALIGN_DOWN(s)	((s) & (~ALIGN_SIZE + 1))
+#define ALIGN_DOWN(s)	((s) & (~(ALIGN_SIZE - 1)))
 
 #define SPLIT_MIN		(ALIGN_SIZE*4)	/* 分割された空きブロックのヘッダサイズ分を除いた最小サイズ */
 #define MAGIC_NO		0x17			/* マジックナンバー */
