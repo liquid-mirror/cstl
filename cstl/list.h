@@ -207,12 +207,10 @@ Type Name##_pop_front(Name *self)\
 	assert(!Name##_empty(self) && "List_pop_front");\
 	node = self->terminator.next;\
 	elem = node->elem;\
-	if (node != &self->terminator) {\
-		self->terminator.next = node->next;\
-		node->next->prev = &self->terminator;\
-		free(node);\
-		self->nelems--;\
-	}\
+	self->terminator.next = node->next;\
+	node->next->prev = &self->terminator;\
+	free(node);\
+	self->nelems--;\
 	return elem;\
 }\
 \
@@ -225,12 +223,10 @@ Type Name##_pop_back(Name *self)\
 	assert(!Name##_empty(self) && "List_pop_back");\
 	node = self->terminator.prev;\
 	elem = node->elem;\
-	if (node != &self->terminator) {\
-		self->terminator.prev = node->prev;\
-		node->prev->next = &self->terminator;\
-		free(node);\
-		self->nelems--;\
-	}\
+	self->terminator.prev = node->prev;\
+	node->prev->next = &self->terminator;\
+	free(node);\
+	self->nelems--;\
 	return elem;\
 }\
 \
@@ -343,6 +339,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	assert(self->magic == self && "List_erase");\
 	assert(pos && "List_erase");\
 	assert(pos != &self->terminator && "List_erase");\
+	assert(!Name##_empty(self) && "List_erase");\
 	node = pos->next;\
 	pos->prev->next = pos->next;\
 	pos->next->prev = pos->prev;\
@@ -360,6 +357,7 @@ Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterat
 	assert(last && "List_erase_range");\
 	pos = first;\
 	while (pos != last) {\
+		assert(!Name##_empty(self) && "List_erase_range");\
 		pos = Name##_erase(self, pos);\
 	}\
 	return pos;\

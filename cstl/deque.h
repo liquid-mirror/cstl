@@ -109,8 +109,7 @@ static size_t Name##_forward(Name *self, size_t idx, size_t n)\
 \
 static size_t Name##_backward(Name *self, size_t idx, size_t n)\
 {\
-	int tmp = idx - n;\
-	return (tmp >= 0) ? tmp : self->nelems + tmp;\
+	return (idx >= n) ? idx - n : self->nelems + idx - n;\
 }\
 \
 static size_t Name##_next(Name *self, size_t idx)\
@@ -217,9 +216,7 @@ Type Name##_pop_front(Name *self)\
 	assert(self->magic == self && "Deque_pop_front");\
 	assert(!Name##_empty(self) && "Deque_pop_front");\
 	elem = self->buf[self->begin];\
-	if (!Name##_empty(self)) {\
-		self->begin = Name##_next(self, self->begin);\
-	}\
+	self->begin = Name##_next(self, self->begin);\
 	return elem;\
 }\
 \
@@ -228,9 +225,7 @@ Type Name##_pop_back(Name *self)\
 	assert(self && "Deque_pop_back");\
 	assert(self->magic == self && "Deque_pop_back");\
 	assert(!Name##_empty(self) && "Deque_pop_back");\
-	if (!Name##_empty(self)) {\
-		self->end = Name##_prev(self, self->end);\
-	}\
+	self->end = Name##_prev(self, self->end);\
 	return self->buf[self->end];\
 }\
 \

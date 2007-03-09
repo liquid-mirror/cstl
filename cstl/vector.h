@@ -189,9 +189,7 @@ Type Name##_pop_back(Name *self)\
 	assert(self && "Vector_pop_back");\
 	assert(self->magic == self && "Vector_pop_back");\
 	assert(!Name##_empty(self) && "Vector_pop_back");\
-	if (!Name##_empty(self)) {\
-		self->end--;\
-	}\
+	self->end--;\
 	return self->buf[self->end];\
 }\
 \
@@ -298,9 +296,9 @@ Type Name##_back(Name *self)\
 \
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
 {\
-	int i;\
-	for (i = (int)last - 1; i > (int)first - 1; i--) {\
-		self->buf[i+n] = self->buf[i];\
+	size_t i;\
+	for (i = last; i > first; i--) {\
+		self->buf[i-1+n] = self->buf[i-1];\
 	}\
 }\
 \

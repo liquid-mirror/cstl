@@ -228,6 +228,12 @@ void VectorTest_test_1_5(void)
 	assert(memcmp(&UCharVector_at(uv, 0)[1], hoge, SIZE) == 0);
 	assert(memcmp(&UCharVector_at(uv, 0)[SIZE+1], hoge, 256) == 0);
 	assert(UCharVector_size(uv) == 257+SIZE);
+
+	assert(UCharVector_insert_n(uv, 0, hoge, 0));
+	assert(*UCharVector_at(uv, 0) == hoge[0]);
+	assert(memcmp(&UCharVector_at(uv, 0)[1], hoge, SIZE) == 0);
+	assert(memcmp(&UCharVector_at(uv, 0)[SIZE+1], hoge, 256) == 0);
+	assert(UCharVector_size(uv) == 257+SIZE);
 	/* erase_n */
 	UCharVector_erase_n(uv, 0, 1);
 	assert(memcmp(UCharVector_at(uv, 0), hoge, SIZE) == 0);
