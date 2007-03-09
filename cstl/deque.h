@@ -211,13 +211,13 @@ int Name##_push_front(Name *self, Type elem)\
 \
 Type Name##_pop_front(Name *self)\
 {\
-	Type elem;\
+	size_t idx;\
 	assert(self && "Deque_pop_front");\
 	assert(self->magic == self && "Deque_pop_front");\
 	assert(!Name##_empty(self) && "Deque_pop_front");\
-	elem = self->buf[self->begin];\
+	idx = self->begin;\
 	self->begin = Name##_next(self, self->begin);\
-	return elem;\
+	return self->buf[idx];\
 }\
 \
 Type Name##_pop_back(Name *self)\
