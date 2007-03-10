@@ -248,9 +248,7 @@ void Name##_clear(Name *self)\
 {\
 	assert(self && "List_clear");\
 	assert(self->magic == self && "List_clear");\
-	while (self->nelems) {\
-		Name##_pop_front(self);\
-	}\
+	Name##_erase_range(self, Name##_begin(self), Name##_end(self));\
 }\
 \
 Type *Name##_at(Name##Iterator pos)\
@@ -372,7 +370,7 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 	size = Name##_size(self);\
 	if (size >= n) {\
 		for (i = 0; i < size - n; i++) {\
-			Name##_pop_back(self);\
+			Name##_erase(self, Name##_rbegin(self));\
 		}\
 	} else {\
 		for (i = 0; i < n - size; i++) {\
