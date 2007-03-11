@@ -28,15 +28,6 @@ CSTLは、C++のSTLコンテナに似たインターフェイスを持つC/C++�
 == 動作条件
 * ANSI C準拠のC/C++コンパイラ
 * stdlib.h, assert.hが使用可能
-  * stdlib.h, assert.hが存在しない場合
-
-    stdlib.hを作成し、以下のC標準関数を自作する。ただし((<deque>))のみを使用する場合はヘッダ作成だけでよい。
-      void *malloc(size_t size);
-      void *realloc(void *ptr, size_t newsize);
-      void free(void *ptr);
-    assert.hを作成し、以下のマクロを定義する。
-      #define assert(x)    ((void)0)
-    作成したstdlib.hとassert.hをインクルードパスの通ったディレクトリにコピーする。
 
 
 == インストール

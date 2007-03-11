@@ -10,7 +10,7 @@
 #include "../cstl/set.h"
 #include "../cstl/map.h"
 #include "rbtree_debug.h"
-#include "../heap.h"
+#include "heap.h"
 #ifdef MY_MALLOC
 extern Heap heap;
 #define malloc(s)		Heap_alloc(&heap, s)

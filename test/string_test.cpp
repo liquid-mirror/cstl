@@ -4,7 +4,7 @@
 #include <string.h>
 #include <string>
 
-#include "../heap.h"
+#include "heap.h"
 #ifdef MY_MALLOC
 extern Heap heap;
 #define malloc(s)		Heap_alloc(&heap, s)

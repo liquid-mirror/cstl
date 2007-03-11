@@ -6,8 +6,8 @@ all: test
 clean:
 	rm -f *.exe *.o
 
-heap.o: ../heap.c ../heap.h
-	$(CC) $(CFLAGS) -c ../heap.c
+heap.o: heap.c heap.h
+	$(CC) $(CFLAGS) -c heap.c
 
 vector_test.o: ../cstl/vector.h vector_test.c heap.o
 	$(CC) $(CFLAGS) -c vector_test.c

@@ -24,18 +24,11 @@ SourceForge.jp CSTL
     Makefile      CSTL.htmlを生成するためのMakefile
   test/           単体テスト
   sample/         CSTLを使用したサンプル
-  heap.h          独自アロケータのヘッダ
-  heap.c          独自アロケータのソース
   README.txt      このファイル
 
 
 インストール
   CSTL.htmlをご覧下さい。
-
-
-独自アロケータについて
-  stdlib.hが使えない環境でmalloc/realloc/freeの代わりに使用することができます。
-  詳しくはheap.hの使用例をご覧下さい。
 
 
 単体テストについて
