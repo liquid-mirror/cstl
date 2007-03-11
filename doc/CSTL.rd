@@ -293,8 +293,9 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 
 + 初期化
   void Deque_init(Deque *self, T *buf, size_t n);
-* 要素数がn個のbufを用いてselfを初期化する。格納可能要素数はn-1個となる。
-* malloc/freeが使用できない場合やバッファを指定する場合に使用する。
+* 要素数がn個のbufという配列を用いてselfを初期化する。
+* 格納可能要素数はn-1個となる。
+* malloc/freeが使用できない場合や内部バッファを呼び出し側で指定する場合に使用する。
   その際、そのオブジェクトに対してDeque_delete()を使用してはならない。
 <<< br
 
