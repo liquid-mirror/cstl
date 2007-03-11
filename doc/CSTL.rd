@@ -36,24 +36,25 @@ CSTLは、C++のSTLコンテナに似たインターフェイスを持つC/C++�
       void free(void *ptr);
     assert.hを作成し、以下のマクロを定義する。
       #define assert(x)    ((void)0)
+    作成したstdlib.hとassert.hをインクルードパスの通ったディレクトリにコピーする。
 
 
 == インストール
-cstlディレクトリには以下のファイルが含まれている。
-  vector.h  deque.h  list.h  rbtree.h  set.h  map.h  string.h
+* 手動でコピーする方法
 
-* システムにインストールする場合、cstlディレクトリをシステムのインクルードディレクトリにコピーする。
-  インクルードは以下のように行う。
-    /* vectorの場合 */
-    #include <cstl/vector.h>
+  ((<SourceForge.jp|URL:http://sourceforge.jp/projects/cstl/files/>))からtarballをダウンロードし、展開する。
+  cstlディレクトリには以下のファイルが含まれている。
+    vector.h  deque.h  list.h  rbtree.h  set.h  map.h  string.h
 
-* 一つのプロジェクトのみで使用する場合、
-  プロジェクトの任意のディレクトリにcstlディレクトリ内の必要なファイルをコピーする。
-  ただし依存関係により、set.hまたはmap.hをコピーする場合にはrbtree.hも、
-  string.hをコピーする場合にはvector.hも、同じディレクトリにコピーする必要がある。
-  インクルードは以下のように行う。
-    /* vectorの場合 */
-    #include "vector.h"
+  cstlディレクトリをインクルードパスの通ったディレクトリにコピーする。
+
+* ((<SVNリポジトリ|URL:http://svn.sourceforge.jp/svnroot/cstl/>))からチェックアウトする方法
+
+  インクルードパスの通ったディレクトリに移動し、以下のコマンドを実行する。
+    最新スナップショットをチェックアウト
+    > svn checkout http://svn.sourceforge.jp/svnroot/cstl/trunk/cstl ./cstl
+    特定のバージョンをチェックアウト(x.x.xはバージョン番号)
+    > svn checkout http://svn.sourceforge.jp/svnroot/cstl/tags/rel-x.x.x/cstl ./cstl
 
 
 == 提供コンテナ
@@ -1287,4 +1288,5 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
   またそれに限定されない）直接損害、間接損害、偶発的な損害、特別損害、懲罰的損
   害、または結果損害について、一切責任を負わないものとします。
 
+<<< sfjp
 =end
