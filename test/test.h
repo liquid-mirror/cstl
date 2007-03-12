@@ -59,6 +59,8 @@ SET_DEBUG_INTERFACE(PtrSetA)
 SET_INTERFACE(StrSetA, char*)
 SET_DEBUG_INTERFACE(StrSetA)
 
+SET_INTERFACE(UIntSetA, unsigned int)
+SET_DEBUG_INTERFACE(UIntSetA)
 
 /* map */
 MAP_INTERFACE(IntIntMapA, int, int)

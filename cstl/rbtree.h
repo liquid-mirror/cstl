@@ -63,7 +63,7 @@ enum {
 /*! 
  * \brief 単純比較ルーチン
  */
-#define SIMPLE_CMP(x, y)	((x) - (y) == 0 ? 0 : (x) - (y) > 0 ? 1 : -1)
+#define SIMPLE_CMP(x, y)	((x) == (y) ? 0 : (x) > (y) ? 1 : -1)
 
 
 #define RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\

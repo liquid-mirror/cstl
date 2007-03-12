@@ -34,6 +34,11 @@ SET_IMPLEMENT(StrSetA, char*, strcmp, ASC)
 SET_DEBUG_IMPLEMENT(StrSetA, char*, strcmp, ASC, %s, VISUAL)
 static StrSetA *sa;
 
+/* unsigned int */
+SET_IMPLEMENT(UIntSetA, unsigned int, SIMPLE_CMP, ASC)
+SET_DEBUG_IMPLEMENT(UIntSetA, unsigned int, SIMPLE_CMP, ASC, %d, VISUAL)
+static UIntSetA *uia;
+
 
 
 #define SIZE	32
@@ -89,13 +94,13 @@ void SetTest_test_1_1(void)
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
 		pos[i] = IntSetA_insert(ia, hoge_int[i], &success[i]);
+		assert(pos[i]);
 		if (i < SIZE/2) {
 			assert(success[i]);
 			count++;
 		} else {
 			assert(!success[i]);
 		}
-		assert(pos[i]);
 	}
 /*    IntSetA_print(ia);*/
 	assert(!IntSetA_empty(ia));
@@ -755,6 +760,125 @@ void SetTest_test_4_1(void)
 	StrSetA_delete(sa);
 }
 
+void SetTest_test_5_1(void)
+{
+	int i;
+	size_t count = 0;
+	int success[SIZE];
+	UIntSetAIterator pos[SIZE];
+	UIntSetAIterator p;
+	printf("***** test_5_1 *****\n");
+	uia = UIntSetA_new();
+	/* 初期状態 */
+	assert(UIntSetA_empty(uia));
+	assert(UIntSetA_size(uia) == 0);
+	assert(UIntSetA_begin(uia) == UIntSetA_end(uia));
+	assert(UIntSetA_rbegin(uia) == UIntSetA_rend(uia));
+	/* insert */
+	for (i = 0; i < SIZE; i++) {
+		pos[i] = UIntSetA_insert(uia, hoge_int[i], &success[i]);
+/*        UIntSetA_print(uia);*/
+		assert(pos[i]);
+		if (i < SIZE/2) {
+			assert(success[i]);
+			count++;
+		} else {
+			assert(!success[i]);
+		}
+	}
+/*    UIntSetA_print(uia);*/
+	assert(!UIntSetA_empty(uia));
+	assert(UIntSetA_size(uia) == count);
+	assert(count == SIZE/2);
+	/* count, find, lower_bound, upper_bound */
+	for (i = 0; i < SIZE/2; i++) {
+		assert(UIntSetA_count(uia, hoge_int[i]) == 1);
+		assert(pos[i] == UIntSetA_find(uia, hoge_int[i]));
+		assert(pos[i] == UIntSetA_lower_bound(uia, hoge_int[i]));
+		if (hoge_int[i] == 0) {
+			assert(UIntSetA_end(uia) == UIntSetA_upper_bound(uia, hoge_int[i]-1));
+		} else {
+			assert(pos[i] == UIntSetA_upper_bound(uia, hoge_int[i]-1));
+		}
+		assert(UIntSetA_lower_bound(uia, hoge_int[i]+1) == UIntSetA_upper_bound(uia, hoge_int[i]));
+	}
+	assert(UIntSetA_find(uia, UIntSetA_key(UIntSetA_begin(uia)) -1) == UIntSetA_end(uia));
+	assert(UIntSetA_lower_bound(uia, UIntSetA_key(UIntSetA_rbegin(uia)) +1) == UIntSetA_end(uia));
+	assert(UIntSetA_upper_bound(uia, UIntSetA_key(UIntSetA_rbegin(uia))) == UIntSetA_end(uia));
+	/* begin, end, next, key */
+	for (p = UIntSetA_begin(uia), i = 0; p != UIntSetA_end(uia); p = UIntSetA_next(p), i++) {
+		assert(UIntSetA_key(p) == i);
+	}
+	assert(i == SIZE/2);
+	assert(UIntSetA_next(UIntSetA_rbegin(uia)) == UIntSetA_end(uia));
+	/* rbegin, rend, prev, key */
+	for (p = UIntSetA_rbegin(uia), i = SIZE/2 -1; p != UIntSetA_rend(uia); p = UIntSetA_prev(p), i--) {
+		assert(UIntSetA_key(p) == i);
+	}
+	assert(i == -1);
+	assert(UIntSetA_prev(UIntSetA_begin(uia)) == UIntSetA_rend(uia));
+	/* erase */
+	for (i = 0; i < SIZE; i++) {
+		if (pos[i] && success[i]) {
+			UIntSetAIterator itr = UIntSetA_next(pos[i]);
+			assert(itr == UIntSetA_erase(uia, pos[i]));
+			count--;
+		}
+	}
+	assert(UIntSetA_empty(uia));
+	assert(UIntSetA_size(uia) == 0);
+	assert(count == 0);
+	/* erase_range */
+	for (i = 0; i < SIZE/2; i++) {
+		pos[i] = UIntSetA_insert(uia, hoge_int[i], NULL);
+		assert(pos[i]);
+	}
+	assert(UIntSetA_size(uia) == SIZE/2);
+	assert(UIntSetA_find(uia, SIZE/2 -2) == UIntSetA_erase_range(uia, UIntSetA_find(uia, 2), UIntSetA_find(uia, SIZE/2 -2)));
+	assert(UIntSetA_size(uia) == 4);
+	assert(UIntSetA_end(uia) == UIntSetA_erase_range(uia, UIntSetA_begin(uia), UIntSetA_end(uia)));
+	assert(UIntSetA_size(uia) == 0);
+	assert(UIntSetA_insert(uia, hoge_int[0], NULL));
+	assert(UIntSetA_size(uia) == 1);
+	assert(UIntSetA_next(UIntSetA_begin(uia)) == UIntSetA_erase_range(uia, UIntSetA_begin(uia), UIntSetA_next(UIntSetA_begin(uia))));
+	assert(UIntSetA_size(uia) == 0);
+	assert(UIntSetA_insert(uia, 100, NULL));
+	assert(UIntSetA_insert(uia, 110, NULL));
+	assert(UIntSetA_size(uia) == 2);
+	assert(UIntSetA_upper_bound(uia, 110) == UIntSetA_erase_range(uia, UIntSetA_lower_bound(uia, 100), UIntSetA_upper_bound(uia, 110)));
+	assert(UIntSetA_size(uia) == 0);
+	/* erase_key */
+	for (i = 0; i < SIZE/2; i++) {
+		pos[i] = UIntSetA_insert(uia, hoge_int[i], NULL);
+		assert(pos[i]);
+	}
+	assert(UIntSetA_size(uia) == SIZE/2);
+	for (i = 0; i < SIZE/2; i++) {
+		assert(UIntSetA_erase_key(uia, hoge_int[i]) == 1);
+	}
+	assert(UIntSetA_size(uia) == 0);
+	/* 大量にinsert */
+	count = 0;
+	while (count < 1000000 && UIntSetA_insert(uia, count, NULL)) {
+		count++;
+	}
+	assert(UIntSetA_size(uia) == count);
+	printf("count: %d\n", count);
+	printf("size: %d\n", UIntSetA_size(uia));
+	/* clear */
+	UIntSetA_clear(uia);
+	printf("size: %d\n", UIntSetA_size(uia));
+	assert(UIntSetA_size(uia) == 0);
+	assert(UIntSetA_insert(uia, 100, NULL));
+	assert(UIntSetA_size(uia) == 1);
+	UIntSetA_clear(uia);
+	assert(UIntSetA_size(uia) == 0);
+	UIntSetA_clear(uia);
+	assert(UIntSetA_size(uia) == 0);
+
+	UIntSetA_delete(uia);
+}
+
 
 
 
@@ -778,6 +902,7 @@ void SetTest_run(void)
 	SetTest_test_2_1();
 	SetTest_test_3_1();
 	SetTest_test_4_1();
+	SetTest_test_5_1();
 
 
 }
