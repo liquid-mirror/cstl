@@ -277,7 +277,7 @@ int Name##_compare(Name *x, Name *y)\
 	assert(y->magic == y && "String_compare");\
 	xlen = Name##_size(x);\
 	ylen = Name##_size(y);\
-	ret = Name##my_memcmp(Name##_c_str(x), Name##_c_str(y), (xlen - ylen >= 0) ? ylen : xlen);\
+	ret = Name##my_memcmp(Name##_c_str(x), Name##_c_str(y), (xlen > ylen) ? ylen : xlen);\
 	return ret ? ret : xlen - ylen;\
 }\
 \
