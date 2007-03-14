@@ -56,6 +56,7 @@ void MapTest_test_1_1(void)
 	size_t count = 0;
 	IntIntMapAIterator pos[SIZE];
 	IntIntMapAIterator p;
+	IntIntMapA *x;
 	printf("***** test_1_1 *****\n");
 	ia = IntIntMapA_new();
 	/* 初期状態 */
@@ -182,7 +183,23 @@ void MapTest_test_1_1(void)
 	*IntIntMapA_lookup(ia, 1) = 82;
 /*    IntIntMapA_print(ia);*/
 
+	/* swap */
+	x = IntIntMapA_new();
+	*IntIntMapA_lookup(x, 10) = 2;
+	*IntIntMapA_lookup(x, 20) = 442;
+	*IntIntMapA_lookup(x, 30) = 694;
+	IntIntMapA_print(ia);
+	IntIntMapA_print(x);
+	IntIntMapA_swap(ia, x);
+	IntIntMapA_print(ia);
+	IntIntMapA_print(x);
+	assert(IntIntMapA_size(ia) == 3);
+	assert(IntIntMapA_size(x) == 5);
+
+
+
 	IntIntMapA_delete(ia);
+	IntIntMapA_delete(x);
 }
 
 void MapTest_test_1_2(void)

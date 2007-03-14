@@ -316,6 +316,7 @@ void ListTest_test_2_1(void)
 	IntListIterator pos2;
 	int buf[32];
 	int i;
+	int b[] = {1, 2, 4, 43, 2, 54, 1, 0, 2, 24};
 	printf("***** test_2_1 *****\n");
 	for (i = 0; i < 32; i++) buf[i] = i;
 	/* assign */
@@ -350,6 +351,26 @@ void ListTest_test_2_1(void)
 	for (pos = IntList_begin(il); pos != IntList_end(il); pos = IntList_next(pos)) {
 		assert(*IntList_at(pos) == *IntList_at(pos2));
 		pos2 = IntList_next(pos2);
+	}
+	/* swap */
+	assert(IntList_assign(il, buf, 32));
+	assert(IntList_assign(x, b, sizeof b / sizeof b[0]));
+	assert(IntList_size(il) == 32);
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		assert(*IntList_at(pos) == i);
+	}
+	assert(IntList_size(x) == sizeof b / sizeof b[0]);
+	for (pos = IntList_begin(x), i = 0; pos != IntList_end(x); pos = IntList_next(pos), i++) {
+		assert(*IntList_at(pos) == b[i]);
+	}
+	IntList_swap(il, x);
+	assert(IntList_size(x) == 32);
+	for (pos = IntList_begin(x), i = 0; pos != IntList_end(x); pos = IntList_next(pos), i++) {
+		assert(*IntList_at(pos) == i);
+	}
+	assert(IntList_size(il) == sizeof b / sizeof b[0]);
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		assert(*IntList_at(pos) == b[i]);
 	}
 
 	IntList_delete(il);

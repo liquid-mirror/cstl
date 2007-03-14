@@ -81,6 +81,7 @@ int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n);\
 void Name##_erase(Name *self, size_t idx);\
 void Name##_erase_n(Name *self, size_t idx, size_t n);\
+void Name##_swap(Name *x, Name *y);\
 VECTOR_END_EXTERN_C()\
 
 
@@ -351,6 +352,26 @@ void Name##_erase_n(Name *self, size_t idx, size_t n)\
 	assert(Name##_size(self) >= idx + n && "Vector_erase_n");\
 	Name##_move_backward(self, idx + n, self->end, n);\
 	self->end -= n;\
+}\
+\
+void Name##_swap(Name *x, Name *y)\
+{\
+	size_t tmp_end;\
+	size_t tmp_nelems;\
+	Type *tmp_buf;\
+	assert(x && "Vector_swap");\
+	assert(y && "Vector_swap");\
+	assert(x->magic == x && "Vector_swap");\
+	assert(y->magic == y && "Vector_swap");\
+	tmp_end = x->end;\
+	tmp_nelems = x->nelems;\
+	tmp_buf = x->buf;\
+	x->end = y->end;\
+	x->nelems = y->nelems;\
+	x->buf = y->buf;\
+	y->end = tmp_end;\
+	y->nelems = tmp_nelems;\
+	y->buf = tmp_buf;\
 }\
 \
 

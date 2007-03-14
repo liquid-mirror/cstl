@@ -454,6 +454,7 @@ void DequeTest_test_1_6(void)
 {
 	int i;
 	UCharDeque *x;
+	unsigned char b[] = {1, 2, 4, 43, 2, 54, 1, 0, 2, 24};
 	printf("***** test_1_6 *****\n");
 	ud = UCharDeque_new(MAX);
 	for (i = 0; i < MAX; i++) {
@@ -490,6 +491,22 @@ void DequeTest_test_1_6(void)
 	assert(UCharDeque_resize(ud, MAX+1, 99) == 0);
 	assert(UCharDeque_resize(ud, 0, 100));
 	assert(UCharDeque_size(ud) == 0);
+	/* swap */
+	UCharDeque_clear(ud);
+	assert(UCharDeque_assign(ud, hoge, MAX));
+	assert(memcmp(UCharDeque_at(ud, 0), hoge, MAX) == 0);
+	assert(UCharDeque_size(ud) == MAX);
+	UCharDeque_clear(x);
+	assert(UCharDeque_assign(x, b, sizeof b));
+	assert(memcmp(UCharDeque_at(x, 0), b, sizeof b) == 0);
+	assert(UCharDeque_size(x) == sizeof b);
+
+	UCharDeque_swap(ud, x);
+
+	assert(memcmp(UCharDeque_at(ud, 0), b, sizeof b) == 0);
+	assert(UCharDeque_size(ud) == sizeof b);
+	assert(memcmp(UCharDeque_at(x, 0), hoge, MAX) == 0);
+	assert(UCharDeque_size(x) == MAX);
 
 
 	UCharDeque_delete(ud);

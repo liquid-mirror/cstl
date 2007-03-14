@@ -84,6 +84,8 @@ void SetTest_test_1_1(void)
 	int success[SIZE];
 	IntSetAIterator pos[SIZE];
 	IntSetAIterator p;
+	IntSetA *x;
+	int b[] = {100, 101, 102, 103, 104, 105, 106, 107, 108, 109};
 	printf("***** test_1_1 *****\n");
 	ia = IntSetA_new();
 	/* 初期状態 */
@@ -187,8 +189,32 @@ void SetTest_test_1_1(void)
 	assert(IntSetA_size(ia) == 0);
 	IntSetA_clear(ia);
 	assert(IntSetA_size(ia) == 0);
+	/* swap */
+	for (i = 0; i < SIZE/2; i++) {
+		pos[i] = IntSetA_insert(ia, hoge_int[i], &success[i]);
+		assert(pos[i]);
+		assert(success[i]);
+	}
+	assert(IntSetA_size(ia) == SIZE/2);
+	x = IntSetA_new();
+	for (i = 0; i < sizeof b / sizeof b[0]; i++) {
+		pos[i] = IntSetA_insert(x, b[i], &success[i]);
+		assert(pos[i]);
+		assert(success[i]);
+	}
+	assert(IntSetA_size(x) == sizeof b / sizeof b[0]);
+	IntSetA_print(ia);
+	IntSetA_print(x);
+
+	IntSetA_swap(ia, x);
+
+	IntSetA_print(ia);
+	IntSetA_print(x);
+	assert(IntSetA_size(x) == SIZE/2);
+	assert(IntSetA_size(ia) == sizeof b / sizeof b[0]);
 
 	IntSetA_delete(ia);
+	IntSetA_delete(x);
 }
 
 void SetTest_test_1_2(void)

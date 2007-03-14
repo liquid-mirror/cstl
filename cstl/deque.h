@@ -91,6 +91,7 @@ int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n);\
 void Name##_erase(Name *self, size_t idx);\
 void Name##_erase_n(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
+void Name##_swap(Name *x, Name *y);\
 DEQUE_END_EXTERN_C()\
 
 
@@ -385,6 +386,30 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 		}\
 	}\
 	return 1;\
+}\
+\
+void Name##_swap(Name *x, Name *y)\
+{\
+	size_t tmp_begin;\
+	size_t tmp_end;\
+	size_t tmp_nelems;\
+	Type *tmp_buf;\
+	assert(x && "Deque_swap");\
+	assert(y && "Deque_swap");\
+	assert(x->magic == x && "Deque_swap");\
+	assert(y->magic == y && "Deque_swap");\
+	tmp_begin = x->begin;\
+	tmp_end = x->end;\
+	tmp_nelems = x->nelems;\
+	tmp_buf = x->buf;\
+	x->begin = y->begin;\
+	x->end = y->end;\
+	x->nelems = y->nelems;\
+	x->buf = y->buf;\
+	y->begin = tmp_begin;\
+	y->end = tmp_end;\
+	y->nelems = tmp_nelems;\
+	y->buf = tmp_buf;\
 }\
 \
 

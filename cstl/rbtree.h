@@ -769,6 +769,7 @@ Name##Iterator Name##_rend(Name *self);\
 Name##Iterator Name##_next(Name##Iterator pos);\
 Name##Iterator Name##_prev(Name##Iterator pos);\
 KeyType Name##_key(Name##Iterator pos);\
+void Name##_swap(Name *x, Name *y);\
 
 
 #define RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
@@ -945,6 +946,22 @@ KeyType Name##_key(Name##Iterator pos)\
 	assert(pos && "RBTree_key");\
 	assert(!Name##RBTreeNode_is_head(pos) && "RBTree_key");\
 	return pos->key;\
+}\
+\
+void Name##_swap(Name *x, Name *y)\
+{\
+	Name##RBTree *tmp_tree;\
+	size_t tmp_nelems;\
+	assert(x && "RBTree_swap");\
+	assert(y && "RBTree_swap");\
+	assert(x->magic == x && "RBTree_swap");\
+	assert(y->magic == y && "RBTree_swap");\
+	tmp_tree = x->tree;\
+	tmp_nelems = x->nelems;\
+	x->tree = y->tree;\
+	x->nelems = y->nelems;\
+	y->tree = tmp_tree;\
+	y->nelems = tmp_nelems;\
 }\
 \
 

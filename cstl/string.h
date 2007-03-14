@@ -82,6 +82,7 @@ Type *Name##_at(Name *self, size_t idx);\
 Type *Name##_c_str(Name *self);\
 void Name##_erase(Name *self, size_t idx, size_t len);\
 int Name##_resize(Name *self, size_t n, Type c);\
+void Name##_swap(Name *x, Name *y);\
 int Name##_assign(Name *self, Type *cstr, size_t cstr_len);\
 int Name##_assign_c(Name *self, size_t n, Type c);\
 int Name##_append(Name *self, Type *cstr, size_t cstr_len);\
@@ -149,7 +150,6 @@ struct Name##_t {\
 	Name##CharVector *data;\
 	STRING_MAGIC(void *magic;)\
 };\
-\
 \
 Name *Name##_new(void)\
 {\
@@ -324,6 +324,18 @@ int Name##_resize(Name *self, size_t n, Type c)\
 	}\
 	*Name##CharVector_at(self->data, Name##CharVector_size(self->data) -1) = '\0';\
 	return 1;\
+}\
+\
+void Name##_swap(Name *x, Name *y)\
+{\
+	Name##CharVector *tmp_data;\
+	assert(x && "String_swap");\
+	assert(y && "String_swap");\
+	assert(x->magic == x && "String_swap");\
+	assert(y->magic == y && "String_swap");\
+	tmp_data = x->data;\
+	x->data = y->data;\
+	y->data = tmp_data;\
 }\
 \
 int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\

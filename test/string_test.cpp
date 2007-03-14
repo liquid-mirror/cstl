@@ -150,6 +150,20 @@ void StringTest_test_1_2(void)
 	assert(String_compare(x, y) > 0);
 	String_erase(x, String_size(x)-1, 1);
 	assert(String_compare(x, y) == 0);
+	/* swap */
+	String_assign(x, "abcdefg", NPOS);
+	String_assign(y, "abcdefgh", NPOS);
+	String_shrink(x, 0);
+	String_shrink(y, 0);
+	assert(strcmp("abcdefg", String_c_str(x)) == 0);
+	assert(strcmp("abcdefgh", String_c_str(y)) == 0);
+	assert(String_size(x) == 7);
+	assert(String_size(y) == 8);
+	String_swap(x, y);
+	assert(strcmp("abcdefg", String_c_str(y)) == 0);
+	assert(strcmp("abcdefgh", String_c_str(x)) == 0);
+	assert(String_size(y) == 7);
+	assert(String_size(x) == 8);
 
 	String_delete(x);
 	String_delete(y);

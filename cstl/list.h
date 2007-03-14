@@ -87,6 +87,7 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem);\
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last);\
 int Name##_resize(Name *self, size_t n, Type elem);\
+void Name##_swap(Name *x, Name *y);\
 LIST_END_EXTERN_C()\
 
 
@@ -111,7 +112,7 @@ struct Name##Node_t {\
  * \brief list構造体
  */\
 struct Name##_t {\
-	Name##Node terminator;\
+	Name##Node *terminator;\
 	size_t nelems;\
 	LIST_MAGIC(void *magic;)\
 };\
@@ -120,8 +121,13 @@ Name *Name##_new(void)\
 {\
 	Name *self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->terminator.next = &self->terminator;\
-	self->terminator.prev = &self->terminator;\
+	self->terminator = (Name##Node *) malloc(sizeof(Name##Node));\
+	if (!self->terminator) {\
+		free(self);\
+		return 0;\
+	}\
+	self->terminator->next = self->terminator;\
+	self->terminator->prev = self->terminator;\
 	self->nelems = 0;\
 	LIST_MAGIC(self->magic = self);\
 	return self;\
@@ -150,6 +156,7 @@ void Name##_delete(Name *self)\
 	assert(self->magic == self && "List_delete");\
 	Name##_clear(self);\
 	LIST_MAGIC(self->magic = 0);\
+	free(self->terminator);\
 	free(self);\
 }\
 \
@@ -174,10 +181,10 @@ int Name##_push_back(Name *self, Type elem)\
 	node = (Name##Node *) malloc(sizeof(Name##Node));\
 	if (!node) return 0;\
 	node->elem = elem;\
-	node->next = &self->terminator;\
-	node->prev = self->terminator.prev;\
-	self->terminator.prev->next = node;\
-	self->terminator.prev = node;\
+	node->next = self->terminator;\
+	node->prev = self->terminator->prev;\
+	self->terminator->prev->next = node;\
+	self->terminator->prev = node;\
 	self->nelems++;\
 	return 1;\
 }\
@@ -190,10 +197,10 @@ int Name##_push_front(Name *self, Type elem)\
 	node = (Name##Node *) malloc(sizeof(Name##Node));\
 	if (!node) return 0;\
 	node->elem = elem;\
-	node->next = self->terminator.next;\
-	node->prev = &self->terminator;\
-	self->terminator.next->prev = node;\
-	self->terminator.next = node;\
+	node->next = self->terminator->next;\
+	node->prev = self->terminator;\
+	self->terminator->next->prev = node;\
+	self->terminator->next = node;\
 	self->nelems++;\
 	return 1;\
 }\
@@ -205,10 +212,10 @@ Type Name##_pop_front(Name *self)\
 	assert(self && "List_pop_front");\
 	assert(self->magic == self && "List_pop_front");\
 	assert(!Name##_empty(self) && "List_pop_front");\
-	node = self->terminator.next;\
+	node = self->terminator->next;\
 	elem = node->elem;\
-	self->terminator.next = node->next;\
-	node->next->prev = &self->terminator;\
+	self->terminator->next = node->next;\
+	node->next->prev = self->terminator;\
 	free(node);\
 	self->nelems--;\
 	return elem;\
@@ -221,10 +228,10 @@ Type Name##_pop_back(Name *self)\
 	assert(self && "List_pop_back");\
 	assert(self->magic == self && "List_pop_back");\
 	assert(!Name##_empty(self) && "List_pop_back");\
-	node = self->terminator.prev;\
+	node = self->terminator->prev;\
 	elem = node->elem;\
-	self->terminator.prev = node->prev;\
-	node->prev->next = &self->terminator;\
+	self->terminator->prev = node->prev;\
+	node->prev->next = self->terminator;\
 	free(node);\
 	self->nelems--;\
 	return elem;\
@@ -234,7 +241,7 @@ int Name##_empty(Name *self)\
 {\
 	assert(self && "List_empty");\
 	assert(self->magic == self && "List_empty");\
-	return self->terminator.next == &self->terminator;\
+	return self->terminator->next == self->terminator;\
 }\
 \
 size_t Name##_size(Name *self)\
@@ -262,7 +269,7 @@ Type Name##_front(Name *self)\
 	assert(self && "List_front");\
 	assert(self->magic == self && "List_front");\
 	assert(!Name##_empty(self) && "List_front");\
-	return self->terminator.next->elem;\
+	return self->terminator->next->elem;\
 }\
 \
 Type Name##_back(Name *self)\
@@ -270,35 +277,35 @@ Type Name##_back(Name *self)\
 	assert(self && "List_back");\
 	assert(self->magic == self && "List_back");\
 	assert(!Name##_empty(self) && "List_back");\
-	return self->terminator.prev->elem;\
+	return self->terminator->prev->elem;\
 }\
 \
 Name##Iterator Name##_begin(Name *self)\
 {\
 	assert(self && "List_begin");\
 	assert(self->magic == self && "List_begin");\
-	return self->terminator.next;\
+	return self->terminator->next;\
 }\
 \
 Name##Iterator Name##_end(Name *self)\
 {\
 	assert(self && "List_end");\
 	assert(self->magic == self && "List_end");\
-	return &self->terminator;\
+	return self->terminator;\
 }\
 \
 Name##Iterator Name##_rbegin(Name *self)\
 {\
 	assert(self && "List_rbegin");\
 	assert(self->magic == self && "List_rbegin");\
-	return self->terminator.prev;\
+	return self->terminator->prev;\
 }\
 \
 Name##Iterator Name##_rend(Name *self)\
 {\
 	assert(self && "List_rend");\
 	assert(self->magic == self && "List_rend");\
-	return &self->terminator;\
+	return self->terminator;\
 }\
 \
 Name##Iterator Name##_next(Name##Iterator pos)\
@@ -336,7 +343,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	assert(self && "List_erase");\
 	assert(self->magic == self && "List_erase");\
 	assert(pos && "List_erase");\
-	assert(pos != &self->terminator && "List_erase");\
+	assert(pos != self->terminator && "List_erase");\
 	assert(!Name##_empty(self) && "List_erase");\
 	node = pos->next;\
 	pos->prev->next = pos->next;\
@@ -378,6 +385,22 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 		}\
 	}\
 	return 1;\
+}\
+\
+void Name##_swap(Name *x, Name *y)\
+{\
+	Name##Node *tmp_terminator;\
+	size_t tmp_nelems;\
+	assert(x && "List_swap");\
+	assert(y && "List_swap");\
+	assert(x->magic == x && "List_swap");\
+	assert(y->magic == y && "List_swap");\
+	tmp_terminator = x->terminator;\
+	tmp_nelems = x->nelems;\
+	x->terminator = y->terminator;\
+	x->nelems = y->nelems;\
+	y->terminator = tmp_terminator;\
+	y->nelems = tmp_nelems;\
 }\
 \
 
