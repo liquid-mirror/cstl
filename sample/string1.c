@@ -13,10 +13,10 @@ STRING_IMPLEMENT(String, char)
 int main(int argc, char *argv[])
 {
 	int i;
-	String *filename = String_new();
-	String *basename = String_new();
-	String *extname = String_new();
-	String *tmpname = String_new();
+	String *filename = String_new(16);
+	String *basename = String_new(16);
+	String *extname = String_new(16);
+	String *tmpname = String_new(16);
 	String *suffix = String_new_cstr("tmp", NPOS);
 
 	for (i = 1; i < argc; i++) {

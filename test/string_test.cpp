@@ -15,6 +15,7 @@ extern Heap heap;
 STRING_INTERFACE(String, char)
 STRING_IMPLEMENT(String, char)
 
+#define SIZE	16
 
 using namespace std;
 
@@ -27,9 +28,10 @@ void StringTest_test_1_1(void)
 	size_t i;
 	printf("***** test_1_1 *****\n");
 	/* 初期状態 */
-	x = String_new();
+	x = String_new(SIZE);
 	assert(String_empty(x));
 	assert(String_size(x) == 0);
+	assert(String_capacity(x) == SIZE);
 	String_delete(x);
 	/* new_cstr */
 	x = String_new_cstr("", NPOS);
@@ -86,7 +88,7 @@ void StringTest_test_1_2(void)
 	String *x;
 	String *y;
 	printf("***** test_1_2 *****\n");
-	x = String_new();
+	x = String_new(SIZE);
 	/* capacity */
 	/* reserve */
 	String_reserve(x, 100);
@@ -173,7 +175,7 @@ void StringTest_test_1_3(void)
 {
 	String *x;
 	printf("***** test_1_3 *****\n");
-	x = String_new();
+	x = String_new(SIZE);
 	/* assign */
 	String_assign(x, "abcdefghijklmnopqrstuvwxyz", NPOS);
 	assert(String_size(x) == 26);
@@ -306,7 +308,7 @@ void StringTest_test_1_4(void)
 {
 	String *x;
 	printf("***** test_1_4 *****\n");
-	x = String_new();
+	x = String_new(SIZE);
 	String_assign(x, "abcdefghijklmnopqrstuvwxyz", NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);

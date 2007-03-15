@@ -65,7 +65,7 @@
 typedef struct Name##_t Name;\
 \
 STRING_BEGIN_EXTERN_C()\
-Name *Name##_new(void);\
+Name *Name##_new(size_t n);\
 Name *Name##_new_cstr(Type *cstr, size_t cstr_len);\
 Name *Name##_new_c(size_t n, Type c);\
 Name *Name##_new_copy(Name *x);\
@@ -151,12 +151,12 @@ struct Name##_t {\
 	STRING_MAGIC(void *magic;)\
 };\
 \
-Name *Name##_new(void)\
+Name *Name##_new(size_t n)\
 {\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->data = Name##CharVector_new();\
+	self->data = Name##CharVector_new(n+1);\
 	if (!self->data) {\
 		free(self);\
 		return 0;\
@@ -175,7 +175,7 @@ Name *Name##_new_cstr(Type *cstr, size_t cstr_len)\
 	if (cstr_len == NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
-	self->data = Name##CharVector_new_reserve(cstr_len +1);\
+	self->data = Name##CharVector_new(cstr_len +1);\
 	if (!self->data) {\
 		free(self);\
 		return 0;\
@@ -191,7 +191,7 @@ Name *Name##_new_c(size_t n, Type c)\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->data = Name##CharVector_new_reserve(n+1);\
+	self->data = Name##CharVector_new(n+1);\
 	if (!self->data) {\
 		free(self);\
 		return 0;\

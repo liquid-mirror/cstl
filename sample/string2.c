@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 {
 	/* 区切り文字 */
 	String *delims = String_new_cstr(" \t,.;", NPOS);
-	String *line = String_new();
+	String *line = String_new(1024);
 	char buf[1024];
 
 	while (fgets(buf, 1024, stdin)) {

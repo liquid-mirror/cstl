@@ -6,7 +6,7 @@ VECTOR_IMPLEMENT(CharVector, char)
 
 int main(void)
 {
-	CharVector *x = CharVector_new();
+	CharVector *x = CharVector_new(32);
 	CharVector_assign(x, "aaaa", 4);
 	CharVector_push_back(x, '\0');
 	printf("%s\n", CharVector_at(x, 0));

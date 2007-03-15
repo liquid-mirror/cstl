@@ -49,7 +49,6 @@
 #define VECTOR_MAGIC(x)
 #endif
 
-#define VECTOR_INIT_SIZE	16
 
 /*! 
  * \brief インターフェイスマクロ
@@ -61,7 +60,7 @@
 typedef struct Name##_t Name;\
 \
 VECTOR_BEGIN_EXTERN_C()\
-Name *Name##_new(void);\
+Name *Name##_new(size_t n);\
 Name *Name##_new_copy(Name *x);\
 void Name##_delete(Name *self);\
 int Name##_assign(Name *self, Type *elems, size_t n);\
@@ -114,7 +113,7 @@ static int Name##_expand(Name *self, size_t size)\
 	return Name##_reserve(self, n);\
 }\
 \
-static Name *Name##_new_reserve(size_t n)\
+Name *Name##_new(size_t n)\
 {\
 	Name *self;\
 	Type *buf;\
@@ -132,17 +131,12 @@ static Name *Name##_new_reserve(size_t n)\
 	return self;\
 }\
 \
-Name *Name##_new(void)\
-{\
-	return Name##_new_reserve(VECTOR_INIT_SIZE-1);\
-}\
-\
 Name *Name##_new_copy(Name *x)\
 {\
 	Name *self;\
 	assert(x && "Vector_new_copy");\
 	assert(x->magic == x && "Vector_new_copy");\
-	self = Name##_new_reserve(Name##_size(x));\
+	self = Name##_new(Name##_size(x));\
 	if (!self) return 0;\
 	Name##_insert_n(self, 0, Name##_at(x, 0), Name##_size(x));\
 	return self;\

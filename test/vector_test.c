@@ -7,7 +7,7 @@ VECTOR_IMPLEMENT(IntVector, int)
 static UCharVector *uv;
 static IntVector *iv;
 
-#define SIZE	(VECTOR_INIT_SIZE-1)
+#define SIZE	15
 
 
 static unsigned char hoge[256];
@@ -34,7 +34,7 @@ void VectorTest_test_1_1(void)
 {
 	size_t a;
 	printf("***** test_1_1 *****\n");
-	uv = UCharVector_new();
+	uv = UCharVector_new(SIZE);
 	vector_init_hoge();
 	/* 初期状態 */
 	assert(UCharVector_capacity(uv) == SIZE);
@@ -90,7 +90,7 @@ void VectorTest_test_1_2(void)
 	int i;
 	size_t a;
 	printf("***** test_1_2 *****\n");
-	uv = UCharVector_new();
+	uv = UCharVector_new(SIZE);
 	vector_init_hoge();
 	/* push_back */
 	for (i = 0; i < SIZE; i++) {
@@ -135,7 +135,7 @@ void VectorTest_test_1_3(void)
 {
 	int i;
 	printf("***** test_1_3 *****\n");
-	uv = UCharVector_new();
+	uv = UCharVector_new(SIZE);
 	vector_init_hoge();
 	/* assign */
 	assert(UCharVector_assign(uv, hoge, SIZE));
@@ -161,7 +161,7 @@ void VectorTest_test_1_4(void)
 	int i;
 	unsigned char buf[256];
 	printf("***** test_1_4 *****\n");
-	uv = UCharVector_new();
+	uv = UCharVector_new(SIZE);
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
 		assert(UCharVector_insert(uv, 0, hoge[i]));
@@ -205,7 +205,7 @@ void VectorTest_test_1_4(void)
 void VectorTest_test_1_5(void)
 {
 	printf("***** test_1_5 *****\n");
-	uv = UCharVector_new();
+	uv = UCharVector_new(SIZE);
 	vector_init_hoge();
 	/* insert_n */
 	assert(UCharVector_insert_n(uv, 0, hoge, SIZE));
@@ -260,7 +260,7 @@ void VectorTest_test_1_6(void)
 	size_t i;
 	unsigned char b[] = {1, 2, 4, 43, 2, 54, 1, 0, 2, 24};
 	printf("***** test_1_6 *****\n");
-	uv = UCharVector_new();
+	uv = UCharVector_new(SIZE);
 	vector_init_hoge();
 
 	assert(UCharVector_assign(uv, hoge, SIZE));
@@ -341,7 +341,7 @@ void VectorTest_test_2_1(void)
 {
 	size_t a;
 	printf("***** test_2_1 *****\n");
-	iv = IntVector_new();
+	iv = IntVector_new(SIZE);
 	vector_init_piyo();
 	/* 初期状態 */
 	assert(IntVector_capacity(iv) == SIZE);
@@ -397,7 +397,7 @@ void VectorTest_test_2_2(void)
 	int i;
 	size_t a;
 	printf("***** test_2_2 *****\n");
-	iv = IntVector_new();
+	iv = IntVector_new(SIZE);
 	vector_init_piyo();
 	/* push_back */
 	for (i = 0; i < SIZE; i++) {
@@ -442,7 +442,7 @@ void VectorTest_test_2_3(void)
 {
 	int i;
 	printf("***** test_2_3 *****\n");
-	iv = IntVector_new();
+	iv = IntVector_new(SIZE);
 	vector_init_piyo();
 	/* assign */
 	assert(IntVector_assign(iv, piyo, SIZE));
@@ -468,7 +468,7 @@ void VectorTest_test_2_4(void)
 	int i;
 	int buf[256];
 	printf("***** test_2_4 *****\n");
-	iv = IntVector_new();
+	iv = IntVector_new(SIZE);
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
 		assert(IntVector_insert(iv, 0, piyo[i]));
@@ -512,7 +512,7 @@ void VectorTest_test_2_4(void)
 void VectorTest_test_2_5(void)
 {
 	printf("***** test_2_5 *****\n");
-	iv = IntVector_new();
+	iv = IntVector_new(SIZE);
 	vector_init_piyo();
 	/* insert_n */
 	assert(IntVector_insert_n(iv, 0, piyo, SIZE));
