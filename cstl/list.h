@@ -66,7 +66,6 @@ LIST_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
 void Name##_delete(Name *self);\
 int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last);\
-int Name##_assign_array(Name *self, Type *elems, size_t n);\
 int Name##_push_back(Name *self, Type elem);\
 int Name##_push_front(Name *self, Type elem);\
 Type Name##_pop_front(Name *self);\
@@ -84,6 +83,7 @@ Name##Iterator Name##_rend(Name *self);\
 Name##Iterator Name##_next(Name##Iterator pos);\
 Name##Iterator Name##_prev(Name##Iterator pos);\
 Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem);\
+int Name##_insert_n(Name *self, Name##Iterator pos, Type *elems, size_t n);\
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last);\
 int Name##_resize(Name *self, size_t n, Type elem);\
@@ -155,19 +155,6 @@ int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
 		if (!Name##_push_back(self, *Name##_at(pos))) {\
 			return 0;\
 		}\
-	}\
-	return 1;\
-}\
-\
-int Name##_assign_array(Name *self, Type *elems, size_t n)\
-{\
-	size_t i;\
-	assert(self && "List_assign_array");\
-	assert(self->magic == self && "List_assign_array");\
-	assert(elems && "List_assign_array");\
-	Name##_clear(self);\
-	for (i = 0; i < n; i++) {\
-		if (!Name##_push_back(self, elems[i])) return 0;\
 	}\
 	return 1;\
 }\
@@ -334,6 +321,20 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
 	node->prev->next = node;\
 	self->nelems++;\
 	return node;\
+}\
+\
+int Name##_insert_n(Name *self, Name##Iterator pos, Type *elems, size_t n)\
+{\
+	size_t i;\
+	assert(self && "List_insert_n");\
+	assert(self->magic == self && "List_insert_n");\
+	assert(elems && "List_insert_n");\
+	for (i = 0; i < n; i++) {\
+		pos = Name##_insert(self, pos, elems[i]);\
+		if (!pos) return 0;\
+		pos = Name##_next(pos);\
+	}\
+	return 1;\
 }\
 \
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\

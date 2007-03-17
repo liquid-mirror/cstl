@@ -63,7 +63,6 @@ VECTOR_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
 void Name##_delete(Name *self);\
 int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
-int Name##_assign_array(Name *self, Type *elems, size_t n);\
 int Name##_push_back(Name *self, Type elem);\
 Type Name##_pop_back(Name *self);\
 size_t Name##_size(Name *self);\
@@ -154,22 +153,6 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 	for (i = 0; i < n; i++) {\
 		Name##_push_back(self, *Name##_at(x, i));\
 	}\
-	return 1;\
-}\
-\
-int Name##_assign_array(Name *self, Type *elems, size_t n)\
-{\
-	size_t i;\
-	assert(self && "Vector_assign_array");\
-	assert(self->magic == self && "Vector_assign_array");\
-	assert(elems && "Vector_assign_array");\
-	if (n > Name##_capacity(self)) {\
-		if (!Name##_expand(self, Name##_capacity(self) + n)) return 0;\
-	}\
-	for (i = 0; i < n; i++) {\
-		self->buf[i] = elems[i];\
-	}\
-	self->end = n;\
 	return 1;\
 }\
 \

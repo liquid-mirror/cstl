@@ -40,8 +40,9 @@ void VectorTest_test_1_1(void)
 	assert(UCharVector_capacity(uv) == SIZE);
 	assert(UCharVector_size(uv) == 0);
 	assert(UCharVector_empty(uv));
-	/* assign_array */
-	assert(UCharVector_assign_array(uv, hoge, SIZE));
+	/* insert_n */
+	UCharVector_clear(uv);
+	assert(UCharVector_insert_n(uv, 0, hoge, SIZE));
 	assert(memcmp(UCharVector_at(uv, 0), hoge, SIZE) == 0);
 	assert(UCharVector_capacity(uv) == SIZE);
 	assert(UCharVector_size(uv) == SIZE);
@@ -50,8 +51,9 @@ void VectorTest_test_1_1(void)
 	UCharVector_clear(uv);
 	assert(UCharVector_size(uv) == 0);
 	assert(UCharVector_empty(uv));
-	/* assign_array */
-	assert(UCharVector_assign_array(uv, &hoge[1], 255));
+	/* insert_n */
+	UCharVector_clear(uv);
+	assert(UCharVector_insert_n(uv, 0, &hoge[1], 255));
 	assert(memcmp(UCharVector_at(uv, 0), &hoge[1], 255) == 0);
 	a = UCharVector_capacity(uv);
 	assert(a > SIZE);
@@ -61,8 +63,9 @@ void VectorTest_test_1_1(void)
 	UCharVector_clear(uv);
 	assert(UCharVector_size(uv) == 0);
 	assert(UCharVector_empty(uv));
-	/* assign_array */
-	assert(UCharVector_assign_array(uv, hoge, SIZE));
+	/* insert_n */
+	UCharVector_clear(uv);
+	assert(UCharVector_insert_n(uv, 0, hoge, SIZE));
 	assert(memcmp(UCharVector_at(uv, 0), hoge, SIZE) == 0);
 	assert(UCharVector_capacity(uv) == a);
 	assert(UCharVector_size(uv) == SIZE);
@@ -137,8 +140,9 @@ void VectorTest_test_1_3(void)
 	printf("***** test_1_3 *****\n");
 	uv = UCharVector_new(SIZE);
 	vector_init_hoge();
-	/* assign_array */
-	assert(UCharVector_assign_array(uv, hoge, SIZE));
+	/* insert_n */
+	UCharVector_clear(uv);
+	assert(UCharVector_insert_n(uv, 0, hoge, SIZE));
 	assert(memcmp(UCharVector_at(uv, 0), hoge, SIZE) == 0);
 	assert(UCharVector_capacity(uv) == SIZE);
 	assert(UCharVector_size(uv) == SIZE);
@@ -263,7 +267,8 @@ void VectorTest_test_1_6(void)
 	uv = UCharVector_new(SIZE);
 	vector_init_hoge();
 
-	assert(UCharVector_assign_array(uv, hoge, SIZE));
+	UCharVector_clear(uv);
+	assert(UCharVector_insert_n(uv, 0, hoge, SIZE));
 	assert(memcmp(UCharVector_at(uv, 0), hoge, SIZE) == 0);
 	assert(UCharVector_size(uv) == SIZE);
 	assert(UCharVector_capacity(uv) == SIZE);
@@ -310,13 +315,15 @@ void VectorTest_test_1_6(void)
 	/* swap */
 	UCharVector_clear(uv);
 	UCharVector_shrink(uv, 0);
-	assert(UCharVector_assign_array(uv, hoge, SIZE));
+	UCharVector_clear(uv);
+	assert(UCharVector_insert_n(uv, 0, hoge, SIZE));
 	assert(memcmp(UCharVector_at(uv, 0), hoge, SIZE) == 0);
 	assert(UCharVector_size(uv) == SIZE);
 	assert(UCharVector_capacity(uv) == SIZE);
 	UCharVector_clear(x);
 	UCharVector_shrink(x, 0);
-	assert(UCharVector_assign_array(x, b, sizeof b));
+	UCharVector_clear(x);
+	assert(UCharVector_insert_n(x, 0, b, sizeof b));
 	assert(memcmp(UCharVector_at(x, 0), b, sizeof b) == 0);
 	assert(UCharVector_size(x) == sizeof b);
 	assert(UCharVector_capacity(x) == sizeof b);
@@ -347,8 +354,9 @@ void VectorTest_test_2_1(void)
 	assert(IntVector_capacity(iv) == SIZE);
 	assert(IntVector_size(iv) == 0);
 	assert(IntVector_empty(iv));
-	/* assign_array */
-	assert(IntVector_assign_array(iv, piyo, SIZE));
+	/* insert_n */
+	IntVector_clear(iv);
+	assert(IntVector_insert_n(iv, 0, piyo, SIZE));
 	assert(memcmp(IntVector_at(iv, 0), piyo, SIZE) == 0);
 	assert(IntVector_capacity(iv) == SIZE);
 	assert(IntVector_size(iv) == SIZE);
@@ -357,8 +365,9 @@ void VectorTest_test_2_1(void)
 	IntVector_clear(iv);
 	assert(IntVector_size(iv) == 0);
 	assert(IntVector_empty(iv));
-	/* assign_array */
-	assert(IntVector_assign_array(iv, &piyo[1], 255));
+	/* insert_n */
+	IntVector_clear(iv);
+	assert(IntVector_insert_n(iv, 0, &piyo[1], 255));
 	assert(memcmp(IntVector_at(iv, 0), &piyo[1], 255) == 0);
 	a = IntVector_capacity(iv);
 	assert(a > SIZE);
@@ -368,8 +377,9 @@ void VectorTest_test_2_1(void)
 	IntVector_clear(iv);
 	assert(IntVector_size(iv) == 0);
 	assert(IntVector_empty(iv));
-	/* assign_array */
-	assert(IntVector_assign_array(iv, piyo, SIZE));
+	/* insert_n */
+	IntVector_clear(iv);
+	assert(IntVector_insert_n(iv, 0, piyo, SIZE));
 	assert(memcmp(IntVector_at(iv, 0), piyo, SIZE) == 0);
 	assert(IntVector_capacity(iv) == a);
 	assert(IntVector_size(iv) == SIZE);
@@ -444,8 +454,9 @@ void VectorTest_test_2_3(void)
 	printf("***** test_2_3 *****\n");
 	iv = IntVector_new(SIZE);
 	vector_init_piyo();
-	/* assign_array */
-	assert(IntVector_assign_array(iv, piyo, SIZE));
+	/* insert_n */
+	IntVector_clear(iv);
+	assert(IntVector_insert_n(iv, 0, piyo, SIZE));
 	assert(memcmp(IntVector_at(iv, 0), piyo, SIZE) == 0);
 	assert(IntVector_capacity(iv) == SIZE);
 	assert(IntVector_size(iv) == SIZE);

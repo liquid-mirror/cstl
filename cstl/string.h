@@ -304,7 +304,8 @@ int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\
 	if (!Name##CharVector_reserve(self->data, cstr_len +1)) {\
 		return 0;\
 	}\
-	Name##CharVector_assign_array(self->data, cstr, cstr_len);\
+	Name##CharVector_clear(self->data);\
+	Name##CharVector_insert_n(self->data, 0, cstr, cstr_len);\
 	Name##CharVector_push_back(self->data, '\0');\
 	return 1;\
 }\
