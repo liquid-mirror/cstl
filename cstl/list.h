@@ -84,6 +84,7 @@ Name##Iterator Name##_next(Name##Iterator pos);\
 Name##Iterator Name##_prev(Name##Iterator pos);\
 Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem);\
 int Name##_insert_n(Name *self, Name##Iterator pos, Type *elems, size_t n);\
+int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Name##Iterator last);\
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last);\
 int Name##_resize(Name *self, size_t n, Type elem);\
@@ -106,6 +107,7 @@ struct Name##Node_t {\
 	Name##Node *prev;\
 	Name##Node *next;\
 	Type elem;\
+	LIST_MAGIC(void *magic;)\
 };\
 \
 /*! 
@@ -129,6 +131,7 @@ Name *Name##_new(void)\
 	self->terminator->next = self->terminator;\
 	self->terminator->prev = self->terminator;\
 	self->nelems = 0;\
+	LIST_MAGIC(self->terminator->magic = self->terminator);\
 	LIST_MAGIC(self->magic = self);\
 	return self;\
 }\
@@ -138,6 +141,7 @@ void Name##_delete(Name *self)\
 	assert(self && "List_delete");\
 	assert(self->magic == self && "List_delete");\
 	Name##_clear(self);\
+	LIST_MAGIC(self->terminator->magic = 0);\
 	LIST_MAGIC(self->magic = 0);\
 	free(self->terminator);\
 	free(self);\
@@ -145,17 +149,24 @@ void Name##_delete(Name *self)\
 \
 int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
+	Name *x;\
 	Name##Iterator pos;\
 	assert(self && "List_assign");\
 	assert(self->magic == self && "List_assign");\
 	assert(first && "List_assign");\
 	assert(last && "List_assign");\
-	Name##_clear(self);\
+	assert(first->magic && "List_assign");\
+	assert(last->magic && "List_assign");\
+	x = Name##_new();\
+	if (!x) return 0;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (!Name##_push_back(self, *Name##_at(pos))) {\
+		if (!Name##_push_back(x, *Name##_at(pos))) {\
+			Name##_delete(x);\
 			return 0;\
 		}\
 	}\
+	Name##_swap(self, x);\
+	Name##_delete(x);\
 	return 1;\
 }\
 \
@@ -172,6 +183,7 @@ int Name##_push_back(Name *self, Type elem)\
 	self->terminator->prev->next = node;\
 	self->terminator->prev = node;\
 	self->nelems++;\
+	LIST_MAGIC(node->magic = self->terminator);\
 	return 1;\
 }\
 \
@@ -188,6 +200,7 @@ int Name##_push_front(Name *self, Type elem)\
 	self->terminator->next->prev = node;\
 	self->terminator->next = node;\
 	self->nelems++;\
+	LIST_MAGIC(node->magic = self->terminator);\
 	return 1;\
 }\
 \
@@ -202,6 +215,7 @@ Type Name##_pop_front(Name *self)\
 	elem = node->elem;\
 	self->terminator->next = node->next;\
 	node->next->prev = self->terminator;\
+	LIST_MAGIC(node->magic = 0);\
 	free(node);\
 	self->nelems--;\
 	return elem;\
@@ -218,6 +232,7 @@ Type Name##_pop_back(Name *self)\
 	elem = node->elem;\
 	self->terminator->prev = node->prev;\
 	node->prev->next = self->terminator;\
+	LIST_MAGIC(node->magic = 0);\
 	free(node);\
 	self->nelems--;\
 	return elem;\
@@ -247,6 +262,7 @@ void Name##_clear(Name *self)\
 Type *Name##_at(Name##Iterator pos)\
 {\
 	assert(pos && "List_at");\
+	assert(pos->magic && "List_at");\
 	return &pos->elem;\
 }\
 \
@@ -297,12 +313,14 @@ Name##Iterator Name##_rend(Name *self)\
 Name##Iterator Name##_next(Name##Iterator pos)\
 {\
 	assert(pos && "List_next");\
+	assert(pos->magic && "List_next");\
 	return pos->next;\
 }\
 \
 Name##Iterator Name##_prev(Name##Iterator pos)\
 {\
 	assert(pos && "List_prev");\
+	assert(pos->magic && "List_prev");\
 	return pos->prev;\
 }\
 \
@@ -312,6 +330,7 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
 	assert(self && "List_insert");\
 	assert(self->magic == self && "List_insert");\
 	assert(pos && "List_insert");\
+	assert(pos->magic == self->terminator && "List_insert");\
 	node = (Name##Node *) malloc(sizeof(Name##Node));\
 	if (!node) return 0;\
 	node->elem = elem;\
@@ -320,6 +339,7 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
 	pos->prev = node;\
 	node->prev->next = node;\
 	self->nelems++;\
+	LIST_MAGIC(node->magic = self->terminator);\
 	return node;\
 }\
 \
@@ -328,11 +348,35 @@ int Name##_insert_n(Name *self, Name##Iterator pos, Type *elems, size_t n)\
 	size_t i;\
 	assert(self && "List_insert_n");\
 	assert(self->magic == self && "List_insert_n");\
+	assert(pos && "List_insert_n");\
+	assert(pos->magic == self->terminator && "List_insert_n");\
 	assert(elems && "List_insert_n");\
 	for (i = 0; i < n; i++) {\
 		pos = Name##_insert(self, pos, elems[i]);\
 		if (!pos) return 0;\
 		pos = Name##_next(pos);\
+	}\
+	return 1;\
+}\
+\
+int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Name##Iterator last)\
+{\
+	Name##Iterator i;\
+	Name##Iterator p = pos;\
+	assert(self && "List_insert_range");\
+	assert(self->magic == self && "List_insert_range");\
+	assert(pos && "List_insert_range");\
+	assert(pos->magic == self->terminator && "List_insert_range");\
+	assert(first && "List_insert_range");\
+	assert(last && "List_insert_range");\
+	assert(first->magic && "List_insert_range");\
+	assert(last->magic && "List_insert_range");\
+	for (i = first; i != last; i = Name##_next(i)) {\
+		assert(i != pos && "List_insert_range");\
+		assert(i->magic && "List_insert_range");\
+		p = Name##_insert(self, p, *Name##_at(i));\
+		if (!p) return 0;\
+		p = Name##_next(p);\
 	}\
 	return 1;\
 }\
@@ -344,10 +388,12 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	assert(self->magic == self && "List_erase");\
 	assert(pos && "List_erase");\
 	assert(pos != self->terminator && "List_erase");\
+	assert(pos->magic == self->terminator && "List_erase");\
 	assert(!Name##_empty(self) && "List_erase");\
 	node = pos->next;\
 	pos->prev->next = pos->next;\
 	pos->next->prev = pos->prev;\
+	LIST_MAGIC(pos->magic = 0);\
 	free(pos);\
 	self->nelems--;\
 	return node;\
@@ -360,6 +406,8 @@ Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterat
 	assert(self->magic == self && "List_erase_range");\
 	assert(first && "List_erase_range");\
 	assert(last && "List_erase_range");\
+	assert(first->magic == self->terminator && "List_erase_range");\
+	assert(last->magic == self->terminator && "List_erase_range");\
 	pos = first;\
 	while (pos != last) {\
 		assert(!Name##_empty(self) && "List_erase_range");\
