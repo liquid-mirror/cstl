@@ -752,6 +752,7 @@ typedef struct Name##RBTreeNode_t *Name##Iterator;\
 Name *Name##_new(void);\
 Name *Name##_new_copy(Name *x);\
 void Name##_delete(Name *self);\
+int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last);\
 void Name##_clear(Name *self);\
 int Name##_empty(Name *self);\
 size_t Name##_size(Name *self);\

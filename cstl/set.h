@@ -132,6 +132,22 @@ Name##Iterator Name##_insert(Name *self, Type elem, int *success)\
 	return pos;\
 }\
 \
+int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
+{\
+	Name##Iterator pos;\
+	assert(self && "Set_assign");\
+	assert(self->magic == self && "Set_assign");\
+	assert(first && "Set_assign");\
+	assert(last && "Set_assign");\
+	Name##_clear(self);\
+	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+		if (!Name##_insert(self, Name##_key(pos), 0)) {\
+			return 0;\
+		}\
+	}\
+	return 1;\
+}\
+\
 
 
 /*! 
@@ -185,6 +201,22 @@ Name##Iterator Name##_insert(Name *self, Type elem)\
 		self->nelems++;\
 	}\
 	return pos;\
+}\
+\
+int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
+{\
+	Name##Iterator pos;\
+	assert(self && "MultiSet_assign");\
+	assert(self->magic == self && "MultiSet_assign");\
+	assert(first && "MultiSet_assign");\
+	assert(last && "MultiSet_assign");\
+	Name##_clear(self);\
+	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+		if (!Name##_insert(self, Name##_key(pos))) {\
+			return 0;\
+		}\
+	}\
+	return 1;\
 }\
 \
 

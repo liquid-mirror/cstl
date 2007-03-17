@@ -63,7 +63,8 @@ VECTOR_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
 Name *Name##_new_copy(Name *x);\
 void Name##_delete(Name *self);\
-int Name##_assign(Name *self, Type *elems, size_t n);\
+int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
+int Name##_assign_array(Name *self, Type *elems, size_t n);\
 int Name##_push_back(Name *self, Type elem);\
 Type Name##_pop_back(Name *self);\
 size_t Name##_size(Name *self);\
@@ -151,12 +152,30 @@ void Name##_delete(Name *self)\
 	free(self);\
 }\
 \
-int Name##_assign(Name *self, Type *elems, size_t n)\
+int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 {\
 	size_t i;\
 	assert(self && "Vector_assign");\
 	assert(self->magic == self && "Vector_assign");\
-	assert(elems && "Vector_assign");\
+	assert(x && "Vector_assign");\
+	assert(x->magic == x && "Vector_assign");\
+	assert(Name##_size(x) >= idx + n && "Vector_assign");\
+	if (n > Name##_capacity(self)) {\
+		if (!Name##_expand(self, Name##_capacity(self) + n)) return 0;\
+	}\
+	Name##_clear(self);\
+	for (i = 0; i < n; i++) {\
+		Name##_push_back(self, *Name##_at(x, idx));\
+	}\
+	return 1;\
+}\
+\
+int Name##_assign_array(Name *self, Type *elems, size_t n)\
+{\
+	size_t i;\
+	assert(self && "Vector_assign_array");\
+	assert(self->magic == self && "Vector_assign_array");\
+	assert(elems && "Vector_assign_array");\
 	if (n > Name##_capacity(self)) {\
 		if (!Name##_expand(self, Name##_capacity(self) + n)) return 0;\
 	}\

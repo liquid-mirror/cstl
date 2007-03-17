@@ -145,6 +145,22 @@ Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *succ
 	return pos;\
 }\
 \
+int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
+{\
+	Name##Iterator pos;\
+	assert(self && "Map_assign");\
+	assert(self->magic == self && "Map_assign");\
+	assert(first && "Map_assign");\
+	assert(last && "Map_assign");\
+	Name##_clear(self);\
+	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+		if (!Name##_insert(self, Name##_key(pos), *Name##_value(pos), 0)) {\
+			return 0;\
+		}\
+	}\
+	return 1;\
+}\
+\
 ValueType *Name##_lookup(Name *self, KeyType key)\
 {\
 	Name##Iterator pos;\
@@ -221,6 +237,22 @@ Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 		self->nelems++;\
 	}\
 	return pos;\
+}\
+\
+int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
+{\
+	Name##Iterator pos;\
+	assert(self && "MultiMap_assign");\
+	assert(self->magic == self && "MultiMap_assign");\
+	assert(first && "MultiMap_assign");\
+	assert(last && "MultiMap_assign");\
+	Name##_clear(self);\
+	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+		if (!Name##_insert(self, Name##_key(pos), *Name##_value(pos))) {\
+			return 0;\
+		}\
+	}\
+	return 1;\
 }\
 \
 

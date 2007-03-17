@@ -66,7 +66,8 @@ LIST_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
 Name *Name##_new_copy(Name *x);\
 void Name##_delete(Name *self);\
-int Name##_assign(Name *self, Type *elems, size_t n);\
+int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last);\
+int Name##_assign_array(Name *self, Type *elems, size_t n);\
 int Name##_push_back(Name *self, Type elem);\
 int Name##_push_front(Name *self, Type elem);\
 Type Name##_pop_front(Name *self);\
@@ -160,12 +161,28 @@ void Name##_delete(Name *self)\
 	free(self);\
 }\
 \
-int Name##_assign(Name *self, Type *elems, size_t n)\
+int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
-	size_t i;\
+	Name##Iterator pos;\
 	assert(self && "List_assign");\
 	assert(self->magic == self && "List_assign");\
-	assert(elems && "List_assign");\
+	assert(first && "List_assign");\
+	assert(last && "List_assign");\
+	Name##_clear(self);\
+	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+		if (!Name##_push_back(self, *Name##_at(pos))) {\
+			return 0;\
+		}\
+	}\
+	return 1;\
+}\
+\
+int Name##_assign_array(Name *self, Type *elems, size_t n)\
+{\
+	size_t i;\
+	assert(self && "List_assign_array");\
+	assert(self->magic == self && "List_assign_array");\
+	assert(elems && "List_assign_array");\
 	Name##_clear(self);\
 	for (i = 0; i < n; i++) {\
 		if (!Name##_push_back(self, elems[i])) return 0;\

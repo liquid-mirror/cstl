@@ -180,7 +180,7 @@ Name *Name##_new_cstr(Type *cstr, size_t cstr_len)\
 		free(self);\
 		return 0;\
 	}\
-	Name##CharVector_assign(self->data, cstr, cstr_len);\
+	Name##CharVector_assign_array(self->data, cstr, cstr_len);\
 	Name##CharVector_push_back(self->data, '\0');\
 	STRING_MAGIC(self->magic = self);\
 	return self;\
@@ -349,7 +349,7 @@ int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\
 	if (!Name##CharVector_reserve(self->data, cstr_len +1)) {\
 		return 0;\
 	}\
-	Name##CharVector_assign(self->data, cstr, cstr_len);\
+	Name##CharVector_assign_array(self->data, cstr, cstr_len);\
 	Name##CharVector_push_back(self->data, '\0');\
 	return 1;\
 }\

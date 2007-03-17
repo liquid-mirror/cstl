@@ -63,8 +63,8 @@ void DequeTest_test_1_1(void)
 	for (j = 0; j < MAX+1; j++) {
 		ud->begin = ud->end = j;
 		assert(UCharDeque_size(ud) == 0);
-		/* assign */
-		assert(UCharDeque_assign(ud, hoge, MAX));
+		/* assign_array */
+		assert(UCharDeque_assign_array(ud, hoge, MAX));
 		assert(ud_cmp(0, hoge, MAX) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
@@ -80,14 +80,14 @@ void DequeTest_test_1_1(void)
 		assert(UCharDeque_size(ud) == 0);
 		assert(UCharDeque_empty(ud));
 		assert(!UCharDeque_full(ud));
-		/* assign */
-		assert(UCharDeque_assign(ud, hoge, MAX/2));
+		/* assign_array */
+		assert(UCharDeque_assign_array(ud, hoge, MAX/2));
 		assert(ud_cmp(0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 		assert(!UCharDeque_empty(ud));
 		assert(!UCharDeque_full(ud));
 		/* MAX以上で失敗 */
-		assert(!UCharDeque_assign(ud, hoge, MAX+1));
+		assert(!UCharDeque_assign_array(ud, hoge, MAX+1));
 		assert(ud_cmp(0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 		assert(!UCharDeque_empty(ud));
@@ -303,7 +303,7 @@ void DequeTest_test_1_4(void)
 		assert(UCharDeque_size(ud) == 0);
 
 		/* MAX以上で失敗 */
-		assert(UCharDeque_assign(ud, hoge, MAX));
+		assert(UCharDeque_assign_array(ud, hoge, MAX));
 		assert(ud_cmp(0, hoge, MAX) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(UCharDeque_full(ud));
@@ -493,11 +493,11 @@ void DequeTest_test_1_6(void)
 	assert(UCharDeque_size(ud) == 0);
 	/* swap */
 	UCharDeque_clear(ud);
-	assert(UCharDeque_assign(ud, hoge, MAX));
+	assert(UCharDeque_assign_array(ud, hoge, MAX));
 	assert(memcmp(UCharDeque_at(ud, 0), hoge, MAX) == 0);
 	assert(UCharDeque_size(ud) == MAX);
 	UCharDeque_clear(x);
-	assert(UCharDeque_assign(x, b, sizeof b));
+	assert(UCharDeque_assign_array(x, b, sizeof b));
 	assert(memcmp(UCharDeque_at(x, 0), b, sizeof b) == 0);
 	assert(UCharDeque_size(x) == sizeof b);
 
@@ -528,8 +528,8 @@ void DequeTest_test_2_1(void)
 	for (j = 0; j < MAX+1; j++) {
 		id->begin = id->end = j;
 		assert(IntDeque_size(id) == 0);
-		/* assign */
-		assert(IntDeque_assign(id, piyo, MAX));
+		/* assign_array */
+		assert(IntDeque_assign_array(id, piyo, MAX));
 		assert(id_cmp(0, piyo, MAX) == 0);
 		assert(IntDeque_size(id) == MAX);
 		assert(!IntDeque_empty(id));
@@ -545,14 +545,14 @@ void DequeTest_test_2_1(void)
 		assert(IntDeque_size(id) == 0);
 		assert(IntDeque_empty(id));
 		assert(!IntDeque_full(id));
-		/* assign */
-		assert(IntDeque_assign(id, piyo, MAX/2));
+		/* assign_array */
+		assert(IntDeque_assign_array(id, piyo, MAX/2));
 		assert(id_cmp(0, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2);
 		assert(!IntDeque_empty(id));
 		assert(!IntDeque_full(id));
 		/* MAX以上で失敗 */
-		assert(!IntDeque_assign(id, piyo, MAX+1));
+		assert(!IntDeque_assign_array(id, piyo, MAX+1));
 		assert(id_cmp(0, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2);
 		assert(!IntDeque_empty(id));
@@ -768,7 +768,7 @@ void DequeTest_test_2_4(void)
 		assert(IntDeque_size(id) == 0);
 
 		/* MAX以上で失敗 */
-		assert(IntDeque_assign(id, piyo, MAX));
+		assert(IntDeque_assign_array(id, piyo, MAX));
 		assert(id_cmp(0, piyo, MAX) == 0);
 		assert(IntDeque_size(id) == MAX);
 		assert(IntDeque_full(id));
