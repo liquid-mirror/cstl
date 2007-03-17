@@ -78,8 +78,7 @@ Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n);\
-void Name##_erase(Name *self, size_t idx);\
-void Name##_erase_n(Name *self, size_t idx, size_t n);\
+void Name##_erase(Name *self, size_t idx, size_t n);\
 void Name##_swap(Name *x, Name *y);\
 VECTOR_END_EXTERN_C()\
 
@@ -338,19 +337,11 @@ int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n)\
 	return 1;\
 }\
 \
-void Name##_erase(Name *self, size_t idx)\
+void Name##_erase(Name *self, size_t idx, size_t n)\
 {\
 	assert(self && "Vector_erase");\
 	assert(self->magic == self && "Vector_erase");\
-	assert(Name##_size(self) >= idx + 1 && "Vector_erase");\
-	Name##_erase_n(self, idx, 1);\
-}\
-\
-void Name##_erase_n(Name *self, size_t idx, size_t n)\
-{\
-	assert(self && "Vector_erase_n");\
-	assert(self->magic == self && "Vector_erase_n");\
-	assert(Name##_size(self) >= idx + n && "Vector_erase_n");\
+	assert(Name##_size(self) >= idx + n && "Vector_erase");\
 	Name##_move_backward(self, idx + n, self->end, n);\
 	self->end -= n;\
 }\

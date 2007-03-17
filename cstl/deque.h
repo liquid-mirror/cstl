@@ -88,8 +88,7 @@ Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n);\
-void Name##_erase(Name *self, size_t idx);\
-void Name##_erase_n(Name *self, size_t idx, size_t n);\
+void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *x, Name *y);\
 DEQUE_END_EXTERN_C()\
@@ -344,21 +343,13 @@ int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n)\
 	return 1;\
 }\
 \
-void Name##_erase(Name *self, size_t idx)\
-{\
-	assert(self && "Deque_erase");\
-	assert(self->magic == self && "Deque_erase");\
-	assert(Name##_size(self) >= idx + 1 && "Deque_erase");\
-	Name##_erase_n(self, idx, 1);\
-}\
-\
-void Name##_erase_n(Name *self, size_t idx, size_t n)\
+void Name##_erase(Name *self, size_t idx, size_t n)\
 {\
 	size_t pos1;\
 	size_t pos2;\
-	assert(self && "Deque_erase_n");\
-	assert(self->magic == self && "Deque_erase_n");\
-	assert(Name##_size(self) >= idx + n && "Deque_erase_n");\
+	assert(self && "Deque_erase");\
+	assert(self->magic == self && "Deque_erase");\
+	assert(Name##_size(self) >= idx + n && "Deque_erase");\
 	pos1 = Name##_forward(self, self->begin, idx);\
 	pos2 = Name##_forward(self, pos1, n);\
 	if (Name##_distance(self, self->begin, pos1) >= \

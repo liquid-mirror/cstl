@@ -62,7 +62,7 @@ void set_init_hoge(void)
 		if (!IntDeque_empty(q)) {
 			int rnd = rand() % IntDeque_size(q);
 			tmp = *IntDeque_at(q, rnd);
-			IntDeque_erase(q, rnd);
+			IntDeque_erase(q, rnd, 1);
 		} else {
 			tmp = i/2;
 		}

@@ -261,7 +261,7 @@ void Name##_erase(Name *self, size_t idx, size_t len)\
 	if (len > size - idx) {\
 		len = size - idx;\
 	}\
-	Name##CharVector_erase_n(self->data, idx, len);\
+	Name##CharVector_erase(self->data, idx, len);\
 }\
 \
 int Name##_resize(Name *self, size_t n, Type c)\

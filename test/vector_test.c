@@ -184,17 +184,17 @@ void VectorTest_test_1_4(void)
 	assert(memcmp(&UCharVector_at(uv, 0)[SIZE+1], &buf[SIZE], 256-SIZE) == 0);
 	assert(UCharVector_size(uv) == 257);
 	/* erase */
-	UCharVector_erase(uv, SIZE);
+	UCharVector_erase(uv, SIZE, 1);
 	assert(memcmp(UCharVector_at(uv, 0), buf, SIZE) == 0);
 	assert(memcmp(&UCharVector_at(uv, 0)[SIZE], &buf[SIZE], 256-SIZE) == 0);
 	for (i = SIZE; i < 256; i++) {
-		UCharVector_erase(uv, UCharVector_size(uv)-1);
+		UCharVector_erase(uv, UCharVector_size(uv)-1, 1);
 	}
 	assert(memcmp(UCharVector_at(uv, 0), buf, SIZE) == 0);
 	assert(UCharVector_size(uv) == SIZE);
 	for (i = 0; i < SIZE; i++) {
 		assert(memcmp(UCharVector_at(uv, 0), &buf[i], SIZE-i) == 0);
-		UCharVector_erase(uv, 0);
+		UCharVector_erase(uv, 0, 1);
 		assert(UCharVector_size(uv) == SIZE-i-1);
 	}
 	assert(UCharVector_size(uv) == 0);
@@ -234,21 +234,21 @@ void VectorTest_test_1_5(void)
 	assert(memcmp(&UCharVector_at(uv, 0)[1], hoge, SIZE) == 0);
 	assert(memcmp(&UCharVector_at(uv, 0)[SIZE+1], hoge, 256) == 0);
 	assert(UCharVector_size(uv) == 257+SIZE);
-	/* erase_n */
-	UCharVector_erase_n(uv, 0, 1);
+	/* erase */
+	UCharVector_erase(uv, 0, 1);
 	assert(memcmp(UCharVector_at(uv, 0), hoge, SIZE) == 0);
 	assert(memcmp(&UCharVector_at(uv, 0)[SIZE], hoge, 256) == 0);
 	assert(UCharVector_size(uv) == 256+SIZE);
 
-	UCharVector_erase_n(uv, SIZE, SIZE);
+	UCharVector_erase(uv, SIZE, SIZE);
 	assert(memcmp(UCharVector_at(uv, 0), hoge, 256) == 0);
 	assert(UCharVector_size(uv) == 256);
 
-	UCharVector_erase_n(uv, SIZE, 256-SIZE);
+	UCharVector_erase(uv, SIZE, 256-SIZE);
 	assert(memcmp(UCharVector_at(uv, 0), hoge, SIZE) == 0);
 	assert(UCharVector_size(uv) == SIZE);
 
-	UCharVector_erase_n(uv, 0, SIZE);
+	UCharVector_erase(uv, 0, SIZE);
 	assert(UCharVector_size(uv) == 0);
 
 	UCharVector_delete(uv);
@@ -491,17 +491,17 @@ void VectorTest_test_2_4(void)
 	assert(memcmp(&IntVector_at(iv, 0)[SIZE+1], &buf[SIZE], 256-SIZE) == 0);
 	assert(IntVector_size(iv) == 257);
 	/* erase */
-	IntVector_erase(iv, SIZE);
+	IntVector_erase(iv, SIZE, 1);
 	assert(memcmp(IntVector_at(iv, 0), buf, SIZE) == 0);
 	assert(memcmp(&IntVector_at(iv, 0)[SIZE], &buf[SIZE], 256-SIZE) == 0);
 	for (i = SIZE; i < 256; i++) {
-		IntVector_erase(iv, IntVector_size(iv)-1);
+		IntVector_erase(iv, IntVector_size(iv)-1, 1);
 	}
 	assert(memcmp(IntVector_at(iv, 0), buf, SIZE) == 0);
 	assert(IntVector_size(iv) == SIZE);
 	for (i = 0; i < SIZE; i++) {
 		assert(memcmp(IntVector_at(iv, 0), &buf[i], SIZE-i) == 0);
-		IntVector_erase(iv, 0);
+		IntVector_erase(iv, 0, 1);
 		assert(IntVector_size(iv) == SIZE-i-1);
 	}
 	assert(IntVector_size(iv) == 0);
@@ -535,21 +535,21 @@ void VectorTest_test_2_5(void)
 	assert(memcmp(&IntVector_at(iv, 0)[1], piyo, SIZE) == 0);
 	assert(memcmp(&IntVector_at(iv, 0)[SIZE+1], piyo, 256) == 0);
 	assert(IntVector_size(iv) == 257+SIZE);
-	/* erase_n */
-	IntVector_erase_n(iv, 0, 1);
+	/* erase */
+	IntVector_erase(iv, 0, 1);
 	assert(memcmp(IntVector_at(iv, 0), piyo, SIZE) == 0);
 	assert(memcmp(&IntVector_at(iv, 0)[SIZE], piyo, 256) == 0);
 	assert(IntVector_size(iv) == 256+SIZE);
 
-	IntVector_erase_n(iv, SIZE, SIZE);
+	IntVector_erase(iv, SIZE, SIZE);
 	assert(memcmp(IntVector_at(iv, 0), piyo, 256) == 0);
 	assert(IntVector_size(iv) == 256);
 
-	IntVector_erase_n(iv, SIZE, 256-SIZE);
+	IntVector_erase(iv, SIZE, 256-SIZE);
 	assert(memcmp(IntVector_at(iv, 0), piyo, SIZE) == 0);
 	assert(IntVector_size(iv) == SIZE);
 
-	IntVector_erase_n(iv, 0, SIZE);
+	IntVector_erase(iv, 0, SIZE);
 	assert(IntVector_size(iv) == 0);
 
 	IntVector_delete(iv);
