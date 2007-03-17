@@ -70,7 +70,6 @@ struct Name##_t {\
 \
 DEQUE_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
-Name *Name##_new_copy(Name *x);\
 void Name##_init(Name *self, Type *buf, size_t n);\
 void Name##_delete(Name *self);\
 int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
@@ -145,17 +144,6 @@ Name *Name##_new(size_t n)\
 	return self;\
 }\
 \
-Name *Name##_new_copy(Name *x)\
-{\
-	Name *self;\
-	assert(x && "Deque_new_copy");\
-	assert(x->magic == x && "Deque_new_copy");\
-	self = Name##_new(Name##_max_size(x));\
-	if (!self) return 0;\
-	Name##_insert_n(self, 0, Name##_at(x, 0), Name##_size(x));\
-	return self;\
-}\
-\
 void Name##_delete(Name *self)\
 {\
 	assert(self && "Deque_delete");\
@@ -187,7 +175,7 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 	if (n > Name##_max_size(self)) return 0;\
 	Name##_clear(self);\
 	for (i = 0; i < n; i++) {\
-		Name##_push_back(self, *Name##_at(x, idx));\
+		Name##_push_back(self, *Name##_at(x, i));\
 	}\
 	return 1;\
 }\

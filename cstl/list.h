@@ -64,7 +64,6 @@ typedef struct Name##Node_t *Name##Iterator;\
 \
 LIST_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
-Name *Name##_new_copy(Name *x);\
 void Name##_delete(Name *self);\
 int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last);\
 int Name##_assign_array(Name *self, Type *elems, size_t n);\
@@ -131,23 +130,6 @@ Name *Name##_new(void)\
 	self->terminator->prev = self->terminator;\
 	self->nelems = 0;\
 	LIST_MAGIC(self->magic = self);\
-	return self;\
-}\
-\
-Name *Name##_new_copy(Name *x)\
-{\
-	Name##Iterator pos;\
-	Name *self;\
-	assert(x && "List_new_copy");\
-	assert(x->magic == x && "List_new_copy");\
-	self = Name##_new();\
-	if (!self) return 0;\
-	for (pos = Name##_begin(x); pos != Name##_end(x); pos = Name##_next(pos)) {\
-		if (!Name##_push_back(self, *Name##_at(pos))) {\
-			Name##_delete(self);\
-			return 0;\
-		}\
-	}\
 	return self;\
 }\
 \

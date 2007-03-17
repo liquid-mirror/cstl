@@ -108,23 +108,6 @@ MAP_END_EXTERN_C()\
 \
 COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
 \
-Name *Name##_new_copy(Name *x)\
-{\
-	Name##Iterator pos;\
-	Name *self;\
-	assert(x && "Map_new_copy");\
-	assert(x->magic == x && "Map_new_copy");\
-	self = Name##_new();\
-	if (!self) return 0;\
-	for (pos = Name##_begin(x); pos != Name##_end(x); pos = Name##_next(pos)) {\
-		if (!Name##_insert(self, Name##_key(pos), *Name##_value(pos), 0)) {\
-			Name##_delete(self);\
-			return 0;\
-		}\
-	}\
-	return self;\
-}\
-\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success)\
 {\
 	Name##Iterator pos;\
@@ -209,23 +192,6 @@ MAP_END_EXTERN_C()\
 #define MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
 \
 COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
-\
-Name *Name##_new_copy(Name *x)\
-{\
-	Name##Iterator pos;\
-	Name *self;\
-	assert(x && "Map_new_copy");\
-	assert(x->magic == x && "Map_new_copy");\
-	self = Name##_new();\
-	if (!self) return 0;\
-	for (pos = Name##_begin(x); pos != Name##_end(x); pos = Name##_next(pos)) {\
-		if (!Name##_insert(self, Name##_key(pos), *Name##_value(pos))) {\
-			Name##_delete(self);\
-			return 0;\
-		}\
-	}\
-	return self;\
-}\
 \
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 {\

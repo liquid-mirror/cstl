@@ -188,13 +188,18 @@ void MapTest_test_1_1(void)
 	*IntIntMapA_lookup(x, 10) = 2;
 	*IntIntMapA_lookup(x, 20) = 442;
 	*IntIntMapA_lookup(x, 30) = 694;
-	IntIntMapA_print(ia);
-	IntIntMapA_print(x);
+/*    IntIntMapA_print(ia);*/
+/*    IntIntMapA_print(x);*/
 	IntIntMapA_swap(ia, x);
-	IntIntMapA_print(ia);
-	IntIntMapA_print(x);
+/*    IntIntMapA_print(ia);*/
+/*    IntIntMapA_print(x);*/
 	assert(IntIntMapA_size(ia) == 3);
 	assert(IntIntMapA_size(x) == 5);
+	/* assign */
+	assert(IntIntMapA_assign(x, IntIntMapA_begin(ia), IntIntMapA_end(ia)));
+	assert(IntIntMapA_size(ia) == IntIntMapA_size(x));
+	IntIntMapA_print(ia);
+	IntIntMapA_print(x);
 
 
 

@@ -344,8 +344,9 @@ void ListTest_test_2_1(void)
 	assert(IntList_resize(il, 0, 99));
 	assert(IntList_size(il) == 0);
 	assert(IntList_resize(il, 100, 99));
-	/* new_copy */
-	x = IntList_new_copy(il);
+	/* assign */
+	x = IntList_new();
+	assert(IntList_assign(x, IntList_begin(il), IntList_end(il)));
 	assert(IntList_size(x) == IntList_size(il));
 	pos2 = IntList_begin(x);
 	for (pos = IntList_begin(il); pos != IntList_end(il); pos = IntList_next(pos)) {

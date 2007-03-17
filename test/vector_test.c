@@ -300,9 +300,9 @@ void VectorTest_test_1_6(void)
 	UCharVector_shrink(uv, 0);
 	assert(UCharVector_capacity(uv) == 10);
 	assert(UCharVector_size(uv) == 10);
-	/* new_copy */
-	x = UCharVector_new_copy(uv);
-	assert(UCharVector_capacity(x) == 10);
+	/* assign */
+	x = UCharVector_new(SIZE);
+	assert(UCharVector_assign(x, uv, 0, UCharVector_size(uv)));
 	assert(UCharVector_size(x) == 10);
 	for (i = 0; i < UCharVector_size(uv); i++) {
 		assert(*UCharVector_at(x, i) == *UCharVector_at(uv, i));

@@ -17,7 +17,8 @@ int main(int argc, char *argv[])
 	String *basename = String_new(16);
 	String *extname = String_new(16);
 	String *tmpname = String_new(16);
-	String *suffix = String_new_cstr("tmp", NPOS);
+	String *suffix = String_new(8);
+	String_assign(suffix, "tmp", NPOS);
 
 	for (i = 1; i < argc; i++) {
 		size_t idx;

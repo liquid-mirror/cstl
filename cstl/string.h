@@ -66,9 +66,6 @@ typedef struct Name##_t Name;\
 \
 STRING_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
-Name *Name##_new_cstr(Type *cstr, size_t cstr_len);\
-Name *Name##_new_c(size_t n, Type c);\
-Name *Name##_new_copy(Name *x);\
 void Name##_delete(Name *self);\
 void Name##_clear(Name *self);\
 size_t Name##_size(Name *self);\
@@ -164,48 +161,6 @@ Name *Name##_new(size_t n)\
 	Name##CharVector_push_back(self->data, '\0');\
 	STRING_MAGIC(self->magic = self);\
 	return self;\
-}\
-\
-Name *Name##_new_cstr(Type *cstr, size_t cstr_len)\
-{\
-	Name *self;\
-	assert(cstr && "String_new_cstr");\
-	self = (Name *) malloc(sizeof(Name));\
-	if (!self) return 0;\
-	if (cstr_len == NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
-	}\
-	self->data = Name##CharVector_new(cstr_len +1);\
-	if (!self->data) {\
-		free(self);\
-		return 0;\
-	}\
-	Name##CharVector_assign_array(self->data, cstr, cstr_len);\
-	Name##CharVector_push_back(self->data, '\0');\
-	STRING_MAGIC(self->magic = self);\
-	return self;\
-}\
-\
-Name *Name##_new_c(size_t n, Type c)\
-{\
-	Name *self;\
-	self = (Name *) malloc(sizeof(Name));\
-	if (!self) return 0;\
-	self->data = Name##CharVector_new(n+1);\
-	if (!self->data) {\
-		free(self);\
-		return 0;\
-	}\
-	STRING_MAGIC(self->magic = self);\
-	Name##_assign_c(self, n, c);\
-	return self;\
-}\
-\
-Name *Name##_new_copy(Name *x)\
-{\
-	assert(x && "String_new_copy");\
-	assert(x->magic == x && "String_new_copy");\
-	return Name##_new_cstr(Name##_at(x, 0), Name##_size(x));\
 }\
 \
 void Name##_delete(Name *self)\

@@ -460,8 +460,10 @@ void DequeTest_test_1_6(void)
 	for (i = 0; i < MAX; i++) {
 		assert(UCharDeque_push_back(ud, hoge[i]));
 	}
-	/* new_copy */
-	x = UCharDeque_new_copy(ud);
+	/* assign */
+	assert(UCharDeque_size(ud) == MAX);
+	x = UCharDeque_new(MAX);
+	assert(UCharDeque_assign(x, ud, 0, UCharDeque_size(ud)));
 	assert(UCharDeque_size(ud) == UCharDeque_size(x));
 	assert(UCharDeque_max_size(ud) == UCharDeque_max_size(x));
 	for (i = 0; i < UCharDeque_size(ud); i++) {

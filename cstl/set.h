@@ -95,23 +95,6 @@ SET_END_EXTERN_C()\
 #define SET_IMPLEMENT(Name, Type, Compare, Order)	\
 COMMON_SET_IMPLEMENT(Name, Type, Compare, Order)\
 \
-Name *Name##_new_copy(Name *x)\
-{\
-	Name##Iterator pos;\
-	Name *self;\
-	assert(x && "Set_new_copy");\
-	assert(x->magic == x && "Set_new_copy");\
-	self = Name##_new();\
-	if (!self) return 0;\
-	for (pos = Name##_begin(x); pos != Name##_end(x); pos = Name##_next(pos)) {\
-		if (!Name##_insert(self, Name##_key(pos), 0)) {\
-			Name##_delete(self);\
-			return 0;\
-		}\
-	}\
-	return self;\
-}\
-\
 Name##Iterator Name##_insert(Name *self, Type elem, int *success)\
 {\
 	Name##Iterator pos;\
@@ -173,23 +156,6 @@ SET_END_EXTERN_C()\
  */
 #define MULTISET_IMPLEMENT(Name, Type, Compare, Order)	\
 COMMON_SET_IMPLEMENT(Name, Type, Compare, Order)\
-\
-Name *Name##_new_copy(Name *x)\
-{\
-	Name##Iterator pos;\
-	Name *self;\
-	assert(x && "Set_new_copy");\
-	assert(x->magic == x && "Set_new_copy");\
-	self = Name##_new();\
-	if (!self) return 0;\
-	for (pos = Name##_begin(x); pos != Name##_end(x); pos = Name##_next(pos)) {\
-		if (!Name##_insert(self, Name##_key(pos))) {\
-			Name##_delete(self);\
-			return 0;\
-		}\
-	}\
-	return self;\
-}\
 \
 Name##Iterator Name##_insert(Name *self, Type elem)\
 {\

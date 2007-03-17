@@ -10,10 +10,11 @@ STRING_IMPLEMENT(String, char)
 /* 標準入力から個々の単語を抽出し、それぞれの文字を逆順に出力する */
 int main(int argc, char *argv[])
 {
-	/* 区切り文字 */
-	String *delims = String_new_cstr(" \t,.;", NPOS);
-	String *line = String_new(1024);
 	char buf[1024];
+	String *line = String_new(1024);
+	/* 区切り文字 */
+	String *delims = String_new(8);
+	String_assign(delims, " \t,.;", NPOS);
 
 	while (fgets(buf, 1024, stdin)) {
 		size_t begIdx, endIdx;
