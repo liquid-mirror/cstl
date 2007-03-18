@@ -89,7 +89,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *x, Name *y);\
-void Name##_splice(Name *self, Name##Iterator pos, Name *src, Name##Iterator first, Name##Iterator last);\
+void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last);\
 LIST_END_EXTERN_C()\
 
 
@@ -346,24 +346,30 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
 \
 int Name##_insert_n(Name *self, Name##Iterator pos, Type *elems, size_t n)\
 {\
+	Name *x;\
 	size_t i;\
 	assert(self && "List_insert_n");\
 	assert(self->magic == self && "List_insert_n");\
 	assert(pos && "List_insert_n");\
 	assert(pos->magic == self->terminator && "List_insert_n");\
 	assert(elems && "List_insert_n");\
+	x = Name##_new();\
+	if (!x) return 0;\
 	for (i = 0; i < n; i++) {\
-		pos = Name##_insert(self, pos, elems[i]);\
-		if (!pos) return 0;\
-		pos = Name##_next(pos);\
+		if (!Name##_push_back(x, elems[i])) {\
+			Name##_delete(x);\
+			return 0;\
+		}\
 	}\
+	Name##_splice(self, pos, x, Name##_begin(x), Name##_end(x));\
+	Name##_delete(x);\
 	return 1;\
 }\
 \
 int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Name##Iterator last)\
 {\
+	Name *x;\
 	Name##Iterator i;\
-	Name##Iterator p = pos;\
 	assert(self && "List_insert_range");\
 	assert(self->magic == self && "List_insert_range");\
 	assert(pos && "List_insert_range");\
@@ -372,13 +378,17 @@ int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Na
 	assert(last && "List_insert_range");\
 	assert(first->magic && "List_insert_range");\
 	assert(last->magic && "List_insert_range");\
+	x = Name##_new();\
+	if (!x) return 0;\
 	for (i = first; i != last; i = Name##_next(i)) {\
-		assert(i != pos && "List_insert_range");\
 		assert(i->magic && "List_insert_range");\
-		p = Name##_insert(self, p, *Name##_at(i));\
-		if (!p) return 0;\
-		p = Name##_next(p);\
+		if (!Name##_push_back(x, *Name##_at(i))) {\
+			Name##_delete(x);\
+			return 0;\
+		}\
 	}\
+	Name##_splice(self, pos, x, Name##_begin(x), Name##_end(x));\
+	Name##_delete(x);\
 	return 1;\
 }\
 \
@@ -429,9 +439,17 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 			Name##_erase(self, Name##_rbegin(self));\
 		}\
 	} else {\
+		Name *x;\
+		x = Name##_new();\
+		if (!x) return 0;\
 		for (i = 0; i < n - size; i++) {\
-			if (!Name##_push_back(self, elem)) return 0;\
+			if (!Name##_push_back(x, elem)) {\
+				Name##_delete(x);\
+				return 0;\
+			}\
 		}\
+		Name##_splice(self, Name##_end(self), x, Name##_begin(x), Name##_end(x));\
+		Name##_delete(x);\
 	}\
 	return 1;\
 }\
@@ -452,7 +470,7 @@ void Name##_swap(Name *x, Name *y)\
 	y->nelems = tmp_nelems;\
 }\
 \
-void Name##_splice(Name *self, Name##Iterator pos, Name *src, Name##Iterator first, Name##Iterator last)\
+void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last)\
 {\
 	Name##Iterator i;\
 	Name##Node *tmp;\
@@ -461,12 +479,12 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *src, Name##Iterator fir
 	assert(self->magic == self && "List_splice");\
 	assert(pos && "List_splice");\
 	assert(pos->magic == self->terminator && "List_splice");\
-	assert(src && "List_splice");\
-	assert(src->magic == src && "List_splice");\
+	assert(x && "List_splice");\
+	assert(x->magic == x && "List_splice");\
 	assert(first && "List_splice");\
 	assert(last && "List_splice");\
-	assert(first->magic == src->terminator && "List_splice");\
-	assert(last->magic == src->terminator && "List_splice");\
+	assert(first->magic == x->terminator && "List_splice");\
+	assert(last->magic == x->terminator && "List_splice");\
 	if (first == last || pos == last) return;\
 	for (i = first; i != last; i = Name##_next(i)) {\
 		assert(i != pos && "List_splice");\
@@ -482,7 +500,7 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *src, Name##Iterator fir
 	last->prev->next = pos;\
 	last->prev = tmp;\
 	self->nelems += count;\
-	src->nelems -= count;\
+	x->nelems -= count;\
 }\
 \
 
