@@ -89,6 +89,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *x, Name *y);\
+void Name##_splice(Name *self, Name##Iterator pos, Name *src, Name##Iterator first, Name##Iterator last);\
 LIST_END_EXTERN_C()\
 
 
@@ -449,6 +450,39 @@ void Name##_swap(Name *x, Name *y)\
 	x->nelems = y->nelems;\
 	y->terminator = tmp_terminator;\
 	y->nelems = tmp_nelems;\
+}\
+\
+void Name##_splice(Name *self, Name##Iterator pos, Name *src, Name##Iterator first, Name##Iterator last)\
+{\
+	Name##Iterator i;\
+	Name##Node *tmp;\
+	size_t count = 0;\
+	assert(self && "List_splice");\
+	assert(self->magic == self && "List_splice");\
+	assert(pos && "List_splice");\
+	assert(pos->magic == self->terminator && "List_splice");\
+	assert(src && "List_splice");\
+	assert(src->magic == src && "List_splice");\
+	assert(first && "List_splice");\
+	assert(last && "List_splice");\
+	assert(first->magic == src->terminator && "List_splice");\
+	assert(last->magic == src->terminator && "List_splice");\
+	if (first == last || pos == last) return;\
+	for (i = first; i != last; i = Name##_next(i)) {\
+		assert(i != pos && "List_splice");\
+		assert(i->magic && "List_splice");\
+		LIST_MAGIC(i->magic = self->terminator;)\
+		count++;\
+	}\
+	pos->prev->next = first;\
+	tmp = first->prev;\
+	first->prev = pos->prev;\
+	tmp->next = last;\
+	pos->prev = last->prev;\
+	last->prev->next = pos;\
+	last->prev = tmp;\
+	self->nelems += count;\
+	src->nelems -= count;\
 }\
 \
 
