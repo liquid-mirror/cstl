@@ -146,7 +146,7 @@ void Name##_delete(Name *self)\
 {\
 	assert(self && "Deque_delete");\
 	assert(self->magic == self && "Deque_delete");\
-	DEQUE_MAGIC(self->magic = 0);\
+	DEQUE_MAGIC(self->magic = 0;)\
 	free(self->buf);\
 	free(self);\
 }\
@@ -159,7 +159,7 @@ void Name##_init(Name *self, Type *buf, size_t n)\
 	self->end = 0;\
 	self->buf = buf;\
 	self->nelems = n;\
-	DEQUE_MAGIC(self->magic = self);\
+	DEQUE_MAGIC(self->magic = self;)\
 }\
 \
 int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\

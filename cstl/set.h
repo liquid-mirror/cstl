@@ -52,6 +52,7 @@ struct Name##RBTreeNode_t {\
 	struct Name##RBTreeNode_t *right;\
 	RBTreeColor color;\
 	Type key;\
+	RBTREE_MAGIC(void *magic;)\
 };\
 \
 RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare, Order)\
@@ -117,17 +118,24 @@ Name##Iterator Name##_insert(Name *self, Type elem, int *success)\
 \
 int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
+	Name *x;\
 	Name##Iterator pos;\
 	assert(self && "Set_assign");\
 	assert(self->magic == self && "Set_assign");\
 	assert(first && "Set_assign");\
 	assert(last && "Set_assign");\
-	Name##_clear(self);\
+	assert(first->magic && "Set_assign");\
+	assert(last->magic && "Set_assign");\
+	x = Name##_new();\
+	if (!x) return 0;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (!Name##_insert(self, Name##_key(pos), 0)) {\
+		if (!Name##_insert(x, Name##_key(pos), 0)) {\
+			Name##_delete(x);\
 			return 0;\
 		}\
 	}\
+	Name##_swap(self, x);\
+	Name##_delete(x);\
 	return 1;\
 }\
 \
@@ -171,17 +179,24 @@ Name##Iterator Name##_insert(Name *self, Type elem)\
 \
 int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
+	Name *x;\
 	Name##Iterator pos;\
 	assert(self && "MultiSet_assign");\
 	assert(self->magic == self && "MultiSet_assign");\
 	assert(first && "MultiSet_assign");\
 	assert(last && "MultiSet_assign");\
-	Name##_clear(self);\
+	assert(first->magic && "MultiSet_assign");\
+	assert(last->magic && "MultiSet_assign");\
+	x = Name##_new();\
+	if (!x) return 0;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (!Name##_insert(self, Name##_key(pos))) {\
+		if (!Name##_insert(x, Name##_key(pos))) {\
+			Name##_delete(x);\
 			return 0;\
 		}\
 	}\
+	Name##_swap(self, x);\
+	Name##_delete(x);\
 	return 1;\
 }\
 \

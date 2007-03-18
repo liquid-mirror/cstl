@@ -131,8 +131,8 @@ Name *Name##_new(void)\
 	self->terminator->next = self->terminator;\
 	self->terminator->prev = self->terminator;\
 	self->nelems = 0;\
-	LIST_MAGIC(self->terminator->magic = self->terminator);\
-	LIST_MAGIC(self->magic = self);\
+	LIST_MAGIC(self->terminator->magic = self->terminator;)\
+	LIST_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -141,8 +141,8 @@ void Name##_delete(Name *self)\
 	assert(self && "List_delete");\
 	assert(self->magic == self && "List_delete");\
 	Name##_clear(self);\
-	LIST_MAGIC(self->terminator->magic = 0);\
-	LIST_MAGIC(self->magic = 0);\
+	LIST_MAGIC(self->terminator->magic = 0;)\
+	LIST_MAGIC(self->magic = 0;)\
 	free(self->terminator);\
 	free(self);\
 }\
@@ -183,7 +183,7 @@ int Name##_push_back(Name *self, Type elem)\
 	self->terminator->prev->next = node;\
 	self->terminator->prev = node;\
 	self->nelems++;\
-	LIST_MAGIC(node->magic = self->terminator);\
+	LIST_MAGIC(node->magic = self->terminator;)\
 	return 1;\
 }\
 \
@@ -200,7 +200,7 @@ int Name##_push_front(Name *self, Type elem)\
 	self->terminator->next->prev = node;\
 	self->terminator->next = node;\
 	self->nelems++;\
-	LIST_MAGIC(node->magic = self->terminator);\
+	LIST_MAGIC(node->magic = self->terminator;)\
 	return 1;\
 }\
 \
@@ -215,7 +215,7 @@ Type Name##_pop_front(Name *self)\
 	elem = node->elem;\
 	self->terminator->next = node->next;\
 	node->next->prev = self->terminator;\
-	LIST_MAGIC(node->magic = 0);\
+	LIST_MAGIC(node->magic = 0;)\
 	free(node);\
 	self->nelems--;\
 	return elem;\
@@ -232,7 +232,7 @@ Type Name##_pop_back(Name *self)\
 	elem = node->elem;\
 	self->terminator->prev = node->prev;\
 	node->prev->next = self->terminator;\
-	LIST_MAGIC(node->magic = 0);\
+	LIST_MAGIC(node->magic = 0;)\
 	free(node);\
 	self->nelems--;\
 	return elem;\
@@ -339,7 +339,7 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
 	pos->prev = node;\
 	node->prev->next = node;\
 	self->nelems++;\
-	LIST_MAGIC(node->magic = self->terminator);\
+	LIST_MAGIC(node->magic = self->terminator;)\
 	return node;\
 }\
 \
@@ -393,7 +393,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	node = pos->next;\
 	pos->prev->next = pos->next;\
 	pos->next->prev = pos->prev;\
-	LIST_MAGIC(pos->magic = 0);\
+	LIST_MAGIC(pos->magic = 0;)\
 	free(pos);\
 	self->nelems--;\
 	return node;\

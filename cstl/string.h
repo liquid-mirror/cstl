@@ -159,7 +159,7 @@ Name *Name##_new(size_t n)\
 		return 0;\
 	}\
 	Name##CharVector_push_back(self->data, '\0');\
-	STRING_MAGIC(self->magic = self);\
+	STRING_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -167,7 +167,7 @@ void Name##_delete(Name *self)\
 {\
 	assert(self && "String_delete");\
 	assert(self->magic == self && "String_delete");\
-	STRING_MAGIC(self->magic = 0);\
+	STRING_MAGIC(self->magic = 0;)\
 	Name##CharVector_delete(self->data);\
 	free(self);\
 }\

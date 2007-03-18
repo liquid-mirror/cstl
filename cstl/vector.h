@@ -125,7 +125,7 @@ Name *Name##_new(size_t n)\
 	self->end = 0;\
 	self->buf = buf;\
 	self->nelems = n+1;\
-	VECTOR_MAGIC(self->magic = self);\
+	VECTOR_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -133,7 +133,7 @@ void Name##_delete(Name *self)\
 {\
 	assert(self && "Vector_delete");\
 	assert(self->magic == self && "Vector_delete");\
-	VECTOR_MAGIC(self->magic = 0);\
+	VECTOR_MAGIC(self->magic = 0;)\
 	free(self->buf);\
 	free(self);\
 }\
