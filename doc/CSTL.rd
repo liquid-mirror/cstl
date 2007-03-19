@@ -121,18 +121,13 @@ VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
-+ 生成
-  Vector *Vector_new(void);
-* vectorを生成する。
-* 生成に成功した場合、そのオブジェクトへのポインタを返す。
-* メモリ不足の場合、NULLを返す。
-<<< br
+Vector*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
 
-  Vector *Vector_new_copy(Vector *x);
-* xのすべての要素をコピーしたvectorを生成する。
++ 生成
+  Vector *Vector_new(size_t n);
+* 許容量(内部メモリの再割り当てを行わずに格納できる要素数)がn個のvectorを生成する。
 * 生成に成功した場合、そのオブジェクトへのポインタを返す。
 * メモリ不足の場合、NULLを返す。
-* 事前条件は、xがNULLでないこと。
 <<< br
 
 + 破棄
@@ -152,7 +147,7 @@ VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 
 + 許容量
   size_t Vector_capacity(Vector *self);
-* selfの許容量(内部メモリの再割り当てを行わずに格納できる要素数)を返す。
+* selfの許容量を返す。
 <<< br
 
   int Vector_reserve(Vector *self, size_t n);
@@ -169,11 +164,18 @@ VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 <<< br
 
 + 代入
-  int Vector_assign(Vector *self, T *elems, size_t n);
-* elemsという配列からn個の要素のコピーをselfの要素として代入する。
+  int Vector_assign(Vector *self, Vector *x, size_t idx, size_t n);
+* xのidxが示すインデックスの位置からn個の要素のコピーをselfの要素として代入する。
 * 呼び出し前に持っていた要素は削除される。
+* selfとxは同じオブジェクトでもよい。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件は、idx + nがxの現在の要素数以下の値であること。
+<<< br
+
+  void Vector_swap(Vector *self, Vector *x);
+* selfとxの内容を交換する。
+* この関数の複雑さは一定である。
 <<< br
 
 + 要素のアクセス
@@ -214,12 +216,7 @@ VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 <<< br
 
 + 削除
-  void Vector_erase(Vector *self, size_t idx);
-* selfのidxが示すインデックスの要素を削除する。
-* 事前条件は、idxがselfの現在の要素数より小さい値であること。
-<<< br
-
-  void Vector_erase_n(Vector *self, size_t idx, size_t n);
+  void Vector_erase(Vector *self, size_t idx, size_t n);
 * selfのidxが示すインデックスの位置からn個の要素を削除する。
 * 事前条件は、idx + nがselfの現在の要素数以下の値であること。
 <<< br
@@ -271,19 +268,13 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
+Deque*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+
 + 生成
   Deque *Deque_new(size_t n);
 * 格納可能要素数がn個のdequeを生成する。
 * 生成に成功した場合、そのオブジェクトへのポインタを返す。
 * メモリ不足の場合、NULLを返す。
-<<< br
-
-  Deque *Deque_new_copy(Deque *x);
-* xのすべての要素をコピーしたdequeを生成する。
-* 生成に成功した場合、そのオブジェクトへのポインタを返す。
-* メモリ不足の場合、NULLを返す。
-* 生成したオブジェクトの格納可能要素数はxと同じである。
-* 事前条件は、xがNULLでないこと。
 <<< br
 
 + 破棄
@@ -296,7 +287,9 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 * 要素数がn個のbufという配列を用いてselfを初期化する。
 * 格納可能要素数はn-1個となる。
 * malloc/freeが使用できない場合や内部バッファを呼び出し側で指定する場合に使用する。
-  その際、そのオブジェクトに対してDeque_delete()を使用してはならない。
+  その際、そのオブジェクトに対して以下の関数を使用してはならない。
+    * Deque_delete()
+    * Deque_swap()
 <<< br
 
 + サイズ
@@ -319,11 +312,18 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 <<< br
 
 + 代入
-  int Deque_assign(Deque *self, T *elems, size_t n);
-* elemsという配列からn個の要素のコピーをselfの要素として代入する。
+  int Deque_assign(Deque *self, Deque *x, size_t idx, size_t n);
+* xのidxが示すインデックスの位置からn個の要素のコピーをselfの要素として代入する。
 * 呼び出し前に持っていた要素は削除される。
+* selfとxは同じオブジェクトでもよい。
 * 代入に成功した場合、0以外の値を返す。
 * nがselfの格納可能最大要素数より大きい場合、selfの変更を行わず0を返す。
+* 事前条件は、idx + nがxの現在の要素数以下の値であること。
+<<< br
+
+  void Deque_swap(Deque *self, Deque *x);
+* selfとxの内容を交換する。
+* この関数の複雑さは一定である。
 <<< br
 
 + 要素のアクセス
@@ -370,12 +370,7 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 <<< br
 
 + 削除
-  void Deque_erase(Deque *self, size_t idx);
-* selfのidxが示すインデックスの要素を削除する。
-* 事前条件は、idxがselfの現在の要素数より小さい値であること。
-<<< br
-
-  void Deque_erase_n(Deque *self, size_t idx, size_t n);
+  void Deque_erase(Deque *self, size_t idx, size_t n);
 * selfのidxが示すインデックスの位置からn個の要素を削除する。
 * 事前条件は、idx + nがselfの現在の要素数以下の値であること。
 <<< br
@@ -431,6 +426,8 @@ LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 イテレータの型。要素の位置を示す。
 
 ==== 関数
+List*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+
 + 生成
   List *List_new(void);
 * listを生成する。
@@ -493,6 +490,12 @@ LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 * 呼び出し前に持っていた要素は削除される。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、0を返す。
+<<< br
+
+  void Vector_swap(Vector *x, Vector *y);
+* xとyの内容を交換する。
+* この関数の複雑さは一定である。
+* 事前条件は、x, yが共にNULLでないこと。
 <<< br
 
 + 要素のアクセス
@@ -617,6 +620,8 @@ SET_INTERFACE/MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した�
 イテレータの型。要素の位置を示す。
 
 ==== 関数
+Set*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+
 + 生成
   Set *Set_new(void);
 * set/multisetを生成する。
@@ -788,6 +793,8 @@ MAP_INTERFACE/MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, ValueTyp
 イテレータの型。要素の位置を示す。
 
 ==== 関数
+Map*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+
 + 生成
   Map *Map_new(void);
 * map/multimapを生成する。
@@ -951,6 +958,8 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
+String*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+
 + 生成
   String *String_new(void);
 * stringを生成する。
@@ -1051,6 +1060,12 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 * 呼び出し前に持っていた文字は削除される。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
+<<< br
+
+  void Vector_swap(Vector *x, Vector *y);
+* xとyの内容を交換する。
+* この関数の複雑さは一定である。
+* 事前条件は、x, yが共にNULLでないこと。
 <<< br
 
 + 追加
