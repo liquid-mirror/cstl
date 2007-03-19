@@ -88,7 +88,7 @@ int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Na
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last);\
 int Name##_resize(Name *self, size_t n, Type elem);\
-void Name##_swap(Name *x, Name *y);\
+void Name##_swap(Name *self, Name *x);\
 void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last);\
 LIST_END_EXTERN_C()\
 
@@ -454,20 +454,20 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 	return 1;\
 }\
 \
-void Name##_swap(Name *x, Name *y)\
+void Name##_swap(Name *self, Name *x)\
 {\
 	Name##Node *tmp_terminator;\
 	size_t tmp_nelems;\
+	assert(self && "List_swap");\
 	assert(x && "List_swap");\
-	assert(y && "List_swap");\
+	assert(self->magic == self && "List_swap");\
 	assert(x->magic == x && "List_swap");\
-	assert(y->magic == y && "List_swap");\
-	tmp_terminator = x->terminator;\
-	tmp_nelems = x->nelems;\
-	x->terminator = y->terminator;\
-	x->nelems = y->nelems;\
-	y->terminator = tmp_terminator;\
-	y->nelems = tmp_nelems;\
+	tmp_terminator = self->terminator;\
+	tmp_nelems = self->nelems;\
+	self->terminator = x->terminator;\
+	self->nelems = x->nelems;\
+	x->terminator = tmp_terminator;\
+	x->nelems = tmp_nelems;\
 }\
 \
 void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last)\

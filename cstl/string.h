@@ -74,12 +74,12 @@ size_t Name##_capacity(Name *self);\
 int Name##_reserve(Name *self, size_t n);\
 void Name##_shrink(Name *self, size_t n);\
 int Name##_empty(Name *self);\
-int Name##_compare(Name *x, Name *y);\
+int Name##_compare(Name *self, Name *x);\
 Type *Name##_at(Name *self, size_t idx);\
 Type *Name##_c_str(Name *self);\
 void Name##_erase(Name *self, size_t idx, size_t len);\
 int Name##_resize(Name *self, size_t n, Type c);\
-void Name##_swap(Name *x, Name *y);\
+void Name##_swap(Name *self, Name *x);\
 int Name##_assign(Name *self, Type *cstr, size_t cstr_len);\
 int Name##_assign_c(Name *self, size_t n, Type c);\
 int Name##_append(Name *self, Type *cstr, size_t cstr_len);\
@@ -222,18 +222,18 @@ int Name##_empty(Name *self)\
 	return Name##CharVector_size(self->data) == 1;\
 }\
 \
-int Name##_compare(Name *x, Name *y)\
+int Name##_compare(Name *self, Name *x)\
 {\
-	size_t xlen, ylen;\
+	size_t len, xlen;\
 	int ret;\
+	assert(self && "String_compare");\
 	assert(x && "String_compare");\
-	assert(y && "String_compare");\
+	assert(self->magic == self && "String_compare");\
 	assert(x->magic == x && "String_compare");\
-	assert(y->magic == y && "String_compare");\
+	len = Name##_size(self);\
 	xlen = Name##_size(x);\
-	ylen = Name##_size(y);\
-	ret = Name##my_memcmp(Name##_c_str(x), Name##_c_str(y), (xlen > ylen) ? ylen : xlen);\
-	return ret ? ret : xlen - ylen;\
+	ret = Name##my_memcmp(Name##_c_str(self), Name##_c_str(x), (len > xlen) ? xlen : len);\
+	return ret ? ret : len - xlen;\
 }\
 \
 Type *Name##_at(Name *self, size_t idx)\
@@ -281,16 +281,16 @@ int Name##_resize(Name *self, size_t n, Type c)\
 	return 1;\
 }\
 \
-void Name##_swap(Name *x, Name *y)\
+void Name##_swap(Name *self, Name *x)\
 {\
 	Name##CharVector *tmp_data;\
+	assert(self && "String_swap");\
 	assert(x && "String_swap");\
-	assert(y && "String_swap");\
+	assert(self->magic == self && "String_swap");\
 	assert(x->magic == x && "String_swap");\
-	assert(y->magic == y && "String_swap");\
-	tmp_data = x->data;\
-	x->data = y->data;\
-	y->data = tmp_data;\
+	tmp_data = self->data;\
+	self->data = x->data;\
+	x->data = tmp_data;\
 }\
 \
 int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\

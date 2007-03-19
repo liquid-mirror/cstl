@@ -775,7 +775,7 @@ Name##Iterator Name##_rend(Name *self);\
 Name##Iterator Name##_next(Name##Iterator pos);\
 Name##Iterator Name##_prev(Name##Iterator pos);\
 KeyType Name##_key(Name##Iterator pos);\
-void Name##_swap(Name *x, Name *y);\
+void Name##_swap(Name *self, Name *x);\
 
 
 #define RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
@@ -964,20 +964,20 @@ KeyType Name##_key(Name##Iterator pos)\
 	return pos->key;\
 }\
 \
-void Name##_swap(Name *x, Name *y)\
+void Name##_swap(Name *self, Name *x)\
 {\
 	Name##RBTree *tmp_tree;\
 	size_t tmp_nelems;\
+	assert(self && "RBTree_swap");\
 	assert(x && "RBTree_swap");\
-	assert(y && "RBTree_swap");\
+	assert(self->magic == self && "RBTree_swap");\
 	assert(x->magic == x && "RBTree_swap");\
-	assert(y->magic == y && "RBTree_swap");\
-	tmp_tree = x->tree;\
-	tmp_nelems = x->nelems;\
-	x->tree = y->tree;\
-	x->nelems = y->nelems;\
-	y->tree = tmp_tree;\
-	y->nelems = tmp_nelems;\
+	tmp_tree = self->tree;\
+	tmp_nelems = self->nelems;\
+	self->tree = x->tree;\
+	self->nelems = x->nelems;\
+	x->tree = tmp_tree;\
+	x->nelems = tmp_nelems;\
 }\
 \
 
