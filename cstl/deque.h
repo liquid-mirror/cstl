@@ -171,9 +171,14 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 	assert(x->magic == x && "Deque_assign");\
 	assert(Name##_size(x) >= idx + n && "Deque_assign");\
 	if (n > Name##_max_size(self)) return 0;\
-	Name##_clear(self);\
-	for (i = 0; i < n; i++) {\
-		Name##_push_back(self, *Name##_at(x, i));\
+	if (self == x) {\
+		Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
+		Name##_erase(self, 0, idx);\
+	} else {\
+		Name##_clear(self);\
+		for (i = 0; i < n; i++) {\
+			Name##_push_back(self, *Name##_at(x, i));\
+		}\
 	}\
 	return 1;\
 }\
