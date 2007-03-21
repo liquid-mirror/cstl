@@ -121,7 +121,7 @@ VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
-Vector*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Vector*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
 
 + 生成
   Vector *Vector_new(size_t n);
@@ -151,7 +151,8 @@ Vector*型の引数はNULLでないことを関数呼び出しの事前条件に
 <<< br
 
   int Vector_reserve(Vector *self, size_t n);
-* selfの許容量を要素n個の領域に拡張する。selfが持つ要素は維持され、拡張した領域の初期化はしない。
+* selfの許容量を要素n個の領域に拡張する。
+* selfが持つ要素は維持され、拡張した領域の初期化はしない。
 * 拡張に成功した場合、0以外の値を返す。
 * nがselfの現在の許容量以下の場合、selfの変更を行わず0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -175,7 +176,7 @@ Vector*型の引数はNULLでないことを関数呼び出しの事前条件に
 
   void Vector_swap(Vector *self, Vector *x);
 * selfとxの内容を交換する。
-* この関数の複雑さは一定である。
+* 要素のコピーをしないので、xが不要ならばVector_assign(self, x, 0, Vector_size(x))よりも速い。
 <<< br
 
 + 要素のアクセス
@@ -206,7 +207,7 @@ Vector*型の引数はNULLでないことを関数呼び出しの事前条件に
 * selfのidxが示すインデックスの位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件は、idxがselfの現在の要素数以下の値であること。
+* 事前条件は、elemsがNULLでないこと、かつidxがselfの現在の要素数以下の値であること。
 <<< br
 
   int Vector_push_back(Vector *self, T elem);
@@ -253,10 +254,6 @@ dequeを使うには、deque.hというヘッダファイルをインクルー�
   #define DEQUE_IMPLEMENT(Name, Type)
 
 Nameに既存の型と重複しない任意の名前を、Typeに任意の要素の型を指定する。
-
-malloc/freeが使用できない環境の場合は、DEQUE_IMPLEMENTマクロを展開する前に以下のマクロを定義する。
-  #define malloc(s)  0
-  #define free(p)
 <<< br
 
 DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
@@ -268,7 +265,7 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
-Deque*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Deque*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
 
 + 生成
   Deque *Deque_new(size_t n);
@@ -323,7 +320,7 @@ Deque*型の引数はNULLでないことを関数呼び出しの事前条件に�
 
   void Deque_swap(Deque *self, Deque *x);
 * selfとxの内容を交換する。
-* この関数の複雑さは一定である。
+* 要素のコピーをしないので、xが不要ならばDeque_assign(self, x, 0, Deque_size(x))よりも速い。
 <<< br
 
 + 要素のアクセス
@@ -354,7 +351,7 @@ Deque*型の引数はNULLでないことを関数呼び出しの事前条件に�
 * selfのidxが示すインデックスの位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * selfの現在の要素数 + nがselfの格納可能最大要素数より大きい場合、selfの変更を行わず0を返す。
-* 事前条件は、idxがselfの現在の要素数以下の値であること。
+* 事前条件は、elemsがNULLでないこと、かつidxがselfの現在の要素数以下の値であること。
 <<< br
 
   int Deque_push_back(Deque *self, T elem);
@@ -426,20 +423,13 @@ LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 イテレータの型。要素の位置を示す。
 
 ==== 関数
-List*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、List*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
 
 + 生成
   List *List_new(void);
 * listを生成する。
 * 生成に成功した場合、そのオブジェクトへのポインタを返す。
 * メモリ不足の場合、NULLを返す。
-<<< br
-
-  List *List_new_copy(List *x);
-* xのすべての要素をコピーしたlistを生成する。
-* 生成に成功した場合、そのオブジェクトへのポインタを返す。
-* メモリ不足の場合、NULLを返す。
-* 事前条件は、xがNULLでないこと。
 <<< br
 
 + 破棄
@@ -476,32 +466,33 @@ List*型の引数はNULLでないことを関数呼び出しの事前条件に�
 
   ListIterator List_next(ListIterator pos);
 * posが示す位置の要素の次のイテレータを返す。
-* 事前条件は、posが有効なイテレータであり、List_end()またはList_rend()ではないこと。
+* 事前条件は、posが有効なイテレータであり、かつList_end()またはList_rend()でないこと。
 <<< br
 
   ListIterator List_prev(ListIterator pos);
 * posが示す位置の要素の前のイテレータを返す。
-* 事前条件は、posが有効なイテレータであり、List_end()またはList_rend()ではないこと。
+* 事前条件は、posが有効なイテレータであり、かつList_end()またはList_rend()でないこと。
 <<< br
 
 + 代入
-  int List_assign(List *self, T *elems, size_t n);
-* elemsという配列からn個の要素のコピーをselfの要素として代入する。
+  int List_assign(List *self, ListIterator first, ListIterator last);
+* [first, last)の範囲の要素のコピーをselfの要素として代入する。
 * 呼び出し前に持っていた要素は削除される。
+* [first, last)の要素はselfの持つ要素でもよい。
 * 代入に成功した場合、0以外の値を返す。
-* メモリ不足の場合、0を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件は、[first, last)が有効なイテレータであること。
 <<< br
 
-  void Vector_swap(Vector *x, Vector *y);
-* xとyの内容を交換する。
-* この関数の複雑さは一定である。
-* 事前条件は、x, yが共にNULLでないこと。
+  void List_swap(List *self, List *x);
+* selfとxの内容を交換する。
+* 要素のコピーをしないので、xが不要ならばList_assign(self, List_begin(x), List_end(x))よりも速い。
 <<< br
 
 + 要素のアクセス
   T *List_at(ListIterator pos);
 * posが示す位置の要素へのポインタを返す。
-* 事前条件は、posが有効なイテレータであり、List_end()またはList_rend()ではないこと。
+* 事前条件は、posが有効なイテレータであり、かつList_end()またはList_rend()でないこと。
 <<< br
 
   T List_front(List *self);
@@ -519,7 +510,22 @@ List*型の引数はNULLでないことを関数呼び出しの事前条件に�
 * selfのposが示す位置にelemのコピーを挿入する。
 * 挿入に成功した場合、新しい要素の位置を示すイテレータを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件は、posが有効なイテレータであること。
+* 事前条件は、posがselfの有効なイテレータであること。
+<<< br
+
+  int List_insert_n(List *self, ListIterator pos, Type *elems, size_t n);
+* selfのposが示す位置にelemsという配列からn個の要素のコピーを挿入する。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件は、elemsがNULLでないこと、かつposがselfの有効なイテレータであること。
+<<< br
+
+  int List_insert_range(List *self, ListIterator pos, ListIterator first, ListIterator last);
+* selfのposが示す位置に[first, last)の範囲の要素のコピーを挿入する。
+* [first, last)の要素はselfの持つ要素でもよい。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件は、posと[first, last)がselfの有効なイテレータであること。
 <<< br
 
   int List_push_back(List *self, T elem);
@@ -538,13 +544,13 @@ List*型の引数はNULLでないことを関数呼び出しの事前条件に�
   ListIterator List_erase(List *self, ListIterator pos);
 * selfのposが示す位置の要素を削除し、その次の位置を示すイテレータを返す。
 * 関数から抜けた後、posは無効なイテレータとなる。
-* 事前条件は、posが有効なイテレータであり、List_end()またはList_rend()ではないこと。
+* 事前条件は、posがselfの有効なイテレータであり、かつList_end()またはList_rend()でないこと。
 <<< br
 
   ListIterator List_erase_range(List *self, ListIterator first, ListIterator last);
 * selfの[first, last)の範囲の要素を削除し、削除した要素の次の位置を示すイテレータを返す。
 * 関数から抜けた後、[first, last)の範囲のイテレータは無効となる。
-* 事前条件は、[first, last)の範囲のイテレータが有効であること。
+* 事前条件は、[first, last)がselfの有効なイテレータであること。
 <<< br
 
   T List_pop_front(List *self);
@@ -569,6 +575,13 @@ List*型の引数はNULLでないことを関数呼び出しの事前条件に�
 * 要素数の変更に成功した場合、0以外の値を返す。
 * メモリ不足の場合、0を返す。
 <<< br
+
++ つなぎ替え
+  void List_splice(List *self, ListIterator pos, List *x, ListIterator first, ListIterator last);
+* selfのposが示す位置にxの[first, last)の範囲の要素の移動する。
+* [first, last)の要素の数だけselfの要素数が増加し、xの要素数が減少する。
+* 事前条件は、posがselfの有効なイテレータであり、かつ[first, last)がxの有効なイテレータであり、
+  かつselfとxが同一ならばposは[first, last)の範囲外であること。
 
 
 === set/multiset
@@ -598,7 +611,7 @@ Compareに要素の比較ルーチンを指定する。
     SIMPLE_CMPマクロを指定する。SIMPLE_CMPマクロはヘッダで以下のように定義されている。
       #define SIMPLE_CMP(x, y)  ((x) == (y) ? 0 : (x) > (y) ? 1 : -1)
   * Typeがその他の型の場合、以下のような引数と戻り値を持ち、
-    xとyが一致なら0を不一致なら正または負の整数を返す比較ルーチンを用意して指定する。
+    xとyが等しいなら0を、xがyの前にくるなら負の整数を、xがyの後にくるなら正の整数を返す比較ルーチンを用意して指定する。
     尚、Typeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
       int Compare(Type x, Type y);
 
@@ -620,20 +633,13 @@ SET_INTERFACE/MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した�
 イテレータの型。要素の位置を示す。
 
 ==== 関数
-Set*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Set*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
 
 + 生成
   Set *Set_new(void);
 * set/multisetを生成する。
 * 生成に成功した場合、そのオブジェクトへのポインタを返す。
 * メモリ不足の場合、NULLを返す。
-<<< br
-
-  Set *Set_new_copy(Set *x);
-* xのすべての要素をコピーしたset/multisetを生成する。
-* 生成に成功した場合、そのオブジェクトへのポインタを返す。
-* メモリ不足の場合、NULLを返す。
-* 事前条件は、xがNULLでないこと。
 <<< br
 
 + 破棄
@@ -670,18 +676,33 @@ Set*型の引数はNULLでないことを関数呼び出しの事前条件に含
 
   SetIterator Set_next(SetIterator pos);
 * posが示す位置の要素の次のイテレータを返す。
-* 事前条件は、posが有効なイテレータであり、Set_end()またはSet_rend()ではないこと。
+* 事前条件は、posが有効なイテレータであり、かつSet_end()またはSet_rend()でないこと。
 <<< br
 
   SetIterator Set_prev(SetIterator pos);
 * posが示す位置の要素の前のイテレータを返す。
-* 事前条件は、posが有効なイテレータであり、Set_end()またはSet_rend()ではないこと。
+* 事前条件は、posが有効なイテレータであり、かつSet_end()またはSet_rend()でないこと。
+<<< br
+
++ 代入
+  int Set_assign(Set *self, SetIterator first, SetIterator last);
+* [first, last)の範囲の要素のコピーをselfの要素として代入する。
+* 呼び出し前に持っていた要素は削除される。
+* [first, last)の要素はselfの持つ要素でもよい。
+* 代入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件は、[first, last)が有効なイテレータであること。
+<<< br
+
+  void Set_swap(Set *self, Set *x);
+* selfとxの内容を交換する。
+* 要素のコピーをしないので、xが不要ならばSet_assign(self, Set_begin(x), Set_end(x))よりも速い。
 <<< br
 
 + 要素のアクセス
   T Set_key(SetIterator pos);
 * posが示す位置の要素を返す。
-* 事前条件は、posが有効なイテレータであり、Set_end()またはSet_rend()ではないこと。
+* 事前条件は、posが有効なイテレータであり、かつSet_end()またはSet_rend()でないこと。
 <<< br
 
 + 挿入
@@ -706,13 +727,13 @@ Set*型の引数はNULLでないことを関数呼び出しの事前条件に含
   SetIterator Set_erase(Set *self, SetIterator pos);
 * selfのposが示す位置の要素を削除し、その次の位置を示すイテレータを返す。
 * 関数から抜けた後、posは無効なイテレータとなる。
-* 事前条件は、posが有効なイテレータであり、Set_end()またはSet_rend()ではないこと。
+* 事前条件は、posがselfの有効なイテレータであり、かつSet_end()またはSet_rend()でないこと。
 <<< br
 
   SetIterator Set_erase_range(Set *self, SetIterator first, SetIterator last);
 * selfの[first, last)の範囲の要素を削除し、削除した要素の次の位置を示すイテレータを返す。
 * 関数から抜けた後、[first, last)の範囲のイテレータは無効となる。
-* 事前条件は、[first, last)の範囲のイテレータが有効であること。
+* 事前条件は、[first, last)がselfの有効なイテレータであること。
 <<< br
 
   size_t Set_erase_key(Set *self, T elem);
@@ -771,7 +792,7 @@ Compareに要素の比較ルーチンを指定する。
     SIMPLE_CMPマクロを指定する。SIMPLE_CMPマクロはヘッダで以下のように定義されている。
       #define SIMPLE_CMP(x, y)  ((x) == (y) ? 0 : (x) > (y) ? 1 : -1)
   * KeyTypeがその他の型の場合、以下のような引数と戻り値を持ち、
-    xとyが一致なら0を不一致なら正または負の整数を返す比較ルーチンを用意して指定する。
+    xとyが等しいなら0を、xがyの前にくるなら負の整数を、xがyの後にくるなら正の整数を返す比較ルーチンを用意して指定する。
     尚、KeyTypeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
       int Compare(KeyType x, KeyType y);
 
@@ -793,20 +814,13 @@ MAP_INTERFACE/MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, ValueTyp
 イテレータの型。要素の位置を示す。
 
 ==== 関数
-Map*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Map*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
 
 + 生成
   Map *Map_new(void);
 * map/multimapを生成する。
 * 生成に成功した場合、そのオブジェクトへのポインタを返す。
 * メモリ不足の場合、NULLを返す。
-<<< br
-
-  Map *Map_new_copy(Map *x);
-* xのすべての要素をコピーしたmap/multimapを生成する。
-* 生成に成功した場合、そのオブジェクトへのポインタを返す。
-* メモリ不足の場合、NULLを返す。
-* 事前条件は、xがNULLでないこと。
 <<< br
 
 + 破棄
@@ -843,23 +857,38 @@ Map*型の引数はNULLでないことを関数呼び出しの事前条件に含
 
   MapIterator Map_next(MapIterator pos);
 * posが示す位置の要素の次のイテレータを返す。
-* 事前条件は、posが有効なイテレータであり、Map_end()またはMap_rend()ではないこと。
+* 事前条件は、posが有効なイテレータであり、かつMap_end()またはMap_rend()でないこと。
 <<< br
 
   MapIterator Map_prev(MapIterator pos);
 * posが示す位置の要素の前のイテレータを返す。
-* 事前条件は、posが有効なイテレータであり、Map_end()またはMap_rend()ではないこと。
+* 事前条件は、posが有効なイテレータであり、かつMap_end()またはMap_rend()でないこと。
+<<< br
+
++ 代入
+  int Map_assign(Map *self, MapIterator first, MapIterator last);
+* [first, last)の範囲の要素のコピーをselfの要素として代入する。
+* 呼び出し前に持っていた要素は削除される。
+* [first, last)の要素はselfの持つ要素でもよい。
+* 代入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件は、[first, last)が有効なイテレータであること。
+<<< br
+
+  void Map_swap(Map *self, Map *x);
+* selfとxの内容を交換する。
+* 要素のコピーをしないので、xが不要ならばMap_assign(self, Map_begin(x), Map_end(x))よりも速い。
 <<< br
 
 + 要素のアクセス
   KeyT Map_key(MapIterator pos);
 * posが示す位置の要素のキーを返す。
-* 事前条件は、posが有効なイテレータであり、Map_end()またはMap_rend()ではないこと。
+* 事前条件は、posが有効なイテレータであり、かつMap_end()またはMap_rend()でないこと。
 <<< br
 
   ValueT *Map_value(MapIterator pos);
 * posが示す位置の要素の値へのポインタを返す。
-* 事前条件は、posが有効なイテレータであり、Map_end()またはMap_rend()ではないこと。
+* 事前条件は、posが有効なイテレータであり、かつMap_end()またはMap_rend()でないこと。
 <<< br
 
   ValueT *Map_lookup(Map *self, KeyT key);
@@ -891,13 +920,13 @@ Map*型の引数はNULLでないことを関数呼び出しの事前条件に含
   MapIterator Map_erase(Map *self, MapIterator pos);
 * selfのposが示す位置の要素を削除し、その次の位置を示すイテレータを返す。
 * 関数から抜けた後、posは無効なイテレータとなる。
-* 事前条件は、posが有効なイテレータであり、Map_end()またはMap_rend()ではないこと。
+* 事前条件は、posがselfの有効なイテレータであり、かつMap_end()またはMap_rend()でないこと。
 <<< br
 
   MapIterator Map_erase_range(Map *self, MapIterator first, MapIterator last);
 * selfの[first, last)の範囲の要素を削除し、削除した要素の次の位置を示すイテレータを返す。
 * 関数から抜けた後、[first, last)の範囲のイテレータは無効となる。
-* 事前条件は、[first, last)の範囲のイテレータが有効であること。
+* 事前条件は、[first, last)がselfの有効なイテレータであること。
 <<< br
 
   size_t Map_erase_key(Map *self, KeyT key);
@@ -958,35 +987,13 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
-String*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、String*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
 
 + 生成
-  String *String_new(void);
-* stringを生成する。
+  String *String_new(size_t n);
+* 許容量(内部メモリの再割り当てを行わずに格納できる文字数)がn個のstringを生成する。
 * 生成に成功した場合、そのオブジェクトへのポインタを返す。
 * メモリ不足の場合、NULLを返す。
-<<< br
-
-  String *String_new_cstr(CharT *cstr, size_t cstr_len);
-* stringを生成する。
-* cstrという文字の配列からcstr_len個の文字によって初期化される。
-* cstr_lenがNPOSと等しい場合、cstrというCの文字列で初期化される。ただしcstrは'\0'で終端していなければならない。
-* 生成に成功した場合、そのオブジェクトへのポインタを返す。
-* メモリ不足の場合、NULLを返す。
-* 事前条件は、cstrがNULLでないこと。
-<<< br
-
-  String *String_new_c(size_t n, CharT c);
-* cという文字n個で初期化されたstringを生成する。
-* 生成に成功した場合、そのオブジェクトへのポインタを返す。
-* メモリ不足の場合、NULLを返す。
-<<< br
-
-  String *String_new_copy(String *x);
-* xのすべての文字をコピーしたstringを生成する。
-* 生成に成功した場合、そのオブジェクトへのポインタを返す。
-* メモリ不足の場合、NULLを返す。
-* 事前条件は、xがNULLでないこと。
 <<< br
 
 + 破棄
@@ -1010,11 +1017,12 @@ String*型の引数はNULLでないことを関数呼び出しの事前条件に
 
 + 許容量
   size_t String_capacity(String *self);
-* selfの許容量(内部メモリの再割り当てを行わずに格納できる文字数)を返す。
+* selfの許容量を返す。
 <<< br
 
   int String_reserve(String *self, size_t n);
-* selfの許容量を文字n個の領域に拡張する。selfが持つ文字は維持され、拡張した領域の初期化はしない。
+* selfの許容量を文字n個の領域に拡張する。
+* selfが持つ文字は維持され、拡張した領域の初期化はしない。
 * 拡張に成功した場合、0以外の値を返す。
 * nがselfの現在の許容量以下の場合、selfの変更を行わず0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -1027,12 +1035,11 @@ String*型の引数はNULLでないことを関数呼び出しの事前条件に
 <<< br
 
 + 比較
-  int String_compare(String *x, String *y);
-* xとyの文字列を比較する。
+  int String_compare(String *self, String *x);
+* selfとxの文字列を比較する。
 * 文字列が等しい場合、0を返す。
-* xがyより辞書順位で小さい場合、負の値を返す。
-* xがyより辞書順位で大きい場合、正の値を返す。
-* 事前条件は、x, yが共にNULLでないこと。
+* selfがxより辞書順位で小さい場合、負の値を返す。
+* selfがxより辞書順位で大きい場合、正の値を返す。
 <<< br
 
 + 文字のアクセス
@@ -1052,7 +1059,7 @@ String*型の引数はNULLでないことを関数呼び出しの事前条件に
 * 呼び出し前に持っていた文字は削除される。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件は、cstrがNULLでないこと。
+* 事前条件は、cstrがNULLでないこと、かつcstrはself内の文字列でないこと。
 <<< br
 
   int String_assign_c(String *self, size_t n, CharT c);
@@ -1062,10 +1069,9 @@ String*型の引数はNULLでないことを関数呼び出しの事前条件に
 * メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
-  void Vector_swap(Vector *x, Vector *y);
-* xとyの内容を交換する。
-* この関数の複雑さは一定である。
-* 事前条件は、x, yが共にNULLでないこと。
+  void String_swap(String *self, String *x);
+* selfとxの内容を交換する。
+* 文字のコピーをしないので、xが不要ならばString_assign(self, String_c_str(x), String_size(x))よりも速い。
 <<< br
 
 + 追加
@@ -1074,7 +1080,7 @@ String*型の引数はNULLでないことを関数呼び出しの事前条件に
 * cstr_lenがNPOSと等しい場合、cstrというCの文字列を追加する。ただしcstrは'\0'で終端していなければならない。
 * 追加に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件は、cstrがNULLでないこと。
+* 事前条件は、cstrがNULLでないこと、かつcstrはself内の文字列でないこと。
 <<< br
 
   int String_append_c(String *self, size_t n, CharT c);
@@ -1095,7 +1101,7 @@ String*型の引数はNULLでないことを関数呼び出しの事前条件に
 * cstr_lenがNPOSと等しい場合、cstrというCの文字列を挿入する。ただしcstrは'\0'で終端していなければならない。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件は、cstrがNULLでないこと、かつidxがselfの文字数以下の値であること。
+* 事前条件は、cstrがNULLでないこと、かつidxがselfの文字数以下の値であること、かつcstrはself内の文字列でないこと。
 <<< br
 
   int String_insert_c(String *self, size_t idx, size_t n, CharT c);
@@ -1111,7 +1117,7 @@ String*型の引数はNULLでないことを関数呼び出しの事前条件に
 * cstr_lenがNPOSと等しい場合、cstrというCの文字列で置換する。ただしcstrは'\0'で終端していなければならない。
 * 置換に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件は、cstrがNULLでないこと、かつidxがselfの文字数以下の値であること。
+* 事前条件は、cstrがNULLでないこと、かつidxがselfの文字数以下の値であること、かつcstrはself内の文字列でないこと。
 <<< br
 
   int String_replace_c(String *self, size_t idx, size_t len, size_t n, CharT c);
