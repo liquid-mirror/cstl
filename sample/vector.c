@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../cstl/vector.h"
+#include <cstl/vector.h>
 
 VECTOR_INTERFACE(CharVector, char)
 VECTOR_IMPLEMENT(CharVector, char)
@@ -7,7 +7,7 @@ VECTOR_IMPLEMENT(CharVector, char)
 int main(void)
 {
 	CharVector *x = CharVector_new(32);
-	CharVector_assign_array(x, "aaaa", 4);
+	CharVector_insert_n(x, 0, "aaaa", 4);
 	CharVector_push_back(x, '\0');
 	printf("%s\n", CharVector_at(x, 0));
 	printf("size:%d\n", CharVector_size(x));

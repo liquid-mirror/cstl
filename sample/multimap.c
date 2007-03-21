@@ -3,7 +3,7 @@
  * p.212の例を移植 */
 #include <stdio.h>
 #include <string.h>
-#include "../cstl/map.h"
+#include <cstl/map.h>
 
 MULTIMAP_INTERFACE(StrStrMMap, char *, char *)
 MULTIMAP_IMPLEMENT(StrStrMMap, char *, char *, strcmp, ASC)

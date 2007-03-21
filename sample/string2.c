@@ -2,7 +2,7 @@
  * Nicolai M. Josuttis著, 吉川邦夫訳, アスキー, 2001
  * p.454の例を移植 */
 #include <stdio.h>
-#include "../cstl/string.h"
+#include <cstl/string.h>
 
 STRING_INTERFACE(String, char)
 STRING_IMPLEMENT(String, char)
