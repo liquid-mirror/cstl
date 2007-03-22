@@ -385,18 +385,24 @@ int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 \
 int Name##_insert_c(Name *self, size_t idx, size_t n, Type c)\
 {\
-	size_t i;\
+	int ret = 1;\
 	assert(self && "String_insert_c");\
 	assert(self->magic == self && "String_insert_c");\
 	assert(Name##_size(self) >= idx && "String_insert_c");\
-	if (!Name##_reserve(self, Name##_size(self) + n)) {\
-		return 0;\
+	if (n > 1) {\
+		size_t i;\
+		Type *buf;\
+		buf = (Type *) malloc(sizeof(Type) * n);\
+		if (!buf) return 0;\
+		for (i = 0; i < n; i++) {\
+			buf[i] = c;\
+		}\
+		ret = Name##_insert(self, idx, buf, n);\
+		free(buf);\
+	} else if (n == 1) {\
+		ret = Name##CharVector_insert(self->data, idx, c);\
 	}\
-	for (i = 0; i < n; i++) {\
-		Name##CharVector_insert(self->data, idx, c);\
-		idx++;\
-	}\
-	return 1;\
+	return ret;\
 }\
 \
 int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_len)\
@@ -457,41 +463,24 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 \
 int Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c)\
 {\
-	size_t i;\
-	size_t size;\
+	int ret;\
 	assert(self && "String_replace_c");\
 	assert(self->magic == self && "String_replace_c");\
-	size = Name##_size(self);\
-	assert(size >= idx && "String_replace_c");\
-	if (len > size - idx) {\
-		len = size - idx;\
-	}\
-	assert(Name##_size(self) >= idx + len && "String_replace_c");\
-	if (n <= len) {\
-		/* Šg’£•K—v‚È‚µ */\
-		for (i = 0; i < len; i++) {\
-			if (i < n) {\
-				*Name##_at(self, i + idx) = c;\
-			} else {\
-				size_t j = len - n;\
-				if (j > Name##_size(self) - (n + idx)) {\
-					j = Name##_size(self) - (n + idx);\
-				}\
-				Name##_erase(self, n + idx, j);\
-				break;\
-			}\
+	assert(Name##_size(self) >= idx && "String_replace_c");\
+	if (n > 1) {\
+		size_t i;\
+		Type *buf;\
+		buf = (Type *) malloc(sizeof(Type) * n);\
+		if (!buf) return 0;\
+		for (i = 0; i < n; i++) {\
+			buf[i] = c;\
 		}\
+		ret = Name##_replace(self, idx, len, buf, n);\
+		free(buf);\
 	} else {\
-		/* Šg’£•K—v‚ ‚è */\
-		if (!Name##_reserve(self, Name##_capacity(self) + (n - len))) {\
-			return 0;\
-		}\
-		for (i = 0; i < len; i++) {\
-			*Name##_at(self, i + idx) = c;\
-		}\
-		Name##_insert_c(self, len + idx, n - len, c);\
+		ret = Name##_replace(self, idx, len, &c, n);\
 	}\
-	return 1;\
+	return ret;\
 }\
 \
 static size_t Name##_brute_force_search(Type *str, size_t str_len, Type *ptn, size_t ptn_len)\
