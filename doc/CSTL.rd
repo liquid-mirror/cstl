@@ -167,7 +167,6 @@ VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 + 代入
   int Vector_assign(Vector *self, Vector *x, size_t idx, size_t n);
 * xのidxが示すインデックスの位置からn個の要素のコピーをselfの要素として代入する。
-* 呼び出し前に持っていた要素は削除される。
 * selfとxは同じオブジェクトでもよい。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -176,7 +175,8 @@ VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 
   void Vector_swap(Vector *self, Vector *x);
 * selfとxの内容を交換する。
-* 要素のコピーをしないので、xが不要ならばVector_assign(self, x, 0, Vector_size(x))よりも速い。
+* 要素のコピーをしないので、Vector_assign(self, x, 0, Vector_size(x))よりも速い。
+  xが不要になる場合、こちらを使用するべきである。
 <<< br
 
 + 要素のアクセス
@@ -283,10 +283,8 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
   void Deque_init(Deque *self, T *buf, size_t n);
 * 要素数がn個のbufという配列を用いてselfを初期化する。
 * 格納可能要素数はn-1個となる。
-* malloc/freeが使用できない場合や内部バッファを呼び出し側で指定する場合に使用する。
-  その際、そのオブジェクトに対して以下の関数を使用してはならない。
-    * Deque_delete()
-    * Deque_swap()
+* 内部バッファを呼び出し側で用意する場合、Deque_new()の替わりに使用する。
+  そのオブジェクトに対してDeque_delete(), Deque_swap()を使用してはならない。
 <<< br
 
 + サイズ
@@ -311,7 +309,6 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 + 代入
   int Deque_assign(Deque *self, Deque *x, size_t idx, size_t n);
 * xのidxが示すインデックスの位置からn個の要素のコピーをselfの要素として代入する。
-* 呼び出し前に持っていた要素は削除される。
 * selfとxは同じオブジェクトでもよい。
 * 代入に成功した場合、0以外の値を返す。
 * nがselfの格納可能最大要素数より大きい場合、selfの変更を行わず0を返す。
@@ -320,7 +317,8 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 
   void Deque_swap(Deque *self, Deque *x);
 * selfとxの内容を交換する。
-* 要素のコピーをしないので、xが不要ならばDeque_assign(self, x, 0, Deque_size(x))よりも速い。
+* 要素のコピーをしないので、Deque_assign(self, x, 0, Deque_size(x))よりも速い。
+  xが不要になる場合、こちらを使用するべきである。
 <<< br
 
 + 要素のアクセス
@@ -477,8 +475,7 @@ LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 + 代入
   int List_assign(List *self, ListIterator first, ListIterator last);
 * [first, last)の範囲の要素のコピーをselfの要素として代入する。
-* 呼び出し前に持っていた要素は削除される。
-* [first, last)の要素はselfの持つ要素でもよい。
+* [first, last)の要素はselfが持つ要素でもよい。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件は、[first, last)が有効なイテレータであること。
@@ -486,7 +483,8 @@ LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 
   void List_swap(List *self, List *x);
 * selfとxの内容を交換する。
-* 要素のコピーをしないので、xが不要ならばList_assign(self, List_begin(x), List_end(x))よりも速い。
+* 要素のコピーをしないので、List_assign(self, List_begin(x), List_end(x))よりも速い。
+  xが不要になる場合、こちらを使用するべきである。
 <<< br
 
 + 要素のアクセス
@@ -522,7 +520,7 @@ LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 
   int List_insert_range(List *self, ListIterator pos, ListIterator first, ListIterator last);
 * selfのposが示す位置に[first, last)の範囲の要素のコピーを挿入する。
-* [first, last)の要素はselfの持つ要素でもよい。
+* [first, last)の要素はselfが持つ要素でもよい。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件は、posと[first, last)がselfの有効なイテレータであること。
@@ -687,8 +685,7 @@ SET_INTERFACE/MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した�
 + 代入
   int Set_assign(Set *self, SetIterator first, SetIterator last);
 * [first, last)の範囲の要素のコピーをselfの要素として代入する。
-* 呼び出し前に持っていた要素は削除される。
-* [first, last)の要素はselfの持つ要素でもよい。
+* [first, last)の要素はselfが持つ要素でもよい。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件は、[first, last)が有効なイテレータであること。
@@ -696,7 +693,8 @@ SET_INTERFACE/MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した�
 
   void Set_swap(Set *self, Set *x);
 * selfとxの内容を交換する。
-* 要素のコピーをしないので、xが不要ならばSet_assign(self, Set_begin(x), Set_end(x))よりも速い。
+* 要素のコピーをしないので、Set_assign(self, Set_begin(x), Set_end(x))よりも速い。
+  xが不要になる場合、こちらを使用するべきである。
 <<< br
 
 + 要素のアクセス
@@ -737,7 +735,7 @@ SET_INTERFACE/MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した�
 <<< br
 
   size_t Set_erase_key(Set *self, T elem);
-* selfのelemという値を持つ要素をすべて削除し、削除した数を返す。
+* selfのelemという要素をすべて削除し、削除した数を返す。
 <<< br
 
   void Set_clear(Set *self);
@@ -746,11 +744,11 @@ SET_INTERFACE/MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した�
 
 + 検索
   size_t Set_count(Set *self, T elem);
-* selfのelemという値を持つ要素の数を返す。
+* selfのelemという要素の数を返す。
 <<< br
 
   SetIterator Set_find(Set *self, T elem);
-* selfのelemという値を持つ要素を検索し、最初に見つかった要素の位置を示すイテレータを返す。
+* selfのelemという要素を検索し、最初に見つかった要素の位置を示すイテレータを返す。
 * 見つからなければSet_end(self)を返す。
 <<< br
 
@@ -868,8 +866,7 @@ MAP_INTERFACE/MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, ValueTyp
 + 代入
   int Map_assign(Map *self, MapIterator first, MapIterator last);
 * [first, last)の範囲の要素のコピーをselfの要素として代入する。
-* 呼び出し前に持っていた要素は削除される。
-* [first, last)の要素はselfの持つ要素でもよい。
+* [first, last)の要素はselfが持つ要素でもよい。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件は、[first, last)が有効なイテレータであること。
@@ -877,7 +874,8 @@ MAP_INTERFACE/MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, ValueTyp
 
   void Map_swap(Map *self, Map *x);
 * selfとxの内容を交換する。
-* 要素のコピーをしないので、xが不要ならばMap_assign(self, Map_begin(x), Map_end(x))よりも速い。
+* 要素のコピーをしないので、Map_assign(self, Map_begin(x), Map_end(x))よりも速い。
+  xが不要になる場合、こちらを使用するべきである。
 <<< br
 
 + 要素のアクセス
@@ -1056,7 +1054,6 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
   int String_assign(String *self, CharT *cstr, size_t cstr_len);
 * selfにcstrという文字の配列からcstr_len個の文字を代入する。
 * cstr_lenがNPOSと等しい場合、cstrというCの文字列を代入する。ただしcstrは'\0'で終端していなければならない。
-* 呼び出し前に持っていた文字は削除される。
 * cstrはself内の文字列でもよい。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -1065,14 +1062,14 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 
   int String_assign_c(String *self, size_t n, CharT c);
 * selfにcという文字をn個代入する。
-* 呼び出し前に持っていた文字は削除される。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
   void String_swap(String *self, String *x);
 * selfとxの内容を交換する。
-* 文字のコピーをしないので、xが不要ならばString_assign(self, String_c_str(x), String_size(x))よりも速い。
+* 文字のコピーをしないので、String_assign(self, String_c_str(x), String_size(x))よりも速い。
+  xが不要になる場合、こちらを使用するべきである。
 <<< br
 
 + 追加
