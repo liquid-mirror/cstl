@@ -146,6 +146,9 @@ void StringTest_test_1_3(void)
 	String_assign(x, "abcdefghijklmnopqrstuvwxyz", NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
+	String_assign(x, String_c_str(x), NPOS);
+	assert(String_size(x) == 26);
+	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
 	String_assign(x, "abcdefghijklmnopqrstuvwxyz", 10);
 	assert(String_size(x) == 10);
 	assert(strcmp("abcdefghij", String_c_str(x)) == 0);
@@ -184,6 +187,9 @@ void StringTest_test_1_3(void)
 	String_append(x, "m", NPOS);
 	assert(String_size(x) == 13);
 	assert(strcmp("abcdefghijklm", String_c_str(x)) == 0);
+	String_append(x, String_c_str(x) + 1, NPOS);
+	assert(String_size(x) == 25);
+	assert(strcmp("abcdefghijklmbcdefghijklm", String_c_str(x)) == 0);
 	String_clear(x);
 	assert(String_size(x) == 0);
 	/* append_c */
@@ -226,6 +232,10 @@ void StringTest_test_1_3(void)
 	String_insert(x, 5, "rst", 0);
 	assert(String_size(x) == 17);
 	assert(strcmp("gijkhabcdeflmopqn", String_c_str(x)) == 0);
+	String_insert(x, 1, String_c_str(x), NPOS);
+	assert(String_size(x) == 34);
+	printf("%s\n", String_c_str(x));
+	assert(strcmp("ggijkhabcdeflmopqnijkhabcdeflmopqn", String_c_str(x)) == 0);
 	String_clear(x);
 	assert(String_size(x) == 0);
 	/* insert_c */
@@ -298,6 +308,10 @@ void StringTest_test_1_4(void)
 	String_replace(x, 0, 3, "hogehoge", 4);
 	assert(String_size(x) == 27);
 	assert(strcmp("hogeDEFGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
+	String_replace(x, 3, 4, String_c_str(x), 4);
+	assert(String_size(x) == 27);
+	printf("%s\n", String_c_str(x));
+	assert(strcmp("hoghogeGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
 	String_replace(x, 0, NPOS, "", NPOS);
 	assert(String_size(x) == 0);
 	assert(strcmp("", String_c_str(x)) == 0);

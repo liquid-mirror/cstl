@@ -359,6 +359,7 @@ int Name##_push_back(Name *self, Type c)\
 \
 int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 {\
+	int ret;\
 	assert(self && "String_insert");\
 	assert(self->magic == self && "String_insert");\
 	assert(Name##_size(self) >= idx && "String_insert");\
@@ -366,7 +367,20 @@ int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 	if (cstr_len == NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
-	return Name##CharVector_insert_n(self->data, idx, cstr, cstr_len);\
+	if (cstr_len && Name##_c_str(self) + idx < cstr + cstr_len && cstr < Name##_c_str(self) + Name##_size(self)) {\
+		size_t i;\
+		Type *buf;\
+		buf = (Type *) malloc(sizeof(Type) * cstr_len);\
+		if (!buf) return 0;\
+		for (i = 0; i < cstr_len; i++) {\
+			buf[i] = cstr[i];\
+		}\
+		ret = Name##CharVector_insert_n(self->data, idx, buf, cstr_len);\
+		free(buf);\
+	} else {\
+		ret = Name##CharVector_insert_n(self->data, idx, cstr, cstr_len);\
+	}\
+	return ret;\
 }\
 \
 int Name##_insert_c(Name *self, size_t idx, size_t n, Type c)\
@@ -389,6 +403,8 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 {\
 	size_t i;\
 	size_t size;\
+	Type *buf;\
+	int flag = 0;\
 	assert(self && "String_replace");\
 	assert(self->magic == self && "String_replace");\
 	assert(cstr && "String_replace");\
@@ -400,11 +416,21 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 	if (cstr_len == NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
+	if (cstr_len && Name##_c_str(self) + idx < cstr + cstr_len && cstr < Name##_c_str(self) + Name##_size(self)) {\
+		buf = (Type *) malloc(sizeof(Type) * cstr_len);\
+		if (!buf) return 0;\
+		for (i = 0; i < cstr_len; i++) {\
+			buf[i] = cstr[i];\
+		}\
+		flag = 1;\
+	} else {\
+		buf = cstr;\
+	}\
 	if (cstr_len <= len) {\
 		/* Šg’£•K—v‚È‚µ */\
 		for (i = 0; i < len; i++) {\
 			if (i < cstr_len) {\
-				*Name##_at(self, i + idx) = cstr[i];\
+				*Name##_at(self, i + idx) = buf[i];\
 			} else {\
 				size_t j = len - cstr_len;\
 				if (j > Name##_size(self) - (cstr_len + idx)) {\
@@ -417,13 +443,15 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 	} else {\
 		/* Šg’£•K—v‚ ‚è */\
 		if (!Name##_reserve(self, Name##_capacity(self) + (cstr_len - len))) {\
+			if (flag) free(buf);\
 			return 0;\
 		}\
 		for (i = 0; i < len; i++) {\
-			*Name##_at(self, i + idx) = cstr[i];\
+			*Name##_at(self, i + idx) = buf[i];\
 		}\
-		Name##_insert(self, len + idx, &cstr[len], cstr_len - len);\
+		Name##_insert(self, len + idx, &buf[len], cstr_len - len);\
 	}\
+	if (flag) free(buf);\
 	return 1;\
 }\
 \

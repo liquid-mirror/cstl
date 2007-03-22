@@ -1057,9 +1057,10 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 * selfにcstrという文字の配列からcstr_len個の文字を代入する。
 * cstr_lenがNPOSと等しい場合、cstrというCの文字列を代入する。ただしcstrは'\0'で終端していなければならない。
 * 呼び出し前に持っていた文字は削除される。
+* cstrはself内の文字列でもよい。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件は、cstrがNULLでないこと、かつcstrはself内の文字列でないこと。
+* 事前条件は、cstrがNULLでないこと。
 <<< br
 
   int String_assign_c(String *self, size_t n, CharT c);
@@ -1078,9 +1079,10 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
   int String_append(String *self, CharT *cstr, size_t cstr_len);
 * selfにcstrという文字の配列からcstr_len個の文字を追加する。
 * cstr_lenがNPOSと等しい場合、cstrというCの文字列を追加する。ただしcstrは'\0'で終端していなければならない。
+* cstrはself内の文字列でもよい。
 * 追加に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件は、cstrがNULLでないこと、かつcstrはself内の文字列でないこと。
+* 事前条件は、cstrがNULLでないこと。
 <<< br
 
   int String_append_c(String *self, size_t n, CharT c);
@@ -1099,9 +1101,10 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
   int String_insert(String *self, size_t idx, CharT *cstr, size_t cstr_len);
 * selfのidxが示すインデックスにcstrという文字の配列からcstr_len個の文字を挿入する。
 * cstr_lenがNPOSと等しい場合、cstrというCの文字列を挿入する。ただしcstrは'\0'で終端していなければならない。
+* cstrはself内の文字列でもよい。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件は、cstrがNULLでないこと、かつidxがselfの文字数以下の値であること、かつcstrはself内の文字列でないこと。
+* 事前条件は、cstrがNULLでないこと、かつidxがselfの文字数以下の値であること。
 <<< br
 
   int String_insert_c(String *self, size_t idx, size_t n, CharT c);
@@ -1115,9 +1118,10 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
   int String_replace(String *self, size_t idx, size_t len, CharT *cstr, size_t cstr_len);
 * selfのidxが示すインデックスから最大len個の文字を、cstrという文字の配列のcstr_len個の文字で置換する。
 * cstr_lenがNPOSと等しい場合、cstrというCの文字列で置換する。ただしcstrは'\0'で終端していなければならない。
+* cstrはself内の文字列でもよい。
 * 置換に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件は、cstrがNULLでないこと、かつidxがselfの文字数以下の値であること、かつcstrはself内の文字列でないこと。
+* 事前条件は、cstrがNULLでないこと、かつidxがselfの文字数以下の値であること。
 <<< br
 
   int String_replace_c(String *self, size_t idx, size_t len, size_t n, CharT c);
