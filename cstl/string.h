@@ -487,7 +487,6 @@ static size_t Name##_brute_force_search(Type *str, size_t str_len, Type *ptn, si
 {\
 	size_t i = 0;\
 	size_t j = 0;\
-\
 	if (str_len < ptn_len) return NPOS;\
 	while (i < str_len && j < ptn_len) {\
 		if (str[i] == ptn[j]) {\
@@ -505,7 +504,6 @@ static size_t Name##_brute_force_search_r(Type *str, size_t str_len, Type *ptn, 
 {\
 	size_t i = str_len;\
 	size_t j = ptn_len;\
-\
 	if (str_len < ptn_len) return NPOS;\
 	while (i > 0 && j > 0) {\
 		if (str[i-1] == ptn[j-1]) {\
