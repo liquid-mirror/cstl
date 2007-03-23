@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../cstl/deque.h"
+#include <cstl/deque.h>
 #define NELEMS(array)	(sizeof(array) / sizeof(array[0]))
 
 DEQUE_INTERFACE(UCharDeque, unsigned char)
@@ -18,7 +18,7 @@ int main(void)
 	UCharDeque_push_front(x, 0x03);
 	UCharDeque_push_front(x, 0x04);
 	UCharDeque_insert(x, 1, 0x05);
-	UCharDeque_erase(x, 2);
+	UCharDeque_erase(x, 2, 1);
 	*UCharDeque_at(x, 0) = 0x06;
 	for (i = 0; i < UCharDeque_size(x); i++) {
 		printf("%02x\n", *UCharDeque_at(x, i));

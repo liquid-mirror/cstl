@@ -62,7 +62,7 @@ void set_init_hoge(void)
 		if (!IntDeque_empty(q)) {
 			int rnd = rand() % IntDeque_size(q);
 			tmp = *IntDeque_at(q, rnd);
-			IntDeque_erase(q, rnd);
+			IntDeque_erase(q, rnd, 1);
 		} else {
 			tmp = i/2;
 		}
@@ -203,15 +203,21 @@ void SetTest_test_1_1(void)
 		assert(success[i]);
 	}
 	assert(IntSetA_size(x) == sizeof b / sizeof b[0]);
-	IntSetA_print(ia);
-	IntSetA_print(x);
+/*    IntSetA_print(ia);*/
+/*    IntSetA_print(x);*/
 
 	IntSetA_swap(ia, x);
 
-	IntSetA_print(ia);
-	IntSetA_print(x);
+/*    IntSetA_print(ia);*/
+/*    IntSetA_print(x);*/
 	assert(IntSetA_size(x) == SIZE/2);
 	assert(IntSetA_size(ia) == sizeof b / sizeof b[0]);
+	/* assign */
+	assert(IntSetA_assign(x, IntSetA_begin(ia), IntSetA_end(ia)));
+	assert(IntSetA_size(ia) == sizeof b / sizeof b[0]);
+	assert(IntSetA_size(x)  == sizeof b / sizeof b[0]);
+	IntSetA_print(ia);
+	IntSetA_print(x);
 
 	IntSetA_delete(ia);
 	IntSetA_delete(x);

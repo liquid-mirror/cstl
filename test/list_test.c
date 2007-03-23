@@ -319,9 +319,10 @@ void ListTest_test_2_1(void)
 	int b[] = {1, 2, 4, 43, 2, 54, 1, 0, 2, 24};
 	printf("***** test_2_1 *****\n");
 	for (i = 0; i < 32; i++) buf[i] = i;
-	/* assign */
+	/* insert_n */
 	assert(IntList_size(il) == 0);
-	assert(IntList_assign(il, buf, 32));
+	IntList_clear(il);
+	assert(IntList_insert_n(il, IntList_begin(il), buf, 32));
 	assert(IntList_size(il) == 32);
 	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
 		assert(*IntList_at(pos) == i);
@@ -344,8 +345,9 @@ void ListTest_test_2_1(void)
 	assert(IntList_resize(il, 0, 99));
 	assert(IntList_size(il) == 0);
 	assert(IntList_resize(il, 100, 99));
-	/* new_copy */
-	x = IntList_new_copy(il);
+	/* assign */
+	x = IntList_new();
+	assert(IntList_assign(x, IntList_begin(il), IntList_end(il)));
 	assert(IntList_size(x) == IntList_size(il));
 	pos2 = IntList_begin(x);
 	for (pos = IntList_begin(il); pos != IntList_end(il); pos = IntList_next(pos)) {
@@ -353,8 +355,10 @@ void ListTest_test_2_1(void)
 		pos2 = IntList_next(pos2);
 	}
 	/* swap */
-	assert(IntList_assign(il, buf, 32));
-	assert(IntList_assign(x, b, sizeof b / sizeof b[0]));
+	IntList_clear(il);
+	assert(IntList_insert_n(il, IntList_begin(il), buf, 32));
+	IntList_clear(x);
+	assert(IntList_insert_n(x, IntList_begin(x), b, sizeof b / sizeof b[0]));
 	assert(IntList_size(il) == 32);
 	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
 		assert(*IntList_at(pos) == i);
@@ -365,13 +369,39 @@ void ListTest_test_2_1(void)
 	}
 	IntList_swap(il, x);
 	assert(IntList_size(x) == 32);
+	printf("x:\n");
 	for (pos = IntList_begin(x), i = 0; pos != IntList_end(x); pos = IntList_next(pos), i++) {
 		assert(*IntList_at(pos) == i);
+		printf("%2d, ", *IntList_at(pos));
 	}
+	printf("\n");
+	printf("il:\n");
 	assert(IntList_size(il) == sizeof b / sizeof b[0]);
 	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
 		assert(*IntList_at(pos) == b[i]);
+		printf("%2d, ", *IntList_at(pos));
 	}
+	printf("\n");
+	/* splice */
+	IntList_splice(x, IntList_begin(x), il, IntList_begin(il), IntList_end(il));
+/*    IntList_splice(x, IntList_begin(x), il, IntList_begin(il), IntList_begin(il));*/
+/*    IntList_splice(x, IntList_begin(x), il, IntList_begin(il), IntList_next(IntList_begin(il)));*/
+/*    IntList_splice(x, IntList_begin(x), x, IntList_next(IntList_begin(x)), IntList_end(x));*/
+/*    IntList_splice(x, IntList_end(x), x, IntList_next(IntList_begin(x)), IntList_end(x));*/
+/*    IntList_splice(x, IntList_rbegin(x), x, IntList_next(IntList_begin(x)), IntList_prev(IntList_rbegin(x)));*/
+
+	assert(IntList_size(il) == 0);
+	assert(IntList_size(x) == 32 + sizeof b / sizeof b[0]);
+	printf("x:\n");
+	for (pos = IntList_begin(x), i = 0; pos != IntList_end(x); pos = IntList_next(pos), i++) {
+		printf("%2d, ", *IntList_at(pos));
+	}
+	printf("\n");
+	printf("il:\n");
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		printf("%2d, ", *IntList_at(pos));
+	}
+	printf("\n");
 
 	IntList_delete(il);
 	IntList_delete(x);

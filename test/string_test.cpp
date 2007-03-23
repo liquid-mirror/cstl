@@ -15,6 +15,7 @@ extern Heap heap;
 STRING_INTERFACE(String, char)
 STRING_IMPLEMENT(String, char)
 
+#define SIZE	16
 
 using namespace std;
 
@@ -22,49 +23,16 @@ using namespace std;
 void StringTest_test_1_1(void)
 {
 	String *x;
-	String *y;
 	string s;
 	size_t i;
 	printf("***** test_1_1 *****\n");
 	/* 初期状態 */
-	x = String_new();
+	x = String_new(SIZE);
 	assert(String_empty(x));
 	assert(String_size(x) == 0);
-	String_delete(x);
-	/* new_cstr */
-	x = String_new_cstr("", NPOS);
-	assert(String_empty(x));
-	assert(String_size(x) == 0);
-	String_delete(x);
-	x = String_new_cstr("abcdef", NPOS);
-	assert(!String_empty(x));
-	assert(String_size(x) == 6);
-	assert(String_size(x) == String_length(x));
-	String_delete(x);
-	x = String_new_cstr("abcdef", 0);
-	assert(strcmp(String_c_str(x), "") == 0);
-	String_delete(x);
-	x = String_new_cstr("abcdefghijklmn", 7);
-	assert(strcmp(String_c_str(x), "abcdefg") == 0);
-	/* new_copy */
-	y = String_new_copy(x);
-	assert(strcmp(String_c_str(y), "abcdefg") == 0);
-	assert(!String_empty(y));
-	assert(String_size(y) == 7);
-	String_delete(y);
-	/* new_c */
-	y = String_new_c(10, 'a');
-	assert(strcmp(String_c_str(y), "aaaaaaaaaa") == 0);
-	assert(String_size(y) == 10);
-	String_delete(y);
-	y = String_new_c(0, 'b');
-	assert(strcmp(String_c_str(y), "") == 0);
-	assert(String_size(y) == 0);
-	String_delete(y);
-	y = String_new_c(1, 'c');
-	assert(strcmp(String_c_str(y), "c") == 0);
-	assert(String_size(y) == 1);
+	assert(String_capacity(x) == SIZE);
 	/* c_str */
+	String_assign(x, "abcdefghijklmn", 7);
 //    printf("%s\n", String_c_str(x));
 	s = String_c_str(x);
 	assert(strcmp(s.c_str(), String_c_str(x)) == 0);
@@ -78,7 +46,6 @@ void StringTest_test_1_1(void)
 	assert(String_size(x) == 0);
 
 	String_delete(x);
-	String_delete(y);
 }
 
 void StringTest_test_1_2(void)
@@ -86,7 +53,7 @@ void StringTest_test_1_2(void)
 	String *x;
 	String *y;
 	printf("***** test_1_2 *****\n");
-	x = String_new();
+	x = String_new(SIZE);
 	/* capacity */
 	/* reserve */
 	String_reserve(x, 100);
@@ -144,7 +111,8 @@ void StringTest_test_1_2(void)
 	assert(strcmp("", String_c_str(x)) == 0);
 	/* compare */
 	String_assign(x, "abcdefg", NPOS);
-	y = String_new_cstr("abcdefgh", NPOS);
+	y = String_new(SIZE);
+	String_assign(y, "abcdefgh", NPOS);
 	assert(String_compare(x, y) < 0);
 	String_erase(y, String_size(y)-2, 2);
 	assert(String_compare(x, y) > 0);
@@ -173,9 +141,12 @@ void StringTest_test_1_3(void)
 {
 	String *x;
 	printf("***** test_1_3 *****\n");
-	x = String_new();
+	x = String_new(SIZE);
 	/* assign */
 	String_assign(x, "abcdefghijklmnopqrstuvwxyz", NPOS);
+	assert(String_size(x) == 26);
+	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
+	String_assign(x, String_c_str(x), NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
 	String_assign(x, "abcdefghijklmnopqrstuvwxyz", 10);
@@ -216,6 +187,9 @@ void StringTest_test_1_3(void)
 	String_append(x, "m", NPOS);
 	assert(String_size(x) == 13);
 	assert(strcmp("abcdefghijklm", String_c_str(x)) == 0);
+	String_append(x, String_c_str(x) + 1, NPOS);
+	assert(String_size(x) == 25);
+	assert(strcmp("abcdefghijklmbcdefghijklm", String_c_str(x)) == 0);
 	String_clear(x);
 	assert(String_size(x) == 0);
 	/* append_c */
@@ -258,6 +232,10 @@ void StringTest_test_1_3(void)
 	String_insert(x, 5, "rst", 0);
 	assert(String_size(x) == 17);
 	assert(strcmp("gijkhabcdeflmopqn", String_c_str(x)) == 0);
+	String_insert(x, 1, String_c_str(x), NPOS);
+	assert(String_size(x) == 34);
+	printf("%s\n", String_c_str(x));
+	assert(strcmp("ggijkhabcdeflmopqnijkhabcdeflmopqn", String_c_str(x)) == 0);
 	String_clear(x);
 	assert(String_size(x) == 0);
 	/* insert_c */
@@ -306,7 +284,7 @@ void StringTest_test_1_4(void)
 {
 	String *x;
 	printf("***** test_1_4 *****\n");
-	x = String_new();
+	x = String_new(SIZE);
 	String_assign(x, "abcdefghijklmnopqrstuvwxyz", NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
@@ -330,6 +308,10 @@ void StringTest_test_1_4(void)
 	String_replace(x, 0, 3, "hogehoge", 4);
 	assert(String_size(x) == 27);
 	assert(strcmp("hogeDEFGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
+	String_replace(x, 3, 4, String_c_str(x), 4);
+	assert(String_size(x) == 27);
+	printf("%s\n", String_c_str(x));
+	assert(strcmp("hoghogeGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
 	String_replace(x, 0, NPOS, "", NPOS);
 	assert(String_size(x) == 0);
 	assert(strcmp("", String_c_str(x)) == 0);
@@ -472,8 +454,10 @@ void StringTest_test_1_5(void)
 	string s;
 	size_t i, j, k;
 	printf("***** test_1_5 *****\n");
-	x = String_new_cstr("abc abcd abcde abcdef abcdefg abcdefgh abcdefghi", NPOS);
-	y = String_new_cstr("abcdefghijklmnopqrstuvwxyz", NPOS);
+	x = String_new(SIZE);
+	y = String_new(SIZE);
+	String_assign(x, "abc abcd abcde abcdef abcdefg abcdefgh abcdefghi", NPOS);
+	String_assign(y, "abcdefghijklmnopqrstuvwxyz", NPOS);
 	s = String_c_str(x);
 	assert(strcmp(s.c_str(), String_c_str(x)) == 0);
 	for (i = 0; i < String_size(x); i++) {

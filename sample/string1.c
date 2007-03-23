@@ -2,7 +2,7 @@
  * Nicolai M. Josuttis著, 吉川邦夫訳, アスキー, 2001
  * p.450の例を移植 */
 #include <stdio.h>
-#include "../cstl/string.h"
+#include <cstl/string.h>
 
 STRING_INTERFACE(String, char)
 STRING_IMPLEMENT(String, char)
@@ -13,11 +13,12 @@ STRING_IMPLEMENT(String, char)
 int main(int argc, char *argv[])
 {
 	int i;
-	String *filename = String_new();
-	String *basename = String_new();
-	String *extname = String_new();
-	String *tmpname = String_new();
-	String *suffix = String_new_cstr("tmp", NPOS);
+	String *filename = String_new(16);
+	String *basename = String_new(16);
+	String *extname = String_new(16);
+	String *tmpname = String_new(16);
+	String *suffix = String_new(8);
+	String_assign(suffix, "tmp", NPOS);
 
 	for (i = 1; i < argc; i++) {
 		size_t idx;

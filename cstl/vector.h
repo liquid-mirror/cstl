@@ -49,7 +49,6 @@
 #define VECTOR_MAGIC(x)
 #endif
 
-#define VECTOR_INIT_SIZE	16
 
 /*! 
  * \brief インターフェイスマクロ
@@ -61,10 +60,9 @@
 typedef struct Name##_t Name;\
 \
 VECTOR_BEGIN_EXTERN_C()\
-Name *Name##_new(void);\
-Name *Name##_new_copy(Name *x);\
+Name *Name##_new(size_t n);\
 void Name##_delete(Name *self);\
-int Name##_assign(Name *self, Type *elems, size_t n);\
+int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
 int Name##_push_back(Name *self, Type elem);\
 Type Name##_pop_back(Name *self);\
 size_t Name##_size(Name *self);\
@@ -79,9 +77,8 @@ Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n);\
-void Name##_erase(Name *self, size_t idx);\
-void Name##_erase_n(Name *self, size_t idx, size_t n);\
-void Name##_swap(Name *x, Name *y);\
+void Name##_erase(Name *self, size_t idx, size_t n);\
+void Name##_swap(Name *self, Name *x);\
 VECTOR_END_EXTERN_C()\
 
 
@@ -114,7 +111,7 @@ static int Name##_expand(Name *self, size_t size)\
 	return Name##_reserve(self, n);\
 }\
 \
-static Name *Name##_new_reserve(size_t n)\
+Name *Name##_new(size_t n)\
 {\
 	Name *self;\
 	Type *buf;\
@@ -128,23 +125,7 @@ static Name *Name##_new_reserve(size_t n)\
 	self->end = 0;\
 	self->buf = buf;\
 	self->nelems = n+1;\
-	VECTOR_MAGIC(self->magic = self);\
-	return self;\
-}\
-\
-Name *Name##_new(void)\
-{\
-	return Name##_new_reserve(VECTOR_INIT_SIZE-1);\
-}\
-\
-Name *Name##_new_copy(Name *x)\
-{\
-	Name *self;\
-	assert(x && "Vector_new_copy");\
-	assert(x->magic == x && "Vector_new_copy");\
-	self = Name##_new_reserve(Name##_size(x));\
-	if (!self) return 0;\
-	Name##_insert_n(self, 0, Name##_at(x, 0), Name##_size(x));\
+	VECTOR_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -152,24 +133,31 @@ void Name##_delete(Name *self)\
 {\
 	assert(self && "Vector_delete");\
 	assert(self->magic == self && "Vector_delete");\
-	VECTOR_MAGIC(self->magic = 0);\
+	VECTOR_MAGIC(self->magic = 0;)\
 	free(self->buf);\
 	free(self);\
 }\
 \
-int Name##_assign(Name *self, Type *elems, size_t n)\
+int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 {\
 	size_t i;\
 	assert(self && "Vector_assign");\
 	assert(self->magic == self && "Vector_assign");\
-	assert(elems && "Vector_assign");\
+	assert(x && "Vector_assign");\
+	assert(x->magic == x && "Vector_assign");\
+	assert(Name##_size(x) >= idx + n && "Vector_assign");\
 	if (n > Name##_capacity(self)) {\
 		if (!Name##_expand(self, Name##_capacity(self) + n)) return 0;\
 	}\
-	for (i = 0; i < n; i++) {\
-		self->buf[i] = elems[i];\
+	if (self == x) {\
+		Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
+		Name##_erase(self, 0, idx);\
+	} else {\
+		Name##_clear(self);\
+		for (i = 0; i < n; i++) {\
+			Name##_push_back(self, *Name##_at(x, i));\
+		}\
 	}\
-	self->end = n;\
 	return 1;\
 }\
 \
@@ -337,41 +325,33 @@ int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n)\
 	return 1;\
 }\
 \
-void Name##_erase(Name *self, size_t idx)\
+void Name##_erase(Name *self, size_t idx, size_t n)\
 {\
 	assert(self && "Vector_erase");\
 	assert(self->magic == self && "Vector_erase");\
-	assert(Name##_size(self) >= idx + 1 && "Vector_erase");\
-	Name##_erase_n(self, idx, 1);\
-}\
-\
-void Name##_erase_n(Name *self, size_t idx, size_t n)\
-{\
-	assert(self && "Vector_erase_n");\
-	assert(self->magic == self && "Vector_erase_n");\
-	assert(Name##_size(self) >= idx + n && "Vector_erase_n");\
+	assert(Name##_size(self) >= idx + n && "Vector_erase");\
 	Name##_move_backward(self, idx + n, self->end, n);\
 	self->end -= n;\
 }\
 \
-void Name##_swap(Name *x, Name *y)\
+void Name##_swap(Name *self, Name *x)\
 {\
 	size_t tmp_end;\
 	size_t tmp_nelems;\
 	Type *tmp_buf;\
+	assert(self && "Vector_swap");\
 	assert(x && "Vector_swap");\
-	assert(y && "Vector_swap");\
+	assert(self->magic == self && "Vector_swap");\
 	assert(x->magic == x && "Vector_swap");\
-	assert(y->magic == y && "Vector_swap");\
-	tmp_end = x->end;\
-	tmp_nelems = x->nelems;\
-	tmp_buf = x->buf;\
-	x->end = y->end;\
-	x->nelems = y->nelems;\
-	x->buf = y->buf;\
-	y->end = tmp_end;\
-	y->nelems = tmp_nelems;\
-	y->buf = tmp_buf;\
+	tmp_end = self->end;\
+	tmp_nelems = self->nelems;\
+	tmp_buf = self->buf;\
+	self->end = x->end;\
+	self->nelems = x->nelems;\
+	self->buf = x->buf;\
+	x->end = tmp_end;\
+	x->nelems = tmp_nelems;\
+	x->buf = tmp_buf;\
 }\
 \
 

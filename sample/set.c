@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../cstl/set.h"
+#include <cstl/set.h>
 
 SET_INTERFACE(IntSet, int)
 SET_IMPLEMENT(IntSet, int, SIMPLE_CMP, ASC)

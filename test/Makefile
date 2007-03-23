@@ -24,7 +24,7 @@ set_test.o: ../cstl/set.h ../cstl/rbtree.h set_test.c heap.o rbtree_debug.h
 map_test.o: ../cstl/map.h ../cstl/rbtree.h map_test.c heap.o rbtree_debug.h
 	$(CC) $(CFLAGS) -c map_test.c
 
-string_test.o: ../cstl/string.h string_test.cpp heap.o
+string_test.o: ../cstl/string.h ../cstl/vector.h string_test.cpp heap.o
 	g++ $(CFLAGS) -c string_test.cpp
 
 test: test.h main.c vector_test.o deque_test.o list_test.o set_test.o map_test.o string_test.o

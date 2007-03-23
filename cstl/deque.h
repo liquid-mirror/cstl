@@ -70,10 +70,9 @@ struct Name##_t {\
 \
 DEQUE_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
-Name *Name##_new_copy(Name *x);\
 void Name##_init(Name *self, Type *buf, size_t n);\
 void Name##_delete(Name *self);\
-int Name##_assign(Name *self, Type *elems, size_t n);\
+int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
 int Name##_push_back(Name *self, Type elem);\
 int Name##_push_front(Name *self, Type elem);\
 Type Name##_pop_front(Name *self);\
@@ -88,10 +87,9 @@ Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n);\
-void Name##_erase(Name *self, size_t idx);\
-void Name##_erase_n(Name *self, size_t idx, size_t n);\
+void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
-void Name##_swap(Name *x, Name *y);\
+void Name##_swap(Name *self, Name *x);\
 DEQUE_END_EXTERN_C()\
 
 
@@ -144,22 +142,11 @@ Name *Name##_new(size_t n)\
 	return self;\
 }\
 \
-Name *Name##_new_copy(Name *x)\
-{\
-	Name *self;\
-	assert(x && "Deque_new_copy");\
-	assert(x->magic == x && "Deque_new_copy");\
-	self = Name##_new(Name##_max_size(x));\
-	if (!self) return 0;\
-	Name##_insert_n(self, 0, Name##_at(x, 0), Name##_size(x));\
-	return self;\
-}\
-\
 void Name##_delete(Name *self)\
 {\
 	assert(self && "Deque_delete");\
 	assert(self->magic == self && "Deque_delete");\
-	DEQUE_MAGIC(self->magic = 0);\
+	DEQUE_MAGIC(self->magic = 0;)\
 	free(self->buf);\
 	free(self);\
 }\
@@ -172,21 +159,27 @@ void Name##_init(Name *self, Type *buf, size_t n)\
 	self->end = 0;\
 	self->buf = buf;\
 	self->nelems = n;\
-	DEQUE_MAGIC(self->magic = self);\
+	DEQUE_MAGIC(self->magic = self;)\
 }\
 \
-int Name##_assign(Name *self, Type *elems, size_t n)\
+int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 {\
 	size_t i;\
 	assert(self && "Deque_assign");\
 	assert(self->magic == self && "Deque_assign");\
-	assert(elems && "Deque_assign");\
+	assert(x && "Deque_assign");\
+	assert(x->magic == x && "Deque_assign");\
+	assert(Name##_size(x) >= idx + n && "Deque_assign");\
 	if (n > Name##_max_size(self)) return 0;\
-	for (i = 0; i < n; i++) {\
-		self->buf[i] = elems[i];\
+	if (self == x) {\
+		Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
+		Name##_erase(self, 0, idx);\
+	} else {\
+		Name##_clear(self);\
+		for (i = 0; i < n; i++) {\
+			Name##_push_back(self, *Name##_at(x, i));\
+		}\
 	}\
-	self->begin = 0;\
-	self->end = n;\
 	return 1;\
 }\
 \
@@ -339,21 +332,13 @@ int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n)\
 	return 1;\
 }\
 \
-void Name##_erase(Name *self, size_t idx)\
-{\
-	assert(self && "Deque_erase");\
-	assert(self->magic == self && "Deque_erase");\
-	assert(Name##_size(self) >= idx + 1 && "Deque_erase");\
-	Name##_erase_n(self, idx, 1);\
-}\
-\
-void Name##_erase_n(Name *self, size_t idx, size_t n)\
+void Name##_erase(Name *self, size_t idx, size_t n)\
 {\
 	size_t pos1;\
 	size_t pos2;\
-	assert(self && "Deque_erase_n");\
-	assert(self->magic == self && "Deque_erase_n");\
-	assert(Name##_size(self) >= idx + n && "Deque_erase_n");\
+	assert(self && "Deque_erase");\
+	assert(self->magic == self && "Deque_erase");\
+	assert(Name##_size(self) >= idx + n && "Deque_erase");\
 	pos1 = Name##_forward(self, self->begin, idx);\
 	pos2 = Name##_forward(self, pos1, n);\
 	if (Name##_distance(self, self->begin, pos1) >= \
@@ -388,28 +373,28 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 	return 1;\
 }\
 \
-void Name##_swap(Name *x, Name *y)\
+void Name##_swap(Name *self, Name *x)\
 {\
 	size_t tmp_begin;\
 	size_t tmp_end;\
 	size_t tmp_nelems;\
 	Type *tmp_buf;\
+	assert(self && "Deque_swap");\
 	assert(x && "Deque_swap");\
-	assert(y && "Deque_swap");\
+	assert(self->magic == self && "Deque_swap");\
 	assert(x->magic == x && "Deque_swap");\
-	assert(y->magic == y && "Deque_swap");\
-	tmp_begin = x->begin;\
-	tmp_end = x->end;\
-	tmp_nelems = x->nelems;\
-	tmp_buf = x->buf;\
-	x->begin = y->begin;\
-	x->end = y->end;\
-	x->nelems = y->nelems;\
-	x->buf = y->buf;\
-	y->begin = tmp_begin;\
-	y->end = tmp_end;\
-	y->nelems = tmp_nelems;\
-	y->buf = tmp_buf;\
+	tmp_begin = self->begin;\
+	tmp_end = self->end;\
+	tmp_nelems = self->nelems;\
+	tmp_buf = self->buf;\
+	self->begin = x->begin;\
+	self->end = x->end;\
+	self->nelems = x->nelems;\
+	self->buf = x->buf;\
+	x->begin = tmp_begin;\
+	x->end = tmp_end;\
+	x->nelems = tmp_nelems;\
+	x->buf = tmp_buf;\
 }\
 \
 

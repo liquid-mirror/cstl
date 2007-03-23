@@ -65,10 +65,7 @@
 typedef struct Name##_t Name;\
 \
 STRING_BEGIN_EXTERN_C()\
-Name *Name##_new(void);\
-Name *Name##_new_cstr(Type *cstr, size_t cstr_len);\
-Name *Name##_new_c(size_t n, Type c);\
-Name *Name##_new_copy(Name *x);\
+Name *Name##_new(size_t n);\
 void Name##_delete(Name *self);\
 void Name##_clear(Name *self);\
 size_t Name##_size(Name *self);\
@@ -77,12 +74,12 @@ size_t Name##_capacity(Name *self);\
 int Name##_reserve(Name *self, size_t n);\
 void Name##_shrink(Name *self, size_t n);\
 int Name##_empty(Name *self);\
-int Name##_compare(Name *x, Name *y);\
+int Name##_compare(Name *self, Name *x);\
 Type *Name##_at(Name *self, size_t idx);\
 Type *Name##_c_str(Name *self);\
 void Name##_erase(Name *self, size_t idx, size_t len);\
 int Name##_resize(Name *self, size_t n, Type c);\
-void Name##_swap(Name *x, Name *y);\
+void Name##_swap(Name *self, Name *x);\
 int Name##_assign(Name *self, Type *cstr, size_t cstr_len);\
 int Name##_assign_c(Name *self, size_t n, Type c);\
 int Name##_append(Name *self, Type *cstr, size_t cstr_len);\
@@ -151,68 +148,26 @@ struct Name##_t {\
 	STRING_MAGIC(void *magic;)\
 };\
 \
-Name *Name##_new(void)\
+Name *Name##_new(size_t n)\
 {\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->data = Name##CharVector_new();\
+	self->data = Name##CharVector_new(n+1);\
 	if (!self->data) {\
 		free(self);\
 		return 0;\
 	}\
 	Name##CharVector_push_back(self->data, '\0');\
-	STRING_MAGIC(self->magic = self);\
+	STRING_MAGIC(self->magic = self;)\
 	return self;\
-}\
-\
-Name *Name##_new_cstr(Type *cstr, size_t cstr_len)\
-{\
-	Name *self;\
-	assert(cstr && "String_new_cstr");\
-	self = (Name *) malloc(sizeof(Name));\
-	if (!self) return 0;\
-	if (cstr_len == NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
-	}\
-	self->data = Name##CharVector_new_reserve(cstr_len +1);\
-	if (!self->data) {\
-		free(self);\
-		return 0;\
-	}\
-	Name##CharVector_assign(self->data, cstr, cstr_len);\
-	Name##CharVector_push_back(self->data, '\0');\
-	STRING_MAGIC(self->magic = self);\
-	return self;\
-}\
-\
-Name *Name##_new_c(size_t n, Type c)\
-{\
-	Name *self;\
-	self = (Name *) malloc(sizeof(Name));\
-	if (!self) return 0;\
-	self->data = Name##CharVector_new_reserve(n+1);\
-	if (!self->data) {\
-		free(self);\
-		return 0;\
-	}\
-	STRING_MAGIC(self->magic = self);\
-	Name##_assign_c(self, n, c);\
-	return self;\
-}\
-\
-Name *Name##_new_copy(Name *x)\
-{\
-	assert(x && "String_new_copy");\
-	assert(x->magic == x && "String_new_copy");\
-	return Name##_new_cstr(Name##_at(x, 0), Name##_size(x));\
 }\
 \
 void Name##_delete(Name *self)\
 {\
 	assert(self && "String_delete");\
 	assert(self->magic == self && "String_delete");\
-	STRING_MAGIC(self->magic = 0);\
+	STRING_MAGIC(self->magic = 0;)\
 	Name##CharVector_delete(self->data);\
 	free(self);\
 }\
@@ -267,18 +222,18 @@ int Name##_empty(Name *self)\
 	return Name##CharVector_size(self->data) == 1;\
 }\
 \
-int Name##_compare(Name *x, Name *y)\
+int Name##_compare(Name *self, Name *x)\
 {\
-	size_t xlen, ylen;\
+	size_t len, xlen;\
 	int ret;\
+	assert(self && "String_compare");\
 	assert(x && "String_compare");\
-	assert(y && "String_compare");\
+	assert(self->magic == self && "String_compare");\
 	assert(x->magic == x && "String_compare");\
-	assert(y->magic == y && "String_compare");\
+	len = Name##_size(self);\
 	xlen = Name##_size(x);\
-	ylen = Name##_size(y);\
-	ret = Name##my_memcmp(Name##_c_str(x), Name##_c_str(y), (xlen > ylen) ? ylen : xlen);\
-	return ret ? ret : xlen - ylen;\
+	ret = Name##my_memcmp(Name##_c_str(self), Name##_c_str(x), (len > xlen) ? xlen : len);\
+	return ret ? ret : len - xlen;\
 }\
 \
 Type *Name##_at(Name *self, size_t idx)\
@@ -306,7 +261,7 @@ void Name##_erase(Name *self, size_t idx, size_t len)\
 	if (len > size - idx) {\
 		len = size - idx;\
 	}\
-	Name##CharVector_erase_n(self->data, idx, len);\
+	Name##CharVector_erase(self->data, idx, len);\
 }\
 \
 int Name##_resize(Name *self, size_t n, Type c)\
@@ -326,16 +281,16 @@ int Name##_resize(Name *self, size_t n, Type c)\
 	return 1;\
 }\
 \
-void Name##_swap(Name *x, Name *y)\
+void Name##_swap(Name *self, Name *x)\
 {\
 	Name##CharVector *tmp_data;\
+	assert(self && "String_swap");\
 	assert(x && "String_swap");\
-	assert(y && "String_swap");\
+	assert(self->magic == self && "String_swap");\
 	assert(x->magic == x && "String_swap");\
-	assert(y->magic == y && "String_swap");\
-	tmp_data = x->data;\
-	x->data = y->data;\
-	y->data = tmp_data;\
+	tmp_data = self->data;\
+	self->data = x->data;\
+	x->data = tmp_data;\
 }\
 \
 int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\
@@ -349,7 +304,8 @@ int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\
 	if (!Name##CharVector_reserve(self->data, cstr_len +1)) {\
 		return 0;\
 	}\
-	Name##CharVector_assign(self->data, cstr, cstr_len);\
+	Name##CharVector_clear(self->data);\
+	Name##CharVector_insert_n(self->data, 0, cstr, cstr_len);\
 	Name##CharVector_push_back(self->data, '\0');\
 	return 1;\
 }\
@@ -403,6 +359,7 @@ int Name##_push_back(Name *self, Type c)\
 \
 int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 {\
+	int ret;\
 	assert(self && "String_insert");\
 	assert(self->magic == self && "String_insert");\
 	assert(Name##_size(self) >= idx && "String_insert");\
@@ -410,29 +367,50 @@ int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 	if (cstr_len == NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
-	return Name##CharVector_insert_n(self->data, idx, cstr, cstr_len);\
+	if (cstr_len && Name##_c_str(self) + idx < cstr + cstr_len && cstr < Name##_c_str(self) + Name##_size(self)) {\
+		size_t i;\
+		Type *buf;\
+		buf = (Type *) malloc(sizeof(Type) * cstr_len);\
+		if (!buf) return 0;\
+		for (i = 0; i < cstr_len; i++) {\
+			buf[i] = cstr[i];\
+		}\
+		ret = Name##CharVector_insert_n(self->data, idx, buf, cstr_len);\
+		free(buf);\
+	} else {\
+		ret = Name##CharVector_insert_n(self->data, idx, cstr, cstr_len);\
+	}\
+	return ret;\
 }\
 \
 int Name##_insert_c(Name *self, size_t idx, size_t n, Type c)\
 {\
-	size_t i;\
+	int ret = 1;\
 	assert(self && "String_insert_c");\
 	assert(self->magic == self && "String_insert_c");\
 	assert(Name##_size(self) >= idx && "String_insert_c");\
-	if (!Name##_reserve(self, Name##_size(self) + n)) {\
-		return 0;\
+	if (n > 1) {\
+		size_t i;\
+		Type *buf;\
+		buf = (Type *) malloc(sizeof(Type) * n);\
+		if (!buf) return 0;\
+		for (i = 0; i < n; i++) {\
+			buf[i] = c;\
+		}\
+		ret = Name##_insert(self, idx, buf, n);\
+		free(buf);\
+	} else if (n == 1) {\
+		ret = Name##CharVector_insert(self->data, idx, c);\
 	}\
-	for (i = 0; i < n; i++) {\
-		Name##CharVector_insert(self->data, idx, c);\
-		idx++;\
-	}\
-	return 1;\
+	return ret;\
 }\
 \
 int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_len)\
 {\
 	size_t i;\
 	size_t size;\
+	Type *buf;\
+	int flag = 0;\
 	assert(self && "String_replace");\
 	assert(self->magic == self && "String_replace");\
 	assert(cstr && "String_replace");\
@@ -444,11 +422,21 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 	if (cstr_len == NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
+	if (cstr_len && Name##_c_str(self) + idx < cstr + cstr_len && cstr < Name##_c_str(self) + Name##_size(self)) {\
+		buf = (Type *) malloc(sizeof(Type) * cstr_len);\
+		if (!buf) return 0;\
+		for (i = 0; i < cstr_len; i++) {\
+			buf[i] = cstr[i];\
+		}\
+		flag = 1;\
+	} else {\
+		buf = cstr;\
+	}\
 	if (cstr_len <= len) {\
 		/* Šg’£•K—v‚È‚µ */\
 		for (i = 0; i < len; i++) {\
 			if (i < cstr_len) {\
-				*Name##_at(self, i + idx) = cstr[i];\
+				*Name##_at(self, i + idx) = buf[i];\
 			} else {\
 				size_t j = len - cstr_len;\
 				if (j > Name##_size(self) - (cstr_len + idx)) {\
@@ -461,60 +449,44 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 	} else {\
 		/* Šg’£•K—v‚ ‚è */\
 		if (!Name##_reserve(self, Name##_capacity(self) + (cstr_len - len))) {\
+			if (flag) free(buf);\
 			return 0;\
 		}\
 		for (i = 0; i < len; i++) {\
-			*Name##_at(self, i + idx) = cstr[i];\
+			*Name##_at(self, i + idx) = buf[i];\
 		}\
-		Name##_insert(self, len + idx, &cstr[len], cstr_len - len);\
+		Name##_insert(self, len + idx, &buf[len], cstr_len - len);\
 	}\
+	if (flag) free(buf);\
 	return 1;\
 }\
 \
 int Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c)\
 {\
-	size_t i;\
-	size_t size;\
+	int ret;\
 	assert(self && "String_replace_c");\
 	assert(self->magic == self && "String_replace_c");\
-	size = Name##_size(self);\
-	assert(size >= idx && "String_replace_c");\
-	if (len > size - idx) {\
-		len = size - idx;\
-	}\
-	assert(Name##_size(self) >= idx + len && "String_replace_c");\
-	if (n <= len) {\
-		/* Šg’£•K—v‚È‚µ */\
-		for (i = 0; i < len; i++) {\
-			if (i < n) {\
-				*Name##_at(self, i + idx) = c;\
-			} else {\
-				size_t j = len - n;\
-				if (j > Name##_size(self) - (n + idx)) {\
-					j = Name##_size(self) - (n + idx);\
-				}\
-				Name##_erase(self, n + idx, j);\
-				break;\
-			}\
+	assert(Name##_size(self) >= idx && "String_replace_c");\
+	if (n > 1) {\
+		size_t i;\
+		Type *buf;\
+		buf = (Type *) malloc(sizeof(Type) * n);\
+		if (!buf) return 0;\
+		for (i = 0; i < n; i++) {\
+			buf[i] = c;\
 		}\
+		ret = Name##_replace(self, idx, len, buf, n);\
+		free(buf);\
 	} else {\
-		/* Šg’£•K—v‚ ‚è */\
-		if (!Name##_reserve(self, Name##_capacity(self) + (n - len))) {\
-			return 0;\
-		}\
-		for (i = 0; i < len; i++) {\
-			*Name##_at(self, i + idx) = c;\
-		}\
-		Name##_insert_c(self, len + idx, n - len, c);\
+		ret = Name##_replace(self, idx, len, &c, n);\
 	}\
-	return 1;\
+	return ret;\
 }\
 \
 static size_t Name##_brute_force_search(Type *str, size_t str_len, Type *ptn, size_t ptn_len)\
 {\
 	size_t i = 0;\
 	size_t j = 0;\
-\
 	if (str_len < ptn_len) return NPOS;\
 	while (i < str_len && j < ptn_len) {\
 		if (str[i] == ptn[j]) {\
@@ -532,7 +504,6 @@ static size_t Name##_brute_force_search_r(Type *str, size_t str_len, Type *ptn, 
 {\
 	size_t i = str_len;\
 	size_t j = ptn_len;\
-\
 	if (str_len < ptn_len) return NPOS;\
 	while (i > 0 && j > 0) {\
 		if (str[i-1] == ptn[j-1]) {\

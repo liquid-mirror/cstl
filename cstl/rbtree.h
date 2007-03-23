@@ -175,6 +175,7 @@ static Name *Name##_new(void)\
 	self->right = &Name##_nil;\
 	self->parent = &Name##_nil;\
 	self->color = RBTREE_HEAD;\
+	RBTREE_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -200,6 +201,7 @@ static void Name##_clear(Name *self)\
 			t->parent->right = &Name##_nil;\
 		}\
 		tmp = t->parent;\
+		RBTREE_MAGIC(t->magic = 0;)\
 		free(t);\
 		t = tmp;\
 		if (Name##Node_is_head(t)) break;\
@@ -210,6 +212,7 @@ static void Name##_delete(Name *self)\
 {\
 	assert(Name##Node_is_head(self) && "RBTree_delete");\
 	Name##_clear(self);\
+	RBTREE_MAGIC(self->magic = 0;)\
 	free(self);\
 }\
 \
@@ -496,6 +499,7 @@ static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 		Name##Node *root = Name##Node_new(key, value, RBTREE_BLACK);\
 		if (!root) return 0;	/* メモリ不足 */\
 		Name##_set_root(self, root);\
+		RBTREE_MAGIC(root->magic = self;)\
 		return root;\
 	}\
 	/* 2分探索木の挿入 */\
@@ -516,6 +520,7 @@ static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 		Name##Node_set_right(tmp, n);\
 	}\
 	Name##Node_balance_for_insert(n);\
+	RBTREE_MAGIC(n->magic = self;)\
 	return n;\
 }\
 \
@@ -658,6 +663,7 @@ static void Name##_erase(Name *self, Name##Iterator pos)\
 		Name##Node_balance_for_erase(n->left, n->parent);\
 	}\
 end:\
+	RBTREE_MAGIC(n->magic = 0;)\
 	free(n);\
 }\
 \
@@ -750,8 +756,8 @@ typedef struct Name##_t Name;\
 typedef struct Name##RBTreeNode_t *Name##Iterator;\
 \
 Name *Name##_new(void);\
-Name *Name##_new_copy(Name *x);\
 void Name##_delete(Name *self);\
+int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last);\
 void Name##_clear(Name *self);\
 int Name##_empty(Name *self);\
 size_t Name##_size(Name *self);\
@@ -769,7 +775,7 @@ Name##Iterator Name##_rend(Name *self);\
 Name##Iterator Name##_next(Name##Iterator pos);\
 Name##Iterator Name##_prev(Name##Iterator pos);\
 KeyType Name##_key(Name##Iterator pos);\
-void Name##_swap(Name *x, Name *y);\
+void Name##_swap(Name *self, Name *x);\
 
 
 #define RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
@@ -797,7 +803,7 @@ Name *Name##_new(void)\
 		return 0;\
 	}\
 	self->nelems = 0;\
-	RBTREE_MAGIC(self->magic = self);\
+	RBTREE_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -806,7 +812,7 @@ void Name##_delete(Name *self)\
 	assert(self && "RBTree_delete");\
 	assert(self->magic == self && "RBTree_delete");\
 	Name##RBTree_delete(self->tree);\
-	RBTREE_MAGIC(self->magic = 0);\
+	RBTREE_MAGIC(self->magic = 0;)\
 	free(self);\
 }\
 \
@@ -837,6 +843,9 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	Name##Iterator tmp;\
 	assert(self && "RBTree_erase");\
 	assert(self->magic == self && "RBTree_erase");\
+	assert(pos && "RBTree_erase");\
+	assert(pos != self->tree && "RBTree_erase");\
+	assert(pos->magic == self->tree && "RBTree_erase");\
 	tmp = Name##_next(pos);\
 	Name##RBTree_erase(self->tree, pos);\
 	self->nelems--;\
@@ -850,8 +859,11 @@ Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterat
 	assert(self->magic == self && "RBTree_erase_range");\
 	assert(first && "RBTree_erase_range");\
 	assert(last && "RBTree_erase_range");\
+	assert(first->magic == self->tree && "RBTree_erase_range");\
+	assert(last->magic == self->tree && "RBTree_erase_range");\
 	pos = first;\
 	while (pos != last) {\
+		assert(!Name##_empty(self) && "RBTree_erase_range");\
 		pos = Name##_erase(self, pos);\
 	}\
 	return pos;\
@@ -867,6 +879,7 @@ size_t Name##_erase_key(Name *self, KeyType key)\
 	pos = Name##_lower_bound(self, key);\
 	last = Name##_upper_bound(self, key);\
 	while (pos != last) {\
+		assert(!Name##_empty(self) && "RBTree_erase_key");\
 		pos = Name##_erase(self, pos);\
 		count++;\
 	}\
@@ -932,36 +945,39 @@ Name##Iterator Name##_rend(Name *self)\
 Name##Iterator Name##_next(Name##Iterator pos)\
 {\
 	assert(pos && "RBTree_next");\
+	assert(pos->magic && "RBTree_next");\
 	return Name##RBTree_next(pos);\
 }\
 \
 Name##Iterator Name##_prev(Name##Iterator pos)\
 {\
 	assert(pos && "RBTree_prev");\
+	assert(pos->magic && "RBTree_prev");\
 	return Name##RBTree_prev(pos);\
 }\
 \
 KeyType Name##_key(Name##Iterator pos)\
 {\
 	assert(pos && "RBTree_key");\
+	assert(pos->magic && "RBTree_key");\
 	assert(!Name##RBTreeNode_is_head(pos) && "RBTree_key");\
 	return pos->key;\
 }\
 \
-void Name##_swap(Name *x, Name *y)\
+void Name##_swap(Name *self, Name *x)\
 {\
 	Name##RBTree *tmp_tree;\
 	size_t tmp_nelems;\
+	assert(self && "RBTree_swap");\
 	assert(x && "RBTree_swap");\
-	assert(y && "RBTree_swap");\
+	assert(self->magic == self && "RBTree_swap");\
 	assert(x->magic == x && "RBTree_swap");\
-	assert(y->magic == y && "RBTree_swap");\
-	tmp_tree = x->tree;\
-	tmp_nelems = x->nelems;\
-	x->tree = y->tree;\
-	x->nelems = y->nelems;\
-	y->tree = tmp_tree;\
-	y->nelems = tmp_nelems;\
+	tmp_tree = self->tree;\
+	tmp_nelems = self->nelems;\
+	self->tree = x->tree;\
+	self->nelems = x->nelems;\
+	x->tree = tmp_tree;\
+	x->nelems = tmp_nelems;\
 }\
 \
 

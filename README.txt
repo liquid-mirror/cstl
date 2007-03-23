@@ -19,8 +19,8 @@ SourceForge.jp CSTL
     map.h         map
     string.h      string
   doc/
-    CSTL.rd       CSTLのドキュメント(RDファイル)
-    CSTL.html     CSTL.rdをhtml化したもの
+    CSTL.rd       CSTLのドキュメント
+    CSTL.html     CSTL.rdをhtml化したもの(tarballのみに同梱)
     Makefile      CSTL.htmlを生成するためのMakefile
   test/           単体テスト
   sample/         CSTLを使用したサンプル
@@ -32,8 +32,8 @@ SourceForge.jp CSTL
 
 
 単体テストについて
-  gcc3.4.4で動作確認をしています。(stringのみstd::stringを使用してテストしてい
-  るのでg++を使用) makeを実行すればビルドからテスト実行までを行います。
+  gcc3.4.4で動作確認をしています。testディレクトリでmakeを実行すればビルドから
+  テスト実行までを行います。
 
 
 ドキュメント生成について

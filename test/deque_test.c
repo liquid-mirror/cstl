@@ -29,22 +29,22 @@ void deque_init_piyo(void)
 	}
 }
 
-int ud_cmp(size_t idx, unsigned char *buf, size_t n)
+int ud_cmp(UCharDeque *x, size_t idx, unsigned char *buf, size_t n)
 {
 	int i, j;
 	for (i = idx, j = 0; i < idx + n; i++, j++) {
-/*        printf("%d, %d\n", *UCharDeque_at(ud, i), buf[j]);*/
-		if (*UCharDeque_at(ud, i) != buf[j]) return 1;
+/*        printf("%d, %d\n", *UCharDeque_at(x, i), buf[j]);*/
+		if (*UCharDeque_at(x, i) != buf[j]) return 1;
 	}
 	return 0;
 }
 
-int id_cmp(size_t idx, int *buf, size_t n)
+int id_cmp(IntDeque *x, size_t idx, int *buf, size_t n)
 {
 	int i, j;
 	for (i = idx, j = 0; i < idx + n; i++, j++) {
-/*        printf("%d, %d\n", *IntDeque_at(id, i), buf[j]);*/
-		if (*IntDeque_at(id, i) != buf[j]) return 1;
+/*        printf("%d, %d\n", *IntDeque_at(x, i), buf[j]);*/
+		if (*IntDeque_at(x, i) != buf[j]) return 1;
 	}
 	return 0;
 }
@@ -63,9 +63,10 @@ void DequeTest_test_1_1(void)
 	for (j = 0; j < MAX+1; j++) {
 		ud->begin = ud->end = j;
 		assert(UCharDeque_size(ud) == 0);
-		/* assign */
-		assert(UCharDeque_assign(ud, hoge, MAX));
-		assert(ud_cmp(0, hoge, MAX) == 0);
+		/* insert_n */
+		UCharDeque_clear(ud);
+		assert(UCharDeque_insert_n(ud, 0, hoge, MAX));
+		assert(ud_cmp(ud, 0, hoge, MAX) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
 		assert(UCharDeque_full(ud));
@@ -80,15 +81,10 @@ void DequeTest_test_1_1(void)
 		assert(UCharDeque_size(ud) == 0);
 		assert(UCharDeque_empty(ud));
 		assert(!UCharDeque_full(ud));
-		/* assign */
-		assert(UCharDeque_assign(ud, hoge, MAX/2));
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
-		assert(UCharDeque_size(ud) == MAX/2);
-		assert(!UCharDeque_empty(ud));
-		assert(!UCharDeque_full(ud));
-		/* MAX以上で失敗 */
-		assert(!UCharDeque_assign(ud, hoge, MAX+1));
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		/* insert_n */
+		UCharDeque_clear(ud);
+		assert(UCharDeque_insert_n(ud, 0, hoge, MAX/2));
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 		assert(!UCharDeque_empty(ud));
 		assert(!UCharDeque_full(ud));
@@ -116,7 +112,7 @@ void DequeTest_test_1_2(void)
 			assert(UCharDeque_push_back(ud, hoge[i]));
 			assert(UCharDeque_size(ud) == size + 1);
 		}
-		assert(ud_cmp(0, hoge, MAX) == 0);
+		assert(ud_cmp(ud, 0, hoge, MAX) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
 		assert(UCharDeque_full(ud));
@@ -137,8 +133,8 @@ void DequeTest_test_1_2(void)
 		size = UCharDeque_size(ud);
 		assert(UCharDeque_push_back(ud, hoge[0]));
 		assert(UCharDeque_size(ud) == size + 1);
-		assert(ud_cmp(0, &hoge[1], MAX-1) == 0);
-		assert(ud_cmp(MAX-1, hoge, 1) == 0);
+		assert(ud_cmp(ud, 0, &hoge[1], MAX-1) == 0);
+		assert(ud_cmp(ud, MAX-1, hoge, 1) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
 		assert(UCharDeque_full(ud));
@@ -176,7 +172,7 @@ void DequeTest_test_1_3(void)
 			assert(UCharDeque_push_front(ud, hoge[MAX-i-1]));
 			assert(UCharDeque_size(ud) == size + 1);
 		}
-		assert(ud_cmp(0, hoge, MAX) == 0);
+		assert(ud_cmp(ud, 0, hoge, MAX) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
 		assert(UCharDeque_full(ud));
@@ -199,8 +195,8 @@ void DequeTest_test_1_3(void)
 		assert(UCharDeque_push_front(ud, hoge[MAX-1]));
 		assert(UCharDeque_push_front(ud, hoge[MAX-2]));
 		assert(UCharDeque_size(ud) == size + 2);
-		assert(ud_cmp(0, &hoge[MAX-2], 2) == 0);
-		assert(ud_cmp(2, hoge, MAX-2) == 0);
+		assert(ud_cmp(ud, 0, &hoge[MAX-2], 2) == 0);
+		assert(ud_cmp(ud, 2, hoge, MAX-2) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
 		assert(UCharDeque_full(ud));
@@ -232,29 +228,29 @@ void DequeTest_test_1_4(void)
 		/* insert */
 		/* 空状態 */
 		for (i = 0; i < MAX/2; i++) {
-			assert(ud_cmp(0, hoge, i) == 0);
+			assert(ud_cmp(ud, 0, hoge, i) == 0);
 			assert(UCharDeque_insert(ud, i, hoge[i]));
 		}
 		/* 先頭・前寄り */
 		assert(UCharDeque_insert(ud, 0, hoge[0]));
 		assert(UCharDeque_insert(ud, 1, hoge[1]));
 		assert(UCharDeque_insert(ud, 2, hoge[2]));
-		assert(ud_cmp(0, hoge, 3) == 0);
-		assert(ud_cmp(3, hoge, MAX/2) == 0);
+		assert(ud_cmp(ud, 0, hoge, 3) == 0);
+		assert(ud_cmp(ud, 3, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 3);
 
 		/* erase */
 		/* 先頭・前寄り */
-		UCharDeque_erase(ud, 2);
-		assert(ud_cmp(0, hoge, 2) == 0);
-		assert(ud_cmp(2, hoge, MAX/2) == 0);
+		UCharDeque_erase(ud, 2, 1);
+		assert(ud_cmp(ud, 0, hoge, 2) == 0);
+		assert(ud_cmp(ud, 2, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 2);
-		UCharDeque_erase(ud, 1);
-		assert(ud_cmp(0, hoge, 1) == 0);
-		assert(ud_cmp(1, hoge, MAX/2) == 0);
+		UCharDeque_erase(ud, 1, 1);
+		assert(ud_cmp(ud, 0, hoge, 1) == 0);
+		assert(ud_cmp(ud, 1, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 1);
-		UCharDeque_erase(ud, 0);
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		UCharDeque_erase(ud, 0, 1);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 
 		/* insert */
@@ -262,55 +258,46 @@ void DequeTest_test_1_4(void)
 		assert(UCharDeque_insert(ud, MAX/2, hoge[0]));
 		assert(UCharDeque_insert(ud, MAX/2, hoge[1]));
 		assert(UCharDeque_insert(ud, MAX/2, hoge[2]));
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(*UCharDeque_at(ud, MAX/2 + 0) == hoge[2]);
 		assert(*UCharDeque_at(ud, MAX/2 + 1) == hoge[1]);
 		assert(*UCharDeque_at(ud, MAX/2 + 2) == hoge[0]);
 
 		/* erase */
 		/* 末尾・後ろ寄り */
-		UCharDeque_erase(ud, MAX/2);
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		UCharDeque_erase(ud, MAX/2, 1);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(*UCharDeque_at(ud, MAX/2 + 0) == hoge[1]);
 		assert(*UCharDeque_at(ud, MAX/2 + 1) == hoge[0]);
 		assert(UCharDeque_size(ud) == MAX/2 + 2);
-		UCharDeque_erase(ud, MAX/2);
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		UCharDeque_erase(ud, MAX/2, 1);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(*UCharDeque_at(ud, MAX/2 + 0) == hoge[0]);
 		assert(UCharDeque_size(ud) == MAX/2 + 1);
-		UCharDeque_erase(ud, MAX/2);
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		UCharDeque_erase(ud, MAX/2, 1);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 
 		/* 先頭から全削除 */
 		for (i = 0; i < MAX/2; i++) {
-			assert(ud_cmp(0, &hoge[i], MAX/2 - i) == 0);
-			UCharDeque_erase(ud, 0);
+			assert(ud_cmp(ud, 0, &hoge[i], MAX/2 - i) == 0);
+			UCharDeque_erase(ud, 0, 1);
 		}
 		assert(UCharDeque_size(ud) == 0);
 
 		for (i = 0; i < MAX/2; i++) {
-			assert(ud_cmp(0, hoge, i) == 0);
+			assert(ud_cmp(ud, 0, hoge, i) == 0);
 			assert(UCharDeque_insert(ud, i, hoge[i]));
 		}
 		assert(UCharDeque_size(ud) == MAX/2);
 
 		/* 末尾から全削除 */
 		for (i = 0; i < MAX/2; i++) {
-			assert(ud_cmp(0, hoge, MAX/2 - i) == 0);
-			UCharDeque_erase(ud, UCharDeque_size(ud) -1);
+			assert(ud_cmp(ud, 0, hoge, MAX/2 - i) == 0);
+			UCharDeque_erase(ud, UCharDeque_size(ud) -1, 1);
 		}
 		assert(UCharDeque_size(ud) == 0);
 
-		/* MAX以上で失敗 */
-		assert(UCharDeque_assign(ud, hoge, MAX));
-		assert(ud_cmp(0, hoge, MAX) == 0);
-		assert(UCharDeque_size(ud) == MAX);
-		assert(UCharDeque_full(ud));
-		assert(!UCharDeque_insert(ud, 0, hoge[0]));
-		assert(ud_cmp(0, hoge, MAX) == 0);
-		assert(UCharDeque_size(ud) == MAX);
-		assert(UCharDeque_full(ud));
 	}
 
 	UCharDeque_delete(ud);
@@ -327,123 +314,123 @@ void DequeTest_test_1_5(void)
 		/* insert_n */
 		/* 空状態 */
 		assert(UCharDeque_insert_n(ud, 0, hoge, MAX/2));
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 
 		/* insert_n */
 		/* 先頭 */
 		assert(UCharDeque_insert_n(ud, 0, hoge, 3));
-		assert(ud_cmp(0, hoge, 3) == 0);
-		assert(ud_cmp(3, hoge, MAX/2) == 0);
+		assert(ud_cmp(ud, 0, hoge, 3) == 0);
+		assert(ud_cmp(ud, 3, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 3);
-		/* erase_n */
-		UCharDeque_erase_n(ud, 0, 3);
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		/* erase */
+		UCharDeque_erase(ud, 0, 3);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 
 		/* insert_n */
 		/* 前寄り */
 		assert(UCharDeque_insert_n(ud, 2, hoge, 3));
-		assert(ud_cmp(0, hoge, 2) == 0);
-		assert(ud_cmp(2, hoge, 3) == 0);
-		assert(ud_cmp(5, &hoge[2], MAX/2 -2) == 0);
+		assert(ud_cmp(ud, 0, hoge, 2) == 0);
+		assert(ud_cmp(ud, 2, hoge, 3) == 0);
+		assert(ud_cmp(ud, 5, &hoge[2], MAX/2 -2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 3);
 		/* 0個指定 */
 		assert(UCharDeque_insert_n(ud, 1, &hoge[MAX/2], 0));
-		assert(ud_cmp(0, hoge, 2) == 0);
-		assert(ud_cmp(2, hoge, 3) == 0);
-		assert(ud_cmp(5, &hoge[2], MAX/2 -2) == 0);
+		assert(ud_cmp(ud, 0, hoge, 2) == 0);
+		assert(ud_cmp(ud, 2, hoge, 3) == 0);
+		assert(ud_cmp(ud, 5, &hoge[2], MAX/2 -2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 3);
 		/* 1個指定 */
 		assert(UCharDeque_insert_n(ud, 1, &hoge[MAX-1], 1));
-		assert(ud_cmp(0, &hoge[0], 1) == 0);
-		assert(ud_cmp(1, &hoge[MAX-1], 1) == 0);
-		assert(ud_cmp(2, &hoge[1], 1) == 0);
-		assert(ud_cmp(3, &hoge[0], 3) == 0);
-		assert(ud_cmp(6, &hoge[2], MAX/2 -2) == 0);
+		assert(ud_cmp(ud, 0, &hoge[0], 1) == 0);
+		assert(ud_cmp(ud, 1, &hoge[MAX-1], 1) == 0);
+		assert(ud_cmp(ud, 2, &hoge[1], 1) == 0);
+		assert(ud_cmp(ud, 3, &hoge[0], 3) == 0);
+		assert(ud_cmp(ud, 6, &hoge[2], MAX/2 -2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 4);
-		/* erase_n */
+		/* erase */
 		/* 0個指定 */
-		UCharDeque_erase_n(ud, 1, 0);
-		assert(ud_cmp(0, &hoge[0], 1) == 0);
-		assert(ud_cmp(1, &hoge[MAX-1], 1) == 0);
-		assert(ud_cmp(2, &hoge[1], 1) == 0);
-		assert(ud_cmp(3, &hoge[0], 3) == 0);
-		assert(ud_cmp(6, &hoge[2], MAX/2 -2) == 0);
+		UCharDeque_erase(ud, 1, 0);
+		assert(ud_cmp(ud, 0, &hoge[0], 1) == 0);
+		assert(ud_cmp(ud, 1, &hoge[MAX-1], 1) == 0);
+		assert(ud_cmp(ud, 2, &hoge[1], 1) == 0);
+		assert(ud_cmp(ud, 3, &hoge[0], 3) == 0);
+		assert(ud_cmp(ud, 6, &hoge[2], MAX/2 -2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 4);
 		/* 1個指定 */
-		UCharDeque_erase_n(ud, 1, 1);
-		assert(ud_cmp(0, hoge, 2) == 0);
-		assert(ud_cmp(2, hoge, 3) == 0);
-		assert(ud_cmp(5, &hoge[2], MAX/2 -2) == 0);
+		UCharDeque_erase(ud, 1, 1);
+		assert(ud_cmp(ud, 0, hoge, 2) == 0);
+		assert(ud_cmp(ud, 2, hoge, 3) == 0);
+		assert(ud_cmp(ud, 5, &hoge[2], MAX/2 -2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 3);
 		/* 前寄り */
-		UCharDeque_erase_n(ud, 2, 3);
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		UCharDeque_erase(ud, 2, 3);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 
 		/* insert_n */
 		/* 末尾 */
 		assert(UCharDeque_insert_n(ud, UCharDeque_size(ud), hoge, 3));
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
-		assert(ud_cmp(MAX/2, hoge, 3) == 0);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
+		assert(ud_cmp(ud, MAX/2, hoge, 3) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 3);
-		/* erase_n */
-		UCharDeque_erase_n(ud, UCharDeque_size(ud) - 3, 3);
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		/* erase */
+		UCharDeque_erase(ud, UCharDeque_size(ud) - 3, 3);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 
 		/* insert_n */
 		/* 後ろ寄り */
 		assert(UCharDeque_insert_n(ud, UCharDeque_size(ud) - 2, hoge, 3));
-		assert(ud_cmp(0, hoge, MAX/2 -2) == 0);
-		assert(ud_cmp(MAX/2 -2, hoge, 3) == 0);
-		assert(ud_cmp(MAX/2 +1, &hoge[MAX/2 -2], 2) == 0);
+		assert(ud_cmp(ud, 0, hoge, MAX/2 -2) == 0);
+		assert(ud_cmp(ud, MAX/2 -2, hoge, 3) == 0);
+		assert(ud_cmp(ud, MAX/2 +1, &hoge[MAX/2 -2], 2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 3);
 		/* 0個指定 */
 		assert(UCharDeque_insert_n(ud, UCharDeque_size(ud) - 1, &hoge[MAX-1], 0));
-		assert(ud_cmp(0, hoge, MAX/2 -2) == 0);
-		assert(ud_cmp(MAX/2 -2, hoge, 3) == 0);
-		assert(ud_cmp(MAX/2 +1, &hoge[MAX/2 -2], 2) == 0);
+		assert(ud_cmp(ud, 0, hoge, MAX/2 -2) == 0);
+		assert(ud_cmp(ud, MAX/2 -2, hoge, 3) == 0);
+		assert(ud_cmp(ud, MAX/2 +1, &hoge[MAX/2 -2], 2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 3);
 		/* 1個指定 */
 		assert(UCharDeque_insert_n(ud, UCharDeque_size(ud) - 1, &hoge[MAX-1], 1));
-		assert(ud_cmp(0, hoge, MAX/2 -2) == 0);
-		assert(ud_cmp(MAX/2 -2, hoge, 3) == 0);
-		assert(ud_cmp(MAX/2 +1, &hoge[MAX/2 -2], 1) == 0);
-		assert(ud_cmp(MAX/2 +2, &hoge[MAX-1], 1) == 0);
-		assert(ud_cmp(MAX/2 +3, &hoge[MAX/2 -1], 1) == 0);
+		assert(ud_cmp(ud, 0, hoge, MAX/2 -2) == 0);
+		assert(ud_cmp(ud, MAX/2 -2, hoge, 3) == 0);
+		assert(ud_cmp(ud, MAX/2 +1, &hoge[MAX/2 -2], 1) == 0);
+		assert(ud_cmp(ud, MAX/2 +2, &hoge[MAX-1], 1) == 0);
+		assert(ud_cmp(ud, MAX/2 +3, &hoge[MAX/2 -1], 1) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 4);
-		/* erase_n */
+		/* erase */
 		/* 0個指定 */
-		UCharDeque_erase_n(ud, UCharDeque_size(ud) - 2, 0);
-		assert(ud_cmp(0, hoge, MAX/2 -2) == 0);
-		assert(ud_cmp(MAX/2 -2, hoge, 3) == 0);
-		assert(ud_cmp(MAX/2 +1, &hoge[MAX/2 -2], 1) == 0);
-		assert(ud_cmp(MAX/2 +2, &hoge[MAX-1], 1) == 0);
-		assert(ud_cmp(MAX/2 +3, &hoge[MAX/2 -1], 1) == 0);
+		UCharDeque_erase(ud, UCharDeque_size(ud) - 2, 0);
+		assert(ud_cmp(ud, 0, hoge, MAX/2 -2) == 0);
+		assert(ud_cmp(ud, MAX/2 -2, hoge, 3) == 0);
+		assert(ud_cmp(ud, MAX/2 +1, &hoge[MAX/2 -2], 1) == 0);
+		assert(ud_cmp(ud, MAX/2 +2, &hoge[MAX-1], 1) == 0);
+		assert(ud_cmp(ud, MAX/2 +3, &hoge[MAX/2 -1], 1) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 4);
 		/* 1個指定 */
-		UCharDeque_erase_n(ud, UCharDeque_size(ud) - 2, 1);
-		assert(ud_cmp(0, hoge, MAX/2 -2) == 0);
-		assert(ud_cmp(MAX/2 -2, hoge, 3) == 0);
-		assert(ud_cmp(MAX/2 +1, &hoge[MAX/2 -2], 2) == 0);
+		UCharDeque_erase(ud, UCharDeque_size(ud) - 2, 1);
+		assert(ud_cmp(ud, 0, hoge, MAX/2 -2) == 0);
+		assert(ud_cmp(ud, MAX/2 -2, hoge, 3) == 0);
+		assert(ud_cmp(ud, MAX/2 +1, &hoge[MAX/2 -2], 2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2 + 3);
 		/* 後ろ寄り */
-		UCharDeque_erase_n(ud, UCharDeque_size(ud) - 5, 3);
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		UCharDeque_erase(ud, UCharDeque_size(ud) - 5, 3);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 
 		/* MAX以上で失敗 */
 		assert(!UCharDeque_insert_n(ud, 0, hoge, MAX - MAX/2 +1));
-		assert(ud_cmp(0, hoge, MAX/2) == 0);
+		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 		/* MAXになるまで */
 		assert(UCharDeque_insert_n(ud, 0, hoge, MAX - MAX/2));
 		assert(UCharDeque_size(ud) == MAX);
 		assert(UCharDeque_full(ud));
 		/* 先頭から全削除 */
-		UCharDeque_erase_n(ud, 0, UCharDeque_size(ud));
+		UCharDeque_erase(ud, 0, UCharDeque_size(ud));
 		assert(UCharDeque_size(ud) == 0);
 	}
 
@@ -460,13 +447,26 @@ void DequeTest_test_1_6(void)
 	for (i = 0; i < MAX; i++) {
 		assert(UCharDeque_push_back(ud, hoge[i]));
 	}
-	/* new_copy */
-	x = UCharDeque_new_copy(ud);
+	/* assign */
+	assert(UCharDeque_size(ud) == MAX);
+	x = UCharDeque_new(MAX);
+	assert(UCharDeque_assign(x, ud, 0, UCharDeque_size(ud)));
 	assert(UCharDeque_size(ud) == UCharDeque_size(x));
 	assert(UCharDeque_max_size(ud) == UCharDeque_max_size(x));
 	for (i = 0; i < UCharDeque_size(ud); i++) {
 		assert(*UCharDeque_at(x, i) == *UCharDeque_at(ud, i));
 	}
+	assert(UCharDeque_assign(x, x, 0, UCharDeque_size(x)));
+	assert(UCharDeque_size(ud) == UCharDeque_size(x));
+	for (i = 0; i < UCharDeque_size(ud); i++) {
+		assert(*UCharDeque_at(x, i) == *UCharDeque_at(ud, i));
+	}
+	assert(UCharDeque_assign(x, x, 1, 2));
+	assert(UCharDeque_size(x) == 2);
+	assert(*UCharDeque_at(x, 0) == *UCharDeque_at(ud, 1));
+	assert(*UCharDeque_at(x, 1) == *UCharDeque_at(ud, 2));
+	assert(UCharDeque_assign(x, x, 0, 0));
+	assert(UCharDeque_size(x) == 0);
 	/* resize */
 	UCharDeque_clear(ud);
 	assert(UCharDeque_resize(ud, 64, 100));
@@ -493,19 +493,19 @@ void DequeTest_test_1_6(void)
 	assert(UCharDeque_size(ud) == 0);
 	/* swap */
 	UCharDeque_clear(ud);
-	assert(UCharDeque_assign(ud, hoge, MAX));
-	assert(memcmp(UCharDeque_at(ud, 0), hoge, MAX) == 0);
+	assert(UCharDeque_insert_n(ud, 0, hoge, MAX));
+	assert(ud_cmp(ud, 0, hoge, MAX) == 0);
 	assert(UCharDeque_size(ud) == MAX);
 	UCharDeque_clear(x);
-	assert(UCharDeque_assign(x, b, sizeof b));
-	assert(memcmp(UCharDeque_at(x, 0), b, sizeof b) == 0);
+	assert(UCharDeque_insert_n(x, 0, b, sizeof b));
+	assert(ud_cmp(x, 0, b, sizeof b) == 0);
 	assert(UCharDeque_size(x) == sizeof b);
 
 	UCharDeque_swap(ud, x);
 
-	assert(memcmp(UCharDeque_at(ud, 0), b, sizeof b) == 0);
+	assert(ud_cmp(ud, 0, b, sizeof b) == 0);
 	assert(UCharDeque_size(ud) == sizeof b);
-	assert(memcmp(UCharDeque_at(x, 0), hoge, MAX) == 0);
+	assert(ud_cmp(x, 0, hoge, MAX) == 0);
 	assert(UCharDeque_size(x) == MAX);
 
 
@@ -528,9 +528,10 @@ void DequeTest_test_2_1(void)
 	for (j = 0; j < MAX+1; j++) {
 		id->begin = id->end = j;
 		assert(IntDeque_size(id) == 0);
-		/* assign */
-		assert(IntDeque_assign(id, piyo, MAX));
-		assert(id_cmp(0, piyo, MAX) == 0);
+		/* insert_n */
+		IntDeque_clear(id);
+		assert(IntDeque_insert_n(id, 0, piyo, MAX));
+		assert(id_cmp(id, 0, piyo, MAX) == 0);
 		assert(IntDeque_size(id) == MAX);
 		assert(!IntDeque_empty(id));
 		assert(IntDeque_full(id));
@@ -545,15 +546,10 @@ void DequeTest_test_2_1(void)
 		assert(IntDeque_size(id) == 0);
 		assert(IntDeque_empty(id));
 		assert(!IntDeque_full(id));
-		/* assign */
-		assert(IntDeque_assign(id, piyo, MAX/2));
-		assert(id_cmp(0, piyo, MAX/2) == 0);
-		assert(IntDeque_size(id) == MAX/2);
-		assert(!IntDeque_empty(id));
-		assert(!IntDeque_full(id));
-		/* MAX以上で失敗 */
-		assert(!IntDeque_assign(id, piyo, MAX+1));
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		/* insert_n */
+		IntDeque_clear(id);
+		assert(IntDeque_insert_n(id, 0, piyo, MAX/2));
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2);
 		assert(!IntDeque_empty(id));
 		assert(!IntDeque_full(id));
@@ -581,7 +577,7 @@ void DequeTest_test_2_2(void)
 			assert(IntDeque_push_back(id, piyo[i]));
 			assert(IntDeque_size(id) == size + 1);
 		}
-		assert(id_cmp(0, piyo, MAX) == 0);
+		assert(id_cmp(id, 0, piyo, MAX) == 0);
 		assert(IntDeque_size(id) == MAX);
 		assert(!IntDeque_empty(id));
 		assert(IntDeque_full(id));
@@ -602,8 +598,8 @@ void DequeTest_test_2_2(void)
 		size = IntDeque_size(id);
 		assert(IntDeque_push_back(id, piyo[0]));
 		assert(IntDeque_size(id) == size + 1);
-		assert(id_cmp(0, &piyo[1], MAX-1) == 0);
-		assert(id_cmp(MAX-1, piyo, 1) == 0);
+		assert(id_cmp(id, 0, &piyo[1], MAX-1) == 0);
+		assert(id_cmp(id, MAX-1, piyo, 1) == 0);
 		assert(IntDeque_size(id) == MAX);
 		assert(!IntDeque_empty(id));
 		assert(IntDeque_full(id));
@@ -641,7 +637,7 @@ void DequeTest_test_2_3(void)
 			assert(IntDeque_push_front(id, piyo[MAX-i-1]));
 			assert(IntDeque_size(id) == size + 1);
 		}
-		assert(id_cmp(0, piyo, MAX) == 0);
+		assert(id_cmp(id, 0, piyo, MAX) == 0);
 		assert(IntDeque_size(id) == MAX);
 		assert(!IntDeque_empty(id));
 		assert(IntDeque_full(id));
@@ -664,8 +660,8 @@ void DequeTest_test_2_3(void)
 		assert(IntDeque_push_front(id, piyo[MAX-1]));
 		assert(IntDeque_push_front(id, piyo[MAX-2]));
 		assert(IntDeque_size(id) == size + 2);
-		assert(id_cmp(0, &piyo[MAX-2], 2) == 0);
-		assert(id_cmp(2, piyo, MAX-2) == 0);
+		assert(id_cmp(id, 0, &piyo[MAX-2], 2) == 0);
+		assert(id_cmp(id, 2, piyo, MAX-2) == 0);
 		assert(IntDeque_size(id) == MAX);
 		assert(!IntDeque_empty(id));
 		assert(IntDeque_full(id));
@@ -697,29 +693,29 @@ void DequeTest_test_2_4(void)
 		/* insert */
 		/* 空状態 */
 		for (i = 0; i < MAX/2; i++) {
-			assert(id_cmp(0, piyo, i) == 0);
+			assert(id_cmp(id, 0, piyo, i) == 0);
 			assert(IntDeque_insert(id, i, piyo[i]));
 		}
 		/* 先頭・前寄り */
 		assert(IntDeque_insert(id, 0, piyo[0]));
 		assert(IntDeque_insert(id, 1, piyo[1]));
 		assert(IntDeque_insert(id, 2, piyo[2]));
-		assert(id_cmp(0, piyo, 3) == 0);
-		assert(id_cmp(3, piyo, MAX/2) == 0);
+		assert(id_cmp(id, 0, piyo, 3) == 0);
+		assert(id_cmp(id, 3, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 3);
 
 		/* erase */
 		/* 先頭・前寄り */
-		IntDeque_erase(id, 2);
-		assert(id_cmp(0, piyo, 2) == 0);
-		assert(id_cmp(2, piyo, MAX/2) == 0);
+		IntDeque_erase(id, 2, 1);
+		assert(id_cmp(id, 0, piyo, 2) == 0);
+		assert(id_cmp(id, 2, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 2);
-		IntDeque_erase(id, 1);
-		assert(id_cmp(0, piyo, 1) == 0);
-		assert(id_cmp(1, piyo, MAX/2) == 0);
+		IntDeque_erase(id, 1, 1);
+		assert(id_cmp(id, 0, piyo, 1) == 0);
+		assert(id_cmp(id, 1, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 1);
-		IntDeque_erase(id, 0);
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		IntDeque_erase(id, 0, 1);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2);
 
 		/* insert */
@@ -727,55 +723,46 @@ void DequeTest_test_2_4(void)
 		assert(IntDeque_insert(id, MAX/2, piyo[0]));
 		assert(IntDeque_insert(id, MAX/2, piyo[1]));
 		assert(IntDeque_insert(id, MAX/2, piyo[2]));
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(*IntDeque_at(id, MAX/2 + 0) == piyo[2]);
 		assert(*IntDeque_at(id, MAX/2 + 1) == piyo[1]);
 		assert(*IntDeque_at(id, MAX/2 + 2) == piyo[0]);
 
 		/* erase */
 		/* 末尾・後ろ寄り */
-		IntDeque_erase(id, MAX/2);
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		IntDeque_erase(id, MAX/2, 1);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(*IntDeque_at(id, MAX/2 + 0) == piyo[1]);
 		assert(*IntDeque_at(id, MAX/2 + 1) == piyo[0]);
 		assert(IntDeque_size(id) == MAX/2 + 2);
-		IntDeque_erase(id, MAX/2);
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		IntDeque_erase(id, MAX/2, 1);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(*IntDeque_at(id, MAX/2 + 0) == piyo[0]);
 		assert(IntDeque_size(id) == MAX/2 + 1);
-		IntDeque_erase(id, MAX/2);
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		IntDeque_erase(id, MAX/2, 1);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2);
 
 		/* 先頭から全削除 */
 		for (i = 0; i < MAX/2; i++) {
-			assert(id_cmp(0, &piyo[i], MAX/2 - i) == 0);
-			IntDeque_erase(id, 0);
+			assert(id_cmp(id, 0, &piyo[i], MAX/2 - i) == 0);
+			IntDeque_erase(id, 0, 1);
 		}
 		assert(IntDeque_size(id) == 0);
 
 		for (i = 0; i < MAX/2; i++) {
-			assert(id_cmp(0, piyo, i) == 0);
+			assert(id_cmp(id, 0, piyo, i) == 0);
 			assert(IntDeque_insert(id, i, piyo[i]));
 		}
 		assert(IntDeque_size(id) == MAX/2);
 
 		/* 末尾から全削除 */
 		for (i = 0; i < MAX/2; i++) {
-			assert(id_cmp(0, piyo, MAX/2 - i) == 0);
-			IntDeque_erase(id, IntDeque_size(id) -1);
+			assert(id_cmp(id, 0, piyo, MAX/2 - i) == 0);
+			IntDeque_erase(id, IntDeque_size(id) -1, 1);
 		}
 		assert(IntDeque_size(id) == 0);
 
-		/* MAX以上で失敗 */
-		assert(IntDeque_assign(id, piyo, MAX));
-		assert(id_cmp(0, piyo, MAX) == 0);
-		assert(IntDeque_size(id) == MAX);
-		assert(IntDeque_full(id));
-		assert(!IntDeque_insert(id, 0, piyo[0]));
-		assert(id_cmp(0, piyo, MAX) == 0);
-		assert(IntDeque_size(id) == MAX);
-		assert(IntDeque_full(id));
 	}
 
 	IntDeque_delete(id);
@@ -792,123 +779,123 @@ void DequeTest_test_2_5(void)
 		/* insert_n */
 		/* 空状態 */
 		assert(IntDeque_insert_n(id, 0, piyo, MAX/2));
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2);
 
 		/* insert_n */
 		/* 先頭 */
 		assert(IntDeque_insert_n(id, 0, piyo, 3));
-		assert(id_cmp(0, piyo, 3) == 0);
-		assert(id_cmp(3, piyo, MAX/2) == 0);
+		assert(id_cmp(id, 0, piyo, 3) == 0);
+		assert(id_cmp(id, 3, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 3);
-		/* erase_n */
-		IntDeque_erase_n(id, 0, 3);
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		/* erase */
+		IntDeque_erase(id, 0, 3);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2);
 
 		/* insert_n */
 		/* 前寄り */
 		assert(IntDeque_insert_n(id, 2, piyo, 3));
-		assert(id_cmp(0, piyo, 2) == 0);
-		assert(id_cmp(2, piyo, 3) == 0);
-		assert(id_cmp(5, &piyo[2], MAX/2 -2) == 0);
+		assert(id_cmp(id, 0, piyo, 2) == 0);
+		assert(id_cmp(id, 2, piyo, 3) == 0);
+		assert(id_cmp(id, 5, &piyo[2], MAX/2 -2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 3);
 		/* 0個指定 */
 		assert(IntDeque_insert_n(id, 1, &piyo[MAX/2], 0));
-		assert(id_cmp(0, piyo, 2) == 0);
-		assert(id_cmp(2, piyo, 3) == 0);
-		assert(id_cmp(5, &piyo[2], MAX/2 -2) == 0);
+		assert(id_cmp(id, 0, piyo, 2) == 0);
+		assert(id_cmp(id, 2, piyo, 3) == 0);
+		assert(id_cmp(id, 5, &piyo[2], MAX/2 -2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 3);
 		/* 1個指定 */
 		assert(IntDeque_insert_n(id, 1, &piyo[MAX-1], 1));
-		assert(id_cmp(0, &piyo[0], 1) == 0);
-		assert(id_cmp(1, &piyo[MAX-1], 1) == 0);
-		assert(id_cmp(2, &piyo[1], 1) == 0);
-		assert(id_cmp(3, &piyo[0], 3) == 0);
-		assert(id_cmp(6, &piyo[2], MAX/2 -2) == 0);
+		assert(id_cmp(id, 0, &piyo[0], 1) == 0);
+		assert(id_cmp(id, 1, &piyo[MAX-1], 1) == 0);
+		assert(id_cmp(id, 2, &piyo[1], 1) == 0);
+		assert(id_cmp(id, 3, &piyo[0], 3) == 0);
+		assert(id_cmp(id, 6, &piyo[2], MAX/2 -2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 4);
-		/* erase_n */
+		/* erase */
 		/* 0個指定 */
-		IntDeque_erase_n(id, 1, 0);
-		assert(id_cmp(0, &piyo[0], 1) == 0);
-		assert(id_cmp(1, &piyo[MAX-1], 1) == 0);
-		assert(id_cmp(2, &piyo[1], 1) == 0);
-		assert(id_cmp(3, &piyo[0], 3) == 0);
-		assert(id_cmp(6, &piyo[2], MAX/2 -2) == 0);
+		IntDeque_erase(id, 1, 0);
+		assert(id_cmp(id, 0, &piyo[0], 1) == 0);
+		assert(id_cmp(id, 1, &piyo[MAX-1], 1) == 0);
+		assert(id_cmp(id, 2, &piyo[1], 1) == 0);
+		assert(id_cmp(id, 3, &piyo[0], 3) == 0);
+		assert(id_cmp(id, 6, &piyo[2], MAX/2 -2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 4);
 		/* 1個指定 */
-		IntDeque_erase_n(id, 1, 1);
-		assert(id_cmp(0, piyo, 2) == 0);
-		assert(id_cmp(2, piyo, 3) == 0);
-		assert(id_cmp(5, &piyo[2], MAX/2 -2) == 0);
+		IntDeque_erase(id, 1, 1);
+		assert(id_cmp(id, 0, piyo, 2) == 0);
+		assert(id_cmp(id, 2, piyo, 3) == 0);
+		assert(id_cmp(id, 5, &piyo[2], MAX/2 -2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 3);
 		/* 前寄り */
-		IntDeque_erase_n(id, 2, 3);
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		IntDeque_erase(id, 2, 3);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2);
 
 		/* insert_n */
 		/* 末尾 */
 		assert(IntDeque_insert_n(id, IntDeque_size(id), piyo, 3));
-		assert(id_cmp(0, piyo, MAX/2) == 0);
-		assert(id_cmp(MAX/2, piyo, 3) == 0);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
+		assert(id_cmp(id, MAX/2, piyo, 3) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 3);
-		/* erase_n */
-		IntDeque_erase_n(id, IntDeque_size(id) - 3, 3);
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		/* erase */
+		IntDeque_erase(id, IntDeque_size(id) - 3, 3);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2);
 
 		/* insert_n */
 		/* 後ろ寄り */
 		assert(IntDeque_insert_n(id, IntDeque_size(id) - 2, piyo, 3));
-		assert(id_cmp(0, piyo, MAX/2 -2) == 0);
-		assert(id_cmp(MAX/2 -2, piyo, 3) == 0);
-		assert(id_cmp(MAX/2 +1, &piyo[MAX/2 -2], 2) == 0);
+		assert(id_cmp(id, 0, piyo, MAX/2 -2) == 0);
+		assert(id_cmp(id, MAX/2 -2, piyo, 3) == 0);
+		assert(id_cmp(id, MAX/2 +1, &piyo[MAX/2 -2], 2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 3);
 		/* 0個指定 */
 		assert(IntDeque_insert_n(id, IntDeque_size(id) - 1, &piyo[MAX-1], 0));
-		assert(id_cmp(0, piyo, MAX/2 -2) == 0);
-		assert(id_cmp(MAX/2 -2, piyo, 3) == 0);
-		assert(id_cmp(MAX/2 +1, &piyo[MAX/2 -2], 2) == 0);
+		assert(id_cmp(id, 0, piyo, MAX/2 -2) == 0);
+		assert(id_cmp(id, MAX/2 -2, piyo, 3) == 0);
+		assert(id_cmp(id, MAX/2 +1, &piyo[MAX/2 -2], 2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 3);
 		/* 1個指定 */
 		assert(IntDeque_insert_n(id, IntDeque_size(id) - 1, &piyo[MAX-1], 1));
-		assert(id_cmp(0, piyo, MAX/2 -2) == 0);
-		assert(id_cmp(MAX/2 -2, piyo, 3) == 0);
-		assert(id_cmp(MAX/2 +1, &piyo[MAX/2 -2], 1) == 0);
-		assert(id_cmp(MAX/2 +2, &piyo[MAX-1], 1) == 0);
-		assert(id_cmp(MAX/2 +3, &piyo[MAX/2 -1], 1) == 0);
+		assert(id_cmp(id, 0, piyo, MAX/2 -2) == 0);
+		assert(id_cmp(id, MAX/2 -2, piyo, 3) == 0);
+		assert(id_cmp(id, MAX/2 +1, &piyo[MAX/2 -2], 1) == 0);
+		assert(id_cmp(id, MAX/2 +2, &piyo[MAX-1], 1) == 0);
+		assert(id_cmp(id, MAX/2 +3, &piyo[MAX/2 -1], 1) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 4);
-		/* erase_n */
+		/* erase */
 		/* 0個指定 */
-		IntDeque_erase_n(id, IntDeque_size(id) - 2, 0);
-		assert(id_cmp(0, piyo, MAX/2 -2) == 0);
-		assert(id_cmp(MAX/2 -2, piyo, 3) == 0);
-		assert(id_cmp(MAX/2 +1, &piyo[MAX/2 -2], 1) == 0);
-		assert(id_cmp(MAX/2 +2, &piyo[MAX-1], 1) == 0);
-		assert(id_cmp(MAX/2 +3, &piyo[MAX/2 -1], 1) == 0);
+		IntDeque_erase(id, IntDeque_size(id) - 2, 0);
+		assert(id_cmp(id, 0, piyo, MAX/2 -2) == 0);
+		assert(id_cmp(id, MAX/2 -2, piyo, 3) == 0);
+		assert(id_cmp(id, MAX/2 +1, &piyo[MAX/2 -2], 1) == 0);
+		assert(id_cmp(id, MAX/2 +2, &piyo[MAX-1], 1) == 0);
+		assert(id_cmp(id, MAX/2 +3, &piyo[MAX/2 -1], 1) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 4);
 		/* 1個指定 */
-		IntDeque_erase_n(id, IntDeque_size(id) - 2, 1);
-		assert(id_cmp(0, piyo, MAX/2 -2) == 0);
-		assert(id_cmp(MAX/2 -2, piyo, 3) == 0);
-		assert(id_cmp(MAX/2 +1, &piyo[MAX/2 -2], 2) == 0);
+		IntDeque_erase(id, IntDeque_size(id) - 2, 1);
+		assert(id_cmp(id, 0, piyo, MAX/2 -2) == 0);
+		assert(id_cmp(id, MAX/2 -2, piyo, 3) == 0);
+		assert(id_cmp(id, MAX/2 +1, &piyo[MAX/2 -2], 2) == 0);
 		assert(IntDeque_size(id) == MAX/2 + 3);
 		/* 後ろ寄り */
-		IntDeque_erase_n(id, IntDeque_size(id) - 5, 3);
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		IntDeque_erase(id, IntDeque_size(id) - 5, 3);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2);
 
 		/* MAX以上で失敗 */
 		assert(!IntDeque_insert_n(id, 0, piyo, MAX - MAX/2 +1));
-		assert(id_cmp(0, piyo, MAX/2) == 0);
+		assert(id_cmp(id, 0, piyo, MAX/2) == 0);
 		assert(IntDeque_size(id) == MAX/2);
 		/* MAXになるまで */
 		assert(IntDeque_insert_n(id, 0, piyo, MAX - MAX/2));
 		assert(IntDeque_size(id) == MAX);
 		assert(IntDeque_full(id));
 		/* 先頭から全削除 */
-		IntDeque_erase_n(id, 0, IntDeque_size(id));
+		IntDeque_erase(id, 0, IntDeque_size(id));
 		assert(IntDeque_size(id) == 0);
 	}
 

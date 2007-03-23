@@ -3,7 +3,7 @@
  * p.211の例を移植 */
 #include <stdio.h>
 #include <string.h>
-#include "../cstl/map.h"
+#include <cstl/map.h>
 
 MAP_INTERFACE(StrFltMap, char *, float)
 MAP_IMPLEMENT(StrFltMap, char *, float, strcmp, ASC)

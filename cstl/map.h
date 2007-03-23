@@ -53,6 +53,7 @@ struct Name##RBTreeNode_t {\
 	RBTreeColor color;\
 	KeyType key;\
 	ValueType value;\
+	RBTREE_MAGIC(void *magic;)\
 };\
 \
 RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)\
@@ -74,6 +75,7 @@ static Name##RBTreeNode *Name##RBTreeNode_new(KeyType key, ValueType value, RBTr
 ValueType *Name##_value(Name##Iterator pos)\
 {\
 	assert(pos && "Map_value");\
+	assert(pos->magic && "Map_value");\
 	assert(!Name##RBTreeNode_is_head(pos) && "Map_value");\
 	return &pos->value;\
 }\
@@ -108,23 +110,6 @@ MAP_END_EXTERN_C()\
 \
 COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
 \
-Name *Name##_new_copy(Name *x)\
-{\
-	Name##Iterator pos;\
-	Name *self;\
-	assert(x && "Map_new_copy");\
-	assert(x->magic == x && "Map_new_copy");\
-	self = Name##_new();\
-	if (!self) return 0;\
-	for (pos = Name##_begin(x); pos != Name##_end(x); pos = Name##_next(pos)) {\
-		if (!Name##_insert(self, Name##_key(pos), *Name##_value(pos), 0)) {\
-			Name##_delete(self);\
-			return 0;\
-		}\
-	}\
-	return self;\
-}\
-\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success)\
 {\
 	Name##Iterator pos;\
@@ -143,6 +128,29 @@ Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *succ
 		if (success) *success = 0;\
 	}\
 	return pos;\
+}\
+\
+int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
+{\
+	Name *x;\
+	Name##Iterator pos;\
+	assert(self && "Map_assign");\
+	assert(self->magic == self && "Map_assign");\
+	assert(first && "Map_assign");\
+	assert(last && "Map_assign");\
+	assert(first->magic && "Map_assign");\
+	assert(last->magic && "Map_assign");\
+	x = Name##_new();\
+	if (!x) return 0;\
+	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+		if (!Name##_insert(x, Name##_key(pos), *Name##_value(pos), 0)) {\
+			Name##_delete(x);\
+			return 0;\
+		}\
+	}\
+	Name##_swap(self, x);\
+	Name##_delete(x);\
+	return 1;\
 }\
 \
 ValueType *Name##_lookup(Name *self, KeyType key)\
@@ -194,23 +202,6 @@ MAP_END_EXTERN_C()\
 \
 COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
 \
-Name *Name##_new_copy(Name *x)\
-{\
-	Name##Iterator pos;\
-	Name *self;\
-	assert(x && "Map_new_copy");\
-	assert(x->magic == x && "Map_new_copy");\
-	self = Name##_new();\
-	if (!self) return 0;\
-	for (pos = Name##_begin(x); pos != Name##_end(x); pos = Name##_next(pos)) {\
-		if (!Name##_insert(self, Name##_key(pos), *Name##_value(pos))) {\
-			Name##_delete(self);\
-			return 0;\
-		}\
-	}\
-	return self;\
-}\
-\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 {\
 	Name##Iterator pos;\
@@ -221,6 +212,29 @@ Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 		self->nelems++;\
 	}\
 	return pos;\
+}\
+\
+int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
+{\
+	Name *x;\
+	Name##Iterator pos;\
+	assert(self && "MultiMap_assign");\
+	assert(self->magic == self && "MultiMap_assign");\
+	assert(first && "MultiMap_assign");\
+	assert(last && "MultiMap_assign");\
+	assert(first->magic && "MultiMap_assign");\
+	assert(last->magic && "MultiMap_assign");\
+	x = Name##_new();\
+	if (!x) return 0;\
+	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+		if (!Name##_insert(x, Name##_key(pos), *Name##_value(pos))) {\
+			Name##_delete(x);\
+			return 0;\
+		}\
+	}\
+	Name##_swap(self, x);\
+	Name##_delete(x);\
+	return 1;\
 }\
 \
 

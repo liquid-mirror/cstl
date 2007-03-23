@@ -1,13 +1,13 @@
 #include <stdio.h>
-#include "../cstl/vector.h"
+#include <cstl/vector.h>
 
 VECTOR_INTERFACE(CharVector, char)
 VECTOR_IMPLEMENT(CharVector, char)
 
 int main(void)
 {
-	CharVector *x = CharVector_new();
-	CharVector_assign(x, "aaaa", 4);
+	CharVector *x = CharVector_new(32);
+	CharVector_insert_n(x, 0, "aaaa", 4);
 	CharVector_push_back(x, '\0');
 	printf("%s\n", CharVector_at(x, 0));
 	printf("size:%d\n", CharVector_size(x));
@@ -24,7 +24,7 @@ int main(void)
 	*CharVector_at(x, 5) = 'f';
 	printf("%s\n", CharVector_at(x, 0));
 
-	CharVector_erase_n(x, 2, 4);
+	CharVector_erase(x, 2, 4);
 	printf("%s\n", CharVector_at(x, 0));
 
 	CharVector_insert(x, 0, 'g');
