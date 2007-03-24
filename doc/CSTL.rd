@@ -203,7 +203,7 @@ VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 * 事前条件は、idxがselfの現在の要素数以下の値であること。
 <<< br
 
-  int Vector_insert_n(Vector *self, size_t idx, T *elems, size_t n);
+  int Vector_insert_array(Vector *self, size_t idx, T *elems, size_t n);
 * selfのidxが示すインデックスの位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -345,7 +345,7 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 * 事前条件は、idxがselfの現在の要素数以下の値であること。
 <<< br
 
-  int Deque_insert_n(Deque *self, size_t idx, T *elems, size_t n);
+  int Deque_insert_array(Deque *self, size_t idx, T *elems, size_t n);
 * selfのidxが示すインデックスの位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * selfの現在の要素数 + nがselfの格納可能最大要素数より大きい場合、selfの変更を行わず0を返す。
@@ -511,7 +511,7 @@ LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 * 事前条件は、posがselfの有効なイテレータであること。
 <<< br
 
-  int List_insert_n(List *self, ListIterator pos, Type *elems, size_t n);
+  int List_insert_array(List *self, ListIterator pos, Type *elems, size_t n);
 * selfのposが示す位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。

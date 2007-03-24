@@ -305,7 +305,7 @@ int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\
 		return 0;\
 	}\
 	Name##CharVector_clear(self->data);\
-	Name##CharVector_insert_n(self->data, 0, cstr, cstr_len);\
+	Name##CharVector_insert_array(self->data, 0, cstr, cstr_len);\
 	Name##CharVector_push_back(self->data, '\0');\
 	return 1;\
 }\
@@ -333,7 +333,7 @@ int Name##_append(Name *self, Type *cstr, size_t cstr_len)\
 	if (cstr_len == NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
-	return Name##CharVector_insert_n(self->data, Name##CharVector_size(self->data)-1, cstr, cstr_len);\
+	return Name##CharVector_insert_array(self->data, Name##CharVector_size(self->data)-1, cstr, cstr_len);\
 }\
 \
 int Name##_append_c(Name *self, size_t n, Type c)\
@@ -375,10 +375,10 @@ int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 		for (i = 0; i < cstr_len; i++) {\
 			buf[i] = cstr[i];\
 		}\
-		ret = Name##CharVector_insert_n(self->data, idx, buf, cstr_len);\
+		ret = Name##CharVector_insert_array(self->data, idx, buf, cstr_len);\
 		free(buf);\
 	} else {\
-		ret = Name##CharVector_insert_n(self->data, idx, cstr, cstr_len);\
+		ret = Name##CharVector_insert_array(self->data, idx, cstr, cstr_len);\
 	}\
 	return ret;\
 }\

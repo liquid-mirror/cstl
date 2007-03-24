@@ -83,7 +83,7 @@ Name##Iterator Name##_rend(Name *self);\
 Name##Iterator Name##_next(Name##Iterator pos);\
 Name##Iterator Name##_prev(Name##Iterator pos);\
 Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem);\
-int Name##_insert_n(Name *self, Name##Iterator pos, Type *elems, size_t n);\
+int Name##_insert_array(Name *self, Name##Iterator pos, Type *elems, size_t n);\
 int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Name##Iterator last);\
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last);\
@@ -344,15 +344,15 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
 	return node;\
 }\
 \
-int Name##_insert_n(Name *self, Name##Iterator pos, Type *elems, size_t n)\
+int Name##_insert_array(Name *self, Name##Iterator pos, Type *elems, size_t n)\
 {\
 	Name *x;\
 	size_t i;\
-	assert(self && "List_insert_n");\
-	assert(self->magic == self && "List_insert_n");\
-	assert(pos && "List_insert_n");\
-	assert(pos->magic == self->terminator && "List_insert_n");\
-	assert(elems && "List_insert_n");\
+	assert(self && "List_insert_array");\
+	assert(self->magic == self && "List_insert_array");\
+	assert(pos && "List_insert_array");\
+	assert(pos->magic == self->terminator && "List_insert_array");\
+	assert(elems && "List_insert_array");\
 	x = Name##_new();\
 	if (!x) return 0;\
 	for (i = 0; i < n; i++) {\

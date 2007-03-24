@@ -319,10 +319,10 @@ void ListTest_test_2_1(void)
 	int b[] = {1, 2, 4, 43, 2, 54, 1, 0, 2, 24};
 	printf("***** test_2_1 *****\n");
 	for (i = 0; i < 32; i++) buf[i] = i;
-	/* insert_n */
+	/* insert_array */
 	assert(IntList_size(il) == 0);
 	IntList_clear(il);
-	assert(IntList_insert_n(il, IntList_begin(il), buf, 32));
+	assert(IntList_insert_array(il, IntList_begin(il), buf, 32));
 	assert(IntList_size(il) == 32);
 	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
 		assert(*IntList_at(pos) == i);
@@ -356,9 +356,9 @@ void ListTest_test_2_1(void)
 	}
 	/* swap */
 	IntList_clear(il);
-	assert(IntList_insert_n(il, IntList_begin(il), buf, 32));
+	assert(IntList_insert_array(il, IntList_begin(il), buf, 32));
 	IntList_clear(x);
-	assert(IntList_insert_n(x, IntList_begin(x), b, sizeof b / sizeof b[0]));
+	assert(IntList_insert_array(x, IntList_begin(x), b, sizeof b / sizeof b[0]));
 	assert(IntList_size(il) == 32);
 	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
 		assert(*IntList_at(pos) == i);

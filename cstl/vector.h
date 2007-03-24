@@ -76,7 +76,7 @@ Type *Name##_at(Name *self, size_t idx);\
 Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
-int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n);\
+int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 void Name##_swap(Name *self, Name *x);\
 VECTOR_END_EXTERN_C()\
@@ -304,16 +304,16 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 	assert(self && "Vector_insert");\
 	assert(self->magic == self && "Vector_insert");\
 	assert(Name##_size(self) >= idx && "Vector_insert");\
-	return Name##_insert_n(self, idx, &elem, 1);\
+	return Name##_insert_array(self, idx, &elem, 1);\
 }\
 \
-int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n)\
+int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 {\
 	size_t i, j;\
-	assert(self && "Vector_insert_n");\
-	assert(self->magic == self && "Vector_insert_n");\
-	assert(Name##_size(self) >= idx && "Vector_insert_n");\
-	assert(elems && "Vector_insert_n");\
+	assert(self && "Vector_insert_array");\
+	assert(self->magic == self && "Vector_insert_array");\
+	assert(Name##_size(self) >= idx && "Vector_insert_array");\
+	assert(elems && "Vector_insert_array");\
 	if (Name##_size(self) + n > Name##_capacity(self)) {\
 		if (!Name##_expand(self, Name##_capacity(self) + n)) return 0;\
 	}\

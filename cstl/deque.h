@@ -86,7 +86,7 @@ Type *Name##_at(Name *self, size_t idx);\
 Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
-int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n);\
+int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
@@ -303,17 +303,17 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 	assert(self && "Deque_insert");\
 	assert(self->magic == self && "Deque_insert");\
 	assert(Name##_size(self) >= idx && "Deque_insert");\
-	return Name##_insert_n(self, idx, &elem, 1);\
+	return Name##_insert_array(self, idx, &elem, 1);\
 }\
 \
-int Name##_insert_n(Name *self, size_t idx, Type *elems, size_t n)\
+int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 {\
 	size_t i, j;\
 	size_t pos;\
-	assert(self && "Deque_insert_n");\
-	assert(self->magic == self && "Deque_insert_n");\
-	assert(Name##_size(self) >= idx && "Deque_insert_n");\
-	assert(elems && "Deque_insert_n");\
+	assert(self && "Deque_insert_array");\
+	assert(self->magic == self && "Deque_insert_array");\
+	assert(Name##_size(self) >= idx && "Deque_insert_array");\
+	assert(elems && "Deque_insert_array");\
 	if (Name##_size(self) + n > Name##_max_size(self)) return 0;\
 	pos = Name##_forward(self, self->begin, idx);\
 	if (Name##_size(self) / 2 < idx) {\
