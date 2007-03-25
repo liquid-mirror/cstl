@@ -15,8 +15,8 @@ SourceForge.jp CSTL
     deque.h       deque
     list.h        list
     rbtree.h      赤黒木(set/mapのデータ構造)
-    set.h         set
-    map.h         map
+    set.h         set/multiset
+    map.h         map/multimap
     string.h      string
   doc/
     CSTL.rd       CSTLのドキュメント
