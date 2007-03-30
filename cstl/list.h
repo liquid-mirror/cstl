@@ -488,7 +488,7 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 	if (first == last || pos == last) return;\
 	for (i = first; i != last; i = Name##_next(i)) {\
 		assert(i != pos && "List_splice");\
-		assert(i->magic && "List_splice");\
+		assert(i->magic == x->terminator && "List_splice");\
 		LIST_MAGIC(i->magic = self->terminator;)\
 		count++;\
 	}\
