@@ -23,30 +23,30 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /*! 
- * \file deque.h
- * \brief dequeコンテナ
+ * \file ring.h
+ * \brief リングバッファ
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2006-02-25
  */
-#ifndef CSTL_DEQUE_H_INCLUDED
-#define CSTL_DEQUE_H_INCLUDED
+#ifndef CSTL_RING_H_INCLUDED
+#define CSTL_RING_H_INCLUDED
 
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
 
 #ifdef __cplusplus
-#define DEQUE_BEGIN_EXTERN_C()	extern "C" {
-#define DEQUE_END_EXTERN_C()	}
+#define RING_BEGIN_EXTERN_C()	extern "C" {
+#define RING_END_EXTERN_C()		}
 #else
-#define DEQUE_BEGIN_EXTERN_C()
-#define DEQUE_END_EXTERN_C()
+#define RING_BEGIN_EXTERN_C()
+#define RING_END_EXTERN_C()
 #endif
 
 #ifndef NDEBUG
-#define DEQUE_MAGIC(x) x
+#define RING_MAGIC(x) x
 #else
-#define DEQUE_MAGIC(x)
+#define RING_MAGIC(x)
 #endif
 
 /*! 
@@ -55,20 +55,20 @@
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define DEQUE_INTERFACE(Name, Type)	\
+#define RING_INTERFACE(Name, Type)	\
 typedef struct Name##_t Name;\
 /*! 
- * \brief deque構造体
+ * \brief リングバッファ構造体
  */\
 struct Name##_t {\
 	size_t begin;\
 	size_t end;\
 	size_t nelems;\
 	Type *buf;\
-	DEQUE_MAGIC(void *magic;)\
+	RING_MAGIC(void *magic;)\
 };\
 \
-DEQUE_BEGIN_EXTERN_C()\
+RING_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
 void Name##_init(Name *self, Type *buf, size_t n);\
 void Name##_delete(Name *self);\
@@ -90,7 +90,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
-DEQUE_END_EXTERN_C()\
+RING_END_EXTERN_C()\
 
 
 /*! 
@@ -99,7 +99,7 @@ DEQUE_END_EXTERN_C()\
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define DEQUE_IMPLEMENT(Name, Type)	\
+#define RING_IMPLEMENT(Name, Type)	\
 \
 static size_t Name##_forward(Name *self, size_t idx, size_t n)\
 {\
@@ -144,32 +144,32 @@ Name *Name##_new(size_t n)\
 \
 void Name##_delete(Name *self)\
 {\
-	assert(self && "Deque_delete");\
-	assert(self->magic == self && "Deque_delete");\
-	DEQUE_MAGIC(self->magic = 0;)\
+	assert(self && "Ring_delete");\
+	assert(self->magic == self && "Ring_delete");\
+	RING_MAGIC(self->magic = 0;)\
 	free(self->buf);\
 	free(self);\
 }\
 \
 void Name##_init(Name *self, Type *buf, size_t n)\
 {\
-	assert(self && "Deque_init");\
-	assert(buf && "Deque_init");\
+	assert(self && "Ring_init");\
+	assert(buf && "Ring_init");\
 	self->begin = 0;\
 	self->end = 0;\
 	self->buf = buf;\
 	self->nelems = n;\
-	DEQUE_MAGIC(self->magic = self;)\
+	RING_MAGIC(self->magic = self;)\
 }\
 \
 int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 {\
 	size_t i;\
-	assert(self && "Deque_assign");\
-	assert(self->magic == self && "Deque_assign");\
-	assert(x && "Deque_assign");\
-	assert(x->magic == x && "Deque_assign");\
-	assert(Name##_size(x) >= idx + n && "Deque_assign");\
+	assert(self && "Ring_assign");\
+	assert(self->magic == self && "Ring_assign");\
+	assert(x && "Ring_assign");\
+	assert(x->magic == x && "Ring_assign");\
+	assert(Name##_size(x) >= idx + n && "Ring_assign");\
 	if (n > Name##_max_size(self)) return 0;\
 	if (self == x) {\
 		Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
@@ -185,8 +185,8 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 \
 int Name##_push_back(Name *self, Type elem)\
 {\
-	assert(self && "Deque_push_back");\
-	assert(self->magic == self && "Deque_push_back");\
+	assert(self && "Ring_push_back");\
+	assert(self->magic == self && "Ring_push_back");\
 	if (Name##_full(self)) return 0;\
 	self->buf[self->end] = elem;\
 	self->end = Name##_next(self, self->end);\
@@ -195,8 +195,8 @@ int Name##_push_back(Name *self, Type elem)\
 \
 int Name##_push_front(Name *self, Type elem)\
 {\
-	assert(self && "Deque_push_front");\
-	assert(self->magic == self && "Deque_push_front");\
+	assert(self && "Ring_push_front");\
+	assert(self->magic == self && "Ring_push_front");\
 	if (Name##_full(self)) return 0;\
 	self->begin = Name##_prev(self, self->begin);\
 	self->buf[self->begin] = elem;\
@@ -206,9 +206,9 @@ int Name##_push_front(Name *self, Type elem)\
 Type Name##_pop_front(Name *self)\
 {\
 	size_t idx;\
-	assert(self && "Deque_pop_front");\
-	assert(self->magic == self && "Deque_pop_front");\
-	assert(!Name##_empty(self) && "Deque_pop_front");\
+	assert(self && "Ring_pop_front");\
+	assert(self->magic == self && "Ring_pop_front");\
+	assert(!Name##_empty(self) && "Ring_pop_front");\
 	idx = self->begin;\
 	self->begin = Name##_next(self, self->begin);\
 	return self->buf[idx];\
@@ -216,69 +216,69 @@ Type Name##_pop_front(Name *self)\
 \
 Type Name##_pop_back(Name *self)\
 {\
-	assert(self && "Deque_pop_back");\
-	assert(self->magic == self && "Deque_pop_back");\
-	assert(!Name##_empty(self) && "Deque_pop_back");\
+	assert(self && "Ring_pop_back");\
+	assert(self->magic == self && "Ring_pop_back");\
+	assert(!Name##_empty(self) && "Ring_pop_back");\
 	self->end = Name##_prev(self, self->end);\
 	return self->buf[self->end];\
 }\
 \
 size_t Name##_size(Name *self)\
 {\
-	assert(self && "Deque_size");\
-	assert(self->magic == self && "Deque_size");\
+	assert(self && "Ring_size");\
+	assert(self->magic == self && "Ring_size");\
 	return Name##_distance(self, self->begin, self->end);\
 }\
 \
 size_t Name##_max_size(Name *self)\
 {\
-	assert(self && "Deque_max_size");\
-	assert(self->magic == self && "Deque_max_size");\
+	assert(self && "Ring_max_size");\
+	assert(self->magic == self && "Ring_max_size");\
 	return (self->nelems - 1);\
 }\
 \
 int Name##_empty(Name *self)\
 {\
-	assert(self && "Deque_empty");\
-	assert(self->magic == self && "Deque_empty");\
+	assert(self && "Ring_empty");\
+	assert(self->magic == self && "Ring_empty");\
 	return (self->begin == self->end);\
 }\
 \
 int Name##_full(Name *self)\
 {\
-	assert(self && "Deque_full");\
-	assert(self->magic == self && "Deque_full");\
+	assert(self && "Ring_full");\
+	assert(self->magic == self && "Ring_full");\
 	return (Name##_next(self, self->end) == self->begin);\
 }\
 \
 void Name##_clear(Name *self)\
 {\
-	assert(self && "Deque_clear");\
-	assert(self->magic == self && "Deque_clear");\
+	assert(self && "Ring_clear");\
+	assert(self->magic == self && "Ring_clear");\
 	self->end = self->begin;\
 }\
 \
 Type *Name##_at(Name *self, size_t idx)\
 {\
-	assert(self && "Deque_at");\
-	assert(self->magic == self && "Deque_at");\
-	assert(Name##_size(self) > idx && "Deque_at");\
+	assert(self && "Ring_at");\
+	assert(self->magic == self && "Ring_at");\
+	assert(Name##_size(self) > idx && "Ring_at");\
 	return &self->buf[Name##_forward(self, self->begin, idx)];\
 }\
 \
 Type Name##_front(Name *self)\
 {\
-	assert(self && "Deque_front");\
-	assert(self->magic == self && "Deque_front");\
-	assert(!Name##_empty(self) && "Deque_front");\
+	assert(self && "Ring_front");\
+	assert(self->magic == self && "Ring_front");\
+	assert(!Name##_empty(self) && "Ring_front");\
 	return self->buf[self->begin];\
 }\
 \
 Type Name##_back(Name *self)\
 {\
-	assert(self && "Deque_back");\
-	assert(self->magic == self && "Deque_back");\
-	assert(!Name##_empty(self) && "Deque_back");\
+	assert(self && "Ring_back");\
+	assert(self->magic == self && "Ring_back");\
+	assert(!Name##_empty(self) && "Ring_back");\
 	return self->buf[Name##_prev(self, self->end)];\
 }\
 \
@@ -300,9 +300,9 @@ static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n
 \
 int Name##_insert(Name *self, size_t idx, Type elem)\
 {\
-	assert(self && "Deque_insert");\
-	assert(self->magic == self && "Deque_insert");\
-	assert(Name##_size(self) >= idx && "Deque_insert");\
+	assert(self && "Ring_insert");\
+	assert(self->magic == self && "Ring_insert");\
+	assert(Name##_size(self) >= idx && "Ring_insert");\
 	return Name##_insert_array(self, idx, &elem, 1);\
 }\
 \
@@ -310,10 +310,10 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 {\
 	size_t i, j;\
 	size_t pos;\
-	assert(self && "Deque_insert_array");\
-	assert(self->magic == self && "Deque_insert_array");\
-	assert(Name##_size(self) >= idx && "Deque_insert_array");\
-	assert(elems && "Deque_insert_array");\
+	assert(self && "Ring_insert_array");\
+	assert(self->magic == self && "Ring_insert_array");\
+	assert(Name##_size(self) >= idx && "Ring_insert_array");\
+	assert(elems && "Ring_insert_array");\
 	if (Name##_size(self) + n > Name##_max_size(self)) return 0;\
 	pos = Name##_forward(self, self->begin, idx);\
 	if (Name##_size(self) / 2 < idx) {\
@@ -336,9 +336,9 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 {\
 	size_t pos1;\
 	size_t pos2;\
-	assert(self && "Deque_erase");\
-	assert(self->magic == self && "Deque_erase");\
-	assert(Name##_size(self) >= idx + n && "Deque_erase");\
+	assert(self && "Ring_erase");\
+	assert(self->magic == self && "Ring_erase");\
+	assert(Name##_size(self) >= idx + n && "Ring_erase");\
 	pos1 = Name##_forward(self, self->begin, idx);\
 	pos2 = Name##_forward(self, pos1, n);\
 	if (Name##_distance(self, self->begin, pos1) >= \
@@ -356,8 +356,8 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 int Name##_resize(Name *self, size_t n, Type elem)\
 {\
 	size_t size;\
-	assert(self && "Deque_resize");\
-	assert(self->magic == self && "Deque_resize");\
+	assert(self && "Ring_resize");\
+	assert(self->magic == self && "Ring_resize");\
 	size = Name##_size(self);\
 	if (size >= n) {\
 		self->end = Name##_backward(self, self->end, size - n);\
@@ -379,10 +379,10 @@ void Name##_swap(Name *self, Name *x)\
 	size_t tmp_end;\
 	size_t tmp_nelems;\
 	Type *tmp_buf;\
-	assert(self && "Deque_swap");\
-	assert(x && "Deque_swap");\
-	assert(self->magic == self && "Deque_swap");\
-	assert(x->magic == x && "Deque_swap");\
+	assert(self && "Ring_swap");\
+	assert(x && "Ring_swap");\
+	assert(self->magic == self && "Ring_swap");\
+	assert(x->magic == x && "Ring_swap");\
 	tmp_begin = self->begin;\
 	tmp_end = self->end;\
 	tmp_nelems = self->nelems;\
@@ -398,4 +398,4 @@ void Name##_swap(Name *self, Name *x)\
 }\
 \
 
-#endif /* CSTL_DEQUE_H_INCLUDED */
+#endif /* CSTL_RING_H_INCLUDED */
