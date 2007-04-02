@@ -448,7 +448,7 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 		}\
 	} else {\
 		/* Šg’£•K—v‚ ‚è */\
-		if (!Name##_reserve(self, Name##_capacity(self) + (cstr_len - len))) {\
+		if (!Name##_reserve(self, Name##_size(self) + (cstr_len - len))) {\
 			if (flag) free(buf);\
 			return 0;\
 		}\
