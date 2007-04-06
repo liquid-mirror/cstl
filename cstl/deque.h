@@ -324,7 +324,7 @@ Type UCharDeque_front(UCharDeque *self)
 	assert(self && "Deque_front");
 	assert(self->magic == self && "Deque_front");
 	assert(!UCharDeque_empty(self) && "Deque_front");
-	return 0;
+	return Ring_front(*RingVector_at(self->map, self->begin));
 }
 
 Type UCharDeque_back(UCharDeque *self)
@@ -332,7 +332,7 @@ Type UCharDeque_back(UCharDeque *self)
 	assert(self && "Deque_back");
 	assert(self->magic == self && "Deque_back");
 	assert(!UCharDeque_empty(self) && "Deque_back");
-	return 0;
+	return Ring_back(*RingVector_at(self->map, self->end - 1));
 }
 
 static void UCharDeque_move_forward(UCharDeque *self, size_t first, size_t last, size_t n)
