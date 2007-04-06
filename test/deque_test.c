@@ -15,7 +15,7 @@ double buf[1024*1024];
 static UCharDeque *ud;
 /*static IntDeque *id;*/
 
-#define MAX		255
+#define MAX		(255*5)
 
 static unsigned char hoge[MAX];
 static int piyo[MAX];
@@ -67,13 +67,15 @@ void DequeTest_test_1_1(void)
 	/* 初期状態 */
 	assert(UCharDeque_size(ud) == 0);
 	assert(UCharDeque_empty(ud));
-#if 0
-	for (j = 0; j < MAX+1; j++) {
-		ud->begin = ud->end = j;
+#if 1
+/*    for (j = 0; j < MAX+1; j++) {*/
+/*        ud->begin = ud->end = j;*/
 		assert(UCharDeque_size(ud) == 0);
-		/* insert_array */
+		/* push_back */
 		UCharDeque_clear(ud);
-		assert(UCharDeque_insert_array(ud, 0, hoge, MAX));
+		for (i = 0; i < MAX; i++) {
+			assert(UCharDeque_push_back(ud, hoge[i]));
+		}
 		assert(ud_cmp(ud, 0, hoge, MAX) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
@@ -87,16 +89,18 @@ void DequeTest_test_1_1(void)
 		UCharDeque_clear(ud);
 		assert(UCharDeque_size(ud) == 0);
 		assert(UCharDeque_empty(ud));
-		/* insert_array */
+		/* push_back */
 		UCharDeque_clear(ud);
-		assert(UCharDeque_insert_array(ud, 0, hoge, MAX/2));
+		for (i = 0; i < MAX/2; i++) {
+			assert(UCharDeque_push_back(ud, hoge[i]));
+		}
 		assert(ud_cmp(ud, 0, hoge, MAX/2) == 0);
 		assert(UCharDeque_size(ud) == MAX/2);
 		assert(!UCharDeque_empty(ud));
 		/* clear */
 		UCharDeque_clear(ud);
 		assert(UCharDeque_size(ud) == 0);
-	}
+/*    }*/
 #endif
 
 	UCharDeque_delete(ud);

@@ -72,6 +72,7 @@ MAP_DEBUG_INTERFACE(IntIntMMapA)
 
 void VectorTest_run(void);
 void RingTest_run(void);
+void DequeTest_run(void);
 void ListTest_run(void);
 void SetTest_run(void);
 void MapTest_run(void);
