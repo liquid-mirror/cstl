@@ -5,7 +5,7 @@
 #include <string.h>
 #include <assert.h>
 #include "../cstl/vector.h"
-#include "../cstl/deque.h"
+#include "../cstl/ring.h"
 #include "../cstl/list.h"
 #include "../cstl/set.h"
 #include "../cstl/map.h"
@@ -23,9 +23,9 @@ VECTOR_INTERFACE(UCharVector, unsigned char)
 VECTOR_INTERFACE(IntVector, int)
 
 
-/* deque */
-DEQUE_INTERFACE(UCharDeque, unsigned char)
-DEQUE_INTERFACE(IntDeque, int)
+/* ring */
+RING_INTERFACE(UCharRing, unsigned char)
+RING_INTERFACE(IntRing, int)
 
 
 /* list */
@@ -71,7 +71,7 @@ MAP_DEBUG_INTERFACE(IntIntMMapA)
 
 
 void VectorTest_run(void);
-void DequeTest_run(void);
+void RingTest_run(void);
 void ListTest_run(void);
 void SetTest_run(void);
 void MapTest_run(void);

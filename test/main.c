@@ -10,7 +10,7 @@ int main(void)
 #endif
 
 	VectorTest_run();
-	DequeTest_run();
+	RingTest_run();
 	ListTest_run();
 	SetTest_run();
 	MapTest_run();
