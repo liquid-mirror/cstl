@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+
 #ifdef __cplusplus
 #define DEQUE_BEGIN_EXTERN_C()	extern "C" {
 #define DEQUE_END_EXTERN_C()	}
@@ -51,214 +52,262 @@
 
 #define Type unsigned char
 
-typedef struct Deque_t Deque;
+typedef struct UCharDeque_t UCharDeque;
 
 DEQUE_BEGIN_EXTERN_C()
-Deque *Deque_new(void);
-void Deque_delete(Deque *self);
-int Deque_assign(Deque *self, Deque *x, size_t idx, size_t n);
-int Deque_push_back(Deque *self, Type elem);
-int Deque_push_front(Deque *self, Type elem);
-Type Deque_pop_front(Deque *self);
-Type Deque_pop_back(Deque *self);
-size_t Deque_size(Deque *self);
-int Deque_empty(Deque *self);
-void Deque_clear(Deque *self);
-Type *Deque_at(Deque *self, size_t idx);
-Type Deque_front(Deque *self);
-Type Deque_back(Deque *self);
-int Deque_insert(Deque *self, size_t idx, Type elem);
-int Deque_insert_array(Deque *self, size_t idx, Type *elems, size_t n);
-void Deque_erase(Deque *self, size_t idx, size_t n);
-int Deque_resize(Deque *self, size_t n, Type elem);
-void Deque_swap(Deque *self, Deque *x);
+UCharDeque *UCharDeque_new(void);
+void UCharDeque_delete(UCharDeque *self);
+int UCharDeque_assign(UCharDeque *self, UCharDeque *x, size_t idx, size_t n);
+int UCharDeque_push_back(UCharDeque *self, Type elem);
+int UCharDeque_push_front(UCharDeque *self, Type elem);
+Type UCharDeque_pop_front(UCharDeque *self);
+Type UCharDeque_pop_back(UCharDeque *self);
+size_t UCharDeque_size(UCharDeque *self);
+int UCharDeque_empty(UCharDeque *self);
+void UCharDeque_clear(UCharDeque *self);
+Type *UCharDeque_at(UCharDeque *self, size_t idx);
+Type UCharDeque_front(UCharDeque *self);
+Type UCharDeque_back(UCharDeque *self);
+int UCharDeque_insert(UCharDeque *self, size_t idx, Type elem);
+int UCharDeque_insert_array(UCharDeque *self, size_t idx, Type *elems, size_t n);
+void UCharDeque_erase(UCharDeque *self, size_t idx, size_t n);
+int UCharDeque_resize(UCharDeque *self, size_t n, Type elem);
+void UCharDeque_swap(UCharDeque *self, UCharDeque *x);
 DEQUE_END_EXTERN_C()
 
+#define DEQUE_BUF_SIZE(Type)	(sizeof(Type) < 512 ? 512 / sizeof(Type) : 1)
 
+#define malloc(s)        Heap_alloc(&heap, s)
+#define realloc(p, s)    Heap_realloc(&heap, p, s)
+#define free(p)          Heap_free(&heap, p)
+
+#include "ring.h"
+#include "vector.h"
+RING_INTERFACE(Ring, Type)
+RING_IMPLEMENT(Ring, Type)
+VECTOR_INTERFACE(RingVector, Ring*)
+VECTOR_IMPLEMENT(RingVector, Ring*)
 
 /*! 
  * \brief deque\‘¢‘Ì
  */
-struct Deque_t {
+struct UCharDeque_t {
+	size_t begin;
+	size_t end;
+	size_t nelems;
+	RingVector *map;
 	DEQUE_MAGIC(void *magic;)
 };
 
-static size_t Deque_forward(Deque *self, size_t idx, size_t n)
+enum {
+	DEQUE_INITIAL_MAP_SIZE = 8
+};
+
+static size_t UCharDeque_forward(UCharDeque *self, size_t idx, size_t n)
 {
 	return 0;
 }
 
-static size_t Deque_backward(Deque *self, size_t idx, size_t n)
+static size_t UCharDeque_backward(UCharDeque *self, size_t idx, size_t n)
 {
 	return 0;
 }
 
-static size_t Deque_next(Deque *self, size_t idx)
+static size_t UCharDeque_next(UCharDeque *self, size_t idx)
 {
 	return 0;
 }
 
-static size_t Deque_prev(Deque *self, size_t idx)
+static size_t UCharDeque_prev(UCharDeque *self, size_t idx)
 {
 	return 0;
 }
 
-static size_t Deque_distance(Deque *self, size_t first, size_t last)
+static size_t UCharDeque_distance(UCharDeque *self, size_t first, size_t last)
 {
 	return 0;
 }
 
-Deque *Deque_new(void)
+UCharDeque *UCharDeque_new(void)
 {
-	Deque *self;
-	self = (Deque *) malloc(sizeof(Deque));
+	UCharDeque *self;
+	self = (UCharDeque *) malloc(sizeof(UCharDeque));
 	if (!self) return 0;
 	/* TODO */
+	self->map = RingVector_new(DEQUE_INITIAL_MAP_SIZE);
+	if (!self->map) {
+		free(self);
+		return 0;
+	}
+	RingVector_resize(self->map, DEQUE_INITIAL_MAP_SIZE, 0);
+	self->begin = RingVector_size(self->map) / 2;
+	self->end = self->begin + 1;
+	self->nelems = 0;
+	*RingVector_at(self->map, self->begin) = Ring_new(DEQUE_BUF_SIZE(Type));
+	if (!*RingVector_at(self->map, self->begin)) {
+		RingVector_delete(self->map);
+		free(self);
+		return 0;
+	}
+	DEQUE_MAGIC(self->magic = self;)
 	return self;
 }
 
-void Deque_delete(Deque *self)
+void UCharDeque_delete(UCharDeque *self)
 {
+	size_t i;
 	assert(self && "Deque_delete");
 	assert(self->magic == self && "Deque_delete");
+	for (i = 0; i < RingVector_size(self->map); i++) {
+		Ring *r = *RingVector_at(self->map, i);
+		if (r) {
+			Ring_delete(r);
+		}
+	}
+	RingVector_delete(self->map);
 	DEQUE_MAGIC(self->magic = 0;)
+	free(self);
 }
 
-int Deque_assign(Deque *self, Deque *x, size_t idx, size_t n)
+int UCharDeque_assign(UCharDeque *self, UCharDeque *x, size_t idx, size_t n)
 {
 	size_t i;
 	assert(self && "Deque_assign");
 	assert(self->magic == self && "Deque_assign");
 	assert(x && "Deque_assign");
 	assert(x->magic == x && "Deque_assign");
-	assert(Deque_size(x) >= idx + n && "Deque_assign");
-//    if (n > Deque_max_size(self)) return 0;
+	assert(UCharDeque_size(x) >= idx + n && "Deque_assign");
+//    if (n > UCharDeque_max_size(self)) return 0;
 	if (self == x) {
-		Deque_erase(self, idx + n, Deque_size(self) - (idx + n));
-		Deque_erase(self, 0, idx);
+		UCharDeque_erase(self, idx + n, UCharDeque_size(self) - (idx + n));
+		UCharDeque_erase(self, 0, idx);
 	} else {
-		Deque_clear(self);
+		UCharDeque_clear(self);
 		for (i = 0; i < n; i++) {
-			Deque_push_back(self, *Deque_at(x, i));
+			UCharDeque_push_back(self, *UCharDeque_at(x, i));
 		}
 	}
 	return 1;
 }
 
-int Deque_push_back(Deque *self, Type elem)
+int UCharDeque_push_back(UCharDeque *self, Type elem)
 {
 	assert(self && "Deque_push_back");
 	assert(self->magic == self && "Deque_push_back");
 	return 1;
 }
 
-int Deque_push_front(Deque *self, Type elem)
+int UCharDeque_push_front(UCharDeque *self, Type elem)
 {
 	assert(self && "Deque_push_front");
 	assert(self->magic == self && "Deque_push_front");
 	return 1;
 }
 
-Type Deque_pop_front(Deque *self)
+Type UCharDeque_pop_front(UCharDeque *self)
 {
 	assert(self && "Deque_pop_front");
 	assert(self->magic == self && "Deque_pop_front");
-	assert(!Deque_empty(self) && "Deque_pop_front");
+	assert(!UCharDeque_empty(self) && "Deque_pop_front");
 	return 0;
 }
 
-Type Deque_pop_back(Deque *self)
+Type UCharDeque_pop_back(UCharDeque *self)
 {
 	assert(self && "Deque_pop_back");
 	assert(self->magic == self && "Deque_pop_back");
-	assert(!Deque_empty(self) && "Deque_pop_back");
+	assert(!UCharDeque_empty(self) && "Deque_pop_back");
 	return 0;
 }
 
-size_t Deque_size(Deque *self)
+size_t UCharDeque_size(UCharDeque *self)
 {
 	assert(self && "Deque_size");
 	assert(self->magic == self && "Deque_size");
-	return 0;
+	return self->nelems;
 }
 
-int Deque_empty(Deque *self)
+int UCharDeque_empty(UCharDeque *self)
 {
 	assert(self && "Deque_empty");
 	assert(self->magic == self && "Deque_empty");
-	return 0;
+	return (self->nelems == 0);
 }
 
-void Deque_clear(Deque *self)
+void UCharDeque_clear(UCharDeque *self)
 {
 	assert(self && "Deque_clear");
 	assert(self->magic == self && "Deque_clear");
+	self->begin = RingVector_size(self->map) / 2;
+	self->end = self->begin + 1;
+	self->nelems = 0;
+	Ring_clear(*RingVector_at(self->map, self->begin));
 }
 
-Type *Deque_at(Deque *self, size_t idx)
+Type *UCharDeque_at(UCharDeque *self, size_t idx)
 {
 	assert(self && "Deque_at");
 	assert(self->magic == self && "Deque_at");
-	assert(Deque_size(self) > idx && "Deque_at");
+	assert(UCharDeque_size(self) > idx && "Deque_at");
 	return 0;
 }
 
-Type Deque_front(Deque *self)
+Type UCharDeque_front(UCharDeque *self)
 {
 	assert(self && "Deque_front");
 	assert(self->magic == self && "Deque_front");
-	assert(!Deque_empty(self) && "Deque_front");
+	assert(!UCharDeque_empty(self) && "Deque_front");
 	return 0;
 }
 
-Type Deque_back(Deque *self)
+Type UCharDeque_back(UCharDeque *self)
 {
 	assert(self && "Deque_back");
 	assert(self->magic == self && "Deque_back");
-	assert(!Deque_empty(self) && "Deque_back");
+	assert(!UCharDeque_empty(self) && "Deque_back");
 	return 0;
 }
 
-static void Deque_move_forward(Deque *self, size_t first, size_t last, size_t n)
+static void UCharDeque_move_forward(UCharDeque *self, size_t first, size_t last, size_t n)
 {
 }
 
-static void Deque_move_backward(Deque *self, size_t first, size_t last, size_t n)
+static void UCharDeque_move_backward(UCharDeque *self, size_t first, size_t last, size_t n)
 {
 }
 
-int Deque_insert(Deque *self, size_t idx, Type elem)
+int UCharDeque_insert(UCharDeque *self, size_t idx, Type elem)
 {
 	assert(self && "Deque_insert");
 	assert(self->magic == self && "Deque_insert");
-	assert(Deque_size(self) >= idx && "Deque_insert");
+	assert(UCharDeque_size(self) >= idx && "Deque_insert");
 	return 0;
 }
 
-int Deque_insert_array(Deque *self, size_t idx, Type *elems, size_t n)
+int UCharDeque_insert_array(UCharDeque *self, size_t idx, Type *elems, size_t n)
 {
 	assert(self && "Deque_insert_array");
 	assert(self->magic == self && "Deque_insert_array");
-	assert(Deque_size(self) >= idx && "Deque_insert_array");
+	assert(UCharDeque_size(self) >= idx && "Deque_insert_array");
 	assert(elems && "Deque_insert_array");
 	return 1;
 }
 
-void Deque_erase(Deque *self, size_t idx, size_t n)
+void UCharDeque_erase(UCharDeque *self, size_t idx, size_t n)
 {
 	assert(self && "Deque_erase");
 	assert(self->magic == self && "Deque_erase");
-	assert(Deque_size(self) >= idx + n && "Deque_erase");
+	assert(UCharDeque_size(self) >= idx + n && "Deque_erase");
 }
 
-int Deque_resize(Deque *self, size_t n, Type elem)
+int UCharDeque_resize(UCharDeque *self, size_t n, Type elem)
 {
 	assert(self && "Deque_resize");
 	assert(self->magic == self && "Deque_resize");
 	return 1;
 }
 
-void Deque_swap(Deque *self, Deque *x)
+void UCharDeque_swap(UCharDeque *self, UCharDeque *x)
 {
 	assert(self && "Deque_swap");
 	assert(x && "Deque_swap");
@@ -266,6 +315,9 @@ void Deque_swap(Deque *self, Deque *x)
 	assert(x->magic == x && "Deque_swap");
 }
 
+#undef malloc
+#undef realloc
+#undef free
 
 
 #endif /* CSTL_DEQUE_H_INCLUDED */

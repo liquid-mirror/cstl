@@ -9,11 +9,12 @@ int main(void)
 	Heap_init(&heap, buf, sizeof buf);
 #endif
 
-	VectorTest_run();
-	RingTest_run();
-	ListTest_run();
-	SetTest_run();
-	MapTest_run();
+/*    VectorTest_run();*/
+/*    RingTest_run();*/
+	DequeTest_run();
+/*    ListTest_run();*/
+/*    SetTest_run();*/
+/*    MapTest_run();*/
 
 #ifdef MY_MALLOC
 	DUMP_MEMORY_LEAK(&heap, 0);
