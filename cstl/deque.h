@@ -116,6 +116,102 @@ static void UCharDeque_coordinate(UCharDeque *self, size_t idx, size_t *map_idx,
 	}
 }
 
+static Ring *UCharDeque_get_ring_from_begin_side(UCharDeque *self)
+{
+	size_t i;
+	Ring *tmp;
+	for (i = 0; i < self->begin; i++) {
+		tmp = *RingVector_at(self->map, i);
+		if (tmp) {
+			*RingVector_at(self->map, i) = 0;
+			Ring_clear(tmp);
+			return tmp;
+		}
+	}
+	return Ring_new(DEQUE_BUF_SIZE(Type));
+}
+
+static Ring *UCharDeque_get_ring_from_end_side(UCharDeque *self)
+{
+	size_t i;
+	Ring *tmp;
+	for (i = RingVector_size(self->map) - 1; i > self->end - 1; i--) {
+		tmp = *RingVector_at(self->map, i);
+		if (tmp) {
+			*RingVector_at(self->map, i) = 0;
+			Ring_clear(tmp);
+			return tmp;
+		}
+	}
+	return Ring_new(DEQUE_BUF_SIZE(Type));
+}
+
+static int UCharDeque_expand_begin_side(UCharDeque *self, size_t n)
+{
+	size_t m;
+	size_t s;
+	size_t i;
+	m = Ring_max_size(*RingVector_at(self->map, self->begin)) - Ring_size(*RingVector_at(self->map, self->begin));
+	if (n <= m) {
+		return 1;
+	}
+	s = 1 + (n - m - 1) / DEQUE_BUF_SIZE(Type);
+	if (self->begin < s) {
+		size_t j;
+		size_t l = (RingVector_size(self->map) > s) ? RingVector_size(self->map) : s;
+		/* mapのサイズを2倍または+sする */
+		if (!RingVector_reserve(self->map, RingVector_size(self->map) + l)) {
+			return 0;
+		}
+		RingVector_insert_array(self->map, 0, RingVector_at(self->map, 0), l);
+		for (j = 0; j < l; j++) {
+			*RingVector_at(self->map, j) = 0;
+		}
+		self->begin += l;
+		self->end += l;
+	}
+	for (i = self->begin - s; i < self->begin; i++) {
+		if (!*RingVector_at(self->map, i)) {
+			*RingVector_at(self->map, i) = UCharDeque_get_ring_from_end_side(self);
+			if (!*RingVector_at(self->map, i)) {
+				return 0;
+			}
+		} else {
+			Ring_clear(*RingVector_at(self->map, i));
+		}
+	}
+	return 1;
+}
+
+static int UCharDeque_expand_end_side(UCharDeque *self, size_t n)
+{
+	size_t m;
+	size_t s;
+	size_t i;
+	m = Ring_max_size(*RingVector_at(self->map, self->end - 1)) - Ring_size(*RingVector_at(self->map, self->end - 1));
+	if (n <= m) {
+		return 1;
+	}
+	s = 1 + (n - m - 1) / DEQUE_BUF_SIZE(Type);
+	if (self->end + s > RingVector_size(self->map)) {
+		if (!RingVector_resize(self->map, self->end + s, 0)) {
+			return 0;
+		}
+	}
+	for (i = self->end; i < self->end + s; i++) {
+		if (!*RingVector_at(self->map, i)) {
+			*RingVector_at(self->map, i) = UCharDeque_get_ring_from_begin_side(self);
+			if (!*RingVector_at(self->map, i)) {
+				return 0;
+			}
+		} else {
+			Ring_clear(*RingVector_at(self->map, i));
+		}
+	}
+	return 1;
+}
+
+#if 0
 static size_t UCharDeque_forward(UCharDeque *self, size_t idx, size_t n)
 {
 	return 0;
@@ -140,6 +236,7 @@ static size_t UCharDeque_distance(UCharDeque *self, size_t first, size_t last)
 {
 	return 0;
 }
+#endif
 
 UCharDeque *UCharDeque_new(void)
 {
@@ -206,18 +303,8 @@ int UCharDeque_push_back(UCharDeque *self, Type elem)
 	assert(self && "Deque_push_back");
 	assert(self->magic == self && "Deque_push_back");
 	if (Ring_full(*RingVector_at(self->map, self->end - 1))) {
-		if (self->end == RingVector_size(self->map)) {
-			if (!RingVector_resize(self->map, self->end + 1, 0)) {
-				return 0;
-			}
-		}
-		if (!*RingVector_at(self->map, self->end)) {
-			*RingVector_at(self->map, self->end) = Ring_new(DEQUE_BUF_SIZE(Type));
-			if (!*RingVector_at(self->map, self->end)) {
-				return 0;
-			}
-		} else {
-			Ring_clear(*RingVector_at(self->map, self->end));
+		if (!UCharDeque_expand_end_side(self, 1)) {
+			return 0;
 		}
 		Ring_push_back(*RingVector_at(self->map, self->end), elem);
 		self->end++;
@@ -233,26 +320,8 @@ int UCharDeque_push_front(UCharDeque *self, Type elem)
 	assert(self && "Deque_push_front");
 	assert(self->magic == self && "Deque_push_front");
 	if (Ring_full(*RingVector_at(self->map, self->begin))) {
-		if (self->begin == 0) {
-			size_t i;
-			size_t n = RingVector_size(self->map);
-			/* mapのサイズを2倍にする */
-			if (!RingVector_insert_array(self->map, 0, RingVector_at(self->map, 0), n)) {
-				return 0;
-			}
-			for (i = 0; i < n; i++) {
-				*RingVector_at(self->map, i) = 0;
-			}
-			self->begin += n;
-			self->end += n;
-		}
-		if (!*RingVector_at(self->map, self->begin - 1)) {
-			*RingVector_at(self->map, self->begin - 1) = Ring_new(DEQUE_BUF_SIZE(Type));
-			if (!*RingVector_at(self->map, self->begin - 1)) {
-				return 0;
-			}
-		} else {
-			Ring_clear(*RingVector_at(self->map, self->begin - 1));
+		if (!UCharDeque_expand_begin_side(self, 1)) {
+			return 0;
 		}
 		Ring_push_front(*RingVector_at(self->map, self->begin - 1), elem);
 		self->begin--;
@@ -372,6 +441,11 @@ int UCharDeque_insert_array(UCharDeque *self, size_t idx, Type *elems, size_t n)
 	assert(self->magic == self && "Deque_insert_array");
 	assert(UCharDeque_size(self) >= idx && "Deque_insert_array");
 	assert(elems && "Deque_insert_array");
+	if (UCharDeque_size(self) / 2 < idx) {
+		/* end側を移動 */
+	} else {
+		/* begin側を移動 */
+	}
 	return 1;
 }
 
