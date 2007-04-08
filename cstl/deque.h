@@ -146,6 +146,16 @@ static Ring *UCharDeque_get_ring_from_end_side(UCharDeque *self)
 	return Ring_new(DEQUE_BUF_SIZE(Type));
 }
 
+static void RingVector_insert_array_no_elems(RingVector *self, size_t idx, size_t n)
+{
+	assert(self && "Vector_insert_array_no_elems");
+	assert(self->magic == self && "Vector_insert_array_no_elems");
+	assert(RingVector_size(self) >= idx && "Vector_insert_array_no_elems");
+	assert(RingVector_size(self) + n <= RingVector_capacity(self) && "Vector_insert_array_no_elems");
+	RingVector_move_forward(self, idx, self->end, n);
+	self->end += n;
+}
+
 static int UCharDeque_expand_begin_side(UCharDeque *self, size_t n)
 {
 	size_t m;
@@ -163,7 +173,7 @@ static int UCharDeque_expand_begin_side(UCharDeque *self, size_t n)
 		if (!RingVector_reserve(self->map, RingVector_size(self->map) + l)) {
 			return 0;
 		}
-		RingVector_insert_array(self->map, 0, RingVector_at(self->map, 0), l);
+		RingVector_insert_array_no_elems(self->map, 0, l);
 		for (j = 0; j < l; j++) {
 			*RingVector_at(self->map, j) = 0;
 		}
@@ -211,32 +221,61 @@ static int UCharDeque_expand_end_side(UCharDeque *self, size_t n)
 	return 1;
 }
 
-#if 0
-static size_t UCharDeque_forward(UCharDeque *self, size_t idx, size_t n)
+static int Ring_push_back_no_elem(Ring *self)
 {
-	return 0;
+	if (Ring_full(self)) return 0;
+	self->end = Ring_next(self, self->end);
+	return 1;
 }
 
-static size_t UCharDeque_backward(UCharDeque *self, size_t idx, size_t n)
+static int Ring_push_front_no_elem(Ring *self)
 {
-	return 0;
+	if (Ring_full(self)) return 0;
+	self->begin = Ring_prev(self, self->begin);
+	return 1;
 }
 
-static size_t UCharDeque_next(UCharDeque *self, size_t idx)
+static void UCharDeque_fill_begin_side(UCharDeque *self, size_t n)
 {
-	return 0;
+	size_t i;
+	for (i = 0; i < n; i++) {
+		if (!Ring_push_front_no_elem(*RingVector_at(self->map, self->begin))) {
+			self->begin--;
+			assert(Ring_empty(*RingVector_at(self->map, self->begin)));
+			Ring_push_front_no_elem(*RingVector_at(self->map, self->begin));
+		}
+	}
+	self->nelems += n;
 }
 
-static size_t UCharDeque_prev(UCharDeque *self, size_t idx)
+static void UCharDeque_fill_end_side(UCharDeque *self, size_t n)
 {
-	return 0;
+	size_t i;
+	for (i = 0; i < n; i++) {
+		if (!Ring_push_back_no_elem(*RingVector_at(self->map, self->end - 1))) {
+			self->end++;
+			assert(Ring_empty(*RingVector_at(self->map, self->end - 1)));
+			Ring_push_back_no_elem(*RingVector_at(self->map, self->end - 1));
+		}
+	}
+	self->nelems += n;
 }
 
-static size_t UCharDeque_distance(UCharDeque *self, size_t first, size_t last)
+static void UCharDeque_move_forward(UCharDeque *self, size_t first, size_t last, size_t n)
 {
-	return 0;
+	size_t i;
+	for (i = last; i > first; i--) {
+		*UCharDeque_at(self, i - 1 + n) = *UCharDeque_at(self, i - 1);
+	}
 }
-#endif
+
+static void UCharDeque_move_backward(UCharDeque *self, size_t first, size_t last, size_t n)
+{
+	size_t i;
+	for (i = first; i < last; i++) {
+		*UCharDeque_at(self, i - n) = *UCharDeque_at(self, i);
+	}
+}
 
 UCharDeque *UCharDeque_new(void)
 {
@@ -411,22 +450,6 @@ Type UCharDeque_back(UCharDeque *self)
 	return Ring_back(*RingVector_at(self->map, self->end - 1));
 }
 
-static void UCharDeque_move_forward(UCharDeque *self, size_t first, size_t last, size_t n)
-{
-	size_t i;
-	for (i = last; i > first; i--) {
-		*UCharDeque_at(self, i - 1 + n) = *UCharDeque_at(self, i - 1);
-	}
-}
-
-static void UCharDeque_move_backward(UCharDeque *self, size_t first, size_t last, size_t n)
-{
-	size_t i;
-	for (i = first; i < last; i++) {
-		*UCharDeque_at(self, i - n) = *UCharDeque_at(self, i);
-	}
-}
-
 int UCharDeque_insert(UCharDeque *self, size_t idx, Type elem)
 {
 	assert(self && "Deque_insert");
@@ -437,14 +460,30 @@ int UCharDeque_insert(UCharDeque *self, size_t idx, Type elem)
 
 int UCharDeque_insert_array(UCharDeque *self, size_t idx, Type *elems, size_t n)
 {
+	size_t i;
 	assert(self && "Deque_insert_array");
 	assert(self->magic == self && "Deque_insert_array");
 	assert(UCharDeque_size(self) >= idx && "Deque_insert_array");
 	assert(elems && "Deque_insert_array");
 	if (UCharDeque_size(self) / 2 < idx) {
 		/* end側を移動 */
+		size_t s;
+		if (!UCharDeque_expand_end_side(self, n)) {
+			return 0;
+		}
+		s = UCharDeque_size(self);
+		UCharDeque_fill_end_side(self, n);
+		UCharDeque_move_forward(self, idx, s, n);
 	} else {
 		/* begin側を移動 */
+		if (!UCharDeque_expand_begin_side(self, n)) {
+			return 0;
+		}
+		UCharDeque_fill_begin_side(self, n);
+		UCharDeque_move_backward(self, n, n + idx, n);
+	}
+	for (i = 0; i < n; i++) {
+		*UCharDeque_at(self, idx + i) = elems[i];
 	}
 	return 1;
 }
