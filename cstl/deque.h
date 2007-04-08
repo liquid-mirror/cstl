@@ -168,17 +168,17 @@ static int UCharDeque_expand_begin_side(UCharDeque *self, size_t n)
 	s = 1 + (n - m - 1) / DEQUE_BUF_SIZE(Type);
 	if (self->begin < s) {
 		size_t j;
-		size_t l = (RingVector_size(self->map) > s) ? RingVector_size(self->map) : s;
+		size_t k = (RingVector_size(self->map) > s) ? RingVector_size(self->map) : s;
 		/* mapのサイズを2倍または+sする */
-		if (!RingVector_reserve(self->map, RingVector_size(self->map) + l)) {
+		if (!RingVector_reserve(self->map, RingVector_size(self->map) + k)) {
 			return 0;
 		}
-		RingVector_insert_array_no_elems(self->map, 0, l);
-		for (j = 0; j < l; j++) {
+		RingVector_insert_array_no_elems(self->map, 0, k);
+		for (j = 0; j < k; j++) {
 			*RingVector_at(self->map, j) = 0;
 		}
-		self->begin += l;
-		self->end += l;
+		self->begin += k;
+		self->end += k;
 	}
 	for (i = self->begin - s; i < self->begin; i++) {
 		if (!*RingVector_at(self->map, i)) {
@@ -204,7 +204,9 @@ static int UCharDeque_expand_end_side(UCharDeque *self, size_t n)
 	}
 	s = 1 + (n - m - 1) / DEQUE_BUF_SIZE(Type);
 	if (self->end + s > RingVector_size(self->map)) {
-		if (!RingVector_resize(self->map, self->end + s, 0)) {
+		size_t k = (RingVector_size(self->map) > s) ? RingVector_size(self->map) : s;
+		/* mapのサイズを2倍または+sする */
+		if (!RingVector_resize(self->map, self->end + k, 0)) {
 			return 0;
 		}
 	}
@@ -324,12 +326,18 @@ int UCharDeque_assign(UCharDeque *self, UCharDeque *x, size_t idx, size_t n)
 	assert(x && "Deque_assign");
 	assert(x->magic == x && "Deque_assign");
 	assert(UCharDeque_size(x) >= idx + n && "Deque_assign");
-//    if (n > UCharDeque_max_size(self)) return 0;
 	if (self == x) {
 		UCharDeque_erase(self, idx + n, UCharDeque_size(self) - (idx + n));
 		UCharDeque_erase(self, 0, idx);
 	} else {
-		UCharDeque_clear(self);
+		if (n > UCharDeque_size(self)) {
+			if (!UCharDeque_expand_end_side(self, n - UCharDeque_size(self))) {
+				return 0;
+			}
+		}
+		self->end = self->begin + 1;
+		self->nelems = 0;
+		Ring_clear(*RingVector_at(self->map, self->begin));
 		for (i = 0; i < n; i++) {
 			UCharDeque_push_back(self, *UCharDeque_at(x, i));
 		}
@@ -419,7 +427,7 @@ void UCharDeque_clear(UCharDeque *self)
 {
 	assert(self && "Deque_clear");
 	assert(self->magic == self && "Deque_clear");
-	self->begin = self->end - 1;
+	self->end = self->begin + 1;
 	self->nelems = 0;
 	Ring_clear(*RingVector_at(self->map, self->begin));
 }
@@ -455,7 +463,7 @@ int UCharDeque_insert(UCharDeque *self, size_t idx, Type elem)
 	assert(self && "Deque_insert");
 	assert(self->magic == self && "Deque_insert");
 	assert(UCharDeque_size(self) >= idx && "Deque_insert");
-	return 0;
+	return UCharDeque_insert_array(self, idx, &elem, 1);
 }
 
 int UCharDeque_insert_array(UCharDeque *self, size_t idx, Type *elems, size_t n)
@@ -516,17 +524,53 @@ void UCharDeque_erase(UCharDeque *self, size_t idx, size_t n)
 
 int UCharDeque_resize(UCharDeque *self, size_t n, Type elem)
 {
+	size_t i;
+	size_t size;
 	assert(self && "Deque_resize");
 	assert(self->magic == self && "Deque_resize");
+	size = UCharDeque_size(self);
+	if (size >= n) {
+		size_t j;
+		UCharDeque_coordinate(self, n, &i, &j);
+		if (j == 0) {
+			self->end = i;
+		} else {
+			Ring_erase(*RingVector_at(self->map, i), j, Ring_size(*RingVector_at(self->map, i)) - j);
+			self->end = i + 1;
+		}
+	} else {
+		if (!UCharDeque_expand_end_side(self, n - size)) {
+			return 0;
+		}
+		for (i = 0; i < n - size; i++) {
+			UCharDeque_push_back(self, elem);
+		}
+	}
 	return 1;
 }
 
 void UCharDeque_swap(UCharDeque *self, UCharDeque *x)
 {
+	size_t tmp_begin;
+	size_t tmp_end;
+	size_t tmp_nelems;
+	RingVector *tmp_map;
 	assert(self && "Deque_swap");
 	assert(x && "Deque_swap");
 	assert(self->magic == self && "Deque_swap");
 	assert(x->magic == x && "Deque_swap");
+	tmp_begin = self->begin;
+	tmp_end = self->end;
+	tmp_nelems = self->nelems;
+	tmp_map = self->map;
+	self->begin = x->begin;
+	self->end = x->end;
+	self->nelems = x->nelems;
+	self->map = x->map;
+	x->begin = tmp_begin;
+	x->end = tmp_end;
+	x->nelems = tmp_nelems;
+	x->map = tmp_map;
 }
 
 #undef malloc

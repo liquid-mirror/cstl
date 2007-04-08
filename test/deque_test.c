@@ -15,7 +15,7 @@ double buf[1024*1024];
 static UCharDeque *ud;
 /*static IntDeque *id;*/
 
-#define MAX		(255*5)
+#define MAX		(255*5*10)
 
 static unsigned char hoge[MAX];
 static int piyo[MAX];
@@ -61,7 +61,8 @@ int id_cmp(IntDeque *x, size_t idx, int *buf, size_t n)
 
 void DequeTest_test_1_1(void)
 {
-	int i, j;
+	int i;
+/*    int i, j;*/
 	printf("***** test_1_1 *****\n");
 	ud = UCharDeque_new();
 	/* 初期状態 */
@@ -106,15 +107,14 @@ void DequeTest_test_1_1(void)
 	UCharDeque_delete(ud);
 }
 
-#if 0
 void DequeTest_test_1_2(void)
 {
 	int i, j;
 	size_t size;
 	printf("***** test_1_2 *****\n");
-	ud = UCharDeque_new(MAX);
-	for (j = 0; j < MAX+1; j++) {
-		ud->begin = ud->end = j;
+	ud = UCharDeque_new();
+/*    for (j = 0; j < MAX+1; j++) {*/
+/*        ud->begin = ud->end = j;*/
 		assert(UCharDeque_size(ud) == 0);
 		/* push_back */
 		/* MAXまで */
@@ -126,12 +126,14 @@ void DequeTest_test_1_2(void)
 		assert(ud_cmp(ud, 0, hoge, MAX) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
+#if 0
 		assert(UCharDeque_full(ud));
 		/* FULLで失敗 */
 		assert(!UCharDeque_push_back(ud, hoge[0]));
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
 		assert(UCharDeque_full(ud));
+#endif
 		/* front */
 		assert(UCharDeque_front(ud) == hoge[0]);
 		/* back */
@@ -148,7 +150,7 @@ void DequeTest_test_1_2(void)
 		assert(ud_cmp(ud, MAX-1, hoge, 1) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
-		assert(UCharDeque_full(ud));
+/*        assert(UCharDeque_full(ud));*/
 		/* pop_front */
 		for (i = 0; i < MAX; i++) {
 			size = UCharDeque_size(ud);
@@ -161,8 +163,8 @@ void DequeTest_test_1_2(void)
 		}
 		assert(UCharDeque_size(ud) == 0);
 		assert(UCharDeque_empty(ud));
-		assert(!UCharDeque_full(ud));
-	}
+/*        assert(!UCharDeque_full(ud));*/
+/*    }*/
 
 	UCharDeque_delete(ud);
 }
@@ -172,9 +174,9 @@ void DequeTest_test_1_3(void)
 	int i, j;
 	size_t size;
 	printf("***** test_1_3 *****\n");
-	ud = UCharDeque_new(MAX);
-	for (j = 0; j < MAX+1; j++) {
-		ud->begin = ud->end = j;
+	ud = UCharDeque_new();
+/*    for (j = 0; j < MAX+1; j++) {*/
+/*        ud->begin = ud->end = j;*/
 		assert(UCharDeque_size(ud) == 0);
 		/* push_front */
 		/* MAXまで */
@@ -186,12 +188,14 @@ void DequeTest_test_1_3(void)
 		assert(ud_cmp(ud, 0, hoge, MAX) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
+#if 0
 		assert(UCharDeque_full(ud));
 		/* FULLで失敗 */
 		assert(!UCharDeque_push_front(ud, hoge[0]));
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
 		assert(UCharDeque_full(ud));
+#endif
 		/* front */
 		assert(UCharDeque_front(ud) == hoge[0]);
 		/* back */
@@ -210,7 +214,7 @@ void DequeTest_test_1_3(void)
 		assert(ud_cmp(ud, 2, hoge, MAX-2) == 0);
 		assert(UCharDeque_size(ud) == MAX);
 		assert(!UCharDeque_empty(ud));
-		assert(UCharDeque_full(ud));
+/*        assert(UCharDeque_full(ud));*/
 		/* pop_back */
 		for (i = MAX-3; i >= 0; i--) {
 			size = UCharDeque_size(ud);
@@ -222,8 +226,8 @@ void DequeTest_test_1_3(void)
 
 		assert(UCharDeque_size(ud) == 0);
 		assert(UCharDeque_empty(ud));
-		assert(!UCharDeque_full(ud));
-	}
+/*        assert(!UCharDeque_full(ud));*/
+/*    }*/
 
 	UCharDeque_delete(ud);
 }
@@ -232,9 +236,9 @@ void DequeTest_test_1_4(void)
 {
 	int i, j;
 	printf("***** test_1_4 *****\n");
-	ud = UCharDeque_new(MAX);
-	for (j = 0; j < MAX+1; j++) {
-		ud->begin = ud->end = j;
+	ud = UCharDeque_new();
+/*    for (j = 0; j < MAX+1; j++) {*/
+/*        ud->begin = ud->end = j;*/
 		assert(UCharDeque_size(ud) == 0);
 		/* insert */
 		/* 空状態 */
@@ -309,7 +313,7 @@ void DequeTest_test_1_4(void)
 		}
 		assert(UCharDeque_size(ud) == 0);
 
-	}
+/*    }*/
 
 	UCharDeque_delete(ud);
 }
@@ -318,9 +322,9 @@ void DequeTest_test_1_5(void)
 {
 	int i;
 	printf("***** test_1_5 *****\n");
-	ud = UCharDeque_new(MAX);
-	for (i = 0; i < MAX+1; i++) {
-		ud->begin = ud->end = i;
+	ud = UCharDeque_new();
+/*    for (i = 0; i < MAX+1; i++) {*/
+/*        ud->begin = ud->end = i;*/
 		assert(UCharDeque_size(ud) == 0);
 		/* insert_array */
 		/* 空状態 */
@@ -439,15 +443,16 @@ void DequeTest_test_1_5(void)
 		/* MAXになるまで */
 		assert(UCharDeque_insert_array(ud, 0, hoge, MAX - MAX/2));
 		assert(UCharDeque_size(ud) == MAX);
-		assert(UCharDeque_full(ud));
+/*        assert(UCharDeque_full(ud));*/
 		/* 先頭から全削除 */
 		UCharDeque_erase(ud, 0, UCharDeque_size(ud));
 		assert(UCharDeque_size(ud) == 0);
-	}
+/*    }*/
 
 	UCharDeque_delete(ud);
 }
 
+#if 0
 void DequeTest_test_1_6(void)
 {
 	int i;
