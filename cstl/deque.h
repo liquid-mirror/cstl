@@ -96,6 +96,7 @@ struct UCharDeque_t {
 	size_t end;
 	size_t nelems;
 	RingVector *map;
+	RingVector *pool;
 	DEQUE_MAGIC(void *magic;)
 };
 
@@ -146,6 +147,26 @@ static Ring *UCharDeque_get_ring_from_end_side(UCharDeque *self)
 	return Ring_new(DEQUE_BUF_SIZE(Type));
 }
 
+static Ring *UCharDeque_get_ring(UCharDeque *self)
+{
+	if (RingVector_empty(self->pool)) {
+		return Ring_new(DEQUE_BUF_SIZE(Type));
+	} else {
+		return RingVector_pop_back(self->pool);
+	}
+}
+
+static void UCharDeque_push_ring(UCharDeque *self, Ring *ring)
+{
+	if (RingVector_size(self->pool) == RingVector_capacity(self->pool)) {
+		/* poolの拡張はしない */
+		Ring_delete(ring);
+	} else {
+		Ring_clear(ring);
+		RingVector_push_back(self->pool, ring);
+	}
+}
+
 static void RingVector_insert_array_no_elems(RingVector *self, size_t idx, size_t n)
 {
 	assert(self && "Vector_insert_array_no_elems");
@@ -167,6 +188,7 @@ static int UCharDeque_expand_begin_side(UCharDeque *self, size_t n)
 	}
 	s = 1 + (n - m - 1) / DEQUE_BUF_SIZE(Type);
 	if (self->begin < s) {
+		/* TODO */
 		size_t j;
 		size_t k = (RingVector_size(self->map) > s) ? RingVector_size(self->map) : s;
 		/* mapのサイズを2倍または+sする */
@@ -182,7 +204,7 @@ static int UCharDeque_expand_begin_side(UCharDeque *self, size_t n)
 	}
 	for (i = self->begin - s; i < self->begin; i++) {
 		if (!*RingVector_at(self->map, i)) {
-			*RingVector_at(self->map, i) = UCharDeque_get_ring_from_end_side(self);
+			*RingVector_at(self->map, i) = UCharDeque_get_ring(self);
 			if (!*RingVector_at(self->map, i)) {
 				return 0;
 			}
@@ -204,6 +226,7 @@ static int UCharDeque_expand_end_side(UCharDeque *self, size_t n)
 	}
 	s = 1 + (n - m - 1) / DEQUE_BUF_SIZE(Type);
 	if (self->end + s > RingVector_size(self->map)) {
+		/* TODO */
 		size_t k = (RingVector_size(self->map) > s) ? RingVector_size(self->map) : s;
 		/* mapのサイズを2倍または+sする */
 		if (!RingVector_resize(self->map, self->end + k, 0)) {
@@ -212,7 +235,7 @@ static int UCharDeque_expand_end_side(UCharDeque *self, size_t n)
 	}
 	for (i = self->end; i < self->end + s; i++) {
 		if (!*RingVector_at(self->map, i)) {
-			*RingVector_at(self->map, i) = UCharDeque_get_ring_from_begin_side(self);
+			*RingVector_at(self->map, i) = UCharDeque_get_ring(self);
 			if (!*RingVector_at(self->map, i)) {
 				return 0;
 			}
@@ -290,12 +313,19 @@ UCharDeque *UCharDeque_new(void)
 		return 0;
 	}
 	RingVector_resize(self->map, DEQUE_INITIAL_MAP_SIZE, 0);
+	self->pool = RingVector_new(DEQUE_INITIAL_MAP_SIZE);
+	if (!self->pool) {
+		RingVector_delete(self->map);
+		free(self);
+		return 0;
+	}
 	self->begin = RingVector_size(self->map) / 2;
 	self->end = self->begin + 1;
 	self->nelems = 0;
 	*RingVector_at(self->map, self->begin) = Ring_new(DEQUE_BUF_SIZE(Type));
 	if (!*RingVector_at(self->map, self->begin)) {
 		RingVector_delete(self->map);
+		RingVector_delete(self->pool);
 		free(self);
 		return 0;
 	}
@@ -313,7 +343,11 @@ void UCharDeque_delete(UCharDeque *self)
 			Ring_delete(*RingVector_at(self->map, i));
 		}
 	}
+	while (!RingVector_empty(self->pool)) {
+		Ring_delete(RingVector_pop_back(self->pool));
+	}
 	RingVector_delete(self->map);
+	RingVector_delete(self->pool);
 	DEQUE_MAGIC(self->magic = 0;)
 	free(self);
 }
@@ -387,6 +421,8 @@ Type UCharDeque_pop_front(UCharDeque *self)
 	assert(!UCharDeque_empty(self) && "Deque_pop_front");
 	elem = Ring_pop_front(*RingVector_at(self->map, self->begin));
 	if (Ring_empty(*RingVector_at(self->map, self->begin))) {
+		UCharDeque_push_ring(self, *RingVector_at(self->map, self->begin));
+		*RingVector_at(self->map, self->begin) = 0;
 		self->begin++;
 		assert(self->begin < self->end);
 	}
@@ -402,6 +438,8 @@ Type UCharDeque_pop_back(UCharDeque *self)
 	assert(!UCharDeque_empty(self) && "Deque_pop_back");
 	elem = Ring_pop_back(*RingVector_at(self->map, self->end - 1));
 	if (Ring_empty(*RingVector_at(self->map, self->end - 1))) {
+		UCharDeque_push_ring(self, *RingVector_at(self->map, self->end - 1));
+		*RingVector_at(self->map, self->end - 1) = 0;
 		self->end--;
 		assert(self->begin < self->end);
 	}
@@ -425,11 +463,16 @@ int UCharDeque_empty(UCharDeque *self)
 
 void UCharDeque_clear(UCharDeque *self)
 {
+	size_t i;
 	assert(self && "Deque_clear");
 	assert(self->magic == self && "Deque_clear");
 	self->end = self->begin + 1;
 	self->nelems = 0;
 	Ring_clear(*RingVector_at(self->map, self->begin));
+	for (i = self->end; *RingVector_at(self->map, i) && i < RingVector_size(self->map); i++) {
+		UCharDeque_push_ring(self, *RingVector_at(self->map, i));
+		*RingVector_at(self->map, i) = 0;
+	}
 }
 
 Type *UCharDeque_at(UCharDeque *self, size_t idx)
@@ -498,7 +541,7 @@ int UCharDeque_insert_array(UCharDeque *self, size_t idx, Type *elems, size_t n)
 
 void UCharDeque_erase(UCharDeque *self, size_t idx, size_t n)
 {
-	size_t i, j;
+	size_t i, j, k;
 	assert(self && "Deque_erase");
 	assert(self->magic == self && "Deque_erase");
 	assert(UCharDeque_size(self) >= idx + n && "Deque_erase");
@@ -512,12 +555,20 @@ void UCharDeque_erase(UCharDeque *self, size_t idx, size_t n)
 			Ring_erase(*RingVector_at(self->map, i), j, Ring_size(*RingVector_at(self->map, i)) - j);
 			self->end = i + 1;
 		}
+		for (k = self->end; *RingVector_at(self->map, k) && k < RingVector_size(self->map); k++) {
+			UCharDeque_push_ring(self, *RingVector_at(self->map, k));
+			*RingVector_at(self->map, k) = 0;
+		}
 	} else {
 		/* begin側を移動 */
 		UCharDeque_move_forward(self, 0, idx, n);
 		UCharDeque_coordinate(self, n, &i, &j);
 		self->begin = i;
 		Ring_erase(*RingVector_at(self->map, i), 0, j);
+		for (k = self->begin; *RingVector_at(self->map, k - 1) && k > 0; k--) {
+			UCharDeque_push_ring(self, *RingVector_at(self->map, k - 1));
+			*RingVector_at(self->map, k - 1) = 0;
+		}
 	}
 	self->nelems -= n;
 }
@@ -530,13 +581,17 @@ int UCharDeque_resize(UCharDeque *self, size_t n, Type elem)
 	assert(self->magic == self && "Deque_resize");
 	size = UCharDeque_size(self);
 	if (size >= n) {
-		size_t j;
+		size_t j, k;
 		UCharDeque_coordinate(self, n, &i, &j);
 		if (j == 0) {
 			self->end = i;
 		} else {
 			Ring_erase(*RingVector_at(self->map, i), j, Ring_size(*RingVector_at(self->map, i)) - j);
 			self->end = i + 1;
+		}
+		for (k = self->end; *RingVector_at(self->map, k) && k < RingVector_size(self->map); k++) {
+			UCharDeque_push_ring(self, *RingVector_at(self->map, k));
+			*RingVector_at(self->map, k) = 0;
 		}
 	} else {
 		if (!UCharDeque_expand_end_side(self, n - size)) {
@@ -555,6 +610,7 @@ void UCharDeque_swap(UCharDeque *self, UCharDeque *x)
 	size_t tmp_end;
 	size_t tmp_nelems;
 	RingVector *tmp_map;
+	RingVector *tmp_pool;
 	assert(self && "Deque_swap");
 	assert(x && "Deque_swap");
 	assert(self->magic == self && "Deque_swap");
@@ -563,14 +619,17 @@ void UCharDeque_swap(UCharDeque *self, UCharDeque *x)
 	tmp_end = self->end;
 	tmp_nelems = self->nelems;
 	tmp_map = self->map;
+	tmp_pool = self->pool;
 	self->begin = x->begin;
 	self->end = x->end;
 	self->nelems = x->nelems;
 	self->map = x->map;
+	self->pool = x->pool;
 	x->begin = tmp_begin;
 	x->end = tmp_end;
 	x->nelems = tmp_nelems;
 	x->map = tmp_map;
+	x->pool = tmp_pool;
 }
 
 #undef malloc
