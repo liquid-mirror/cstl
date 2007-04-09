@@ -452,23 +452,22 @@ void DequeTest_test_1_5(void)
 	UCharDeque_delete(ud);
 }
 
-#if 0
 void DequeTest_test_1_6(void)
 {
 	int i;
 	UCharDeque *x;
 	unsigned char b[] = {1, 2, 4, 43, 2, 54, 1, 0, 2, 24};
 	printf("***** test_1_6 *****\n");
-	ud = UCharDeque_new(MAX);
+	ud = UCharDeque_new();
 	for (i = 0; i < MAX; i++) {
 		assert(UCharDeque_push_back(ud, hoge[i]));
 	}
 	/* assign */
 	assert(UCharDeque_size(ud) == MAX);
-	x = UCharDeque_new(MAX);
+	x = UCharDeque_new();
 	assert(UCharDeque_assign(x, ud, 0, UCharDeque_size(ud)));
 	assert(UCharDeque_size(ud) == UCharDeque_size(x));
-	assert(UCharDeque_max_size(ud) == UCharDeque_max_size(x));
+/*    assert(UCharDeque_max_size(ud) == UCharDeque_max_size(x));*/
 	for (i = 0; i < UCharDeque_size(ud); i++) {
 		assert(*UCharDeque_at(x, i) == *UCharDeque_at(ud, i));
 	}
@@ -529,6 +528,7 @@ void DequeTest_test_1_6(void)
 	UCharDeque_delete(x);
 }
 
+#if 0
 
 
 void DequeTest_test_2_1(void)
@@ -932,12 +932,12 @@ void DequeTest_run(void)
 	deque_init_piyo();
 
 	DequeTest_test_1_1();
-#if 0
 	DequeTest_test_1_2();
 	DequeTest_test_1_3();
 	DequeTest_test_1_4();
 	DequeTest_test_1_5();
 	DequeTest_test_1_6();
+#if 0
 
 	DequeTest_test_2_1();
 	DequeTest_test_2_2();
