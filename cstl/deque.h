@@ -117,38 +117,6 @@ static void UCharDeque_coordinate(UCharDeque *self, size_t idx, size_t *map_idx,
 	}
 }
 
-#if 0
-static Ring *UCharDeque_get_ring_from_begin_side(UCharDeque *self)
-{
-	size_t i;
-	Ring *tmp;
-	for (i = 0; i < self->begin; i++) {
-		tmp = *RingVector_at(self->map, i);
-		if (tmp) {
-			*RingVector_at(self->map, i) = 0;
-			Ring_clear(tmp);
-			return tmp;
-		}
-	}
-	return Ring_new(DEQUE_BUF_SIZE(Type));
-}
-
-static Ring *UCharDeque_get_ring_from_end_side(UCharDeque *self)
-{
-	size_t i;
-	Ring *tmp;
-	for (i = RingVector_size(self->map) - 1; i > self->end - 1; i--) {
-		tmp = *RingVector_at(self->map, i);
-		if (tmp) {
-			*RingVector_at(self->map, i) = 0;
-			Ring_clear(tmp);
-			return tmp;
-		}
-	}
-	return Ring_new(DEQUE_BUF_SIZE(Type));
-}
-#endif
-
 static Ring *UCharDeque_get_ring(UCharDeque *self)
 {
 	if (RingVector_empty(self->pool)) {
@@ -222,7 +190,7 @@ static int UCharDeque_expand_begin_side(UCharDeque *self, size_t n)
 		} else {
 			/* mapをずらす */
 			size_t d = s - self->begin;
-			assert(e + d <= RingVector_size(self->map));
+			assert(e + d <= RingVector_size(self->map) && "Deque_expand_begin_side");
 			RingVector_move_forward(self->map, b, e, d);
 			self->begin += d;
 			self->end += d;
@@ -266,7 +234,7 @@ static int UCharDeque_expand_end_side(UCharDeque *self, size_t n)
 		} else {
 			/* mapをずらす */
 			size_t d = s - (RingVector_size(self->map) - self->end);
-			assert(b >= d);
+			assert(b >= d && "Deque_expand_end_side");
 			RingVector_move_backward(self->map, b, e, d);
 			self->begin -= d;
 			self->end -= d;
@@ -308,7 +276,7 @@ static void UCharDeque_fill_begin_side(UCharDeque *self, size_t n)
 	for (i = 0; i < n; i++) {
 		if (!Ring_push_front_no_elem(*RingVector_at(self->map, self->begin))) {
 			self->begin--;
-			assert(Ring_empty(*RingVector_at(self->map, self->begin)));
+			assert(Ring_empty(*RingVector_at(self->map, self->begin)) && "Deque_fill_begin_side");
 			Ring_push_front_no_elem(*RingVector_at(self->map, self->begin));
 		}
 	}
@@ -321,7 +289,7 @@ static void UCharDeque_fill_end_side(UCharDeque *self, size_t n)
 	for (i = 0; i < n; i++) {
 		if (!Ring_push_back_no_elem(*RingVector_at(self->map, self->end - 1))) {
 			self->end++;
-			assert(Ring_empty(*RingVector_at(self->map, self->end - 1)));
+			assert(Ring_empty(*RingVector_at(self->map, self->end - 1)) && "Deque_fill_end_side");
 			Ring_push_back_no_elem(*RingVector_at(self->map, self->end - 1));
 		}
 	}
@@ -462,13 +430,13 @@ Type UCharDeque_pop_front(UCharDeque *self)
 	assert(self->magic == self && "Deque_pop_front");
 	assert(!UCharDeque_empty(self) && "Deque_pop_front");
 	elem = Ring_pop_front(*RingVector_at(self->map, self->begin));
-	if (Ring_empty(*RingVector_at(self->map, self->begin))) {
+	self->nelems--;
+	if (Ring_empty(*RingVector_at(self->map, self->begin)) && self->nelems > 0) {
 		UCharDeque_push_ring(self, *RingVector_at(self->map, self->begin));
 		*RingVector_at(self->map, self->begin) = 0;
 		self->begin++;
-		assert(self->begin < self->end);
+		assert(self->begin < self->end && "Deque_pop_front");
 	}
-	self->nelems--;
 	return elem;
 }
 
@@ -479,13 +447,13 @@ Type UCharDeque_pop_back(UCharDeque *self)
 	assert(self->magic == self && "Deque_pop_back");
 	assert(!UCharDeque_empty(self) && "Deque_pop_back");
 	elem = Ring_pop_back(*RingVector_at(self->map, self->end - 1));
-	if (Ring_empty(*RingVector_at(self->map, self->end - 1))) {
+	self->nelems--;
+	if (Ring_empty(*RingVector_at(self->map, self->end - 1)) && self->nelems > 0) {
 		UCharDeque_push_ring(self, *RingVector_at(self->map, self->end - 1));
 		*RingVector_at(self->map, self->end - 1) = 0;
 		self->end--;
-		assert(self->begin < self->end);
+		assert(self->begin < self->end && "Deque_pop_back");
 	}
-	self->nelems--;
 	return elem;
 }
 
@@ -511,7 +479,7 @@ void UCharDeque_clear(UCharDeque *self)
 	self->end = self->begin + 1;
 	self->nelems = 0;
 	Ring_clear(*RingVector_at(self->map, self->begin));
-	for (i = self->end; *RingVector_at(self->map, i) && i < RingVector_size(self->map); i++) {
+	for (i = self->end; i < RingVector_size(self->map) && *RingVector_at(self->map, i); i++) {
 		UCharDeque_push_ring(self, *RingVector_at(self->map, i));
 		*RingVector_at(self->map, i) = 0;
 	}
@@ -591,13 +559,15 @@ void UCharDeque_erase(UCharDeque *self, size_t idx, size_t n)
 		/* end側を移動 */
 		UCharDeque_move_backward(self, idx + n, UCharDeque_size(self), n);
 		UCharDeque_coordinate(self, UCharDeque_size(self) - n, &i, &j);
-		if (j == 0) {
-			self->end = i;
-		} else {
+		assert(i >= self->begin && "Deque_erase");
+		if (i == self->begin || j != 0) {
 			Ring_erase(*RingVector_at(self->map, i), j, Ring_size(*RingVector_at(self->map, i)) - j);
 			self->end = i + 1;
+		} else {
+			self->end = i;
 		}
-		for (k = self->end; *RingVector_at(self->map, k) && k < RingVector_size(self->map); k++) {
+		assert(self->begin < self->end && 1 && "Deque_erase");
+		for (k = self->end; k < RingVector_size(self->map) && *RingVector_at(self->map, k); k++) {
 			UCharDeque_push_ring(self, *RingVector_at(self->map, k));
 			*RingVector_at(self->map, k) = 0;
 		}
@@ -607,7 +577,8 @@ void UCharDeque_erase(UCharDeque *self, size_t idx, size_t n)
 		UCharDeque_coordinate(self, n, &i, &j);
 		self->begin = i;
 		Ring_erase(*RingVector_at(self->map, i), 0, j);
-		for (k = self->begin; *RingVector_at(self->map, k - 1) && k > 0; k--) {
+		assert(self->begin < self->end && 2 && "Deque_erase");
+		for (k = self->begin; k > 0 && *RingVector_at(self->map, k - 1); k--) {
 			UCharDeque_push_ring(self, *RingVector_at(self->map, k - 1));
 			*RingVector_at(self->map, k - 1) = 0;
 		}
@@ -623,18 +594,7 @@ int UCharDeque_resize(UCharDeque *self, size_t n, Type elem)
 	assert(self->magic == self && "Deque_resize");
 	size = UCharDeque_size(self);
 	if (size >= n) {
-		size_t j, k;
-		UCharDeque_coordinate(self, n, &i, &j);
-		if (j == 0) {
-			self->end = i;
-		} else {
-			Ring_erase(*RingVector_at(self->map, i), j, Ring_size(*RingVector_at(self->map, i)) - j);
-			self->end = i + 1;
-		}
-		for (k = self->end; *RingVector_at(self->map, k) && k < RingVector_size(self->map); k++) {
-			UCharDeque_push_ring(self, *RingVector_at(self->map, k));
-			*RingVector_at(self->map, k) = 0;
-		}
+		UCharDeque_erase(self, n, size - n);
 	} else {
 		if (!UCharDeque_expand_end_side(self, n - size)) {
 			return 0;
