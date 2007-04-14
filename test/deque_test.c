@@ -1,21 +1,11 @@
-#if 0
 #include "test.h"
-
-
-
 DEQUE_IMPLEMENT(UCharDeque, unsigned char)
 DEQUE_IMPLEMENT(IntDeque, int)
-#endif
-#include <stdio.h>
-#include "heap.h"
-Heap heap;
-double buf[1024*1024];
-#include "../cstl/deque.h"
 
 static UCharDeque *ud;
 /*static IntDeque *id;*/
 
-#define MAX		(255*5)
+#define MAX		(255*5*10)
 
 static unsigned char hoge[MAX];
 static int piyo[MAX];
@@ -490,7 +480,6 @@ void DequeTest_test_1_6(void)
 		assert(*UCharDeque_at(ud, i) == 100);
 	}
 	assert(UCharDeque_resize(ud, 16, 99));
-	printf("resize:%d\n", UCharDeque_size(ud));
 	assert(UCharDeque_size(ud) == 16);
 	for (i = 0; i < UCharDeque_size(ud); i++) {
 		assert(*UCharDeque_at(ud, i) == 100);
@@ -928,7 +917,6 @@ void DequeTest_test_2_5(void)
 void DequeTest_run(void)
 {
 	printf("\n===== deque test =====\n");
-	Heap_init(&heap, buf, sizeof buf);
 	deque_init_hoge();
 	deque_init_piyo();
 
@@ -946,6 +934,5 @@ void DequeTest_run(void)
 	DequeTest_test_2_4();
 	DequeTest_test_2_5();
 #endif
-	DUMP_MEMORY_LEAK(&heap, 1);
 }
 

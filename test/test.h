@@ -6,6 +6,7 @@
 #include <assert.h>
 #include "../cstl/vector.h"
 #include "../cstl/ring.h"
+#include "../cstl/deque.h"
 #include "../cstl/list.h"
 #include "../cstl/set.h"
 #include "../cstl/map.h"
@@ -26,6 +27,11 @@ VECTOR_INTERFACE(IntVector, int)
 /* ring */
 RING_INTERFACE(UCharRing, unsigned char)
 RING_INTERFACE(IntRing, int)
+
+
+/* deque */
+DEQUE_INTERFACE(UCharDeque, unsigned char)
+DEQUE_INTERFACE(IntDeque, int)
 
 
 /* list */
