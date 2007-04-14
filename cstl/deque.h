@@ -274,26 +274,26 @@ static int Name##__Ring##_push_front_no_elem(Name##__Ring *self)\
 	return 1;\
 }\
 \
-static void Name##_fill_begin_side(Name *self, size_t n)\
+static void Name##_push_front_n_no_elem(Name *self, size_t n)\
 {\
 	size_t i;\
 	for (i = 0; i < n; i++) {\
 		if (!Name##__Ring##_push_front_no_elem(*Name##__RingVector##_at(self->map, self->begin))) {\
 			self->begin--;\
-			assert(Name##__Ring##_empty(*Name##__RingVector##_at(self->map, self->begin)) && "Deque_fill_begin_side");\
+			assert(Name##__Ring##_empty(*Name##__RingVector##_at(self->map, self->begin)) && "Deque_push_front_n_no_elem");\
 			Name##__Ring##_push_front_no_elem(*Name##__RingVector##_at(self->map, self->begin));\
 		}\
 	}\
 	self->nelems += n;\
 }\
 \
-static void Name##_fill_end_side(Name *self, size_t n)\
+static void Name##_push_back_n_no_elem(Name *self, size_t n)\
 {\
 	size_t i;\
 	for (i = 0; i < n; i++) {\
 		if (!Name##__Ring##_push_back_no_elem(*Name##__RingVector##_at(self->map, self->end - 1))) {\
 			self->end++;\
-			assert(Name##__Ring##_empty(*Name##__RingVector##_at(self->map, self->end - 1)) && "Deque_fill_end_side");\
+			assert(Name##__Ring##_empty(*Name##__RingVector##_at(self->map, self->end - 1)) && "Deque_push_back_n_no_elem");\
 			Name##__Ring##_push_back_no_elem(*Name##__RingVector##_at(self->map, self->end - 1));\
 		}\
 	}\
@@ -537,14 +537,14 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 			return 0;\
 		}\
 		s = Name##_size(self);\
-		Name##_fill_end_side(self, n);\
+		Name##_push_back_n_no_elem(self, n);\
 		Name##_move_forward(self, idx, s, n);\
 	} else {\
 		/* begin側を移動 */\
 		if (!Name##_expand_begin_side(self, n)) {\
 			return 0;\
 		}\
-		Name##_fill_begin_side(self, n);\
+		Name##_push_front_n_no_elem(self, n);\
 		Name##_move_backward(self, n, n + idx, n);\
 	}\
 	for (i = 0; i < n; i++) {\
