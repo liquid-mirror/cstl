@@ -117,6 +117,7 @@ Name *Name##_new(size_t n)\
 	Type *buf;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
+	self->nelems = n;\
 	if (!n) n = 1;\
 	buf = (Type *) malloc(sizeof(Type) * n);\
 	if (!buf) {\
@@ -125,7 +126,6 @@ Name *Name##_new(size_t n)\
 	}\
 	self->end = 0;\
 	self->buf = buf;\
-	self->nelems = n;\
 	VECTOR_MAGIC(self->magic = self;)\
 	return self;\
 }\
@@ -233,12 +233,12 @@ void Name##_shrink(Name *self, size_t n)\
 	if (n < Name##_size(self)) {\
 		n = Name##_size(self);\
 	}\
+	self->nelems = n;\
 	if (!n) n = 1;\
 	newbuf = (Type *) realloc(self->buf, sizeof(Type) * n);\
 	if (newbuf) {\
 		self->buf = newbuf;\
 	}\
-	self->nelems = n;\
 }\
 \
 int Name##_resize(Name *self, size_t n, Type elem)\

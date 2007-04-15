@@ -51,7 +51,7 @@
 #define DEQUE_MAGIC(x)
 #endif
 
-#define DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 512 ? 512 / sizeof(Type) : 1)
+#define DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 511 ? 511 / sizeof(Type) : 1)
 #define DEQUE_INITIAL_MAP_SIZE		(8)
 
 /*! 
