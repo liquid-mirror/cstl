@@ -263,6 +263,7 @@ void VectorTest_test_1_6(void)
 	UCharVector *x;
 	size_t i;
 	unsigned char b[] = {1, 2, 4, 43, 2, 54, 1, 0, 2, 24};
+	size_t cap1, cap2;
 	printf("***** test_1_6 *****\n");
 	uv = UCharVector_new(SIZE);
 	vector_init_hoge();
@@ -330,23 +331,23 @@ void VectorTest_test_1_6(void)
 	assert(UCharVector_insert_array(uv, 0, hoge, SIZE));
 	assert(memcmp(UCharVector_at(uv, 0), hoge, SIZE) == 0);
 	assert(UCharVector_size(uv) == SIZE);
-	assert(UCharVector_capacity(uv) == SIZE);
+	cap1 = UCharVector_capacity(uv);
 	UCharVector_clear(x);
 	UCharVector_shrink(x, 0);
 	UCharVector_clear(x);
 	assert(UCharVector_insert_array(x, 0, b, sizeof b));
 	assert(memcmp(UCharVector_at(x, 0), b, sizeof b) == 0);
 	assert(UCharVector_size(x) == sizeof b);
-	assert(UCharVector_capacity(x) == sizeof b);
+	cap2 = UCharVector_capacity(x);
 
 	UCharVector_swap(uv, x);
 
 	assert(memcmp(UCharVector_at(uv, 0), b, sizeof b) == 0);
 	assert(UCharVector_size(uv) == sizeof b);
-	assert(UCharVector_capacity(uv) == sizeof b);
+	assert(UCharVector_capacity(uv) == cap2);
 	assert(memcmp(UCharVector_at(x, 0), hoge, SIZE) == 0);
 	assert(UCharVector_size(x) == SIZE);
-	assert(UCharVector_capacity(x) == SIZE);
+	assert(UCharVector_capacity(x) == cap1);
 
 
 

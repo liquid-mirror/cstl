@@ -117,14 +117,15 @@ Name *Name##_new(size_t n)\
 	Type *buf;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	buf = (Type *) malloc(sizeof(Type) * (n+1));\
+	if (!n) n = 1;\
+	buf = (Type *) malloc(sizeof(Type) * n);\
 	if (!buf) {\
 		free(self);\
 		return 0;\
 	}\
 	self->end = 0;\
 	self->buf = buf;\
-	self->nelems = n+1;\
+	self->nelems = n;\
 	VECTOR_MAGIC(self->magic = self;)\
 	return self;\
 }\
@@ -193,7 +194,7 @@ size_t Name##_capacity(Name *self)\
 {\
 	assert(self && "Vector_capacity");\
 	assert(self->magic == self && "Vector_capacity");\
-	return (self->nelems - 1);\
+	return self->nelems;\
 }\
 \
 int Name##_empty(Name *self)\
@@ -216,10 +217,10 @@ int Name##_reserve(Name *self, size_t n)\
 	assert(self && "Vector_reserve");\
 	assert(self->magic == self && "Vector_reserve");\
 	if (n <= Name##_capacity(self)) return 1;\
-	newbuf = (Type *) realloc(self->buf, sizeof(Type) * (n+1));\
+	newbuf = (Type *) realloc(self->buf, sizeof(Type) * n);\
 	if (!newbuf) return 0;\
 	self->buf = newbuf;\
-	self->nelems = n+1;\
+	self->nelems = n;\
 	return 1;\
 }\
 \
@@ -232,11 +233,12 @@ void Name##_shrink(Name *self, size_t n)\
 	if (n < Name##_size(self)) {\
 		n = Name##_size(self);\
 	}\
-	newbuf = (Type *) realloc(self->buf, sizeof(Type) * (n+1));\
+	if (!n) n = 1;\
+	newbuf = (Type *) realloc(self->buf, sizeof(Type) * n);\
 	if (newbuf) {\
 		self->buf = newbuf;\
 	}\
-	self->nelems = n+1;\
+	self->nelems = n;\
 }\
 \
 int Name##_resize(Name *self, size_t n, Type elem)\
