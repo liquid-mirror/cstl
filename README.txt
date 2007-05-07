@@ -12,10 +12,10 @@ SourceForge.jp CSTL
 ディレクトリ・ファイル構成
   cstl/
     vector.h      vector
-    ring.h        ring
+    ring.h        リングバッファ
     deque.h       deque
     list.h        list
-    rbtree.h      赤黒木(set/mapのデータ構造)
+    rbtree.h      赤黒木
     set.h         set/multiset
     map.h         map/multimap
     string.h      string

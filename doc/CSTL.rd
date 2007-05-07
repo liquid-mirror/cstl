@@ -8,7 +8,6 @@
 * ((<提供コンテナ>))
 * ((<リファレンスマニュアル>))
   * ((<vector>))
-  * ((<ring>))
   * ((<deque>))
   * ((<list>))
   * ((<set|"set/multiset">))
@@ -34,11 +33,11 @@ CSTLは、C++のSTLコンテナに似たインターフェイスを持つC/C++�
 == インストール
 * 手動でコピーする方法
 
-  ((<SourceForge.jp|URL:http://sourceforge.jp/projects/cstl/files/>))からtarballをダウンロードし、展開する。
+  ((<SourceForge.jp|URL:http://sourceforge.jp/projects/cstl/files/>))からtarballをダウンロードする。
+  tarballを展開し、cstlディレクトリをインクルードパスの通ったディレクトリにコピーする。
+
   cstlディレクトリには以下のファイルが含まれている。
     vector.h  ring.h  deque.h  list.h  rbtree.h  set.h  map.h  string.h
-
-  cstlディレクトリをインクルードパスの通ったディレクトリにコピーする。
 
 * ((<SVNリポジトリ|URL:http://svn.sourceforge.jp/svnroot/cstl/>))からチェックアウトする方法
 
@@ -58,15 +57,9 @@ CSTLは以下のコンテナを提供する。
   末尾での要素の挿入・削除が高速であり、それ以外の位置の要素の挿入・削除と要素の検索は遅い。
   インデックスによる要素のランダムアクセスが可能。
 
-* ((<ring>))
-
-  リングバッファ。
-  先頭と末尾での要素の挿入・削除が高速であり、それ以外の位置の要素の挿入・削除と要素の検索は遅い。
-  インデックスによる要素のランダムアクセスが可能。
-
 * ((<deque>))
 
-  両端キュー。許容量を超えた要素の追加をした場合、自動的に拡張する。
+  両端キュー。
   先頭と末尾での要素の挿入・削除が高速であり、それ以外の位置の要素の挿入・削除と要素の検索は遅い。
   インデックスによる要素のランダムアクセスが可能。
 
@@ -128,7 +121,7 @@ VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
-以下の関数において、Vector*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Vector*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
   Vector *Vector_new(size_t n);
@@ -248,159 +241,6 @@ VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 <<< br
 
 
-=== ring
-ringを使うには、ring.hというヘッダファイルをインクルードする。
-  #include <cstl/ring.h>
-
-以下のマクロを用いてコードを展開する必要がある。
-
-  /* インターフェイスを展開 */
-  #define RING_INTERFACE(Name, Type)
-
-  /* 実装を展開 */
-  #define RING_IMPLEMENT(Name, Type)
-
-Nameに既存の型と重複しない任意の名前を、Typeに任意の要素の型を指定する。
-<<< br
-
-RING_INTERFACEの引数のNameにRing, TypeにTを指定した場合、
-以下のインターフェイスを提供する。
-
-==== 型
-
-  Ring
-コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
-
-==== 関数
-以下の関数において、Ring*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
-
-+ 生成
-  Ring *Ring_new(size_t n);
-* 格納可能要素数がn個のringを生成する。
-* 生成に成功した場合、そのオブジェクトへのポインタを返す。
-* メモリ不足の場合、NULLを返す。
-<<< br
-
-+ 破棄
-  void Ring_delete(Ring *self);
-* selfのすべての要素を削除し、selfを破棄する。
-<<< br
-
-+ 初期化
-  void Ring_init(Ring *self, T *buf, size_t n);
-* 要素数がn個のbufという配列を用いてselfを初期化する。
-* 格納可能要素数はn-1個となる。
-* 内部バッファを呼び出し側で用意する場合、Ring_new()の替わりに使用する。
-  そのオブジェクトに対してRing_delete(), Ring_swap()を使用してはならない。
-<<< br
-
-+ サイズ
-  size_t Ring_size(Ring *self);
-* selfの現在の要素数を返す。
-<<< br
-
-  size_t Ring_max_size(Ring *self);
-* selfの格納可能な最大の要素数を返す。
-<<< br
-
-  int Ring_empty(Ring *self);
-* selfが空の場合、0以外の値を返す。
-* selfが空でない場合、0を返す。
-<<< br
-
-  int Ring_full(Ring *self);
-* selfが満杯の場合、0以外の値を返す。
-* selfが満杯でない場合、0を返す。
-<<< br
-
-+ 代入
-  int Ring_assign(Ring *self, Ring *x, size_t idx, size_t n);
-* xのidxが示すインデックスの位置からn個の要素のコピーをselfの要素として代入する。
-* selfとxは同じオブジェクトでもよい。
-* 代入に成功した場合、0以外の値を返す。
-* nがselfの格納可能最大要素数より大きい場合、selfの変更を行わず0を返す。
-* 事前条件は、idx + nがxの現在の要素数以下の値であること。
-<<< br
-
-  void Ring_swap(Ring *self, Ring *x);
-* selfとxの内容を交換する。
-* 要素のコピーをしないので、Ring_assign(self, x, 0, Ring_size(x))よりも速い。
-  xが不要になる場合、こちらを使用するべきである。
-<<< br
-
-+ 要素のアクセス
-  T *Ring_at(Ring *self, size_t idx);
-* selfのidxが示すインデックスの要素へのポインタを返す。
-* 事前条件は、idxがselfの現在の要素数より小さい値であること。
-<<< br
-
-  T Ring_front(Ring *self);
-* selfの最初の要素を返す。
-* 事前条件は、selfが空でないこと。
-<<< br
-
-  T Ring_back(Ring *self);
-* selfの最後の要素を返す。
-* 事前条件は、selfが空でないこと。
-<<< br
-
-+ 挿入
-  int Ring_insert(Ring *self, size_t idx, T elem);
-* selfのidxが示すインデックスの位置にelemのコピーを挿入する。
-* 挿入に成功した場合、0以外の値を返す。
-* selfが既に満杯だった場合、selfの変更を行わず0を返す。
-* 事前条件は、idxがselfの現在の要素数以下の値であること。
-<<< br
-
-  int Ring_insert_array(Ring *self, size_t idx, T *elems, size_t n);
-* selfのidxが示すインデックスの位置にelemsという配列からn個の要素のコピーを挿入する。
-* 挿入に成功した場合、0以外の値を返す。
-* selfの現在の要素数 + nがselfの格納可能最大要素数より大きい場合、selfの変更を行わず0を返す。
-* 事前条件は、elemsがNULLでないこと、かつidxがselfの現在の要素数以下の値であること。
-<<< br
-
-  int Ring_push_back(Ring *self, T elem);
-* elemのコピーをselfの最後の要素として追加する。
-* 追加に成功した場合、0以外の値を返す。
-* selfが既に満杯だった場合、selfの変更を行わず0を返す。
-<<< br
-
-  int Ring_push_front(Ring *self, T elem);
-* elemのコピーをselfの最初の要素として追加する。
-* 追加に成功した場合、0以外の値を返す。
-* selfが既に満杯だった場合、selfの変更を行わず0を返す。
-<<< br
-
-+ 削除
-  void Ring_erase(Ring *self, size_t idx, size_t n);
-* selfのidxが示すインデックスの位置からn個の要素を削除する。
-* 事前条件は、idx + nがselfの現在の要素数以下の値であること。
-<<< br
-
-  T Ring_pop_front(Ring *self);
-* selfの最初の要素を削除し、その要素を返す。
-* 事前条件は、selfが空でないこと。
-<<< br
-
-  T Ring_pop_back(Ring *self);
-* selfの最後の要素を削除し、その要素を返す。
-* 事前条件は、selfが空でないこと。
-<<< br
-
-  void Ring_clear(Ring *self);
-* selfのすべての要素を削除する。
-<<< br
-
-+ サイズの変更
-  int Ring_resize(Ring *self, size_t n, T elem);
-* selfの要素数をn個に変更する。
-* nがselfの現在の要素数以下の場合、要素数がnになるまで末尾から要素が削除される。
-* nがselfの現在の要素数より大きい場合、要素数がnになるまでelemのコピーが末尾から追加される。
-* 要素数の変更に成功した場合、0以外の値を返す。
-* nがselfの格納可能最大要素数より大きい場合、selfの変更を行わず0を返す。
-<<< br
-
-
 === deque
 dequeを使うには、deque.hというヘッダファイルをインクルードする。
   #include <cstl/deque.h>
@@ -425,7 +265,7 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
-以下の関数において、Deque*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Deque*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
   Deque *Deque_new(void);
@@ -562,9 +402,10 @@ LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 
   ListIterator
 イテレータの型。要素の位置を示す。
+削除された要素を示すイテレータは無効となる。
 
 ==== 関数
-以下の関数において、List*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、List*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
   List *List_new(void);
@@ -684,13 +525,11 @@ LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 + 削除
   ListIterator List_erase(List *self, ListIterator pos);
 * selfのposが示す位置の要素を削除し、その次の位置を示すイテレータを返す。
-* 関数から抜けた後、posは無効なイテレータとなる。
 * 事前条件は、posがselfの有効なイテレータであり、かつList_end()またはList_rend()でないこと。
 <<< br
 
   ListIterator List_erase_range(List *self, ListIterator first, ListIterator last);
 * selfの[first, last)の範囲の要素を削除し、削除した要素の次の位置を示すイテレータを返す。
-* 関数から抜けた後、[first, last)の範囲のイテレータは無効となる。
 * 事前条件は、[first, last)がselfの有効なイテレータであること。
 <<< br
 
@@ -772,9 +611,10 @@ SET_INTERFACE/MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した�
 
   SetIterator
 イテレータの型。要素の位置を示す。
+削除された要素を示すイテレータは無効となる。
 
 ==== 関数
-以下の関数において、Set*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Set*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
   Set *Set_new(void);
@@ -867,13 +707,11 @@ SET_INTERFACE/MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した�
 + 削除
   SetIterator Set_erase(Set *self, SetIterator pos);
 * selfのposが示す位置の要素を削除し、その次の位置を示すイテレータを返す。
-* 関数から抜けた後、posは無効なイテレータとなる。
 * 事前条件は、posがselfの有効なイテレータであり、かつSet_end()またはSet_rend()でないこと。
 <<< br
 
   SetIterator Set_erase_range(Set *self, SetIterator first, SetIterator last);
 * selfの[first, last)の範囲の要素を削除し、削除した要素の次の位置を示すイテレータを返す。
-* 関数から抜けた後、[first, last)の範囲のイテレータは無効となる。
 * 事前条件は、[first, last)がselfの有効なイテレータであること。
 <<< br
 
@@ -953,9 +791,10 @@ MAP_INTERFACE/MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, ValueTyp
 
   MapIterator
 イテレータの型。要素の位置を示す。
+削除された要素を示すイテレータは無効となる。
 
 ==== 関数
-以下の関数において、Map*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Map*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
   Map *Map_new(void);
@@ -1060,13 +899,11 @@ MAP_INTERFACE/MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, ValueTyp
 + 削除
   MapIterator Map_erase(Map *self, MapIterator pos);
 * selfのposが示す位置の要素を削除し、その次の位置を示すイテレータを返す。
-* 関数から抜けた後、posは無効なイテレータとなる。
 * 事前条件は、posがselfの有効なイテレータであり、かつMap_end()またはMap_rend()でないこと。
 <<< br
 
   MapIterator Map_erase_range(Map *self, MapIterator first, MapIterator last);
 * selfの[first, last)の範囲の要素を削除し、削除した要素の次の位置を示すイテレータを返す。
-* 関数から抜けた後、[first, last)の範囲のイテレータは無効となる。
 * 事前条件は、[first, last)がselfの有効なイテレータであること。
 <<< br
 
@@ -1128,7 +965,7 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
-以下の関数において、String*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、String*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
   String *String_new(size_t n);
@@ -1383,7 +1220,6 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 
 
 == STLとの主な違い
-* ringを追加。
 * vector, deque, stringはインデックスで要素にアクセスするため、イテレータをサポートしない。
 * vector, deque, listのpop_back(), pop_front()は削除した値を返す。
 * vector, stringのshrink()は許容量の縮小ができる。
