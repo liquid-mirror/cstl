@@ -52,31 +52,15 @@ typedef enum RBTreeColor_t {
 	RBTREE_HEAD
 } RBTreeColor;
 
-/*! 
- * \brief ソートの順序
- */
-enum {
-	ASC = 0,
-	DESC
-};
-
-/*! 
- * \brief 単純比較ルーチン
- */
-#define SIMPLE_CMP(x, y)	((x) == (y) ? 0 : (x) > (y) ? 1 : -1)
+#define LESS(x, y)		((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
+#define GREATER(x, y)	((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
 
 
-#define RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
+#define RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 typedef struct Name##Node_t Name##Node;\
 typedef struct Name##Node_t *Name##Iterator;\
 static Name##Node Name##_nil = {&Name##_nil, &Name##_nil, &Name##_nil, RBTREE_BLACK};\
-\
-static int Name##_cmp(KeyType x, KeyType y, int order)\
-{\
-	return order ? Compare(y, x) : Compare(x, y);\
-}\
-\
 \
 static Name *Name##_new(void);\
 static void Name##_delete(Name *self);\
@@ -226,7 +210,7 @@ static Name##Node *Name##Node_find(Name *self, Name##Node *t, KeyType key)\
 {\
 	int cmp;\
 	while (!Name##Node_is_nil(t)) {\
-		cmp = Name##_cmp(key, t->key, Order);\
+		cmp = Compare(key, t->key);\
 		if (cmp < 0) {\
 			t = t->left;\
 		} else if (cmp > 0) {\
@@ -269,7 +253,7 @@ static Name##Iterator Name##_lower_bound(Name *self, KeyType key)\
 	tmp = Name##_end(self);\
 	t = Name##_get_root(self);\
 	while (!Name##Node_is_nil(t)) {\
-		if (Name##_cmp(key, t->key, Order) <= 0) {\
+		if (Compare(key, t->key) <= 0) {\
 			tmp = t;\
 			t = t->left;\
 		} else {\
@@ -287,7 +271,7 @@ static Name##Iterator Name##_upper_bound(Name *self, KeyType key)\
 	tmp = Name##_end(self);\
 	t = Name##_get_root(self);\
 	while (!Name##Node_is_nil(t)) {\
-		if (Name##_cmp(key, t->key, Order) < 0) {\
+		if (Compare(key, t->key) < 0) {\
 			tmp = t;\
 			t = t->left;\
 		} else {\
@@ -505,7 +489,7 @@ static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 	/* 2分探索木の挿入 */\
 	while (!Name##Node_is_nil(n)) {\
 		tmp = n;\
-		if (Name##_cmp(key, n->key, Order) < 0) {\
+		if (Compare(key, n->key) < 0) {\
 			n = n->left;\
 		} else {\
 			/* 同じ値なら右へ */\
@@ -514,7 +498,7 @@ static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 	}\
 	n = Name##Node_new(key, value, RBTREE_RED);\
 	if (!n) return 0;	/* メモリ不足 */\
-	if (Name##_cmp(key, tmp->key, Order) < 0) {\
+	if (Compare(key, tmp->key) < 0) {\
 		Name##Node_set_left(tmp, n);\
 	} else {\
 		Name##Node_set_right(tmp, n);\
@@ -778,7 +762,7 @@ KeyType Name##_key(Name##Iterator pos);\
 void Name##_swap(Name *self, Name *x);\
 
 
-#define RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
+#define RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 typedef struct Name##RBTreeNode_t Name##RBTree;\
 /*! 
@@ -790,7 +774,7 @@ struct Name##_t {\
 	RBTREE_MAGIC(void *magic;)\
 };\
 \
-RBTREE_IMPLEMENT(Name##RBTree, KeyType, ValueType, Compare, Order)\
+RBTREE_IMPLEMENT(Name##RBTree, KeyType, ValueType, Compare)\
 \
 Name *Name##_new(void)\
 {\

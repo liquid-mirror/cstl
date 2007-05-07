@@ -575,29 +575,26 @@ set/multisetを使うには、set.hというヘッダファイルをインクル
     #define SET_INTERFACE(Name, Type)
 
     /* 実装を展開 */
-    #define SET_IMPLEMENT(Name, Type, Compare, Order)
+    #define SET_IMPLEMENT(Name, Type, Compare)
 
 * multisetの場合
     /* インターフェイスを展開 */
     #define MULTISET_INTERFACE(Name, Type)
 
     /* 実装を展開 */
-    #define MULTISET_IMPLEMENT(Name, Type, Compare, Order)
+    #define MULTISET_IMPLEMENT(Name, Type, Compare)
 
 Nameに既存の型と重複しない任意の名前を、Typeに任意の要素の型を指定する。
 
 Compareに要素の比較ルーチンを指定する。
   * Typeが整数型、小数型、ポインタ型など、2つの値を単純に比較できる型の場合、
-    SIMPLE_CMPマクロを指定する。SIMPLE_CMPマクロはヘッダで以下のように定義されている。
-      #define SIMPLE_CMP(x, y)  ((x) == (y) ? 0 : (x) > (y) ? 1 : -1)
-  * Typeがその他の型の場合、以下のような引数と戻り値を持ち、
-    xとyが等しいなら0を、xがyの前にくるなら負の整数を、xがyの後にくるなら正の整数を返す比較ルーチンを用意して指定する。
+    昇順ならばLESSマクロを、降順ならばGREATERマクロを指定する。LESS/GREATERマクロはヘッダで以下のように定義されている。
+      #define LESS(x, y)      ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
+      #define GREATER(x, y)   ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
+  * Typeがその他の型の場合、以下のプロトタイプのような引数と戻り値を持ち、
+    xとyが一致ならば0を、不一致ならば正または負の整数を返す比較ルーチンを用意して指定する。
     尚、Typeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
       int Compare(Type x, Type y);
-
-Orderにソートの順序を以下から選択して指定する。
-  ASC    /* 昇順 */
-  DESC   /* 降順 */
 
 <<< br
 
@@ -755,29 +752,26 @@ map/multimapを使うには、map.hというヘッダファイルをインクル
     #define MAP_INTERFACE(Name, KeyType, ValueType)
 
     /* 実装を展開 */
-    #define MAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)
+    #define MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
 
 * multimapの場合
     /* インターフェイスを展開 */
     #define MULTIMAP_INTERFACE(Name, KeyType, ValueType)
 
     /* 実装を展開 */
-    #define MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)
+    #define MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
 
 Nameに既存の型と重複しない任意の名前を、KeyTypeに任意の要素のキーの型を、ValueTypeに任意の要素の値の型を指定する。
 
 Compareに要素の比較ルーチンを指定する。
   * KeyTypeが整数型、小数型、ポインタ型など、2つの値を単純に比較できる型の場合、
-    SIMPLE_CMPマクロを指定する。SIMPLE_CMPマクロはヘッダで以下のように定義されている。
-      #define SIMPLE_CMP(x, y)  ((x) == (y) ? 0 : (x) > (y) ? 1 : -1)
-  * KeyTypeがその他の型の場合、以下のような引数と戻り値を持ち、
-    xとyが等しいなら0を、xがyの前にくるなら負の整数を、xがyの後にくるなら正の整数を返す比較ルーチンを用意して指定する。
+    昇順ならばLESSマクロを、降順ならばGREATERマクロを指定する。LESS/GREATERマクロはヘッダで以下のように定義されている。
+      #define LESS(x, y)      ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
+      #define GREATER(x, y)   ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
+  * KeyTypeがその他の型の場合、以下のプロトタイプのような引数と戻り値を持ち、
+    xとyが一致ならば0を、不一致ならば正または負の整数を返す比較ルーチンを用意して指定する。
     尚、KeyTypeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
       int Compare(KeyType x, KeyType y);
-
-Orderにソートの順序を以下から選択して指定する。
-  ASC    /* 昇順 */
-  DESC   /* 降順 */
 
 <<< br
 

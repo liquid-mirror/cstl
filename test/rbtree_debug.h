@@ -41,7 +41,7 @@ enum {
 	VISUAL
 };
 
-#define RBTREE_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, Order, format1, format2, map, value, visual)	\
+#define RBTREE_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, format1, format2, map, value, visual)	\
 \
 static size_t Name##_max_depth;\
 static size_t Name##_min_depth;\
@@ -161,10 +161,10 @@ int Name##_verify(Name *self)\
 				return 0;\
 			}\
 		}\
-		if (!Name##RBTreeNode_is_nil(l) && Name##RBTree_cmp(pos->key, l->key, Order) < 0) {\
+		if (!Name##RBTreeNode_is_nil(l) && Compare(pos->key, l->key) < 0) {\
 			return 0;\
 		}\
-		if (!Name##RBTreeNode_is_nil(r) && Name##RBTree_cmp(r->key, pos->key, Order) < 0) {\
+		if (!Name##RBTreeNode_is_nil(r) && Compare(r->key, pos->key) < 0) {\
 			return 0;\
 		}\
 		if (Name##RBTreeNode_is_nil(l) && Name##RBTreeNode_is_nil(r) &&\
@@ -184,10 +184,10 @@ int Name##_verify(Name *self);\
 void Name##_print(Name *self);\
 int Name##_verify(Name *self);\
 
-#define SET_DEBUG_IMPLEMENT(Name, Type, Compare, Order, format, visual)	\
-RBTREE_DEBUG_IMPLEMENT(Name, Type, Type, Compare, Order, format, format, 0, key, visual)	\
+#define SET_DEBUG_IMPLEMENT(Name, Type, Compare, format, visual)	\
+RBTREE_DEBUG_IMPLEMENT(Name, Type, Type, Compare, format, format, 0, key, visual)	\
 
-#define MAP_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, Order, format1, format2, visual)	\
-RBTREE_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, Order, format1, format2, 1, value, visual)	\
+#define MAP_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, format1, format2, visual)	\
+RBTREE_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, format1, format2, 1, value, visual)	\
 
 #endif /* CSTL_RBTREE_DEBUG_H_INCLUDED */

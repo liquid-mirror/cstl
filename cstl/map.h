@@ -42,7 +42,7 @@
 #endif
 
 
-#define COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
+#define COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 /*! 
  * \brief mapノード構造体
  */\
@@ -56,7 +56,7 @@ struct Name##RBTreeNode_t {\
 	RBTREE_MAGIC(void *magic;)\
 };\
 \
-RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)\
+RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)\
 \
 static Name##RBTreeNode *Name##RBTreeNode_new(KeyType key, ValueType value, RBTreeColor color)\
 {\
@@ -104,11 +104,10 @@ MAP_END_EXTERN_C()\
  * \param KeyType 要素のキーの型
  * \param ValueType 要素の値の型
  * \param Compare 要素の比較ルーチン
- * \param Order ソートの順序
  */
-#define MAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
+#define MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
-COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
+COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success)\
 {\
@@ -196,11 +195,10 @@ MAP_END_EXTERN_C()\
  * \param KeyType 要素のキーの型
  * \param ValueType 要素の値の型
  * \param Compare 要素の比較ルーチン
- * \param Order ソートの順序
  */
-#define MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
+#define MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
-COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare, Order)	\
+COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 {\

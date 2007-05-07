@@ -42,7 +42,7 @@
 #endif
 
 
-#define COMMON_SET_IMPLEMENT(Name, Type, Compare, Order)	\
+#define COMMON_SET_IMPLEMENT(Name, Type, Compare)	\
 /*! 
  * \brief setノード構造体
  */\
@@ -55,7 +55,7 @@ struct Name##RBTreeNode_t {\
 	RBTREE_MAGIC(void *magic;)\
 };\
 \
-RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare, Order)\
+RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare)\
 \
 static Name##RBTreeNode *Name##RBTreeNode_new(Type elem, Type value, RBTreeColor color)\
 {\
@@ -91,10 +91,9 @@ SET_END_EXTERN_C()\
  * \param Name コンテナ名
  * \param Type 要素の型
  * \param Compare 要素の比較ルーチン
- * \param Order ソートの順序
  */
-#define SET_IMPLEMENT(Name, Type, Compare, Order)	\
-COMMON_SET_IMPLEMENT(Name, Type, Compare, Order)\
+#define SET_IMPLEMENT(Name, Type, Compare)	\
+COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 \
 Name##Iterator Name##_insert(Name *self, Type elem, int *success)\
 {\
@@ -160,10 +159,9 @@ SET_END_EXTERN_C()\
  * \param Name コンテナ名
  * \param Type 要素の型
  * \param Compare 要素の比較ルーチン
- * \param Order ソートの順序
  */
-#define MULTISET_IMPLEMENT(Name, Type, Compare, Order)	\
-COMMON_SET_IMPLEMENT(Name, Type, Compare, Order)\
+#define MULTISET_IMPLEMENT(Name, Type, Compare)	\
+COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 \
 Name##Iterator Name##_insert(Name *self, Type elem)\
 {\

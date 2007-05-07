@@ -3,12 +3,12 @@
 #include <time.h>
 
 /* int */
-MAP_IMPLEMENT(IntIntMapA, int, int, SIMPLE_CMP, ASC)
-MAP_DEBUG_IMPLEMENT(IntIntMapA, int, int, SIMPLE_CMP, ASC, %d, %d, VISUAL)
+MAP_IMPLEMENT(IntIntMapA, int, int, LESS)
+MAP_DEBUG_IMPLEMENT(IntIntMapA, int, int, LESS, %d, %d, VISUAL)
 static IntIntMapA *ia;
 
-MULTIMAP_IMPLEMENT(IntIntMMapA, int, int, SIMPLE_CMP, ASC)
-MAP_DEBUG_IMPLEMENT(IntIntMMapA, int, int, SIMPLE_CMP, ASC, %d, %d, VISUAL)
+MULTIMAP_IMPLEMENT(IntIntMMapA, int, int, LESS)
+MAP_DEBUG_IMPLEMENT(IntIntMMapA, int, int, LESS, %d, %d, VISUAL)
 static IntIntMMapA *ima;
 
 
