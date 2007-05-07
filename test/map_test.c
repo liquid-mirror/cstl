@@ -24,17 +24,17 @@ void map_init_hoge(void)
 {
 	int i;
 	int tmp;
-	IntDeque *q = IntDeque_new(SIZE/2);
+	IntRing *q = IntRing_new(SIZE/2);
 	srand(time(0));
 /*    printf("hoge data\n");*/
 	for (i = 0; i < SIZE/2; i++) {
-		IntDeque_push_back(q, i);
+		IntRing_push_back(q, i);
 	}
 	for (i = 0; i < SIZE; i++) {
-		if (!IntDeque_empty(q)) {
-			int rnd = rand() % IntDeque_size(q);
-			tmp = *IntDeque_at(q, rnd);
-			IntDeque_erase(q, rnd, 1);
+		if (!IntRing_empty(q)) {
+			int rnd = rand() % IntRing_size(q);
+			tmp = *IntRing_at(q, rnd);
+			IntRing_erase(q, rnd, 1);
 		} else {
 			tmp = i/2;
 		}
@@ -46,7 +46,7 @@ void map_init_hoge(void)
 /*        printf("%4d: int[%3d], double[%5g], ptr[%p], str[%s]\n",*/
 /*                i, hoge_int[i], hoge_double[i], hoge_ptr[i], hoge_str[i]);*/
 	}
-	IntDeque_delete(q);
+	IntRing_delete(q);
 }
 
 void MapTest_test_1_1(void)

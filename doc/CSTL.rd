@@ -33,11 +33,11 @@ CSTLは、C++のSTLコンテナに似たインターフェイスを持つC/C++�
 == インストール
 * 手動でコピーする方法
 
-  ((<SourceForge.jp|URL:http://sourceforge.jp/projects/cstl/files/>))からtarballをダウンロードし、展開する。
-  cstlディレクトリには以下のファイルが含まれている。
-    vector.h  deque.h  list.h  rbtree.h  set.h  map.h  string.h
+  ((<SourceForge.jp|URL:http://sourceforge.jp/projects/cstl/files/>))からtarballをダウンロードする。
+  tarballを展開し、cstlディレクトリをインクルードパスの通ったディレクトリにコピーする。
 
-  cstlディレクトリをインクルードパスの通ったディレクトリにコピーする。
+  cstlディレクトリには以下のファイルが含まれている。
+    vector.h  ring.h  deque.h  list.h  rbtree.h  set.h  map.h  string.h
 
 * ((<SVNリポジトリ|URL:http://svn.sourceforge.jp/svnroot/cstl/>))からチェックアウトする方法
 
@@ -59,7 +59,7 @@ CSTLは以下のコンテナを提供する。
 
 * ((<deque>))
 
-  両端キュー。動的な拡張はサポートしない。
+  両端キュー。
   先頭と末尾での要素の挿入・削除が高速であり、それ以外の位置の要素の挿入・削除と要素の検索は遅い。
   インデックスによる要素のランダムアクセスが可能。
 
@@ -121,7 +121,7 @@ VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
-以下の関数において、Vector*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Vector*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
   Vector *Vector_new(size_t n);
@@ -265,11 +265,11 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
-以下の関数において、Deque*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Deque*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
-  Deque *Deque_new(size_t n);
-* 格納可能要素数がn個のdequeを生成する。
+  Deque *Deque_new(void);
+* dequeを生成する。
 * 生成に成功した場合、そのオブジェクトへのポインタを返す。
 * メモリ不足の場合、NULLを返す。
 <<< br
@@ -279,21 +279,9 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 * selfのすべての要素を削除し、selfを破棄する。
 <<< br
 
-+ 初期化
-  void Deque_init(Deque *self, T *buf, size_t n);
-* 要素数がn個のbufという配列を用いてselfを初期化する。
-* 格納可能要素数はn-1個となる。
-* 内部バッファを呼び出し側で用意する場合、Deque_new()の替わりに使用する。
-  そのオブジェクトに対してDeque_delete(), Deque_swap()を使用してはならない。
-<<< br
-
 + サイズ
   size_t Deque_size(Deque *self);
 * selfの現在の要素数を返す。
-<<< br
-
-  size_t Deque_max_size(Deque *self);
-* selfの格納可能な最大の要素数を返す。
 <<< br
 
   int Deque_empty(Deque *self);
@@ -301,17 +289,12 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 * selfが空でない場合、0を返す。
 <<< br
 
-  int Deque_full(Deque *self);
-* selfが満杯の場合、0以外の値を返す。
-* selfが満杯でない場合、0を返す。
-<<< br
-
 + 代入
   int Deque_assign(Deque *self, Deque *x, size_t idx, size_t n);
 * xのidxが示すインデックスの位置からn個の要素のコピーをselfの要素として代入する。
 * selfとxは同じオブジェクトでもよい。
 * 代入に成功した場合、0以外の値を返す。
-* nがselfの格納可能最大要素数より大きい場合、selfの変更を行わず0を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件は、idx + nがxの現在の要素数以下の値であること。
 <<< br
 
@@ -341,27 +324,27 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
   int Deque_insert(Deque *self, size_t idx, T elem);
 * selfのidxが示すインデックスの位置にelemのコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
-* selfが既に満杯だった場合、selfの変更を行わず0を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件は、idxがselfの現在の要素数以下の値であること。
 <<< br
 
   int Deque_insert_array(Deque *self, size_t idx, T *elems, size_t n);
 * selfのidxが示すインデックスの位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
-* selfの現在の要素数 + nがselfの格納可能最大要素数より大きい場合、selfの変更を行わず0を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件は、elemsがNULLでないこと、かつidxがselfの現在の要素数以下の値であること。
 <<< br
 
   int Deque_push_back(Deque *self, T elem);
 * elemのコピーをselfの最後の要素として追加する。
 * 追加に成功した場合、0以外の値を返す。
-* selfが既に満杯だった場合、selfの変更を行わず0を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
   int Deque_push_front(Deque *self, T elem);
 * elemのコピーをselfの最初の要素として追加する。
 * 追加に成功した場合、0以外の値を返す。
-* selfが既に満杯だった場合、selfの変更を行わず0を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
 + 削除
@@ -390,7 +373,7 @@ DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 * nがselfの現在の要素数以下の場合、要素数がnになるまで末尾から要素が削除される。
 * nがselfの現在の要素数より大きい場合、要素数がnになるまでelemのコピーが末尾から追加される。
 * 要素数の変更に成功した場合、0以外の値を返す。
-* nがselfの格納可能最大要素数より大きい場合、selfの変更を行わず0を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
 
@@ -419,9 +402,10 @@ LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 
   ListIterator
 イテレータの型。要素の位置を示す。
+削除された要素を示すイテレータは無効となる。
 
 ==== 関数
-以下の関数において、List*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、List*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
   List *List_new(void);
@@ -541,13 +525,11 @@ LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 + 削除
   ListIterator List_erase(List *self, ListIterator pos);
 * selfのposが示す位置の要素を削除し、その次の位置を示すイテレータを返す。
-* 関数から抜けた後、posは無効なイテレータとなる。
 * 事前条件は、posがselfの有効なイテレータであり、かつList_end()またはList_rend()でないこと。
 <<< br
 
   ListIterator List_erase_range(List *self, ListIterator first, ListIterator last);
 * selfの[first, last)の範囲の要素を削除し、削除した要素の次の位置を示すイテレータを返す。
-* 関数から抜けた後、[first, last)の範囲のイテレータは無効となる。
 * 事前条件は、[first, last)がselfの有効なイテレータであること。
 <<< br
 
@@ -629,9 +611,10 @@ SET_INTERFACE/MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した�
 
   SetIterator
 イテレータの型。要素の位置を示す。
+削除された要素を示すイテレータは無効となる。
 
 ==== 関数
-以下の関数において、Set*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Set*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
   Set *Set_new(void);
@@ -724,13 +707,11 @@ SET_INTERFACE/MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した�
 + 削除
   SetIterator Set_erase(Set *self, SetIterator pos);
 * selfのposが示す位置の要素を削除し、その次の位置を示すイテレータを返す。
-* 関数から抜けた後、posは無効なイテレータとなる。
 * 事前条件は、posがselfの有効なイテレータであり、かつSet_end()またはSet_rend()でないこと。
 <<< br
 
   SetIterator Set_erase_range(Set *self, SetIterator first, SetIterator last);
 * selfの[first, last)の範囲の要素を削除し、削除した要素の次の位置を示すイテレータを返す。
-* 関数から抜けた後、[first, last)の範囲のイテレータは無効となる。
 * 事前条件は、[first, last)がselfの有効なイテレータであること。
 <<< br
 
@@ -810,9 +791,10 @@ MAP_INTERFACE/MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, ValueTyp
 
   MapIterator
 イテレータの型。要素の位置を示す。
+削除された要素を示すイテレータは無効となる。
 
 ==== 関数
-以下の関数において、Map*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、Map*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
   Map *Map_new(void);
@@ -917,13 +899,11 @@ MAP_INTERFACE/MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, ValueTyp
 + 削除
   MapIterator Map_erase(Map *self, MapIterator pos);
 * selfのposが示す位置の要素を削除し、その次の位置を示すイテレータを返す。
-* 関数から抜けた後、posは無効なイテレータとなる。
 * 事前条件は、posがselfの有効なイテレータであり、かつMap_end()またはMap_rend()でないこと。
 <<< br
 
   MapIterator Map_erase_range(Map *self, MapIterator first, MapIterator last);
 * selfの[first, last)の範囲の要素を削除し、削除した要素の次の位置を示すイテレータを返す。
-* 関数から抜けた後、[first, last)の範囲のイテレータは無効となる。
 * 事前条件は、[first, last)がselfの有効なイテレータであること。
 <<< br
 
@@ -985,7 +965,7 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
 ==== 関数
-以下の関数において、String*型の引数はNULLでないことを関数呼び出しの事前条件に含める。
+以下の関数において、String*型の引数はNULLでないことを事前条件に含める。
 
 + 生成
   String *String_new(size_t n);
@@ -1240,7 +1220,6 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 
 
 == STLとの主な違い
-* dequeは動的な拡張をサポートしない。
 * vector, deque, stringはインデックスで要素にアクセスするため、イテレータをサポートしない。
 * vector, deque, listのpop_back(), pop_front()は削除した値を返す。
 * vector, stringのshrink()は許容量の縮小ができる。
@@ -1258,24 +1237,24 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
   Copyright (c) 2006, KATO Noriaki
   All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without 
+  Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
 
-  1. Redistributions of source code must retain the above copyright notice, 
+  1. Redistributions of source code must retain the above copyright notice,
      this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above copyright notice, 
-     this list of conditions and the following disclaimer in the documentation 
+  2. Redistributions in binary form must reproduce the above copyright notice,
+     this list of conditions and the following disclaimer in the documentation
      and/or other materials provided with the distribution.
 
-  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR 
-  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 

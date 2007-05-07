@@ -5,6 +5,7 @@
 #include <string.h>
 #include <assert.h>
 #include "../cstl/vector.h"
+#include "../cstl/ring.h"
 #include "../cstl/deque.h"
 #include "../cstl/list.h"
 #include "../cstl/set.h"
@@ -21,6 +22,11 @@ extern Heap heap;
 /* vector */
 VECTOR_INTERFACE(UCharVector, unsigned char)
 VECTOR_INTERFACE(IntVector, int)
+
+
+/* ring */
+RING_INTERFACE(UCharRing, unsigned char)
+RING_INTERFACE(IntRing, int)
 
 
 /* deque */
@@ -71,6 +77,7 @@ MAP_DEBUG_INTERFACE(IntIntMMapA)
 
 
 void VectorTest_run(void);
+void RingTest_run(void);
 void DequeTest_run(void);
 void ListTest_run(void);
 void SetTest_run(void);

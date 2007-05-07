@@ -2,24 +2,24 @@
  * Copyright (c) 2006, KATO Noriaki
  * All rights reserved.
  * 
- * Redistribution and use in source and binary forms, with or without 
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * 
- * 1. Redistributions of source code must retain the above copyright notice, 
+ * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, 
- *    this list of conditions and the following disclaimer in the documentation 
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR 
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /*! 
@@ -117,14 +117,15 @@ Name *Name##_new(size_t n)\
 	Type *buf;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	buf = (Type *) malloc(sizeof(Type) * (n+1));\
+	self->nelems = n;\
+	if (!n) n = 1;\
+	buf = (Type *) malloc(sizeof(Type) * n);\
 	if (!buf) {\
 		free(self);\
 		return 0;\
 	}\
 	self->end = 0;\
 	self->buf = buf;\
-	self->nelems = n+1;\
 	VECTOR_MAGIC(self->magic = self;)\
 	return self;\
 }\
@@ -146,13 +147,13 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 	assert(x && "Vector_assign");\
 	assert(x->magic == x && "Vector_assign");\
 	assert(Name##_size(x) >= idx + n && "Vector_assign");\
-	if (n > Name##_capacity(self)) {\
-		if (!Name##_expand(self, Name##_capacity(self) + n)) return 0;\
-	}\
 	if (self == x) {\
 		Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
 		Name##_erase(self, 0, idx);\
 	} else {\
+		if (n > Name##_capacity(self)) {\
+			if (!Name##_expand(self, Name##_capacity(self) + n)) return 0;\
+		}\
 		Name##_clear(self);\
 		for (i = 0; i < n; i++) {\
 			Name##_push_back(self, *Name##_at(x, i));\
@@ -193,7 +194,7 @@ size_t Name##_capacity(Name *self)\
 {\
 	assert(self && "Vector_capacity");\
 	assert(self->magic == self && "Vector_capacity");\
-	return (self->nelems - 1);\
+	return self->nelems;\
 }\
 \
 int Name##_empty(Name *self)\
@@ -216,10 +217,10 @@ int Name##_reserve(Name *self, size_t n)\
 	assert(self && "Vector_reserve");\
 	assert(self->magic == self && "Vector_reserve");\
 	if (n <= Name##_capacity(self)) return 1;\
-	newbuf = (Type *) realloc(self->buf, sizeof(Type) * (n+1));\
+	newbuf = (Type *) realloc(self->buf, sizeof(Type) * n);\
 	if (!newbuf) return 0;\
 	self->buf = newbuf;\
-	self->nelems = n+1;\
+	self->nelems = n;\
 	return 1;\
 }\
 \
@@ -232,11 +233,12 @@ void Name##_shrink(Name *self, size_t n)\
 	if (n < Name##_size(self)) {\
 		n = Name##_size(self);\
 	}\
-	newbuf = (Type *) realloc(self->buf, sizeof(Type) * (n+1));\
+	self->nelems = n;\
+	if (!n) n = 1;\
+	newbuf = (Type *) realloc(self->buf, sizeof(Type) * n);\
 	if (newbuf) {\
 		self->buf = newbuf;\
 	}\
-	self->nelems = n+1;\
 }\
 \
 int Name##_resize(Name *self, size_t n, Type elem)\

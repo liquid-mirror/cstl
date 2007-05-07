@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <cstl/deque.h>
-#define NELEMS(array)	(sizeof(array) / sizeof(array[0]))
 
 DEQUE_INTERFACE(UCharDeque, unsigned char)
 DEQUE_IMPLEMENT(UCharDeque, unsigned char)
@@ -8,11 +7,9 @@ DEQUE_IMPLEMENT(UCharDeque, unsigned char)
 int main(void)
 {
 	int i;
-	unsigned char buf[32];
 	UCharDeque *x;
-	UCharDeque y;
 
-	x = UCharDeque_new(31);
+	x = UCharDeque_new();
 	UCharDeque_push_back(x, 0x01);
 	UCharDeque_push_back(x, 0x02);
 	UCharDeque_push_front(x, 0x03);
@@ -27,15 +24,6 @@ int main(void)
 		printf("%02x\n", UCharDeque_pop_front(x));
 	}
 	UCharDeque_delete(x);
-
-	/* 呼び出し側で用意したオブジェクトとバッファを利用する場合 */
-	UCharDeque_init(&y, buf, NELEMS(buf));
-	UCharDeque_push_back(&y, 0x01);
-	UCharDeque_push_back(&y, 0x02);
-	while (!UCharDeque_empty(&y)) {
-		printf("%02x\n", UCharDeque_pop_front(&y));
-	}
-	/* UCharDeque_delete(&y)を呼び出してはいけない */
 	return 0;
 }
 
