@@ -148,12 +148,17 @@ struct Name##_t {\
 	CSTL_STRING_MAGIC(void *magic;)\
 };\
 \
+static int Name##_expand(Name *self, size_t n)\
+{\
+	return Name##__CharVector_expand(self->data, n + 1);\
+}\
+\
 Name *Name##_new(size_t n)\
 {\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->data = Name##__CharVector_new(n+1);\
+	self->data = Name##__CharVector_new(n + 1);\
 	if (!self->data) {\
 		free(self);\
 		return 0;\
@@ -184,35 +189,35 @@ size_t Name##_size(Name *self)\
 {\
 	assert(self && "String_size");\
 	assert(self->magic == self && "String_size");\
-	return Name##__CharVector_size(self->data) -1;\
+	return Name##__CharVector_size(self->data) - 1;\
 }\
 \
 size_t Name##_length(Name *self)\
 {\
 	assert(self && "String_length");\
 	assert(self->magic == self && "String_length");\
-	return Name##__CharVector_size(self->data) -1;\
+	return Name##__CharVector_size(self->data) - 1;\
 }\
 \
 size_t Name##_capacity(Name *self)\
 {\
 	assert(self && "String_capacity");\
 	assert(self->magic == self && "String_capacity");\
-	return Name##__CharVector_capacity(self->data) -1;\
+	return Name##__CharVector_capacity(self->data) - 1;\
 }\
 \
 int Name##_reserve(Name *self, size_t n)\
 {\
 	assert(self && "String_reserve");\
 	assert(self->magic == self && "String_reserve");\
-	return Name##__CharVector_reserve(self->data, n +1);\
+	return Name##__CharVector_reserve(self->data, n + 1);\
 }\
 \
 void Name##_shrink(Name *self, size_t n)\
 {\
 	assert(self && "String_shrink");\
 	assert(self->magic == self && "String_shrink");\
-	Name##__CharVector_shrink(self->data, n +1);\
+	Name##__CharVector_shrink(self->data, n + 1);\
 }\
 \
 int Name##_empty(Name *self)\
@@ -269,15 +274,15 @@ int Name##_resize(Name *self, size_t n, Type c)\
 	size_t num;\
 	assert(self && "String_resize");\
 	assert(self->magic == self && "String_resize");\
-	num = Name##__CharVector_size(self->data) -1;\
-	if (!Name##__CharVector_resize(self->data, n +1, c)) {\
+	num = Name##__CharVector_size(self->data) - 1;\
+	if (!Name##__CharVector_resize(self->data, n + 1, c)) {\
 		return 0;\
 	}\
 	if (num < Name##__CharVector_size(self->data)) {\
 		/* '\0'‚ðã‘‚« */\
 		*Name##__CharVector_at(self->data, num) = c;\
 	}\
-	*Name##__CharVector_at(self->data, Name##__CharVector_size(self->data) -1) = '\0';\
+	*Name##__CharVector_at(self->data, Name##__CharVector_size(self->data) - 1) = '\0';\
 	return 1;\
 }\
 \
@@ -301,7 +306,7 @@ int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\
 	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
-	if (!Name##__CharVector_reserve(self->data, cstr_len +1)) {\
+	if (!Name##__CharVector_expand(self->data, cstr_len + 1)) {\
 		return 0;\
 	}\
 	Name##__CharVector_clear(self->data);\
@@ -315,7 +320,7 @@ int Name##_assign_c(Name *self, size_t n, Type c)\
 	size_t i;\
 	assert(self && "String_assign_c");\
 	assert(self->magic == self && "String_assign_c");\
-	if (!Name##_reserve(self, n)) {\
+	if (!Name##_expand(self, n)) {\
 		return 0;\
 	}\
 	Name##_clear(self);\
@@ -333,7 +338,7 @@ int Name##_append(Name *self, Type *cstr, size_t cstr_len)\
 	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
-	return Name##__CharVector_insert_array(self->data, Name##__CharVector_size(self->data)-1, cstr, cstr_len);\
+	return Name##__CharVector_insert_array(self->data, Name##__CharVector_size(self->data) - 1, cstr, cstr_len);\
 }\
 \
 int Name##_append_c(Name *self, size_t n, Type c)\
@@ -341,7 +346,7 @@ int Name##_append_c(Name *self, size_t n, Type c)\
 	size_t i;\
 	assert(self && "String_append_c");\
 	assert(self->magic == self && "String_append_c");\
-	if (!Name##_reserve(self, Name##_size(self) + n)) {\
+	if (!Name##_expand(self, Name##_size(self) + n)) {\
 		return 0;\
 	}\
 	for (i = 0; i < n; i++) {\
@@ -354,7 +359,7 @@ int Name##_push_back(Name *self, Type c)\
 {\
 	assert(self && "String_push_back");\
 	assert(self->magic == self && "String_push_back");\
-	return Name##__CharVector_insert(self->data, Name##__CharVector_size(self->data)-1, c);\
+	return Name##__CharVector_insert(self->data, Name##__CharVector_size(self->data) - 1, c);\
 }\
 \
 int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
@@ -448,7 +453,7 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 		}\
 	} else {\
 		/* Šg’£•K—v‚ ‚è */\
-		if (!Name##_reserve(self, Name##_size(self) + (cstr_len - len))) {\
+		if (!Name##_expand(self, Name##_size(self) + (cstr_len - len))) {\
 			if (flag) free(buf);\
 			return 0;\
 		}\
@@ -506,7 +511,7 @@ static size_t Name##_brute_force_search_r(Type *str, size_t str_len, Type *ptn, 
 	size_t j = ptn_len;\
 	if (str_len < ptn_len) return CSTL_NPOS;\
 	while (i > 0 && j > 0) {\
-		if (str[i-1] == ptn[j-1]) {\
+		if (str[i - 1] == ptn[j - 1]) {\
 			i--;\
 			j--;\
 		} else {\
@@ -598,15 +603,15 @@ size_t Name##_find_last_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
 	assert(cstr && "String_find_last_of");\
 	size = Name##my_strlen(x);\
 	if (size <= idx) {\
-		idx = size -1;\
+		idx = size - 1;\
 	}\
 	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
-	for (i = idx +1; i > 0; i--) {\
+	for (i = idx + 1; i > 0; i--) {\
 		for (j = 0; j < cstr_len; j++) {\
-			if (x[i-1] == cstr[j]) {\
-				return i-1;\
+			if (x[i - 1] == cstr[j]) {\
+				return i - 1;\
 			}\
 		}\
 	}\
@@ -659,7 +664,7 @@ size_t Name##_find_last_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)
 	assert(cstr && "String_find_last_not_of");\
 	size = Name##my_strlen(x);\
 	if (size <= idx) {\
-		idx = size -1;\
+		idx = size - 1;\
 	}\
 	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
@@ -667,10 +672,10 @@ size_t Name##_find_last_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)
 	if (cstr_len == 0) {\
 		return idx;\
 	}\
-	for (i = idx +1; i > 0; i--) {\
+	for (i = idx + 1; i > 0; i--) {\
 		for (j = 0; j < cstr_len; j++) {\
-			if (x[i-1] != cstr[j]) {\
-				if (j == cstr_len - 1) return i-1;\
+			if (x[i - 1] != cstr[j]) {\
+				if (j == cstr_len - 1) return i - 1;\
 			} else {\
 				break;\
 			}\

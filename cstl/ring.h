@@ -133,12 +133,12 @@ Name *Name##_new(size_t n)\
 	if (!n) return 0;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	buf = (Type *) malloc(sizeof(Type) * (n+1));\
+	buf = (Type *) malloc(sizeof(Type) * (n + 1));\
 	if (!buf) {\
 		free(self);\
 		return 0;\
 	}\
-	Name##_init(self, buf, (n+1));\
+	Name##_init(self, buf, (n + 1));\
 	return self;\
 }\
 \

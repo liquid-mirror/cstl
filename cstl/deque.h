@@ -181,7 +181,7 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 			size_t j;\
 			size_t k = (Name##__RingVector##_size(self->map) > s) ? Name##__RingVector##_size(self->map) : s;\
 			/* mapを拡張する */\
-			if (!Name##__RingVector##_reserve(self->map, Name##__RingVector##_size(self->map) + k)) {\
+			if (!Name##__RingVector##_expand(self->map, Name##__RingVector##_size(self->map) + k)) {\
 				return 0;\
 			}\
 			Name##__RingVector##_insert_array_no_elems(self->map, 0, k);\

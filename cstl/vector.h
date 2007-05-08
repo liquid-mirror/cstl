@@ -251,7 +251,7 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 		self->end = n;\
 	} else {\
 		size_t i;\
-		if (!Name##_reserve(self, n)) {\
+		if (!Name##_expand(self, n)) {\
 			return 0;\
 		}\
 		for (i = 0; i < n - size; i++) {\
@@ -289,7 +289,7 @@ static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)
 {\
 	size_t i;\
 	for (i = last; i > first; i--) {\
-		self->buf[i-1+n] = self->buf[i-1];\
+		self->buf[i - 1 + n] = self->buf[i - 1];\
 	}\
 }\
 \
@@ -297,7 +297,7 @@ static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n
 {\
 	size_t i;\
 	for (i = first; i < last; i++) {\
-		self->buf[i-n] = self->buf[i];\
+		self->buf[i - n] = self->buf[i];\
 	}\
 }\
 \
