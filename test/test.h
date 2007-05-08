@@ -20,18 +20,18 @@ extern Heap heap;
 #endif
 
 /* vector */
-VECTOR_INTERFACE(UCharVector, unsigned char)
-VECTOR_INTERFACE(IntVector, int)
+CSTL_VECTOR_INTERFACE(UCharVector, unsigned char)
+CSTL_VECTOR_INTERFACE(IntVector, int)
 
 
 /* ring */
-RING_INTERFACE(UCharRing, unsigned char)
-RING_INTERFACE(IntRing, int)
+CSTL_RING_INTERFACE(UCharRing, unsigned char)
+CSTL_RING_INTERFACE(IntRing, int)
 
 
 /* deque */
-DEQUE_INTERFACE(UCharDeque, unsigned char)
-DEQUE_INTERFACE(IntDeque, int)
+CSTL_DEQUE_INTERFACE(UCharDeque, unsigned char)
+CSTL_DEQUE_INTERFACE(IntDeque, int)
 
 
 /* list */
@@ -40,40 +40,40 @@ typedef struct Hoge_t {
 	int value;
 } Hoge;
 
-LIST_INTERFACE(UCharList, unsigned char)
-LIST_INTERFACE(IntList, int)
-LIST_INTERFACE(StrList, char *)
-LIST_INTERFACE(HogeList, Hoge)
+CSTL_LIST_INTERFACE(UCharList, unsigned char)
+CSTL_LIST_INTERFACE(IntList, int)
+CSTL_LIST_INTERFACE(StrList, char *)
+CSTL_LIST_INTERFACE(HogeList, Hoge)
 
 
 /* set */
-SET_INTERFACE(IntSetA, int)
-SET_DEBUG_INTERFACE(IntSetA)
+CSTL_SET_INTERFACE(IntSetA, int)
+CSTL_SET_DEBUG_INTERFACE(IntSetA)
 
-SET_INTERFACE(IntSetD, int)
-SET_DEBUG_INTERFACE(IntSetD)
+CSTL_SET_INTERFACE(IntSetD, int)
+CSTL_SET_DEBUG_INTERFACE(IntSetD)
 
-MULTISET_INTERFACE(IntMSetA, int)
-SET_DEBUG_INTERFACE(IntMSetA)
+CSTL_MULTISET_INTERFACE(IntMSetA, int)
+CSTL_SET_DEBUG_INTERFACE(IntMSetA)
 
-SET_INTERFACE(DoubleSetA, double)
-SET_DEBUG_INTERFACE(DoubleSetA)
+CSTL_SET_INTERFACE(DoubleSetA, double)
+CSTL_SET_DEBUG_INTERFACE(DoubleSetA)
 
-SET_INTERFACE(PtrSetA, int*)
-SET_DEBUG_INTERFACE(PtrSetA)
+CSTL_SET_INTERFACE(PtrSetA, int*)
+CSTL_SET_DEBUG_INTERFACE(PtrSetA)
 
-SET_INTERFACE(StrSetA, char*)
-SET_DEBUG_INTERFACE(StrSetA)
+CSTL_SET_INTERFACE(StrSetA, char*)
+CSTL_SET_DEBUG_INTERFACE(StrSetA)
 
-SET_INTERFACE(UIntSetA, unsigned int)
-SET_DEBUG_INTERFACE(UIntSetA)
+CSTL_SET_INTERFACE(UIntSetA, unsigned int)
+CSTL_SET_DEBUG_INTERFACE(UIntSetA)
 
 /* map */
-MAP_INTERFACE(IntIntMapA, int, int)
-MAP_DEBUG_INTERFACE(IntIntMapA)
+CSTL_MAP_INTERFACE(IntIntMapA, int, int)
+CSTL_MAP_DEBUG_INTERFACE(IntIntMapA)
 
-MULTIMAP_INTERFACE(IntIntMMapA, int, int)
-MAP_DEBUG_INTERFACE(IntIntMMapA)
+CSTL_MULTIMAP_INTERFACE(IntIntMMapA, int, int)
+CSTL_MAP_DEBUG_INTERFACE(IntIntMMapA)
 
 
 void VectorTest_run(void);

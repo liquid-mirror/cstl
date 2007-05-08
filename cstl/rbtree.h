@@ -38,29 +38,29 @@
 #include <assert.h>
 
 #ifndef NDEBUG
-#define RBTREE_MAGIC(x) x
+#define CSTL_RBTREE_MAGIC(x) x
 #else
-#define RBTREE_MAGIC(x)
+#define CSTL_RBTREE_MAGIC(x)
 #endif
 
 /*! 
  * \brief 赤黒木の色
  */
-typedef enum RBTreeColor_t {
-	RBTREE_RED,
-	RBTREE_BLACK,
-	RBTREE_HEAD
-} RBTreeColor;
+enum {
+	CSTL_RBTREE_RED,
+	CSTL_RBTREE_BLACK,
+	CSTL_RBTREE_HEAD
+};
 
-#define LESS(x, y)		((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
-#define GREATER(x, y)	((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
+#define CSTL_LESS(x, y)		((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
+#define CSTL_GREATER(x, y)	((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
 
 
-#define RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
+#define CSTL_RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 typedef struct Name##Node_t Name##Node;\
 typedef struct Name##Node_t *Name##Iterator;\
-static Name##Node Name##_nil = {&Name##_nil, &Name##_nil, &Name##_nil, RBTREE_BLACK};\
+static Name##Node Name##_nil = {&Name##_nil, &Name##_nil, &Name##_nil, CSTL_RBTREE_BLACK};\
 \
 static Name *Name##_new(void);\
 static void Name##_delete(Name *self);\
@@ -79,7 +79,7 @@ static Name##Iterator Name##_rend(Name *self);\
 static Name##Iterator Name##_next(Name##Iterator pos);\
 static Name##Iterator Name##_prev(Name##Iterator pos);\
 \
-static Name##Node *Name##Node_new(KeyType key, ValueType value, RBTreeColor color);\
+static Name##Node *Name##Node_new(KeyType key, ValueType value, int color);\
 static int Name##Node_is_head(Name##Node *self);\
 static int Name##Node_is_root(Name##Node *self);\
 static int Name##Node_is_nil(Name##Node *self);\
@@ -102,7 +102,7 @@ static void Name##Node_balance_for_erase(Name##Node *n, Name##Node *p_of_n);\
 static int Name##Node_is_head(Name##Node *self)\
 {\
 	assert(self && "RBTreeNode_is_head");\
-	return (self->color == RBTREE_HEAD);\
+	return (self->color == CSTL_RBTREE_HEAD);\
 }\
 \
 static int Name##Node_is_root(Name##Node *self)\
@@ -158,8 +158,8 @@ static Name *Name##_new(void)\
 	self->left = &Name##_nil;\
 	self->right = &Name##_nil;\
 	self->parent = &Name##_nil;\
-	self->color = RBTREE_HEAD;\
-	RBTREE_MAGIC(self->magic = self;)\
+	self->color = CSTL_RBTREE_HEAD;\
+	CSTL_RBTREE_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -185,7 +185,7 @@ static void Name##_clear(Name *self)\
 			t->parent->right = &Name##_nil;\
 		}\
 		tmp = t->parent;\
-		RBTREE_MAGIC(t->magic = 0;)\
+		CSTL_RBTREE_MAGIC(t->magic = 0;)\
 		free(t);\
 		t = tmp;\
 		if (Name##Node_is_head(t)) break;\
@@ -196,7 +196,7 @@ static void Name##_delete(Name *self)\
 {\
 	assert(Name##Node_is_head(self) && "RBTree_delete");\
 	Name##_clear(self);\
-	RBTREE_MAGIC(self->magic = 0;)\
+	CSTL_RBTREE_MAGIC(self->magic = 0;)\
 	free(self);\
 }\
 \
@@ -320,7 +320,7 @@ static void Name##Node_swap(Name##Node *s, Name##Node *t)\
 	Name##Node *tp;\
 	Name##Node *tl;\
 	Name##Node *tr;\
-	RBTreeColor c;\
+	int c;\
 	assert(!Name##Node_is_head(s) && "RBTreeNode_swap");\
 	assert(!Name##Node_is_head(t) && "RBTreeNode_swap");\
 	assert(!Name##Node_is_nil(s) && "RBTreeNode_swap");\
@@ -422,21 +422,21 @@ static void Name##Node_balance_for_insert(Name##Node *n)\
 		p = n->parent;\
 		if (Name##Node_is_root(n)) {\
 			/* case 1 nがroot */\
-			n->color = RBTREE_BLACK;\
+			n->color = CSTL_RBTREE_BLACK;\
 			break;\
 		}\
-		if (p->color == RBTREE_BLACK) {\
+		if (p->color == CSTL_RBTREE_BLACK) {\
 			/* case 2 pが黒 */\
 			break;\
 		}\
 		/* 以下、pは赤、gは黒 */\
 		g = p->parent;\
 		u = Name##Node_get_uncle(n);\
-		if (u->color == RBTREE_RED) {\
+		if (u->color == CSTL_RBTREE_RED) {\
 			/* case 3 uが赤 */\
-			g->color = RBTREE_RED;\
-			p->color = RBTREE_BLACK;\
-			u->color = RBTREE_BLACK;\
+			g->color = CSTL_RBTREE_RED;\
+			p->color = CSTL_RBTREE_BLACK;\
+			u->color = CSTL_RBTREE_BLACK;\
 			n = g;\
 			/* gをnにして再調整。最悪の場合、根まで伝播 */\
 			continue;\
@@ -466,8 +466,8 @@ static void Name##Node_balance_for_insert(Name##Node *n)\
 		} else {\
 			assert(0 && "RBTreeNode_balance_for_insert");\
 		}\
-		p->color = RBTREE_BLACK;\
-		g->color = RBTREE_RED;\
+		p->color = CSTL_RBTREE_BLACK;\
+		g->color = CSTL_RBTREE_RED;\
 		break;\
 	}\
 }\
@@ -480,10 +480,10 @@ static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 	n = Name##_get_root(self);\
 	if (Name##Node_is_nil(n)) {\
 		/* rootになる */\
-		Name##Node *root = Name##Node_new(key, value, RBTREE_BLACK);\
+		Name##Node *root = Name##Node_new(key, value, CSTL_RBTREE_BLACK);\
 		if (!root) return 0;	/* メモリ不足 */\
 		Name##_set_root(self, root);\
-		RBTREE_MAGIC(root->magic = self;)\
+		CSTL_RBTREE_MAGIC(root->magic = self;)\
 		return root;\
 	}\
 	/* 2分探索木の挿入 */\
@@ -496,7 +496,7 @@ static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 			n = n->right;\
 		}\
 	}\
-	n = Name##Node_new(key, value, RBTREE_RED);\
+	n = Name##Node_new(key, value, CSTL_RBTREE_RED);\
 	if (!n) return 0;	/* メモリ不足 */\
 	if (Compare(key, tmp->key) < 0) {\
 		Name##Node_set_left(tmp, n);\
@@ -504,7 +504,7 @@ static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 		Name##Node_set_right(tmp, n);\
 	}\
 	Name##Node_balance_for_insert(n);\
-	RBTREE_MAGIC(n->magic = self;)\
+	CSTL_RBTREE_MAGIC(n->magic = self;)\
 	return n;\
 }\
 \
@@ -514,16 +514,16 @@ static void Name##Node_balance_for_erase(Name##Node *n, Name##Node *p_of_n)\
 	Name##Node *s;\
 	Name##Node *sl;\
 	Name##Node *sr;\
-	RBTreeColor c;\
-	if (n->color == RBTREE_RED) {\
+	int c;\
+	if (n->color == CSTL_RBTREE_RED) {\
 		/* case 0 nが赤 */\
-		n->color = RBTREE_BLACK;\
+		n->color = CSTL_RBTREE_BLACK;\
 		return;\
 	}\
 	while (1) {\
 		if (Name##Node_is_root(n)) {\
 			/* case 1 nがroot */\
-			n->color = RBTREE_BLACK;\
+			n->color = CSTL_RBTREE_BLACK;\
 			break;\
 		}\
 		if (Name##Node_is_nil(n)) {\
@@ -535,10 +535,10 @@ static void Name##Node_balance_for_erase(Name##Node *n, Name##Node *p_of_n)\
 			s = Name##Node_get_sibling(n);\
 		}\
 		assert(!Name##Node_is_nil(s) && "RBTreeNode_balance_for_erase");\
-		if (s->color == RBTREE_RED) {\
+		if (s->color == CSTL_RBTREE_RED) {\
 			/* case 2 sが赤 */\
-			p->color = RBTREE_RED;\
-			s->color = RBTREE_BLACK;\
+			p->color = CSTL_RBTREE_RED;\
+			s->color = CSTL_RBTREE_BLACK;\
 			if (p->left == n) {\
 				Name##Node_rotate_left(p);\
 				s = p->right;\
@@ -551,43 +551,43 @@ static void Name##Node_balance_for_erase(Name##Node *n, Name##Node *p_of_n)\
 		assert(!Name##Node_is_nil(s) && "RBTreeNode_balance_for_erase");\
 		sl = s->left;\
 		sr = s->right;\
-		if (p->color == RBTREE_BLACK && sl->color == RBTREE_BLACK && sr->color == RBTREE_BLACK) {\
+		if (p->color == CSTL_RBTREE_BLACK && sl->color == CSTL_RBTREE_BLACK && sr->color == CSTL_RBTREE_BLACK) {\
 			/* case 3 */\
-			s->color = RBTREE_RED;\
+			s->color = CSTL_RBTREE_RED;\
 			n = p;\
 			/* pをnにして再調整。最悪の場合、根まで伝播 */\
 			continue;\
 		}\
-		if (p->color == RBTREE_RED && sl->color == RBTREE_BLACK && sr->color == RBTREE_BLACK) {\
+		if (p->color == CSTL_RBTREE_RED && sl->color == CSTL_RBTREE_BLACK && sr->color == CSTL_RBTREE_BLACK) {\
 			/* case 4 */\
-			p->color = RBTREE_BLACK;\
-			s->color = RBTREE_RED;\
+			p->color = CSTL_RBTREE_BLACK;\
+			s->color = CSTL_RBTREE_RED;\
 			break;\
 		}\
-		if (p->left == n && sl->color == RBTREE_RED && sr->color == RBTREE_BLACK) {\
+		if (p->left == n && sl->color == CSTL_RBTREE_RED && sr->color == CSTL_RBTREE_BLACK) {\
 			/* case 5 nがpのleft */\
-			sl->color = RBTREE_BLACK;\
-			s->color = RBTREE_RED;\
+			sl->color = CSTL_RBTREE_BLACK;\
+			s->color = CSTL_RBTREE_RED;\
 			Name##Node_rotate_right(s);\
 			sr = s;\
 			s = sl;\
 			/* case 6 leftへ */\
-		} else if (p->right == n && sl->color == RBTREE_BLACK && sr->color == RBTREE_RED) {\
+		} else if (p->right == n && sl->color == CSTL_RBTREE_BLACK && sr->color == CSTL_RBTREE_RED) {\
 			/* case 5 nがpのright */\
-			sr->color = RBTREE_BLACK;\
-			s->color = RBTREE_RED;\
+			sr->color = CSTL_RBTREE_BLACK;\
+			s->color = CSTL_RBTREE_RED;\
 			Name##Node_rotate_left(s);\
 			sl = s;\
 			s = sr;\
 			/* case 6 rightへ */\
 		}\
-		if (p->left == n && sr->color == RBTREE_RED) {\
+		if (p->left == n && sr->color == CSTL_RBTREE_RED) {\
 			/* case 6 left */\
-			sr->color = RBTREE_BLACK;\
+			sr->color = CSTL_RBTREE_BLACK;\
 			Name##Node_rotate_left(p);\
-		} else if (p->right == n && sl->color == RBTREE_RED) {\
+		} else if (p->right == n && sl->color == CSTL_RBTREE_RED) {\
 			/* case 6 right */\
-			sl->color = RBTREE_BLACK;\
+			sl->color = CSTL_RBTREE_BLACK;\
 			Name##Node_rotate_right(p);\
 		} else {\
 			assert(0 && "RBTreeNode_balance_for_erase");\
@@ -613,7 +613,7 @@ static void Name##_erase(Name *self, Name##Iterator pos)\
 			Name##_set_root(self, &Name##_nil);\
 		} else {\
 			n = Name##Node_replace_subtree(n, &Name##_nil);\
-			if (n->color == RBTREE_BLACK) {\
+			if (n->color == CSTL_RBTREE_BLACK) {\
 				Name##Node_balance_for_erase(&Name##_nil, n->parent);\
 			}\
 		}\
@@ -621,7 +621,7 @@ static void Name##_erase(Name *self, Name##Iterator pos)\
 	}\
 	if (Name##Node_is_nil(n->left)) {\
 		n = Name##Node_replace_subtree(n, n->right);\
-		if (n->color == RBTREE_BLACK) {\
+		if (n->color == CSTL_RBTREE_BLACK) {\
 			assert(!Name##Node_is_nil(n->right) && "RBTree_erase");\
 			Name##Node_balance_for_erase(n->right, 0);\
 		}\
@@ -629,7 +629,7 @@ static void Name##_erase(Name *self, Name##Iterator pos)\
 	}\
 	if (Name##Node_is_nil(n->right)) {\
 		n = Name##Node_replace_subtree(n, n->left);\
-		if (n->color == RBTREE_BLACK) {\
+		if (n->color == CSTL_RBTREE_BLACK) {\
 			assert(!Name##Node_is_nil(n->left) && "RBTree_erase");\
 			Name##Node_balance_for_erase(n->left, 0);\
 		}\
@@ -642,12 +642,12 @@ static void Name##_erase(Name *self, Name##Iterator pos)\
 	}\
 	Name##Node_swap(n, x);\
 	n = Name##Node_replace_subtree(n, n->left);\
-	if (n->color == RBTREE_BLACK) {\
+	if (n->color == CSTL_RBTREE_BLACK) {\
 		assert(!Name##Node_is_nil(n) && "RBTree_erase");\
 		Name##Node_balance_for_erase(n->left, n->parent);\
 	}\
 end:\
-	RBTREE_MAGIC(n->magic = 0;)\
+	CSTL_RBTREE_MAGIC(n->magic = 0;)\
 	free(n);\
 }\
 \
@@ -734,7 +734,7 @@ static Name##Iterator Name##_prev(Name##Iterator pos)\
 
 
 
-#define RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)	\
+#define CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)	\
 \
 typedef struct Name##_t Name;\
 typedef struct Name##RBTreeNode_t *Name##Iterator;\
@@ -762,7 +762,7 @@ KeyType Name##_key(Name##Iterator pos);\
 void Name##_swap(Name *self, Name *x);\
 
 
-#define RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
+#define CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 typedef struct Name##RBTreeNode_t Name##RBTree;\
 /*! 
@@ -771,10 +771,10 @@ typedef struct Name##RBTreeNode_t Name##RBTree;\
 struct Name##_t {\
 	Name##RBTree *tree;\
 	size_t nelems;\
-	RBTREE_MAGIC(void *magic;)\
+	CSTL_RBTREE_MAGIC(void *magic;)\
 };\
 \
-RBTREE_IMPLEMENT(Name##RBTree, KeyType, ValueType, Compare)\
+CSTL_RBTREE_IMPLEMENT(Name##RBTree, KeyType, ValueType, Compare)\
 \
 Name *Name##_new(void)\
 {\
@@ -787,7 +787,7 @@ Name *Name##_new(void)\
 		return 0;\
 	}\
 	self->nelems = 0;\
-	RBTREE_MAGIC(self->magic = self;)\
+	CSTL_RBTREE_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -796,7 +796,7 @@ void Name##_delete(Name *self)\
 	assert(self && "RBTree_delete");\
 	assert(self->magic == self && "RBTree_delete");\
 	Name##RBTree_delete(self->tree);\
-	RBTREE_MAGIC(self->magic = 0;)\
+	CSTL_RBTREE_MAGIC(self->magic = 0;)\
 	free(self);\
 }\
 \

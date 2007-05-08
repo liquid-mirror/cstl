@@ -1,8 +1,8 @@
 #include "test.h"
 
 
-VECTOR_IMPLEMENT(UCharVector, unsigned char)
-VECTOR_IMPLEMENT(IntVector, int)
+CSTL_VECTOR_IMPLEMENT(UCharVector, unsigned char)
+CSTL_VECTOR_IMPLEMENT(IntVector, int)
 
 static UCharVector *uv;
 static IntVector *iv;

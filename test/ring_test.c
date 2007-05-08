@@ -2,8 +2,8 @@
 
 
 
-RING_IMPLEMENT(UCharRing, unsigned char)
-RING_IMPLEMENT(IntRing, int)
+CSTL_RING_IMPLEMENT(UCharRing, unsigned char)
+CSTL_RING_IMPLEMENT(IntRing, int)
 
 static UCharRing *ur;
 static IntRing *ir;

@@ -41,18 +41,18 @@ enum {
 	VISUAL
 };
 
-#define RBTREE_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, format1, format2, map, value, visual)	\
+#define CSTL_RBTREE_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, format1, format2, map, value, visual)	\
 \
 static size_t Name##_max_depth;\
 static size_t Name##_min_depth;\
 \
-static char *Name##_str_color(RBTreeColor c)\
+static char *Name##_str_color(int c)\
 {\
 	char *r = "(r)";\
 	char *b = "(b)";\
-	if (c == RBTREE_RED) {\
+	if (c == CSTL_RBTREE_RED) {\
 		return r;\
-	} else if (c == RBTREE_BLACK) {\
+	} else if (c == CSTL_RBTREE_BLACK) {\
 		return b;\
 	} else {\
 		assert(0);\
@@ -132,7 +132,7 @@ static size_t Name##RBTreeNode_black_count(Name##RBTreeNode *t, Name##RBTreeNode
 	if (Name##RBTreeNode_is_nil(t)) {\
 		return 0;\
 	}\
-	count = t->color == RBTREE_BLACK ? 1 : 0;\
+	count = t->color == CSTL_RBTREE_BLACK ? 1 : 0;\
 	if (t == root) {\
 		return count;\
 	} else {\
@@ -155,9 +155,9 @@ int Name##_verify(Name *self)\
 	for (pos = Name##RBTree_begin(tree); pos != Name##RBTree_end(tree); pos = Name##RBTree_next(pos)) {\
 		l = pos->left;\
 		r = pos->right;\
-		if (pos->color == RBTREE_RED) {\
-			if ((!Name##RBTreeNode_is_nil(l) && l->color == RBTREE_RED) ||\
-				(!Name##RBTreeNode_is_nil(r) && r->color == RBTREE_RED)) {\
+		if (pos->color == CSTL_RBTREE_RED) {\
+			if ((!Name##RBTreeNode_is_nil(l) && l->color == CSTL_RBTREE_RED) ||\
+				(!Name##RBTreeNode_is_nil(r) && r->color == CSTL_RBTREE_RED)) {\
 				return 0;\
 			}\
 		}\
@@ -176,18 +176,18 @@ int Name##_verify(Name *self)\
 }\
 \
 
-#define SET_DEBUG_INTERFACE(Name)	\
+#define CSTL_SET_DEBUG_INTERFACE(Name)	\
 void Name##_print(Name *self);\
 int Name##_verify(Name *self);\
 
-#define MAP_DEBUG_INTERFACE(Name)	\
+#define CSTL_MAP_DEBUG_INTERFACE(Name)	\
 void Name##_print(Name *self);\
 int Name##_verify(Name *self);\
 
-#define SET_DEBUG_IMPLEMENT(Name, Type, Compare, format, visual)	\
-RBTREE_DEBUG_IMPLEMENT(Name, Type, Type, Compare, format, format, 0, key, visual)	\
+#define CSTL_SET_DEBUG_IMPLEMENT(Name, Type, Compare, format, visual)	\
+CSTL_RBTREE_DEBUG_IMPLEMENT(Name, Type, Type, Compare, format, format, 0, key, visual)	\
 
-#define MAP_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, format1, format2, visual)	\
-RBTREE_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, format1, format2, 1, value, visual)	\
+#define CSTL_MAP_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, format1, format2, visual)	\
+CSTL_RBTREE_DEBUG_IMPLEMENT(Name, KeyType, ValueType, Compare, format1, format2, 1, value, visual)	\
 
 #endif /* CSTL_RBTREE_DEBUG_H_INCLUDED */

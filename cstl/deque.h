@@ -38,21 +38,21 @@
 #include "vector.h"
 
 #ifdef __cplusplus
-#define DEQUE_BEGIN_EXTERN_C()	extern "C" {
-#define DEQUE_END_EXTERN_C()	}
+#define CSTL_DEQUE_BEGIN_EXTERN_C()	extern "C" {
+#define CSTL_DEQUE_END_EXTERN_C()	}
 #else
-#define DEQUE_BEGIN_EXTERN_C()
-#define DEQUE_END_EXTERN_C()
+#define CSTL_DEQUE_BEGIN_EXTERN_C()
+#define CSTL_DEQUE_END_EXTERN_C()
 #endif
 
 #ifndef NDEBUG
-#define DEQUE_MAGIC(x) x
+#define CSTL_DEQUE_MAGIC(x) x
 #else
-#define DEQUE_MAGIC(x)
+#define CSTL_DEQUE_MAGIC(x)
 #endif
 
-#define DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 511 ? 511 / sizeof(Type) : 1)
-#define DEQUE_INITIAL_MAP_SIZE		(8)
+#define CSTL_DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 511 ? 511 / sizeof(Type) : 1)
+#define CSTL_DEQUE_INITIAL_MAP_SIZE		(8)
 
 /*! 
  * \brief インターフェイスマクロ
@@ -60,10 +60,10 @@
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define DEQUE_INTERFACE(Name, Type)	\
+#define CSTL_DEQUE_INTERFACE(Name, Type)	\
 typedef struct Name##_t Name;\
 \
-DEQUE_BEGIN_EXTERN_C()\
+CSTL_DEQUE_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
 void Name##_delete(Name *self);\
 int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
@@ -82,7 +82,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
-DEQUE_END_EXTERN_C()\
+CSTL_DEQUE_END_EXTERN_C()\
 
 
 /*! 
@@ -91,12 +91,12 @@ DEQUE_END_EXTERN_C()\
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define DEQUE_IMPLEMENT(Name, Type)	\
+#define CSTL_DEQUE_IMPLEMENT(Name, Type)	\
 \
-RING_INTERFACE(Name##__Ring, Type)\
-RING_IMPLEMENT(Name##__Ring, Type)\
-VECTOR_INTERFACE(Name##__RingVector, Name##__Ring*)\
-VECTOR_IMPLEMENT(Name##__RingVector, Name##__Ring*)\
+CSTL_RING_INTERFACE(Name##__Ring, Type)\
+CSTL_RING_IMPLEMENT(Name##__Ring, Type)\
+CSTL_VECTOR_INTERFACE(Name##__RingVector, Name##__Ring*)\
+CSTL_VECTOR_IMPLEMENT(Name##__RingVector, Name##__Ring*)\
 \
 /*! 
  * \brief deque構造体
@@ -107,7 +107,7 @@ struct Name##_t {\
 	size_t nelems;\
 	Name##__RingVector *map;\
 	Name##__RingVector *pool;\
-	DEQUE_MAGIC(void *magic;)\
+	CSTL_DEQUE_MAGIC(void *magic;)\
 };\
 \
 static void Name##_coordinate(Name *self, size_t idx, size_t *map_idx, size_t *ring_idx)\
@@ -118,15 +118,15 @@ static void Name##_coordinate(Name *self, size_t idx, size_t *map_idx, size_t *r
 		*map_idx = self->begin;\
 		*ring_idx = idx;\
 	} else {\
-		*map_idx = (self->begin + 1) + (idx - n) / DEQUE_RINGBUF_SIZE(Type);\
-		*ring_idx = (idx - n) % DEQUE_RINGBUF_SIZE(Type);\
+		*map_idx = (self->begin + 1) + (idx - n) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
+		*ring_idx = (idx - n) % CSTL_DEQUE_RINGBUF_SIZE(Type);\
 	}\
 }\
 \
 static Name##__Ring *Name##_get_ring(Name *self)\
 {\
 	if (Name##__RingVector##_empty(self->pool)) {\
-		return Name##__Ring##_new(DEQUE_RINGBUF_SIZE(Type));\
+		return Name##__Ring##_new(CSTL_DEQUE_RINGBUF_SIZE(Type));\
 	} else {\
 		return Name##__RingVector##_pop_back(self->pool);\
 	}\
@@ -173,7 +173,7 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 	if (n <= m) {\
 		return 1;\
 	}\
-	s = 1 + (n - m - 1) / DEQUE_RINGBUF_SIZE(Type);\
+	s = 1 + (n - m - 1) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
 	if (self->begin < s) {\
 		size_t b, e;\
 		Name##_map_beg_end(self, &b, &e);\
@@ -225,7 +225,7 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 	if (n <= m) {\
 		return 1;\
 	}\
-	s = 1 + (n - m - 1) / DEQUE_RINGBUF_SIZE(Type);\
+	s = 1 + (n - m - 1) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
 	if (Name##__RingVector##_size(self->map) - self->end < s) {\
 		size_t b, e;\
 		Name##_map_beg_end(self, &b, &e);\
@@ -321,13 +321,13 @@ Name *Name##_new(void)\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->map = Name##__RingVector##_new(DEQUE_INITIAL_MAP_SIZE);\
+	self->map = Name##__RingVector##_new(CSTL_DEQUE_INITIAL_MAP_SIZE);\
 	if (!self->map) {\
 		free(self);\
 		return 0;\
 	}\
-	Name##__RingVector##_resize(self->map, DEQUE_INITIAL_MAP_SIZE, 0);\
-	self->pool = Name##__RingVector##_new(DEQUE_INITIAL_MAP_SIZE);\
+	Name##__RingVector##_resize(self->map, CSTL_DEQUE_INITIAL_MAP_SIZE, 0);\
+	self->pool = Name##__RingVector##_new(CSTL_DEQUE_INITIAL_MAP_SIZE);\
 	if (!self->pool) {\
 		Name##__RingVector##_delete(self->map);\
 		free(self);\
@@ -336,14 +336,14 @@ Name *Name##_new(void)\
 	self->begin = Name##__RingVector##_size(self->map) / 2;\
 	self->end = self->begin + 1;\
 	self->nelems = 0;\
-	*Name##__RingVector##_at(self->map, self->begin) = Name##__Ring##_new(DEQUE_RINGBUF_SIZE(Type));\
+	*Name##__RingVector##_at(self->map, self->begin) = Name##__Ring##_new(CSTL_DEQUE_RINGBUF_SIZE(Type));\
 	if (!*Name##__RingVector##_at(self->map, self->begin)) {\
 		Name##__RingVector##_delete(self->map);\
 		Name##__RingVector##_delete(self->pool);\
 		free(self);\
 		return 0;\
 	}\
-	DEQUE_MAGIC(self->magic = self;)\
+	CSTL_DEQUE_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -362,7 +362,7 @@ void Name##_delete(Name *self)\
 	}\
 	Name##__RingVector##_delete(self->map);\
 	Name##__RingVector##_delete(self->pool);\
-	DEQUE_MAGIC(self->magic = 0;)\
+	CSTL_DEQUE_MAGIC(self->magic = 0;)\
 	free(self);\
 }\
 \

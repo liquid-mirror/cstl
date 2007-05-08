@@ -5,8 +5,8 @@
 #include <string.h>
 #include <cstl/map.h>
 
-MULTIMAP_INTERFACE(StrStrMMap, char *, char *)
-MULTIMAP_IMPLEMENT(StrStrMMap, char *, char *, strcmp, ASC)
+CSTL_MULTIMAP_INTERFACE(StrStrMMap, char *, char *)
+CSTL_MULTIMAP_IMPLEMENT(StrStrMMap, char *, char *, strcmp)
 
 /* 辞書として使う */
 int main(void)

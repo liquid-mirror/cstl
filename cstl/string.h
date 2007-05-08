@@ -37,23 +37,23 @@
 #include "vector.h"
 
 #ifdef __cplusplus
-#define STRING_BEGIN_EXTERN_C()	extern "C" {
-#define STRING_END_EXTERN_C()	}
+#define CSTL_STRING_BEGIN_EXTERN_C()	extern "C" {
+#define CSTL_STRING_END_EXTERN_C()		}
 #else
-#define STRING_BEGIN_EXTERN_C()
-#define STRING_END_EXTERN_C()
+#define CSTL_STRING_BEGIN_EXTERN_C()
+#define CSTL_STRING_END_EXTERN_C()
 #endif
 
 #ifndef NDEBUG
-#define STRING_MAGIC(x) x
+#define CSTL_STRING_MAGIC(x) x
 #else
-#define STRING_MAGIC(x)
+#define CSTL_STRING_MAGIC(x)
 #endif
 
 /*! 
  * \brief 検索失敗用インデックス
  */
-#define NPOS	((size_t)-1)
+#define CSTL_NPOS	((size_t)-1)
 
 /*! 
  * \brief インターフェイスマクロ
@@ -61,10 +61,10 @@
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define STRING_INTERFACE(Name, Type)	\
+#define CSTL_STRING_INTERFACE(Name, Type)	\
 typedef struct Name##_t Name;\
 \
-STRING_BEGIN_EXTERN_C()\
+CSTL_STRING_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
 void Name##_delete(Name *self);\
 void Name##_clear(Name *self);\
@@ -101,7 +101,7 @@ size_t Name##_find_first_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len
 size_t Name##_find_first_not_of_c(Type *x, Type c, size_t idx);\
 size_t Name##_find_last_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len);\
 size_t Name##_find_last_not_of_c(Type *x, Type c, size_t idx);\
-STRING_END_EXTERN_C()\
+CSTL_STRING_END_EXTERN_C()\
 
 
 /*! 
@@ -110,7 +110,7 @@ STRING_END_EXTERN_C()\
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define STRING_IMPLEMENT(Name, Type)	\
+#define CSTL_STRING_IMPLEMENT(Name, Type)	\
 \
 static int Name##my_memcmp(const Type *x, const Type *y, size_t size)\
 {\
@@ -137,15 +137,15 @@ static size_t Name##my_strlen(const Type *cstr)\
 	return i;\
 }\
 \
-VECTOR_INTERFACE(Name##__CharVector, Type)\
-VECTOR_IMPLEMENT(Name##__CharVector, Type)\
+CSTL_VECTOR_INTERFACE(Name##__CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT(Name##__CharVector, Type)\
 \
 /*! 
  * \brief string構造体
  */\
 struct Name##_t {\
 	Name##__CharVector *data;\
-	STRING_MAGIC(void *magic;)\
+	CSTL_STRING_MAGIC(void *magic;)\
 };\
 \
 Name *Name##_new(size_t n)\
@@ -159,7 +159,7 @@ Name *Name##_new(size_t n)\
 		return 0;\
 	}\
 	Name##__CharVector_push_back(self->data, '\0');\
-	STRING_MAGIC(self->magic = self;)\
+	CSTL_STRING_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -167,7 +167,7 @@ void Name##_delete(Name *self)\
 {\
 	assert(self && "String_delete");\
 	assert(self->magic == self && "String_delete");\
-	STRING_MAGIC(self->magic = 0;)\
+	CSTL_STRING_MAGIC(self->magic = 0;)\
 	Name##__CharVector_delete(self->data);\
 	free(self);\
 }\
@@ -298,7 +298,7 @@ int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\
 	assert(self && "String_assign");\
 	assert(self->magic == self && "String_assign");\
 	assert(cstr && "String_assign");\
-	if (cstr_len == NPOS) {\
+	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
 	if (!Name##__CharVector_reserve(self->data, cstr_len +1)) {\
@@ -330,7 +330,7 @@ int Name##_append(Name *self, Type *cstr, size_t cstr_len)\
 	assert(self && "String_append");\
 	assert(self->magic == self && "String_append");\
 	assert(cstr && "String_append");\
-	if (cstr_len == NPOS) {\
+	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
 	return Name##__CharVector_insert_array(self->data, Name##__CharVector_size(self->data)-1, cstr, cstr_len);\
@@ -364,7 +364,7 @@ int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 	assert(self->magic == self && "String_insert");\
 	assert(Name##_size(self) >= idx && "String_insert");\
 	assert(cstr && "String_insert");\
-	if (cstr_len == NPOS) {\
+	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
 	if (cstr_len && Name##_c_str(self) + idx < cstr + cstr_len && cstr < Name##_c_str(self) + Name##_size(self)) {\
@@ -419,7 +419,7 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 	if (len > size - idx) {\
 		len = size - idx;\
 	}\
-	if (cstr_len == NPOS) {\
+	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
 	if (cstr_len && Name##_c_str(self) + idx < cstr + cstr_len && cstr < Name##_c_str(self) + Name##_size(self)) {\
@@ -487,7 +487,7 @@ static size_t Name##_brute_force_search(Type *str, size_t str_len, Type *ptn, si
 {\
 	size_t i = 0;\
 	size_t j = 0;\
-	if (str_len < ptn_len) return NPOS;\
+	if (str_len < ptn_len) return CSTL_NPOS;\
 	while (i < str_len && j < ptn_len) {\
 		if (str[i] == ptn[j]) {\
 			i++;\
@@ -497,14 +497,14 @@ static size_t Name##_brute_force_search(Type *str, size_t str_len, Type *ptn, si
 			j = 0;\
 		}\
 	}\
-	return (j == ptn_len) ? i - j : NPOS;\
+	return (j == ptn_len) ? i - j : CSTL_NPOS;\
 }\
 \
 static size_t Name##_brute_force_search_r(Type *str, size_t str_len, Type *ptn, size_t ptn_len)\
 {\
 	size_t i = str_len;\
 	size_t j = ptn_len;\
-	if (str_len < ptn_len) return NPOS;\
+	if (str_len < ptn_len) return CSTL_NPOS;\
 	while (i > 0 && j > 0) {\
 		if (str[i-1] == ptn[j-1]) {\
 			i--;\
@@ -514,7 +514,7 @@ static size_t Name##_brute_force_search_r(Type *str, size_t str_len, Type *ptn, 
 			j = ptn_len;\
 		}\
 	}\
-	return (j == 0) ? i : NPOS;\
+	return (j == 0) ? i : CSTL_NPOS;\
 }\
 \
 size_t Name##_find(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
@@ -523,16 +523,16 @@ size_t Name##_find(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
 	size_t size;\
 	assert(x && "String_find");\
 	assert(cstr && "String_find");\
-	if (cstr_len == NPOS) {\
+	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
 	if (cstr_len == 0) {\
 		return idx;\
 	}\
 	size = Name##my_strlen(x);\
-	if (size < idx) return NPOS;\
+	if (size < idx) return CSTL_NPOS;\
 	i = Name##_brute_force_search(&x[idx], size - idx, cstr, cstr_len);\
-	if (i == NPOS) return i;\
+	if (i == CSTL_NPOS) return i;\
 	return i + idx;\
 }\
 \
@@ -547,7 +547,7 @@ size_t Name##_rfind(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
 	size_t size;\
 	assert(x && "String_rfind");\
 	assert(cstr && "String_rfind");\
-	if (cstr_len == NPOS) {\
+	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
 	size = Name##my_strlen(x);\
@@ -570,8 +570,8 @@ size_t Name##_find_first_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
 	assert(x && "String_find_first_of");\
 	assert(cstr && "String_find_first_of");\
 	size = Name##my_strlen(x);\
-	if (size < idx) return NPOS;\
-	if (cstr_len == NPOS) {\
+	if (size < idx) return CSTL_NPOS;\
+	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
 	for (i = idx; i < size; i++) {\
@@ -581,7 +581,7 @@ size_t Name##_find_first_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
 			}\
 		}\
 	}\
-	return NPOS;\
+	return CSTL_NPOS;\
 }\
 \
 size_t Name##_find_first_of_c(Type *x, Type c, size_t idx)\
@@ -600,7 +600,7 @@ size_t Name##_find_last_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
 	if (size <= idx) {\
 		idx = size -1;\
 	}\
-	if (cstr_len == NPOS) {\
+	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
 	for (i = idx +1; i > 0; i--) {\
@@ -610,7 +610,7 @@ size_t Name##_find_last_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
 			}\
 		}\
 	}\
-	return NPOS;\
+	return CSTL_NPOS;\
 }\
 \
 size_t Name##_find_last_of_c(Type *x, Type c, size_t idx)\
@@ -626,8 +626,8 @@ size_t Name##_find_first_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len
 	assert(x && "String_find_first_not_of");\
 	assert(cstr && "String_find_first_not_of");\
 	size = Name##my_strlen(x);\
-	if (size < idx) return NPOS;\
-	if (cstr_len == NPOS) {\
+	if (size < idx) return CSTL_NPOS;\
+	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
 	if (cstr_len == 0) {\
@@ -642,7 +642,7 @@ size_t Name##_find_first_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len
 			}\
 		}\
 	}\
-	return NPOS;\
+	return CSTL_NPOS;\
 }\
 \
 size_t Name##_find_first_not_of_c(Type *x, Type c, size_t idx)\
@@ -661,7 +661,7 @@ size_t Name##_find_last_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)
 	if (size <= idx) {\
 		idx = size -1;\
 	}\
-	if (cstr_len == NPOS) {\
+	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
 	if (cstr_len == 0) {\
@@ -676,7 +676,7 @@ size_t Name##_find_last_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)
 			}\
 		}\
 	}\
-	return NPOS;\
+	return CSTL_NPOS;\
 }\
 \
 size_t Name##_find_last_not_of_c(Type *x, Type c, size_t idx)\

@@ -2,8 +2,8 @@
 #include <cstl/ring.h>
 #define NELEMS(array)	(sizeof(array) / sizeof(array[0]))
 
-RING_INTERFACE(UCharRing, unsigned char)
-RING_IMPLEMENT(UCharRing, unsigned char)
+CSTL_RING_INTERFACE(UCharRing, unsigned char)
+CSTL_RING_IMPLEMENT(UCharRing, unsigned char)
 
 int main(void)
 {

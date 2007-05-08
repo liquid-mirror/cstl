@@ -36,17 +36,17 @@
 #include <assert.h>
 
 #ifdef __cplusplus
-#define RING_BEGIN_EXTERN_C()	extern "C" {
-#define RING_END_EXTERN_C()		}
+#define CSTL_RING_BEGIN_EXTERN_C()	extern "C" {
+#define CSTL_RING_END_EXTERN_C()	}
 #else
-#define RING_BEGIN_EXTERN_C()
-#define RING_END_EXTERN_C()
+#define CSTL_RING_BEGIN_EXTERN_C()
+#define CSTL_RING_END_EXTERN_C()
 #endif
 
 #ifndef NDEBUG
-#define RING_MAGIC(x) x
+#define CSTL_RING_MAGIC(x) x
 #else
-#define RING_MAGIC(x)
+#define CSTL_RING_MAGIC(x)
 #endif
 
 /*! 
@@ -55,7 +55,7 @@
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define RING_INTERFACE(Name, Type)	\
+#define CSTL_RING_INTERFACE(Name, Type)	\
 typedef struct Name##_t Name;\
 /*! 
  * \brief リングバッファ構造体
@@ -65,10 +65,10 @@ struct Name##_t {\
 	size_t end;\
 	size_t nelems;\
 	Type *buf;\
-	RING_MAGIC(void *magic;)\
+	CSTL_RING_MAGIC(void *magic;)\
 };\
 \
-RING_BEGIN_EXTERN_C()\
+CSTL_RING_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
 void Name##_init(Name *self, Type *buf, size_t n);\
 void Name##_delete(Name *self);\
@@ -90,7 +90,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
-RING_END_EXTERN_C()\
+CSTL_RING_END_EXTERN_C()\
 
 
 /*! 
@@ -99,7 +99,7 @@ RING_END_EXTERN_C()\
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define RING_IMPLEMENT(Name, Type)	\
+#define CSTL_RING_IMPLEMENT(Name, Type)	\
 \
 static size_t Name##_forward(Name *self, size_t idx, size_t n)\
 {\
@@ -146,7 +146,7 @@ void Name##_delete(Name *self)\
 {\
 	assert(self && "Ring_delete");\
 	assert(self->magic == self && "Ring_delete");\
-	RING_MAGIC(self->magic = 0;)\
+	CSTL_RING_MAGIC(self->magic = 0;)\
 	free(self->buf);\
 	free(self);\
 }\
@@ -159,7 +159,7 @@ void Name##_init(Name *self, Type *buf, size_t n)\
 	self->end = 0;\
 	self->buf = buf;\
 	self->nelems = n;\
-	RING_MAGIC(self->magic = self;)\
+	CSTL_RING_MAGIC(self->magic = self;)\
 }\
 \
 int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\

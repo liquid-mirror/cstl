@@ -34,15 +34,15 @@
 #include "rbtree.h"
 
 #ifdef __cplusplus
-#define MAP_BEGIN_EXTERN_C()	extern "C" {
-#define MAP_END_EXTERN_C()		}
+#define CSTL_MAP_BEGIN_EXTERN_C()	extern "C" {
+#define CSTL_MAP_END_EXTERN_C()		}
 #else
-#define MAP_BEGIN_EXTERN_C()
-#define MAP_END_EXTERN_C()
+#define CSTL_MAP_BEGIN_EXTERN_C()
+#define CSTL_MAP_END_EXTERN_C()
 #endif
 
 
-#define COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
+#define CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 /*! 
  * \brief mapノード構造体
  */\
@@ -50,15 +50,15 @@ struct Name##RBTreeNode_t {\
 	struct Name##RBTreeNode_t *parent;\
 	struct Name##RBTreeNode_t *left;\
 	struct Name##RBTreeNode_t *right;\
-	RBTreeColor color;\
+	int color;\
 	KeyType key;\
 	ValueType value;\
-	RBTREE_MAGIC(void *magic;)\
+	CSTL_RBTREE_MAGIC(void *magic;)\
 };\
 \
-RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)\
+CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)\
 \
-static Name##RBTreeNode *Name##RBTreeNode_new(KeyType key, ValueType value, RBTreeColor color)\
+static Name##RBTreeNode *Name##RBTreeNode_new(KeyType key, ValueType value, int color)\
 {\
 	Name##RBTreeNode *self;\
 	self = (Name##RBTreeNode *) malloc(sizeof(Name##RBTreeNode));\
@@ -89,13 +89,13 @@ ValueType *Name##_value(Name##Iterator pos)\
  * \param KeyType 要素のキーの型
  * \param ValueType 要素の値の型
  */
-#define MAP_INTERFACE(Name, KeyType, ValueType)	\
-MAP_BEGIN_EXTERN_C()\
-RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
+#define CSTL_MAP_INTERFACE(Name, KeyType, ValueType)	\
+CSTL_MAP_BEGIN_EXTERN_C()\
+CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success);\
 ValueType *Name##_value(Name##Iterator pos);\
 ValueType *Name##_lookup(Name *self, KeyType key);\
-MAP_END_EXTERN_C()\
+CSTL_MAP_END_EXTERN_C()\
 
 /*! 
  * \brief 実装マクロ
@@ -105,9 +105,9 @@ MAP_END_EXTERN_C()\
  * \param ValueType 要素の値の型
  * \param Compare 要素の比較ルーチン
  */
-#define MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
+#define CSTL_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
-COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
+CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success)\
 {\
@@ -181,12 +181,12 @@ ValueType *Name##_lookup(Name *self, KeyType key)\
  * \param KeyType 要素のキーの型
  * \param ValueType 要素の値の型
  */
-#define MULTIMAP_INTERFACE(Name, KeyType, ValueType)	\
-MAP_BEGIN_EXTERN_C()\
-RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
+#define CSTL_MULTIMAP_INTERFACE(Name, KeyType, ValueType)	\
+CSTL_MAP_BEGIN_EXTERN_C()\
+CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value);\
 ValueType *Name##_value(Name##Iterator pos);\
-MAP_END_EXTERN_C()\
+CSTL_MAP_END_EXTERN_C()\
 
 /*! 
  * \brief 実装マクロ
@@ -196,9 +196,9 @@ MAP_END_EXTERN_C()\
  * \param ValueType 要素の値の型
  * \param Compare 要素の比較ルーチン
  */
-#define MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
+#define CSTL_MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
-COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
+CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 {\

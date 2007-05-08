@@ -1,10 +1,10 @@
 #include "test.h"
 
 
-LIST_IMPLEMENT(UCharList, unsigned char)
-LIST_IMPLEMENT(IntList, int)
-LIST_IMPLEMENT(StrList, char *)
-LIST_IMPLEMENT(HogeList, Hoge)
+CSTL_LIST_IMPLEMENT(UCharList, unsigned char)
+CSTL_LIST_IMPLEMENT(IntList, int)
+CSTL_LIST_IMPLEMENT(StrList, char *)
+CSTL_LIST_IMPLEMENT(HogeList, Hoge)
 
 
 static HogeList *hl;

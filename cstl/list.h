@@ -36,17 +36,17 @@
 #include <assert.h>
 
 #ifdef __cplusplus
-#define LIST_BEGIN_EXTERN_C()	extern "C" {
-#define LIST_END_EXTERN_C()		}
+#define CSTL_LIST_BEGIN_EXTERN_C()	extern "C" {
+#define CSTL_LIST_END_EXTERN_C()	}
 #else
-#define LIST_BEGIN_EXTERN_C()
-#define LIST_END_EXTERN_C()
+#define CSTL_LIST_BEGIN_EXTERN_C()
+#define CSTL_LIST_END_EXTERN_C()
 #endif
 
 #ifndef NDEBUG
-#define LIST_MAGIC(x) x
+#define CSTL_LIST_MAGIC(x) x
 #else
-#define LIST_MAGIC(x)
+#define CSTL_LIST_MAGIC(x)
 #endif
 
 /*! 
@@ -55,14 +55,14 @@
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define LIST_INTERFACE(Name, Type)	\
+#define CSTL_LIST_INTERFACE(Name, Type)	\
 typedef struct Name##_t Name;\
 /*! 
  * \brief イテレータ
  */\
 typedef struct Name##Node_t *Name##Iterator;\
 \
-LIST_BEGIN_EXTERN_C()\
+CSTL_LIST_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
 void Name##_delete(Name *self);\
 int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last);\
@@ -90,7 +90,7 @@ Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterat
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
 void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last);\
-LIST_END_EXTERN_C()\
+CSTL_LIST_END_EXTERN_C()\
 
 
 /*! 
@@ -99,7 +99,7 @@ LIST_END_EXTERN_C()\
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define LIST_IMPLEMENT(Name, Type)	\
+#define CSTL_LIST_IMPLEMENT(Name, Type)	\
 typedef struct Name##Node_t Name##Node;\
 /*! 
  * \brief listノード構造体
@@ -108,7 +108,7 @@ struct Name##Node_t {\
 	Name##Node *prev;\
 	Name##Node *next;\
 	Type elem;\
-	LIST_MAGIC(void *magic;)\
+	CSTL_LIST_MAGIC(void *magic;)\
 };\
 \
 /*! 
@@ -117,7 +117,7 @@ struct Name##Node_t {\
 struct Name##_t {\
 	Name##Node *terminator;\
 	size_t nelems;\
-	LIST_MAGIC(void *magic;)\
+	CSTL_LIST_MAGIC(void *magic;)\
 };\
 \
 Name *Name##_new(void)\
@@ -132,8 +132,8 @@ Name *Name##_new(void)\
 	self->terminator->next = self->terminator;\
 	self->terminator->prev = self->terminator;\
 	self->nelems = 0;\
-	LIST_MAGIC(self->terminator->magic = self->terminator;)\
-	LIST_MAGIC(self->magic = self;)\
+	CSTL_LIST_MAGIC(self->terminator->magic = self->terminator;)\
+	CSTL_LIST_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -142,8 +142,8 @@ void Name##_delete(Name *self)\
 	assert(self && "List_delete");\
 	assert(self->magic == self && "List_delete");\
 	Name##_clear(self);\
-	LIST_MAGIC(self->terminator->magic = 0;)\
-	LIST_MAGIC(self->magic = 0;)\
+	CSTL_LIST_MAGIC(self->terminator->magic = 0;)\
+	CSTL_LIST_MAGIC(self->magic = 0;)\
 	free(self->terminator);\
 	free(self);\
 }\
@@ -184,7 +184,7 @@ int Name##_push_back(Name *self, Type elem)\
 	self->terminator->prev->next = node;\
 	self->terminator->prev = node;\
 	self->nelems++;\
-	LIST_MAGIC(node->magic = self->terminator;)\
+	CSTL_LIST_MAGIC(node->magic = self->terminator;)\
 	return 1;\
 }\
 \
@@ -201,7 +201,7 @@ int Name##_push_front(Name *self, Type elem)\
 	self->terminator->next->prev = node;\
 	self->terminator->next = node;\
 	self->nelems++;\
-	LIST_MAGIC(node->magic = self->terminator;)\
+	CSTL_LIST_MAGIC(node->magic = self->terminator;)\
 	return 1;\
 }\
 \
@@ -216,7 +216,7 @@ Type Name##_pop_front(Name *self)\
 	elem = node->elem;\
 	self->terminator->next = node->next;\
 	node->next->prev = self->terminator;\
-	LIST_MAGIC(node->magic = 0;)\
+	CSTL_LIST_MAGIC(node->magic = 0;)\
 	free(node);\
 	self->nelems--;\
 	return elem;\
@@ -233,7 +233,7 @@ Type Name##_pop_back(Name *self)\
 	elem = node->elem;\
 	self->terminator->prev = node->prev;\
 	node->prev->next = self->terminator;\
-	LIST_MAGIC(node->magic = 0;)\
+	CSTL_LIST_MAGIC(node->magic = 0;)\
 	free(node);\
 	self->nelems--;\
 	return elem;\
@@ -340,7 +340,7 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
 	pos->prev = node;\
 	node->prev->next = node;\
 	self->nelems++;\
-	LIST_MAGIC(node->magic = self->terminator;)\
+	CSTL_LIST_MAGIC(node->magic = self->terminator;)\
 	return node;\
 }\
 \
@@ -404,7 +404,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	node = pos->next;\
 	pos->prev->next = pos->next;\
 	pos->next->prev = pos->prev;\
-	LIST_MAGIC(pos->magic = 0;)\
+	CSTL_LIST_MAGIC(pos->magic = 0;)\
 	free(pos);\
 	self->nelems--;\
 	return node;\
@@ -489,7 +489,7 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 	for (i = first; i != last; i = Name##_next(i)) {\
 		assert(i != pos && "List_splice");\
 		assert(i->magic == x->terminator && "List_splice");\
-		LIST_MAGIC(i->magic = self->terminator;)\
+		CSTL_LIST_MAGIC(i->magic = self->terminator;)\
 		count++;\
 	}\
 	pos->prev->next = first;\

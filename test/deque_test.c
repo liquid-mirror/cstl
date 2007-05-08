@@ -1,7 +1,7 @@
 #include <limits.h>
 #include "test.h"
-DEQUE_IMPLEMENT(UCharDeque, unsigned char)
-DEQUE_IMPLEMENT(IntDeque, int)
+CSTL_DEQUE_IMPLEMENT(UCharDeque, unsigned char)
+CSTL_DEQUE_IMPLEMENT(IntDeque, int)
 
 static UCharDeque *ud;
 static IntDeque *id;

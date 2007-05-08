@@ -104,15 +104,15 @@ vectorを使うには、vector.hというヘッダファイルをインクルー
 以下のマクロを用いてコードを展開する必要がある。
 
   /* インターフェイスを展開 */
-  #define VECTOR_INTERFACE(Name, Type)
+  #define CSTL_VECTOR_INTERFACE(Name, Type)
 
   /* 実装を展開 */
-  #define VECTOR_IMPLEMENT(Name, Type)
+  #define CSTL_VECTOR_IMPLEMENT(Name, Type)
 
 Nameに既存の型と重複しない任意の名前を、Typeに任意の要素の型を指定する。
 <<< br
 
-VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
+CSTL_VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 
 ==== 型
@@ -248,15 +248,15 @@ dequeを使うには、deque.hというヘッダファイルをインクルー�
 以下のマクロを用いてコードを展開する必要がある。
 
   /* インターフェイスを展開 */
-  #define DEQUE_INTERFACE(Name, Type)
+  #define CSTL_DEQUE_INTERFACE(Name, Type)
 
   /* 実装を展開 */
-  #define DEQUE_IMPLEMENT(Name, Type)
+  #define CSTL_DEQUE_IMPLEMENT(Name, Type)
 
 Nameに既存の型と重複しない任意の名前を、Typeに任意の要素の型を指定する。
 <<< br
 
-DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
+CSTL_DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 
 ==== 型
@@ -384,15 +384,15 @@ listを使うには、list.hというヘッダファイルをインクルード�
 以下のマクロを用いてコードを展開する必要がある。
 
   /* インターフェイスを展開 */
-  #define LIST_INTERFACE(Name, Type)
+  #define CSTL_LIST_INTERFACE(Name, Type)
 
   /* 実装を展開 */
-  #define LIST_IMPLEMENT(Name, Type)
+  #define CSTL_LIST_IMPLEMENT(Name, Type)
 
 Nameに既存の型と重複しない任意の名前を、Typeに任意の要素の型を指定する。
 <<< br
 
-LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
+CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 
 ==== 型
@@ -572,33 +572,35 @@ set/multisetを使うには、set.hというヘッダファイルをインクル
 
 * setの場合
     /* インターフェイスを展開 */
-    #define SET_INTERFACE(Name, Type)
+    #define CSTL_SET_INTERFACE(Name, Type)
 
     /* 実装を展開 */
-    #define SET_IMPLEMENT(Name, Type, Compare)
+    #define CSTL_SET_IMPLEMENT(Name, Type, Compare)
 
 * multisetの場合
     /* インターフェイスを展開 */
-    #define MULTISET_INTERFACE(Name, Type)
+    #define CSTL_MULTISET_INTERFACE(Name, Type)
 
     /* 実装を展開 */
-    #define MULTISET_IMPLEMENT(Name, Type, Compare)
+    #define CSTL_MULTISET_IMPLEMENT(Name, Type, Compare)
 
 Nameに既存の型と重複しない任意の名前を、Typeに任意の要素の型を指定する。
 
 Compareに要素の比較ルーチンを指定する。
   * Typeが整数型、小数型、ポインタ型など、2つの値を単純に比較できる型の場合、
-    昇順ならばLESSマクロを、降順ならばGREATERマクロを指定する。LESS/GREATERマクロはヘッダで以下のように定義されている。
-      #define LESS(x, y)      ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
-      #define GREATER(x, y)   ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
+    要素のソートの順序を昇順にするならばCSTL_LESSマクロを、降順にするならばCSTL_GREATERマクロを指定する。
+    CSTL_LESS/CSTL_GREATERマクロはヘッダで以下のように定義されている。
+      #define CSTL_LESS(x, y)     ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
+      #define CSTL_GREATER(x, y)  ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
   * Typeがその他の型の場合、以下のプロトタイプのような引数と戻り値を持ち、
-    xとyが一致ならば0を、不一致ならば正または負の整数を返す比較ルーチンを用意して指定する。
+    x = yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
+    返す比較ルーチンを用意して指定する。
     尚、Typeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
       int Compare(Type x, Type y);
 
 <<< br
 
-SET_INTERFACE/MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した場合、
+CSTL_SET_INTERFACE/CSTL_MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 
 ==== 型
@@ -749,33 +751,35 @@ map/multimapを使うには、map.hというヘッダファイルをインクル
 
 * mapの場合
     /* インターフェイスを展開 */
-    #define MAP_INTERFACE(Name, KeyType, ValueType)
+    #define CSTL_MAP_INTERFACE(Name, KeyType, ValueType)
 
     /* 実装を展開 */
-    #define MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
+    #define CSTL_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
 
 * multimapの場合
     /* インターフェイスを展開 */
-    #define MULTIMAP_INTERFACE(Name, KeyType, ValueType)
+    #define CSTL_MULTIMAP_INTERFACE(Name, KeyType, ValueType)
 
     /* 実装を展開 */
-    #define MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
+    #define CSTL_MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
 
 Nameに既存の型と重複しない任意の名前を、KeyTypeに任意の要素のキーの型を、ValueTypeに任意の要素の値の型を指定する。
 
 Compareに要素の比較ルーチンを指定する。
   * KeyTypeが整数型、小数型、ポインタ型など、2つの値を単純に比較できる型の場合、
-    昇順ならばLESSマクロを、降順ならばGREATERマクロを指定する。LESS/GREATERマクロはヘッダで以下のように定義されている。
-      #define LESS(x, y)      ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
-      #define GREATER(x, y)   ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
+    要素のソートの順序を昇順にするならばCSTL_LESSマクロを、降順にするならばCSTL_GREATERマクロを指定する。
+    CSTL_LESS/CSTL_GREATERマクロはヘッダで以下のように定義されている。
+      #define CSTL_LESS(x, y)     ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
+      #define CSTL_GREATER(x, y)  ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
   * KeyTypeがその他の型の場合、以下のプロトタイプのような引数と戻り値を持ち、
-    xとyが一致ならば0を、不一致ならば正または負の整数を返す比較ルーチンを用意して指定する。
+    x = yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
+    返す比較ルーチンを用意して指定する。
     尚、KeyTypeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
       int Compare(KeyType x, KeyType y);
 
 <<< br
 
-MAP_INTERFACE/MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, ValueTypeにValueTを指定した場合、
+CSTL_MAP_INTERFACE/CSTL_MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, ValueTypeにValueTを指定した場合、
 以下のインターフェイスを提供する。
 
 ==== 型
@@ -936,22 +940,22 @@ stringを使うには、string.hというヘッダファイルをインクルー
 以下のマクロを用いてコードを展開する必要がある。
 
   /* インターフェイスを展開 */
-  #define STRING_INTERFACE(Name, Type)
+  #define CSTL_STRING_INTERFACE(Name, Type)
 
   /* 実装を展開 */
-  #define STRING_IMPLEMENT(Name, Type)
+  #define CSTL_STRING_IMPLEMENT(Name, Type)
 
 Nameに既存の型と重複しない任意の名前を、Typeに任意の文字の型を指定する。
 <<< br
 
-STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
+CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 以下のインターフェイスを提供する。
 
 ==== 定数
-  #define NPOS  ((size_t)-1)
+  #define CSTL_NPOS  ((size_t)-1)
 * size_t型の最大値。
 * 検索関数において、検索に失敗した時に返される。
-* CharT *cstr, size_t cstr_lenという関数の引数において、cstr_lenにNPOSを指定した場合、cstrはCの文字列として扱われる。
+* CharT *cstr, size_t cstr_lenという関数の引数において、cstr_lenにCSTL_NPOSを指定した場合、cstrはCの文字列として扱われる。
 
 ==== 型
 
@@ -1027,7 +1031,7 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 + 代入
   int String_assign(String *self, CharT *cstr, size_t cstr_len);
 * selfにcstrという文字の配列からcstr_len個の文字を代入する。
-* cstr_lenがNPOSと等しい場合、cstrというCの文字列を代入する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を代入する。ただしcstrは'\0'で終端していなければならない。
 * cstrはself内の文字列でもよい。
 * 代入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -1049,7 +1053,7 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 + 追加
   int String_append(String *self, CharT *cstr, size_t cstr_len);
 * selfにcstrという文字の配列からcstr_len個の文字を追加する。
-* cstr_lenがNPOSと等しい場合、cstrというCの文字列を追加する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を追加する。ただしcstrは'\0'で終端していなければならない。
 * cstrはself内の文字列でもよい。
 * 追加に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -1071,7 +1075,7 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 + 挿入
   int String_insert(String *self, size_t idx, CharT *cstr, size_t cstr_len);
 * selfのidxが示すインデックスにcstrという文字の配列からcstr_len個の文字を挿入する。
-* cstr_lenがNPOSと等しい場合、cstrというCの文字列を挿入する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を挿入する。ただしcstrは'\0'で終端していなければならない。
 * cstrはself内の文字列でもよい。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -1088,7 +1092,7 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 + 置換
   int String_replace(String *self, size_t idx, size_t len, CharT *cstr, size_t cstr_len);
 * selfのidxが示すインデックスから最大len個の文字を、cstrという文字の配列のcstr_len個の文字で置換する。
-* cstr_lenがNPOSと等しい場合、cstrというCの文字列で置換する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列で置換する。ただしcstrは'\0'で終端していなければならない。
 * cstrはself内の文字列でもよい。
 * 置換に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -1124,91 +1128,91 @@ STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 + 検索
   size_t String_find(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列において、idxが示すインデックスから、cstrという文字の配列のcstr_len個の文字が現れる最初の位置を前進して検索する。
-* cstr_lenがNPOSと等しい場合、cstrというCの文字列を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、x, cstrが共にNULLでないこと。
 <<< br
 
   size_t String_find_c(CharT *x, CharT c, size_t idx);
 * xというCの文字列において、idxが示すインデックスから、cという文字が現れる最初の位置を前進して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、xがNULLでないこと。
 <<< br
 
   size_t String_rfind(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列において、idxが示すインデックスから、cstrという文字の配列のcstr_len個の文字が現れる最後の位置を後退して検索する。
-* cstr_lenがNPOSと等しい場合、cstrというCの文字列を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、x, cstrが共にNULLでないこと。
 <<< br
 
   size_t String_rfind_c(CharT *x, CharT c, size_t idx);
 * xというCの文字列において、idxが示すインデックスから、cという文字が現れる最後の位置を後退して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、xがNULLでないこと。
 <<< br
 
   size_t String_find_first_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列において、idxが示すインデックスから、cstrという文字の配列のcstr_len個の文字に含まれる最初の文字が現れる位置を前進して検索する。
-* cstr_lenがNPOSと等しい場合、cstrというCの文字列に含まれる文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれる文字を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、x, cstrが共にNULLでないこと。
 <<< br
 
   size_t String_find_first_of_c(CharT *x, CharT c, size_t idx);
 * xというCの文字列において、idxが示すインデックスから、cという文字が現れる最初の位置を前進して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、xがNULLでないこと。
 <<< br
 
   size_t String_find_last_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列において、idxが示すインデックスから、cstrという文字の配列のcstr_len個の文字に含まれる最後の文字が現れる位置を後退して検索する。
-* cstr_lenがNPOSと等しい場合、cstrというCの文字列に含まれる文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれる文字を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、x, cstrが共にNULLでないこと。
 <<< br
 
   size_t String_find_last_of_c(CharT *x, CharT c, size_t idx);
 * xというCの文字列において、idxが示すインデックスから、cという文字が現れる最後の位置を後退して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、xがNULLでないこと。
 <<< br
 
   size_t String_find_first_not_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列において、idxが示すインデックスから、cstrという文字の配列のcstr_len個の文字に含まれない最初の文字が現れる位置を前進して検索する。
-* cstr_lenがNPOSと等しい場合、cstrというCの文字列に含まれない文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれない文字を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、x, cstrが共にNULLでないこと。
 <<< br
 
   size_t String_find_first_not_of_c(CharT *x, CharT c, size_t idx);
 * xというCの文字列において、idxが示すインデックスから、c以外の文字が現れる最初の位置を前進して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、xがNULLでないこと。
 <<< br
 
   size_t String_find_last_not_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列において、idxが示すインデックスから、cstrという文字の配列のcstr_len個の文字に含まれない最後の文字が現れる位置を後退して検索する。
-* cstr_lenがNPOSと等しい場合、cstrというCの文字列に含まれない文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれない文字を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、x, cstrが共にNULLでないこと。
 <<< br
 
   size_t String_find_last_not_of_c(CharT *x, CharT c, size_t idx);
 * xというCの文字列において、idxが示すインデックスから、c以外の文字が現れる最後の位置を後退して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
-* 検索に失敗した場合、NPOSを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件は、xがNULLでないこと。
 <<< br
 

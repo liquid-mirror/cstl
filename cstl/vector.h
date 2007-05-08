@@ -36,17 +36,17 @@
 #include <assert.h>
 
 #ifdef __cplusplus
-#define VECTOR_BEGIN_EXTERN_C()	extern "C" {
-#define VECTOR_END_EXTERN_C()	}
+#define CSTL_VECTOR_BEGIN_EXTERN_C()	extern "C" {
+#define CSTL_VECTOR_END_EXTERN_C()		}
 #else
-#define VECTOR_BEGIN_EXTERN_C()
-#define VECTOR_END_EXTERN_C()
+#define CSTL_VECTOR_BEGIN_EXTERN_C()
+#define CSTL_VECTOR_END_EXTERN_C()
 #endif
 
 #ifndef NDEBUG
-#define VECTOR_MAGIC(x) x
+#define CSTL_VECTOR_MAGIC(x) x
 #else
-#define VECTOR_MAGIC(x)
+#define CSTL_VECTOR_MAGIC(x)
 #endif
 
 
@@ -56,10 +56,10 @@
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define VECTOR_INTERFACE(Name, Type)	\
+#define CSTL_VECTOR_INTERFACE(Name, Type)	\
 typedef struct Name##_t Name;\
 \
-VECTOR_BEGIN_EXTERN_C()\
+CSTL_VECTOR_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
 void Name##_delete(Name *self);\
 int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
@@ -79,7 +79,7 @@ int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 void Name##_swap(Name *self, Name *x);\
-VECTOR_END_EXTERN_C()\
+CSTL_VECTOR_END_EXTERN_C()\
 
 
 /*! 
@@ -88,7 +88,7 @@ VECTOR_END_EXTERN_C()\
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define VECTOR_IMPLEMENT(Name, Type)	\
+#define CSTL_VECTOR_IMPLEMENT(Name, Type)	\
 /*! 
  * \brief vector構造体
  */\
@@ -96,7 +96,7 @@ struct Name##_t {\
 	size_t end;\
 	size_t nelems;\
 	Type *buf;\
-	VECTOR_MAGIC(void *magic;)\
+	CSTL_VECTOR_MAGIC(void *magic;)\
 };\
 \
 static int Name##_full(Name *self)\
@@ -126,7 +126,7 @@ Name *Name##_new(size_t n)\
 	}\
 	self->end = 0;\
 	self->buf = buf;\
-	VECTOR_MAGIC(self->magic = self;)\
+	CSTL_VECTOR_MAGIC(self->magic = self;)\
 	return self;\
 }\
 \
@@ -134,7 +134,7 @@ void Name##_delete(Name *self)\
 {\
 	assert(self && "Vector_delete");\
 	assert(self->magic == self && "Vector_delete");\
-	VECTOR_MAGIC(self->magic = 0;)\
+	CSTL_VECTOR_MAGIC(self->magic = 0;)\
 	free(self->buf);\
 	free(self);\
 }\

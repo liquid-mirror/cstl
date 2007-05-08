@@ -25,8 +25,8 @@ void Hoge_print(Hoge *self)
 	printf("%s: %d\n", self->key, self->value);
 }
 
-LIST_INTERFACE(HogeList, Hoge *)
-LIST_IMPLEMENT(HogeList, Hoge *)
+CSTL_LIST_INTERFACE(HogeList, Hoge *)
+CSTL_LIST_IMPLEMENT(HogeList, Hoge *)
 
 int main(void)
 {

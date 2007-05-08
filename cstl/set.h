@@ -34,15 +34,15 @@
 #include "rbtree.h"
 
 #ifdef __cplusplus
-#define SET_BEGIN_EXTERN_C()	extern "C" {
-#define SET_END_EXTERN_C()		}
+#define CSTL_SET_BEGIN_EXTERN_C()	extern "C" {
+#define CSTL_SET_END_EXTERN_C()		}
 #else
-#define SET_BEGIN_EXTERN_C()
-#define SET_END_EXTERN_C()
+#define CSTL_SET_BEGIN_EXTERN_C()
+#define CSTL_SET_END_EXTERN_C()
 #endif
 
 
-#define COMMON_SET_IMPLEMENT(Name, Type, Compare)	\
+#define CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)	\
 /*! 
  * \brief setノード構造体
  */\
@@ -50,14 +50,14 @@ struct Name##RBTreeNode_t {\
 	struct Name##RBTreeNode_t *parent;\
 	struct Name##RBTreeNode_t *left;\
 	struct Name##RBTreeNode_t *right;\
-	RBTreeColor color;\
+	int color;\
 	Type key;\
-	RBTREE_MAGIC(void *magic;)\
+	CSTL_RBTREE_MAGIC(void *magic;)\
 };\
 \
-RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare)\
+CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare)\
 \
-static Name##RBTreeNode *Name##RBTreeNode_new(Type elem, Type value, RBTreeColor color)\
+static Name##RBTreeNode *Name##RBTreeNode_new(Type elem, Type value, int color)\
 {\
 	Name##RBTreeNode *self;\
 	self = (Name##RBTreeNode *) malloc(sizeof(Name##RBTreeNode));\
@@ -78,12 +78,12 @@ static Name##RBTreeNode *Name##RBTreeNode_new(Type elem, Type value, RBTreeColor
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define SET_INTERFACE(Name, Type)	\
+#define CSTL_SET_INTERFACE(Name, Type)	\
 \
-SET_BEGIN_EXTERN_C()\
-RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
+CSTL_SET_BEGIN_EXTERN_C()\
+CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
 Name##Iterator Name##_insert(Name *self, Type elem, int *success);\
-SET_END_EXTERN_C()\
+CSTL_SET_END_EXTERN_C()\
 
 /*! 
  * \brief 実装マクロ
@@ -92,8 +92,8 @@ SET_END_EXTERN_C()\
  * \param Type 要素の型
  * \param Compare 要素の比較ルーチン
  */
-#define SET_IMPLEMENT(Name, Type, Compare)	\
-COMMON_SET_IMPLEMENT(Name, Type, Compare)\
+#define CSTL_SET_IMPLEMENT(Name, Type, Compare)	\
+CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 \
 Name##Iterator Name##_insert(Name *self, Type elem, int *success)\
 {\
@@ -146,12 +146,12 @@ int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
  * \param Name コンテナ名
  * \param Type 要素の型
  */
-#define MULTISET_INTERFACE(Name, Type)	\
+#define CSTL_MULTISET_INTERFACE(Name, Type)	\
 \
-SET_BEGIN_EXTERN_C()\
-RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
+CSTL_SET_BEGIN_EXTERN_C()\
+CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
 Name##Iterator Name##_insert(Name *self, Type elem);\
-SET_END_EXTERN_C()\
+CSTL_SET_END_EXTERN_C()\
 
 /*! 
  * \brief 実装マクロ
@@ -160,8 +160,8 @@ SET_END_EXTERN_C()\
  * \param Type 要素の型
  * \param Compare 要素の比較ルーチン
  */
-#define MULTISET_IMPLEMENT(Name, Type, Compare)	\
-COMMON_SET_IMPLEMENT(Name, Type, Compare)\
+#define CSTL_MULTISET_IMPLEMENT(Name, Type, Compare)	\
+CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 \
 Name##Iterator Name##_insert(Name *self, Type elem)\
 {\

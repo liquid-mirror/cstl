@@ -5,8 +5,8 @@
 #include <string.h>
 #include <cstl/map.h>
 
-MAP_INTERFACE(StrFltMap, char *, float)
-MAP_IMPLEMENT(StrFltMap, char *, float, strcmp, ASC)
+CSTL_MAP_INTERFACE(StrFltMap, char *, float)
+CSTL_MAP_IMPLEMENT(StrFltMap, char *, float, strcmp)
 
 /* 連想配列として使う */
 int main(void)

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <cstl/deque.h>
 
-DEQUE_INTERFACE(UCharDeque, unsigned char)
-DEQUE_IMPLEMENT(UCharDeque, unsigned char)
+CSTL_DEQUE_INTERFACE(UCharDeque, unsigned char)
+CSTL_DEQUE_IMPLEMENT(UCharDeque, unsigned char)
 
 int main(void)
 {

@@ -4,39 +4,39 @@
 #include <time.h>
 
 /* int */
-SET_IMPLEMENT(IntSetA, int, LESS)
-SET_DEBUG_IMPLEMENT(IntSetA, int, LESS, %d, VISUAL)
+CSTL_SET_IMPLEMENT(IntSetA, int, CSTL_LESS)
+CSTL_SET_DEBUG_IMPLEMENT(IntSetA, int, CSTL_LESS, %d, VISUAL)
 static IntSetA *ia;
 
-SET_IMPLEMENT(IntSetD, int, GREATER)
-SET_DEBUG_IMPLEMENT(IntSetD, int, GREATER, %d, VISUAL)
+CSTL_SET_IMPLEMENT(IntSetD, int, CSTL_GREATER)
+CSTL_SET_DEBUG_IMPLEMENT(IntSetD, int, CSTL_GREATER, %d, VISUAL)
 static IntSetD *id;
 
-MULTISET_IMPLEMENT(IntMSetA, int, LESS)
-SET_DEBUG_IMPLEMENT(IntMSetA, int, LESS, %d, VISUAL)
+CSTL_MULTISET_IMPLEMENT(IntMSetA, int, CSTL_LESS)
+CSTL_SET_DEBUG_IMPLEMENT(IntMSetA, int, CSTL_LESS, %d, VISUAL)
 static IntMSetA *ima;
 
 
 /* double */
-SET_IMPLEMENT(DoubleSetA, double, LESS)
-SET_DEBUG_IMPLEMENT(DoubleSetA, double, LESS, %g, VISUAL)
+CSTL_SET_IMPLEMENT(DoubleSetA, double, CSTL_LESS)
+CSTL_SET_DEBUG_IMPLEMENT(DoubleSetA, double, CSTL_LESS, %g, VISUAL)
 static DoubleSetA *da;
 
 
 /* ptr */
-SET_IMPLEMENT(PtrSetA, int*, LESS)
-SET_DEBUG_IMPLEMENT(PtrSetA, int*, LESS, %p, VISUAL)
+CSTL_SET_IMPLEMENT(PtrSetA, int*, CSTL_LESS)
+CSTL_SET_DEBUG_IMPLEMENT(PtrSetA, int*, CSTL_LESS, %p, VISUAL)
 static PtrSetA *pa;
 
 
 /* str */
-SET_IMPLEMENT(StrSetA, char*, strcmp)
-SET_DEBUG_IMPLEMENT(StrSetA, char*, strcmp, %s, VISUAL)
+CSTL_SET_IMPLEMENT(StrSetA, char*, strcmp)
+CSTL_SET_DEBUG_IMPLEMENT(StrSetA, char*, strcmp, %s, VISUAL)
 static StrSetA *sa;
 
 /* unsigned int */
-SET_IMPLEMENT(UIntSetA, unsigned int, LESS)
-SET_DEBUG_IMPLEMENT(UIntSetA, unsigned int, LESS, %d, VISUAL)
+CSTL_SET_IMPLEMENT(UIntSetA, unsigned int, CSTL_LESS)
+CSTL_SET_DEBUG_IMPLEMENT(UIntSetA, unsigned int, CSTL_LESS, %d, VISUAL)
 static UIntSetA *uia;
 
 

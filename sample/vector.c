@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <cstl/vector.h>
 
-VECTOR_INTERFACE(CharVector, char)
-VECTOR_IMPLEMENT(CharVector, char)
+CSTL_VECTOR_INTERFACE(CharVector, char)
+CSTL_VECTOR_IMPLEMENT(CharVector, char)
 
 int main(void)
 {

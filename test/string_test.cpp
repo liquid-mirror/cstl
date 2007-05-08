@@ -12,8 +12,8 @@ extern Heap heap;
 #define free(p)			Heap_free(&heap, p)
 #endif
 
-STRING_INTERFACE(String, char)
-STRING_IMPLEMENT(String, char)
+CSTL_STRING_INTERFACE(String, char)
+CSTL_STRING_IMPLEMENT(String, char)
 
 #define SIZE	16
 
@@ -84,7 +84,7 @@ void StringTest_test_1_2(void)
 	assert(String_size(x) == 0);
 	assert(strcmp("", String_c_str(x)) == 0);
 	/* assign */
-	String_assign(x, "abcdefghijklmnopqrstuvwxyz", NPOS);
+	String_assign(x, "abcdefghijklmnopqrstuvwxyz", CSTL_NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
 	/* erase */
@@ -103,24 +103,24 @@ void StringTest_test_1_2(void)
 	String_erase(x, 11, 1);
 	assert(String_size(x) == 11);
 	assert(strcmp("dfghituvwxy", String_c_str(x)) == 0);
-	String_erase(x, 5, NPOS);
+	String_erase(x, 5, CSTL_NPOS);
 	assert(String_size(x) == 5);
 	assert(strcmp("dfghi", String_c_str(x)) == 0);
-	String_erase(x, 0, NPOS);
+	String_erase(x, 0, CSTL_NPOS);
 	assert(String_size(x) == 0);
 	assert(strcmp("", String_c_str(x)) == 0);
 	/* compare */
-	String_assign(x, "abcdefg", NPOS);
+	String_assign(x, "abcdefg", CSTL_NPOS);
 	y = String_new(SIZE);
-	String_assign(y, "abcdefgh", NPOS);
+	String_assign(y, "abcdefgh", CSTL_NPOS);
 	assert(String_compare(x, y) < 0);
 	String_erase(y, String_size(y)-2, 2);
 	assert(String_compare(x, y) > 0);
 	String_erase(x, String_size(x)-1, 1);
 	assert(String_compare(x, y) == 0);
 	/* swap */
-	String_assign(x, "abcdefg", NPOS);
-	String_assign(y, "abcdefgh", NPOS);
+	String_assign(x, "abcdefg", CSTL_NPOS);
+	String_assign(y, "abcdefgh", CSTL_NPOS);
 	String_shrink(x, 0);
 	String_shrink(y, 0);
 	assert(strcmp("abcdefg", String_c_str(x)) == 0);
@@ -143,10 +143,10 @@ void StringTest_test_1_3(void)
 	printf("***** test_1_3 *****\n");
 	x = String_new(SIZE);
 	/* assign */
-	String_assign(x, "abcdefghijklmnopqrstuvwxyz", NPOS);
+	String_assign(x, "abcdefghijklmnopqrstuvwxyz", CSTL_NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
-	String_assign(x, String_c_str(x), NPOS);
+	String_assign(x, String_c_str(x), CSTL_NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
 	String_assign(x, "abcdefghijklmnopqrstuvwxyz", 10);
@@ -169,10 +169,10 @@ void StringTest_test_1_3(void)
 	assert(String_size(x) == 0);
 	assert(strcmp("", String_c_str(x)) == 0);
 	/* append */
-	String_append(x, "abcdef", NPOS);
+	String_append(x, "abcdef", CSTL_NPOS);
 	assert(String_size(x) == 6);
 	assert(strcmp("abcdef", String_c_str(x)) == 0);
-	String_append(x, "gh", NPOS);
+	String_append(x, "gh", CSTL_NPOS);
 	assert(String_size(x) == 8);
 	assert(strcmp("abcdefgh", String_c_str(x)) == 0);
 	String_append(x, "ijkl", 3);
@@ -184,10 +184,10 @@ void StringTest_test_1_3(void)
 	String_append(x, "mno", 0);
 	assert(String_size(x) == 12);
 	assert(strcmp("abcdefghijkl", String_c_str(x)) == 0);
-	String_append(x, "m", NPOS);
+	String_append(x, "m", CSTL_NPOS);
 	assert(String_size(x) == 13);
 	assert(strcmp("abcdefghijklm", String_c_str(x)) == 0);
-	String_append(x, String_c_str(x) + 1, NPOS);
+	String_append(x, String_c_str(x) + 1, CSTL_NPOS);
 	assert(String_size(x) == 25);
 	assert(strcmp("abcdefghijklmbcdefghijklm", String_c_str(x)) == 0);
 	String_clear(x);
@@ -214,16 +214,16 @@ void StringTest_test_1_3(void)
 	String_clear(x);
 	assert(String_size(x) == 0);
 	/* insert */
-	String_insert(x, 0, "abcdef", NPOS);
+	String_insert(x, 0, "abcdef", CSTL_NPOS);
 	assert(String_size(x) == 6);
 	assert(strcmp("abcdef", String_c_str(x)) == 0);
-	String_insert(x, 0, "gh", NPOS);
+	String_insert(x, 0, "gh", CSTL_NPOS);
 	assert(String_size(x) == 8);
 	assert(strcmp("ghabcdef", String_c_str(x)) == 0);
-	String_insert(x, 1, "ijk", NPOS);
+	String_insert(x, 1, "ijk", CSTL_NPOS);
 	assert(String_size(x) == 11);
 	assert(strcmp("gijkhabcdef", String_c_str(x)) == 0);
-	String_insert(x, String_size(x), "lmn", NPOS);
+	String_insert(x, String_size(x), "lmn", CSTL_NPOS);
 	assert(String_size(x) == 14);
 	assert(strcmp("gijkhabcdeflmn", String_c_str(x)) == 0);
 	String_insert(x, String_size(x)-1, "opqr", 3);
@@ -232,7 +232,7 @@ void StringTest_test_1_3(void)
 	String_insert(x, 5, "rst", 0);
 	assert(String_size(x) == 17);
 	assert(strcmp("gijkhabcdeflmopqn", String_c_str(x)) == 0);
-	String_insert(x, 1, String_c_str(x), NPOS);
+	String_insert(x, 1, String_c_str(x), CSTL_NPOS);
 	assert(String_size(x) == 34);
 	printf("%s\n", String_c_str(x));
 	assert(strcmp("ggijkhabcdeflmopqnijkhabcdeflmopqn", String_c_str(x)) == 0);
@@ -285,24 +285,24 @@ void StringTest_test_1_4(void)
 	String *x;
 	printf("***** test_1_4 *****\n");
 	x = String_new(SIZE);
-	String_assign(x, "abcdefghijklmnopqrstuvwxyz", NPOS);
+	String_assign(x, "abcdefghijklmnopqrstuvwxyz", CSTL_NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
 	/* replace */
-	String_replace(x, 0, 3, "ABC", NPOS);
+	String_replace(x, 0, 3, "ABC", CSTL_NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("ABCdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
-	String_replace(x, 6, 3, "GHI", NPOS);
+	String_replace(x, 6, 3, "GHI", CSTL_NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("ABCdefGHIjklmnopqrstuvwxyz", String_c_str(x)) == 0);
-	String_replace(x, String_size(x)-3, NPOS, "XYZ", NPOS);
+	String_replace(x, String_size(x)-3, CSTL_NPOS, "XYZ", CSTL_NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("ABCdefGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
 	String_shrink(x, 0);
-	String_replace(x, 3, 0, "DEF", NPOS);
+	String_replace(x, 3, 0, "DEF", CSTL_NPOS);
 	assert(String_size(x) == 29);
 	assert(strcmp("ABCDEFdefGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
-	String_replace(x, 6, 3, "", NPOS);
+	String_replace(x, 6, 3, "", CSTL_NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("ABCDEFGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
 	String_replace(x, 0, 3, "hogehoge", 4);
@@ -312,14 +312,14 @@ void StringTest_test_1_4(void)
 	assert(String_size(x) == 27);
 	printf("%s\n", String_c_str(x));
 	assert(strcmp("hoghogeGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
-	String_replace(x, 0, NPOS, "", NPOS);
+	String_replace(x, 0, CSTL_NPOS, "", CSTL_NPOS);
 	assert(String_size(x) == 0);
 	assert(strcmp("", String_c_str(x)) == 0);
-	String_replace(x, 0, NPOS, "abc", NPOS);
+	String_replace(x, 0, CSTL_NPOS, "abc", CSTL_NPOS);
 	assert(String_size(x) == 3);
 	assert(strcmp("abc", String_c_str(x)) == 0);
 	/* replace_c */
-	String_assign(x, "abcdefghijklmnopqrstuvwxyz", NPOS);
+	String_assign(x, "abcdefghijklmnopqrstuvwxyz", CSTL_NPOS);
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
 	String_replace_c(x, 0, 3, 3, 'A');
@@ -328,7 +328,7 @@ void StringTest_test_1_4(void)
 	String_replace_c(x, 6, 3, 3, 'G');
 	assert(String_size(x) == 26);
 	assert(strcmp("AAAdefGGGjklmnopqrstuvwxyz", String_c_str(x)) == 0);
-	String_replace_c(x, String_size(x)-3, NPOS, 3, 'X');
+	String_replace_c(x, String_size(x)-3, CSTL_NPOS, 3, 'X');
 	assert(String_size(x) == 26);
 	assert(strcmp("AAAdefGGGjklmnopqrstuvwXXX", String_c_str(x)) == 0);
 	String_shrink(x, 0);
@@ -341,10 +341,10 @@ void StringTest_test_1_4(void)
 	String_replace_c(x, 0, 3, 4, '0');
 	assert(String_size(x) == 27);
 	assert(strcmp("0000DDDGGGjklmnopqrstuvwXXX", String_c_str(x)) == 0);
-	String_replace_c(x, 0, NPOS, 0, '0');
+	String_replace_c(x, 0, CSTL_NPOS, 0, '0');
 	assert(String_size(x) == 0);
 	assert(strcmp("", String_c_str(x)) == 0);
-	String_replace_c(x, 0, NPOS, 10, '0');
+	String_replace_c(x, 0, CSTL_NPOS, 10, '0');
 	assert(String_size(x) == 10);
 	assert(strcmp("0000000000", String_c_str(x)) == 0);
 
@@ -360,7 +360,7 @@ void StringTest_test_1_4(void)
 void print_find_test(const char *cstr, string &t, size_t i, size_t j, size_t k, size_t idx1, size_t idx2, const char *f)
 {
 	if (idx1 != idx2) {
-		if (k == NPOS) {
+		if (k == CSTL_NPOS) {
 			t.assign(cstr);
 		} else {
 			t.assign(cstr, k);
@@ -375,10 +375,10 @@ void find_test(String *x, const string &s, size_t i, size_t j, size_t k, char *c
 	size_t idx1, idx2;
 	/* find */
 	idx1 = String_find(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == NPOS) ? s.find(&cstr[j], i) : s.find(&cstr[j], i, k);
+	idx2 = (k == CSTL_NPOS) ? s.find(&cstr[j], i) : s.find(&cstr[j], i, k);
 	/* STLの実装によって動作が違うことがある */
-	if (i == NPOS) {
-		assert(idx1 == NPOS);
+	if (i == CSTL_NPOS) {
+		assert(idx1 == CSTL_NPOS);
 	} else {
 		print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find");
 		assert(idx1 == idx2);
@@ -392,7 +392,7 @@ void find_test(String *x, const string &s, size_t i, size_t j, size_t k, char *c
 
 	/* rfind */
 	idx1 = String_rfind(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == NPOS) ? s.rfind(&cstr[j], i) : s.rfind(&cstr[j], i, k);
+	idx2 = (k == CSTL_NPOS) ? s.rfind(&cstr[j], i) : s.rfind(&cstr[j], i, k);
 	print_find_test(&cstr[j], t, i, j, k, idx2, idx2, "rfind");
 	assert(idx1 == idx2);
 	/* rfind_c */
@@ -404,7 +404,7 @@ void find_test(String *x, const string &s, size_t i, size_t j, size_t k, char *c
 
 	/* find_first_of */
 	idx1 = String_find_first_of(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == NPOS) ? s.find_first_of(&cstr[j], i) : s.find_first_of(&cstr[j], i, k);
+	idx2 = (k == CSTL_NPOS) ? s.find_first_of(&cstr[j], i) : s.find_first_of(&cstr[j], i, k);
 	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_first_of");
 	assert(idx1 == idx2);
 	/* find_first_of_c */
@@ -415,7 +415,7 @@ void find_test(String *x, const string &s, size_t i, size_t j, size_t k, char *c
 
 	/* find_last_of */
 	idx1 = String_find_last_of(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == NPOS) ? s.find_last_of(&cstr[j], i) : s.find_last_of(&cstr[j], i, k);
+	idx2 = (k == CSTL_NPOS) ? s.find_last_of(&cstr[j], i) : s.find_last_of(&cstr[j], i, k);
 	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_last_of");
 	assert(idx1 == idx2);
 	/* find_last_of_c */
@@ -426,7 +426,7 @@ void find_test(String *x, const string &s, size_t i, size_t j, size_t k, char *c
 
 	/* find_first_not_of */
 	idx1 = String_find_first_not_of(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == NPOS) ? s.find_first_not_of(&cstr[j], i) : s.find_first_not_of(&cstr[j], i, k);
+	idx2 = (k == CSTL_NPOS) ? s.find_first_not_of(&cstr[j], i) : s.find_first_not_of(&cstr[j], i, k);
 	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_first_not_of");
 	assert(idx1 == idx2);
 	/* find_first_not_of_c */
@@ -437,7 +437,7 @@ void find_test(String *x, const string &s, size_t i, size_t j, size_t k, char *c
 
 	/* find_last_not_of */
 	idx1 = String_find_last_not_of(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == NPOS) ? s.find_last_not_of(&cstr[j], i) : s.find_last_not_of(&cstr[j], i, k);
+	idx2 = (k == CSTL_NPOS) ? s.find_last_not_of(&cstr[j], i) : s.find_last_not_of(&cstr[j], i, k);
 	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_last_not_of");
 	assert(idx1 == idx2);
 	/* find_last_not_of_c */
@@ -456,8 +456,8 @@ void StringTest_test_1_5(void)
 	printf("***** test_1_5 *****\n");
 	x = String_new(SIZE);
 	y = String_new(SIZE);
-	String_assign(x, "abc abcd abcde abcdef abcdefg abcdefgh abcdefghi", NPOS);
-	String_assign(y, "abcdefghijklmnopqrstuvwxyz", NPOS);
+	String_assign(x, "abc abcd abcde abcdef abcdefg abcdefgh abcdefghi", CSTL_NPOS);
+	String_assign(y, "abcdefghijklmnopqrstuvwxyz", CSTL_NPOS);
 	s = String_c_str(x);
 	assert(strcmp(s.c_str(), String_c_str(x)) == 0);
 	for (i = 0; i < String_size(x); i++) {
@@ -466,31 +466,31 @@ void StringTest_test_1_5(void)
 				find_test(x, s, i, j, k, String_c_str(x));
 			}
 			if (k == String_size(x) -j +1) {
-				find_test(x, s, i, j, NPOS, String_c_str(x));
+				find_test(x, s, i, j, CSTL_NPOS, String_c_str(x));
 			}
 			if (j <= String_size(y)) {
 				for (k = 0; k < String_size(y) -j +1; k++) {
 					find_test(x, s, i, j, k, String_c_str(y));
 				}
 				if (k == String_size(y) -j +1) {
-					find_test(x, s, i, j, NPOS, String_c_str(y));
+					find_test(x, s, i, j, CSTL_NPOS, String_c_str(y));
 				}
 			}
 		}
 	}
 	for (j = 0; j < String_size(x); j++) {
 		for (k = 0; k < String_size(x) -j +1; k++) {
-			find_test(x, s, NPOS, j, k, String_c_str(x));
+			find_test(x, s, CSTL_NPOS, j, k, String_c_str(x));
 		}
 		if (k == String_size(x) -j +1) {
-			find_test(x, s, NPOS, j, NPOS, String_c_str(x));
+			find_test(x, s, CSTL_NPOS, j, CSTL_NPOS, String_c_str(x));
 		}
 		if (j <= String_size(y)) {
 			for (k = 0; k < String_size(y) -j +1; k++) {
-				find_test(x, s, NPOS, j, k, String_c_str(y));
+				find_test(x, s, CSTL_NPOS, j, k, String_c_str(y));
 			}
 			if (k == String_size(y) -j +1) {
-				find_test(x, s, NPOS, j, NPOS, String_c_str(y));
+				find_test(x, s, CSTL_NPOS, j, CSTL_NPOS, String_c_str(y));
 			}
 		}
 	}
