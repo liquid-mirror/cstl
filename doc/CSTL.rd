@@ -558,7 +558,7 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 
 + つなぎ替え
   void List_splice(List *self, ListIterator pos, List *x, ListIterator first, ListIterator last);
-* selfのposが示す位置にxの[first, last)の範囲の要素の移動する。
+* selfのposが示す位置にxの[first, last)の範囲の要素を移動する。
 * [first, last)の要素の数だけselfの要素数が増加し、xの要素数が減少する。
 * 事前条件は、posがselfの有効なイテレータであり、かつ[first, last)がxの有効なイテレータであり、
   かつselfとxが同一ならばposは[first, last)の範囲外であること。
