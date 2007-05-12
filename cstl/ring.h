@@ -65,7 +65,7 @@ struct Name##_t {\
 	size_t end;\
 	size_t nelems;\
 	Type *buf;\
-	CSTL_RING_MAGIC(void *magic;)\
+	CSTL_RING_MAGIC(Name *magic;)\
 };\
 \
 CSTL_RING_BEGIN_EXTERN_C()\

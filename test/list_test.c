@@ -401,6 +401,16 @@ void ListTest_test_2_1(void)
 	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
 		printf("%2d, ", *IntList_at(pos));
 	}
+	/* insert_range */
+	IntList_clear(il);
+	IntList_clear(x);
+	assert(IntList_insert_array(il, IntList_begin(il), buf, 32));
+	assert(IntList_insert_array(x, IntList_begin(x), b, sizeof b / sizeof b[0]));
+	assert(IntList_insert_range(il, IntList_begin(il), IntList_begin(x), IntList_end(x)));
+	printf("insert_range, il:\n");
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		printf("%2d, ", *IntList_at(pos));
+	}
 	printf("\n");
 
 	IntList_delete(il);

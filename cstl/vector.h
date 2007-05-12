@@ -96,7 +96,7 @@ struct Name##_t {\
 	size_t end;\
 	size_t nelems;\
 	Type *buf;\
-	CSTL_VECTOR_MAGIC(void *magic;)\
+	CSTL_VECTOR_MAGIC(Name *magic;)\
 };\
 \
 static int Name##_full(Name *self)\

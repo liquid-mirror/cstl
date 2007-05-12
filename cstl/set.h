@@ -31,6 +31,8 @@
 #ifndef CSTL_SET_H_INCLUDED
 #define CSTL_SET_H_INCLUDED
 
+#include <stdlib.h>
+#include <assert.h>
 #include "rbtree.h"
 
 #ifdef __cplusplus
@@ -52,7 +54,7 @@ struct Name##RBTreeNode_t {\
 	struct Name##RBTreeNode_t *right;\
 	int color;\
 	Type key;\
-	CSTL_RBTREE_MAGIC(void *magic;)\
+	CSTL_RBTREE_MAGIC(struct Name##RBTreeNode_t *magic;)\
 };\
 \
 CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare)\

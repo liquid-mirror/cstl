@@ -107,7 +107,7 @@ struct Name##_t {\
 	size_t nelems;\
 	Name##__RingVector *map;\
 	Name##__RingVector *pool;\
-	CSTL_DEQUE_MAGIC(void *magic;)\
+	CSTL_DEQUE_MAGIC(Name *magic;)\
 };\
 \
 static void Name##_coordinate(Name *self, size_t idx, size_t *map_idx, size_t *ring_idx)\

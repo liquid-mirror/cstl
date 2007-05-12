@@ -145,7 +145,7 @@ CSTL_VECTOR_IMPLEMENT(Name##__CharVector, Type)\
  */\
 struct Name##_t {\
 	Name##__CharVector *data;\
-	CSTL_STRING_MAGIC(void *magic;)\
+	CSTL_STRING_MAGIC(Name *magic;)\
 };\
 \
 static int Name##_expand(Name *self, size_t n)\

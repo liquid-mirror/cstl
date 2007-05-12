@@ -108,7 +108,7 @@ struct Name##Node_t {\
 	Name##Node *prev;\
 	Name##Node *next;\
 	Type elem;\
-	CSTL_LIST_MAGIC(void *magic;)\
+	CSTL_LIST_MAGIC(Name##Node *magic;)\
 };\
 \
 /*! 
@@ -117,7 +117,7 @@ struct Name##Node_t {\
 struct Name##_t {\
 	Name##Node *terminator;\
 	size_t nelems;\
-	CSTL_LIST_MAGIC(void *magic;)\
+	CSTL_LIST_MAGIC(Name *magic;)\
 };\
 \
 Name *Name##_new(void)\
