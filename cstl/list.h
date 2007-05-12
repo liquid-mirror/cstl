@@ -191,7 +191,7 @@ Type Name##_pop_front(Name *self)\
 	assert(self && "List_pop_front");\
 	assert(self->magic == self && "List_pop_front");\
 	assert(!Name##_empty(self) && "List_pop_front");\
-	elem = Name##_front(self);\
+	elem = *Name##_at(Name##_begin(self));\
 	Name##_erase(self, Name##_begin(self));\
 	return elem;\
 }\
@@ -202,7 +202,7 @@ Type Name##_pop_back(Name *self)\
 	assert(self && "List_pop_back");\
 	assert(self->magic == self && "List_pop_back");\
 	assert(!Name##_empty(self) && "List_pop_back");\
-	elem = Name##_back(self);\
+	elem = *Name##_at(Name##_rbegin(self));\
 	Name##_erase(self, Name##_rbegin(self));\
 	return elem;\
 }\
