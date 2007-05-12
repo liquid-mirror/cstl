@@ -173,69 +173,37 @@ int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
 \
 int Name##_push_back(Name *self, Type elem)\
 {\
-	Name##Node *node;\
 	assert(self && "List_push_back");\
 	assert(self->magic == self && "List_push_back");\
-	node = (Name##Node *) malloc(sizeof(Name##Node));\
-	if (!node) return 0;\
-	node->elem = elem;\
-	node->next = self->terminator;\
-	node->prev = self->terminator->prev;\
-	self->terminator->prev->next = node;\
-	self->terminator->prev = node;\
-	self->nelems++;\
-	CSTL_LIST_MAGIC(node->magic = self->terminator;)\
-	return 1;\
+	return (int) Name##_insert(self, Name##_end(self), elem);\
 }\
 \
 int Name##_push_front(Name *self, Type elem)\
 {\
-	Name##Node *node;\
 	assert(self && "List_push_front");\
 	assert(self->magic == self && "List_push_front");\
-	node = (Name##Node *) malloc(sizeof(Name##Node));\
-	if (!node) return 0;\
-	node->elem = elem;\
-	node->next = self->terminator->next;\
-	node->prev = self->terminator;\
-	self->terminator->next->prev = node;\
-	self->terminator->next = node;\
-	self->nelems++;\
-	CSTL_LIST_MAGIC(node->magic = self->terminator;)\
-	return 1;\
+	return (int) Name##_insert(self, Name##_begin(self), elem);\
 }\
 \
 Type Name##_pop_front(Name *self)\
 {\
-	Name##Node *node;\
 	Type elem;\
 	assert(self && "List_pop_front");\
 	assert(self->magic == self && "List_pop_front");\
 	assert(!Name##_empty(self) && "List_pop_front");\
-	node = self->terminator->next;\
-	elem = node->elem;\
-	self->terminator->next = node->next;\
-	node->next->prev = self->terminator;\
-	CSTL_LIST_MAGIC(node->magic = 0;)\
-	free(node);\
-	self->nelems--;\
+	elem = Name##_front(self);\
+	Name##_erase(self, Name##_begin(self));\
 	return elem;\
 }\
 \
 Type Name##_pop_back(Name *self)\
 {\
-	Name##Node *node;\
 	Type elem;\
 	assert(self && "List_pop_back");\
 	assert(self->magic == self && "List_pop_back");\
 	assert(!Name##_empty(self) && "List_pop_back");\
-	node = self->terminator->prev;\
-	elem = node->elem;\
-	self->terminator->prev = node->prev;\
-	node->prev->next = self->terminator;\
-	CSTL_LIST_MAGIC(node->magic = 0;)\
-	free(node);\
-	self->nelems--;\
+	elem = Name##_back(self);\
+	Name##_erase(self, Name##_rbegin(self));\
 	return elem;\
 }\
 \
