@@ -123,7 +123,7 @@ static void Name##_coordinate(Name *self, size_t idx, size_t *map_idx, size_t *r
 	}\
 }\
 \
-static Name##__Ring *Name##_get_ring(Name *self)\
+static Name##__Ring *Name##_pop_ring(Name *self)\
 {\
 	if (Name##__RingVector##_empty(self->pool)) {\
 		return Name##__Ring##_new(CSTL_DEQUE_RINGBUF_SIZE(Type));\
@@ -204,7 +204,7 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 	}\
 	for (i = self->begin - s; i < self->begin; i++) {\
 		if (!*Name##__RingVector##_at(self->map, i)) {\
-			*Name##__RingVector##_at(self->map, i) = Name##_get_ring(self);\
+			*Name##__RingVector##_at(self->map, i) = Name##_pop_ring(self);\
 			if (!*Name##__RingVector##_at(self->map, i)) {\
 				return 0;\
 			}\
@@ -249,7 +249,7 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 	}\
 	for (i = self->end; i < self->end + s; i++) {\
 		if (!*Name##__RingVector##_at(self->map, i)) {\
-			*Name##__RingVector##_at(self->map, i) = Name##_get_ring(self);\
+			*Name##__RingVector##_at(self->map, i) = Name##_pop_ring(self);\
 			if (!*Name##__RingVector##_at(self->map, i)) {\
 				return 0;\
 			}\
