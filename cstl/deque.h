@@ -34,6 +34,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "algorithm.h"
 #include "ring.h"
 #include "vector.h"
 
@@ -82,6 +83,8 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
+void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+int Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
 CSTL_DEQUE_END_EXTERN_C()\
 
 
@@ -263,14 +266,14 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 static int Name##__Ring##_push_back_no_elem(Name##__Ring *self)\
 {\
 	if (Name##__Ring##_full(self)) return 0;\
-	self->end = Name##__Ring##_next(self, self->end);\
+	self->end = CSTL_RING_NEXT(self, self->end);\
 	return 1;\
 }\
 \
 static int Name##__Ring##_push_front_no_elem(Name##__Ring *self)\
 {\
 	if (Name##__Ring##_full(self)) return 0;\
-	self->begin = Name##__Ring##_prev(self, self->begin);\
+	self->begin = CSTL_RING_PREV(self, self->begin);\
 	return 1;\
 }\
 \
@@ -639,6 +642,7 @@ void Name##_swap(Name *self, Name *x)\
 	x->pool = tmp_pool;\
 }\
 \
+CSTL_ALGORITHM_SORT(Name, Type, *Name##_at)\
 
 
 #endif /* CSTL_DEQUE_H_INCLUDED */

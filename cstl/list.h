@@ -49,6 +49,9 @@
 #define CSTL_LIST_MAGIC(x)
 #endif
 
+#define CSTL_LIST_AT(pos)	pos->elem
+
+
 /*! 
  * \brief インターフェイスマクロ
  * 
@@ -90,6 +93,7 @@ Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterat
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
 void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last);\
+void Name##_sort(Name *self, int (*comp)(const void *, const void *));\
 CSTL_LIST_END_EXTERN_C()\
 
 
@@ -161,7 +165,7 @@ int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
 	x = Name##_new();\
 	if (!x) return 0;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (!Name##_push_back(x, *Name##_at(pos))) {\
+		if (!Name##_push_back(x, CSTL_LIST_AT(pos))) {\
 			Name##_delete(x);\
 			return 0;\
 		}\
@@ -173,16 +177,40 @@ int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
 \
 int Name##_push_back(Name *self, Type elem)\
 {\
+	Name##Node *node;\
+	Name##Node *pos;\
 	assert(self && "List_push_back");\
 	assert(self->magic == self && "List_push_back");\
-	return (int) Name##_insert(self, Name##_end(self), elem);\
+	node = (Name##Node *) malloc(sizeof(Name##Node));\
+	if (!node) return 0;\
+	pos = Name##_end(self);\
+	node->elem = elem;\
+	node->next = pos;\
+	node->prev = pos->prev;\
+	pos->prev = node;\
+	node->prev->next = node;\
+	self->nelems++;\
+	CSTL_LIST_MAGIC(node->magic = self->terminator;)\
+	return 1;\
 }\
 \
 int Name##_push_front(Name *self, Type elem)\
 {\
+	Name##Node *node;\
+	Name##Node *pos;\
 	assert(self && "List_push_front");\
 	assert(self->magic == self && "List_push_front");\
-	return (int) Name##_insert(self, Name##_begin(self), elem);\
+	node = (Name##Node *) malloc(sizeof(Name##Node));\
+	if (!node) return 0;\
+	pos = Name##_begin(self);\
+	node->elem = elem;\
+	node->next = pos;\
+	node->prev = pos->prev;\
+	pos->prev = node;\
+	node->prev->next = node;\
+	self->nelems++;\
+	CSTL_LIST_MAGIC(node->magic = self->terminator;)\
+	return 1;\
 }\
 \
 Type Name##_pop_front(Name *self)\
@@ -191,7 +219,7 @@ Type Name##_pop_front(Name *self)\
 	assert(self && "List_pop_front");\
 	assert(self->magic == self && "List_pop_front");\
 	assert(!Name##_empty(self) && "List_pop_front");\
-	elem = *Name##_at(Name##_begin(self));\
+	elem = CSTL_LIST_AT(Name##_begin(self));\
 	Name##_erase(self, Name##_begin(self));\
 	return elem;\
 }\
@@ -202,7 +230,7 @@ Type Name##_pop_back(Name *self)\
 	assert(self && "List_pop_back");\
 	assert(self->magic == self && "List_pop_back");\
 	assert(!Name##_empty(self) && "List_pop_back");\
-	elem = *Name##_at(Name##_rbegin(self));\
+	elem = CSTL_LIST_AT(Name##_rbegin(self));\
 	Name##_erase(self, Name##_rbegin(self));\
 	return elem;\
 }\
@@ -232,7 +260,7 @@ Type *Name##_at(Name##Iterator pos)\
 {\
 	assert(pos && "List_at");\
 	assert(pos->magic && "List_at");\
-	return &pos->elem;\
+	return &CSTL_LIST_AT(pos);\
 }\
 \
 Type Name##_front(Name *self)\
@@ -350,7 +378,7 @@ int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Na
 	if (!x) return 0;\
 	for (i = first; i != last; i = Name##_next(i)) {\
 		assert(i->magic && "List_insert_range");\
-		if (!Name##_push_back(x, *Name##_at(i))) {\
+		if (!Name##_push_back(x, CSTL_LIST_AT(i))) {\
 			Name##_delete(x);\
 			return 0;\
 		}\
@@ -469,6 +497,64 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 	last->prev = tmp;\
 	self->nelems += count;\
 	x->nelems -= count;\
+}\
+\
+static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *last, int (*comp)(const void *, const void *))\
+{\
+	Name##Node *head;\
+	Name##Node *p;\
+/*	assert(x->prev == y->prev);*/\
+	head = x->prev;\
+	p = head;\
+	while (x != last && y != last) {\
+		if (comp(&CSTL_LIST_AT(x), &CSTL_LIST_AT(y)) <= 0) {\
+			p->next = x;\
+			x->prev = p;\
+			p = x;\
+			x = x->next;\
+		} else {\
+			p->next = y;\
+			y->prev = p;\
+			p = y;\
+			y = y->next;\
+		}\
+	}\
+	if (x == last) {\
+		p->next = y;\
+		y->prev = p;\
+	} else {\
+		p->next = x;\
+		x->prev = p;\
+	}\
+	return head->next;\
+}\
+\
+static Name##Node *Name##_merge_sort(Name##Node *first, Name##Node *last, int (*comp)(const void *, const void *))\
+{\
+	Name##Node *x;\
+	Name##Node *y;\
+	if (first == last || first->next == last) {\
+		return first;\
+	}\
+	x = first;\
+	y = first;\
+	do {\
+		x = x->next;\
+		y = y->next;\
+		if (y != last) {\
+			y = y->next;\
+		}\
+	} while (y != last);\
+	x->prev->next = last;\
+	x->prev = first->prev;\
+	return Name##_merge_list(Name##_merge_sort(first, last, comp), Name##_merge_sort(x, last, comp), last, comp);\
+}\
+\
+void Name##_sort(Name *self, int (*comp)(const void *, const void *))\
+{\
+	assert(self && "List_sort");\
+	assert(self->magic == self && "List_sort");\
+	Name##_merge_sort(Name##_begin(self), Name##_end(self), comp);\
 }\
 \
 

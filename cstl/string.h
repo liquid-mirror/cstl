@@ -55,6 +55,9 @@
  */
 #define CSTL_NPOS	((size_t)-1)
 
+#define CSTL_STRING_AT(self, idx)	CSTL_VECTOR_AT(self->data, idx)
+
+
 /*! 
  * \brief インターフェイスマクロ
  * 
@@ -246,14 +249,14 @@ Type *Name##_at(Name *self, size_t idx)\
 	assert(self && "String_at");\
 	assert(self->magic == self && "String_at");\
 	assert(Name##_size(self) > idx && "String_at");\
-	return Name##__CharVector_at(self->data, idx);\
+	return &CSTL_VECTOR_AT(self->data, idx);\
 }\
 \
 Type *Name##_c_str(Name *self)\
 {\
 	assert(self && "String_c_str");\
 	assert(self->magic == self && "String_c_str");\
-	return Name##__CharVector_at(self->data, 0);\
+	return &CSTL_VECTOR_AT(self->data, 0);\
 }\
 \
 void Name##_erase(Name *self, size_t idx, size_t len)\
@@ -280,9 +283,9 @@ int Name##_resize(Name *self, size_t n, Type c)\
 	}\
 	if (num < Name##__CharVector_size(self->data)) {\
 		/* '\0'を上書き */\
-		*Name##__CharVector_at(self->data, num) = c;\
+		CSTL_VECTOR_AT(self->data, num) = c;\
 	}\
-	*Name##__CharVector_at(self->data, Name##__CharVector_size(self->data) - 1) = '\0';\
+	CSTL_VECTOR_AT(self->data, Name##__CharVector_size(self->data) - 1) = '\0';\
 	return 1;\
 }\
 \
@@ -441,7 +444,7 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 		/* 拡張必要なし */\
 		for (i = 0; i < len; i++) {\
 			if (i < cstr_len) {\
-				*Name##_at(self, i + idx) = buf[i];\
+				CSTL_STRING_AT(self, i + idx) = buf[i];\
 			} else {\
 				size_t j = len - cstr_len;\
 				if (j > Name##_size(self) - (cstr_len + idx)) {\
@@ -458,7 +461,7 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 			return 0;\
 		}\
 		for (i = 0; i < len; i++) {\
-			*Name##_at(self, i + idx) = buf[i];\
+			CSTL_STRING_AT(self, i + idx) = buf[i];\
 		}\
 		Name##_insert(self, len + idx, &buf[len], cstr_len - len);\
 	}\

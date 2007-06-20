@@ -34,6 +34,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "algorithm.h"
 
 #ifdef __cplusplus
 #define CSTL_VECTOR_BEGIN_EXTERN_C()	extern "C" {
@@ -48,6 +49,9 @@
 #else
 #define CSTL_VECTOR_MAGIC(x)
 #endif
+
+
+#define CSTL_VECTOR_AT(self, idx)	 self->buf[idx]
 
 
 /*! 
@@ -79,6 +83,8 @@ int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 void Name##_swap(Name *self, Name *x);\
+void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+int Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
 CSTL_VECTOR_END_EXTERN_C()\
 
 
@@ -156,7 +162,7 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 		}\
 		Name##_clear(self);\
 		for (i = 0; i < n; i++) {\
-			Name##_push_back(self, *Name##_at(x, i));\
+			Name##_push_back(self, CSTL_VECTOR_AT(x, i));\
 		}\
 	}\
 	return 1;\
@@ -266,7 +272,7 @@ Type *Name##_at(Name *self, size_t idx)\
 	assert(self && "Vector_at");\
 	assert(self->magic == self && "Vector_at");\
 	assert(Name##_size(self) > idx && "Vector_at");\
-	return &self->buf[idx];\
+	return &CSTL_VECTOR_AT(self, idx);\
 }\
 \
 Type Name##_front(Name *self)\
@@ -356,5 +362,7 @@ void Name##_swap(Name *self, Name *x)\
 	x->buf = tmp_buf;\
 }\
 \
+CSTL_ALGORITHM_SORT(Name, Type, CSTL_VECTOR_AT)\
+
 
 #endif /* CSTL_VECTOR_H_INCLUDED */

@@ -49,6 +49,14 @@
 #define CSTL_RING_MAGIC(x)
 #endif
 
+#define CSTL_RING_FORWARD(self, idx, n)			(((idx) + (n)) % self->nelems)
+#define CSTL_RING_BACKWARD(self, idx, n)		((idx) >= (n) ? (idx) - (n) : self->nelems + (idx) - (n))
+#define CSTL_RING_NEXT(self, idx)				CSTL_RING_FORWARD(self, idx, 1)
+#define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD(self, idx, 1)
+#define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : self->nelems - (first) + (last))
+#define CSTL_RING_AT(self, idx)					self->buf[CSTL_RING_FORWARD(self, self->begin, idx)]
+#define CSTL_RING_SIZE(self)					CSTL_RING_DISTANCE(self, self->begin, self->end)
+
 /*! 
  * \brief インターフェイスマクロ
  * 
@@ -101,31 +109,6 @@ CSTL_RING_END_EXTERN_C()\
  */
 #define CSTL_RING_IMPLEMENT(Name, Type)	\
 \
-static size_t Name##_forward(Name *self, size_t idx, size_t n)\
-{\
-	return (idx + n) % self->nelems;\
-}\
-\
-static size_t Name##_backward(Name *self, size_t idx, size_t n)\
-{\
-	return (idx >= n) ? idx - n : self->nelems + idx - n;\
-}\
-\
-static size_t Name##_next(Name *self, size_t idx)\
-{\
-	return Name##_forward(self, idx, 1);\
-}\
-\
-static size_t Name##_prev(Name *self, size_t idx)\
-{\
-	return Name##_backward(self, idx, 1);\
-}\
-\
-static size_t Name##_distance(Name *self, size_t first, size_t last)\
-{\
-	return (first <= last) ? last - first : self->nelems - first + last;\
-}\
-\
 Name *Name##_new(size_t n)\
 {\
 	Name *self;\
@@ -177,7 +160,7 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 		if (n > Name##_max_size(self)) return 0;\
 		Name##_clear(self);\
 		for (i = 0; i < n; i++) {\
-			Name##_push_back(self, *Name##_at(x, i));\
+			Name##_push_back(self, CSTL_RING_AT(x, i));\
 		}\
 	}\
 	return 1;\
@@ -189,7 +172,7 @@ int Name##_push_back(Name *self, Type elem)\
 	assert(self->magic == self && "Ring_push_back");\
 	if (Name##_full(self)) return 0;\
 	self->buf[self->end] = elem;\
-	self->end = Name##_next(self, self->end);\
+	self->end = CSTL_RING_NEXT(self, self->end);\
 	return 1;\
 }\
 \
@@ -198,7 +181,7 @@ int Name##_push_front(Name *self, Type elem)\
 	assert(self && "Ring_push_front");\
 	assert(self->magic == self && "Ring_push_front");\
 	if (Name##_full(self)) return 0;\
-	self->begin = Name##_prev(self, self->begin);\
+	self->begin = CSTL_RING_PREV(self, self->begin);\
 	self->buf[self->begin] = elem;\
 	return 1;\
 }\
@@ -210,7 +193,7 @@ Type Name##_pop_front(Name *self)\
 	assert(self->magic == self && "Ring_pop_front");\
 	assert(!Name##_empty(self) && "Ring_pop_front");\
 	idx = self->begin;\
-	self->begin = Name##_next(self, self->begin);\
+	self->begin = CSTL_RING_NEXT(self, self->begin);\
 	return self->buf[idx];\
 }\
 \
@@ -219,7 +202,7 @@ Type Name##_pop_back(Name *self)\
 	assert(self && "Ring_pop_back");\
 	assert(self->magic == self && "Ring_pop_back");\
 	assert(!Name##_empty(self) && "Ring_pop_back");\
-	self->end = Name##_prev(self, self->end);\
+	self->end = CSTL_RING_PREV(self, self->end);\
 	return self->buf[self->end];\
 }\
 \
@@ -227,7 +210,7 @@ size_t Name##_size(Name *self)\
 {\
 	assert(self && "Ring_size");\
 	assert(self->magic == self && "Ring_size");\
-	return Name##_distance(self, self->begin, self->end);\
+	return CSTL_RING_DISTANCE(self, self->begin, self->end);\
 }\
 \
 size_t Name##_max_size(Name *self)\
@@ -248,7 +231,7 @@ int Name##_full(Name *self)\
 {\
 	assert(self && "Ring_full");\
 	assert(self->magic == self && "Ring_full");\
-	return (Name##_next(self, self->end) == self->begin);\
+	return (CSTL_RING_NEXT(self, self->end) == self->begin);\
 }\
 \
 void Name##_clear(Name *self)\
@@ -263,7 +246,7 @@ Type *Name##_at(Name *self, size_t idx)\
 	assert(self && "Ring_at");\
 	assert(self->magic == self && "Ring_at");\
 	assert(Name##_size(self) > idx && "Ring_at");\
-	return &self->buf[Name##_forward(self, self->begin, idx)];\
+	return &CSTL_RING_AT(self, idx);\
 }\
 \
 Type Name##_front(Name *self)\
@@ -279,22 +262,22 @@ Type Name##_back(Name *self)\
 	assert(self && "Ring_back");\
 	assert(self->magic == self && "Ring_back");\
 	assert(!Name##_empty(self) && "Ring_back");\
-	return self->buf[Name##_prev(self, self->end)];\
+	return self->buf[CSTL_RING_PREV(self, self->end)];\
 }\
 \
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
 {\
 	size_t i;\
-	for (i = Name##_prev(self, last); i != Name##_prev(self, first); i = Name##_prev(self, i)) {\
-		self->buf[Name##_forward(self, i, n)] = self->buf[i];\
+	for (i = CSTL_RING_PREV(self, last); i != CSTL_RING_PREV(self, first); i = CSTL_RING_PREV(self, i)) {\
+		self->buf[CSTL_RING_FORWARD(self, i, n)] = self->buf[i];\
 	}\
 }\
 \
 static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n)\
 {\
 	size_t i;\
-	for (i = first; i != last; i = Name##_next(self, i)) {\
-		self->buf[Name##_backward(self, i, n)] = self->buf[i];\
+	for (i = first; i != last; i = CSTL_RING_NEXT(self, i)) {\
+		self->buf[CSTL_RING_BACKWARD(self, i, n)] = self->buf[i];\
 	}\
 }\
 \
@@ -315,18 +298,18 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 	assert(Name##_size(self) >= idx && "Ring_insert_array");\
 	assert(elems && "Ring_insert_array");\
 	if (Name##_size(self) + n > Name##_max_size(self)) return 0;\
-	pos = Name##_forward(self, self->begin, idx);\
+	pos = CSTL_RING_FORWARD(self, self->begin, idx);\
 	if (Name##_size(self) / 2 < idx) {\
 		/* end側を移動 */\
 		Name##_move_forward(self, pos, self->end, n);\
-		self->end = Name##_forward(self, self->end, n);\
+		self->end = CSTL_RING_FORWARD(self, self->end, n);\
 	} else {\
 		/* begin側を移動 */\
 		Name##_move_backward(self, self->begin, pos, n);\
-		self->begin = Name##_backward(self, self->begin, n);\
-		pos = Name##_backward(self, pos, n);\
+		self->begin = CSTL_RING_BACKWARD(self, self->begin, n);\
+		pos = CSTL_RING_BACKWARD(self, pos, n);\
 	}\
-	for (i = pos, j = 0; j < n; i = Name##_next(self, i), j++) {\
+	for (i = pos, j = 0; j < n; i = CSTL_RING_NEXT(self, i), j++) {\
 		self->buf[i] = elems[j];\
 	}\
 	return 1;\
@@ -339,17 +322,17 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 	assert(self && "Ring_erase");\
 	assert(self->magic == self && "Ring_erase");\
 	assert(Name##_size(self) >= idx + n && "Ring_erase");\
-	pos1 = Name##_forward(self, self->begin, idx);\
-	pos2 = Name##_forward(self, pos1, n);\
-	if (Name##_distance(self, self->begin, pos1) >= \
-		Name##_distance(self, pos2, self->end)) {\
+	pos1 = CSTL_RING_FORWARD(self, self->begin, idx);\
+	pos2 = CSTL_RING_FORWARD(self, pos1, n);\
+	if (CSTL_RING_DISTANCE(self, self->begin, pos1) >= \
+		CSTL_RING_DISTANCE(self, pos2, self->end)) {\
 		/* end側を移動 */\
 		Name##_move_backward(self, pos2, self->end, n);\
-		self->end = Name##_backward(self, self->end, n);\
+		self->end = CSTL_RING_BACKWARD(self, self->end, n);\
 	} else {\
 		/* begin側を移動 */\
 		Name##_move_forward(self, self->begin, pos1, n);\
-		self->begin = Name##_forward(self, self->begin, n);\
+		self->begin = CSTL_RING_FORWARD(self, self->begin, n);\
 	}\
 }\
 \
@@ -360,7 +343,7 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 	assert(self->magic == self && "Ring_resize");\
 	size = Name##_size(self);\
 	if (size >= n) {\
-		self->end = Name##_backward(self, self->end, size - n);\
+		self->end = CSTL_RING_BACKWARD(self, self->end, size - n);\
 	} else {\
 		size_t i;\
 		if (Name##_max_size(self) < n) {\
