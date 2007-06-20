@@ -62,6 +62,8 @@ void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, con
 	assert(self && "sort");\
 	assert(self->magic == self && "sort");\
 	assert(Name##_size(self) >= idx + n && "sort");\
+	assert(Name##_size(self) >= n && "sort");\
+	assert(Name##_size(self) > idx && "sort");\
 	low[0] = idx;\
 	high[0] = idx + n - 1;\
 	sp = 1;\
@@ -163,6 +165,8 @@ int Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void 
 	assert(self && "stable_sort");\
 	assert(self->magic == self && "stable_sort");\
 	assert(Name##_size(self) >= idx + n && "stable_sort");\
+	assert(Name##_size(self) >= n && "stable_sort");\
+	assert(Name##_size(self) > idx && "stable_sort");\
 	if (n < 9) {\
 		Name##_insertion_sort(self, idx, n, comp);\
 		return 1;\

@@ -377,9 +377,15 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 	assert(x && "Deque_assign");\
 	assert(x->magic == x && "Deque_assign");\
 	assert(Name##_size(x) >= idx + n && "Deque_assign");\
+	assert(Name##_size(x) >= n && "Deque_assign");\
+	assert(Name##_size(x) > idx && "Deque_assign");\
 	if (self == x) {\
-		Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
-		Name##_erase(self, 0, idx);\
+		if (Name##_size(self) > idx + n) {\
+			Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
+		}\
+		if (Name##_size(self) > 0) {\
+			Name##_erase(self, 0, idx);\
+		}\
 	} else {\
 		if (n > Name##_size(self)) {\
 			if (!Name##_expand_end_side(self, n - Name##_size(self))) {\
@@ -562,6 +568,9 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 	assert(self && "Deque_erase");\
 	assert(self->magic == self && "Deque_erase");\
 	assert(Name##_size(self) >= idx + n && "Deque_erase");\
+	assert(Name##_size(self) >= n && "Deque_erase");\
+	assert(Name##_size(self) > idx && "Deque_erase");\
+	if (!n) return;\
 	if (idx >= Name##_size(self) - (idx + n)) {\
 		/* end側を移動 */\
 		Name##_move_backward(self, idx + n, Name##_size(self), n);\

@@ -153,9 +153,15 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 	assert(x && "Ring_assign");\
 	assert(x->magic == x && "Ring_assign");\
 	assert(Name##_size(x) >= idx + n && "Ring_assign");\
+	assert(Name##_size(x) >= n && "Ring_assign");\
+	assert(Name##_size(x) > idx && "Ring_assign");\
 	if (self == x) {\
-		Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
-		Name##_erase(self, 0, idx);\
+		if (Name##_size(self) > idx + n) {\
+			Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
+		}\
+		if (Name##_size(self) > 0) {\
+			Name##_erase(self, 0, idx);\
+		}\
 	} else {\
 		if (n > Name##_max_size(self)) return 0;\
 		Name##_clear(self);\
@@ -322,6 +328,9 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 	assert(self && "Ring_erase");\
 	assert(self->magic == self && "Ring_erase");\
 	assert(Name##_size(self) >= idx + n && "Ring_erase");\
+	assert(Name##_size(self) >= n && "Ring_erase");\
+	assert(Name##_size(self) > idx && "Ring_erase");\
+	if (!n) return;\
 	pos1 = CSTL_RING_FORWARD(self, self->begin, idx);\
 	pos2 = CSTL_RING_FORWARD(self, pos1, n);\
 	if (CSTL_RING_DISTANCE(self, self->begin, pos1) >= \

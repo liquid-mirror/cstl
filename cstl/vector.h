@@ -153,9 +153,15 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 	assert(x && "Vector_assign");\
 	assert(x->magic == x && "Vector_assign");\
 	assert(Name##_size(x) >= idx + n && "Vector_assign");\
+	assert(Name##_size(x) >= n && "Vector_assign");\
+	assert(Name##_size(x) > idx && "Vector_assign");\
 	if (self == x) {\
-		Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
-		Name##_erase(self, 0, idx);\
+		if (Name##_size(self) > idx + n) {\
+			Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
+		}\
+		if (Name##_size(self) > 0) {\
+			Name##_erase(self, 0, idx);\
+		}\
 	} else {\
 		if (n > Name##_capacity(self)) {\
 			if (!Name##_expand(self, Name##_capacity(self) + n)) return 0;\
@@ -338,6 +344,9 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 	assert(self && "Vector_erase");\
 	assert(self->magic == self && "Vector_erase");\
 	assert(Name##_size(self) >= idx + n && "Vector_erase");\
+	assert(Name##_size(self) >= n && "Vector_erase");\
+	assert(Name##_size(self) > idx && "Vector_erase");\
+	if (!n) return;\
 	Name##_move_backward(self, idx + n, self->end, n);\
 	self->end -= n;\
 }\
