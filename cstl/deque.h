@@ -152,18 +152,26 @@ static void Name##__RingVector_insert_array_no_elems(Name##__RingVector *self, s
 	self->end += n;\
 }\
 \
-static void Name##_map_beg_end(Name *self, size_t *b, size_t *e)\
+static size_t Name##_map_idx_begin_side(Name *self)\
 {\
-	for (*b = self->begin; *b > 0; *b--) {\
-		if (!CSTL_VECTOR_AT(self->map, *b - 1)) {\
+	size_t i;\
+	for (i = self->begin; i > 0; i--) {\
+		if (!CSTL_VECTOR_AT(self->map, i - 1)) {\
 			break;\
 		}\
 	}\
-	for (*e = self->end; *e < CSTL_VECTOR_SIZE(self->map); *e++) {\
-		if (!CSTL_VECTOR_AT(self->map, *e)) {\
+	return i;\
+}\
+\
+static size_t Name##_map_idx_end_side(Name *self)\
+{\
+	size_t i;\
+	for (i = self->end; i < CSTL_VECTOR_SIZE(self->map); i++) {\
+		if (!CSTL_VECTOR_AT(self->map, i)) {\
 			break;\
 		}\
 	}\
+	return i;\
 }\
 \
 static int Name##_expand_begin_side(Name *self, size_t n)\
@@ -179,7 +187,8 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 	s = 1 + (n - m - 1) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
 	if (self->begin < s) {\
 		size_t b, e;\
-		Name##_map_beg_end(self, &b, &e);\
+		b = Name##_map_idx_begin_side(self);\
+		e = Name##_map_idx_end_side(self);\
 		if (CSTL_VECTOR_SIZE(self->map) - e + self->begin < s) {\
 			size_t j;\
 			size_t k = (CSTL_VECTOR_SIZE(self->map) > s) ? CSTL_VECTOR_SIZE(self->map) : s;\
@@ -231,7 +240,8 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 	s = 1 + (n - m - 1) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
 	if (CSTL_VECTOR_SIZE(self->map) - self->end < s) {\
 		size_t b, e;\
-		Name##_map_beg_end(self, &b, &e);\
+		b = Name##_map_idx_begin_side(self);\
+		e = Name##_map_idx_end_side(self);\
 		if (CSTL_VECTOR_SIZE(self->map) - self->end + b < s) {\
 			size_t k = (CSTL_VECTOR_SIZE(self->map) > s) ? CSTL_VECTOR_SIZE(self->map) : s;\
 			/* mapを拡張する */\
