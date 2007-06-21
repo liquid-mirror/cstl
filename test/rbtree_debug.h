@@ -82,9 +82,9 @@ static void Name##_p(Name##RBTreeNode *self, size_t depth)\
 				self, self->parent, self->left, self->right, self->key,\
 				Name##_str_color(self->color), depth);\
 		}\
-		if (Name##RBTreeNode_is_root(self)) {\
+		if (CSTL_RBTREE_NODE_IS_ROOT(self)) {\
 			printf(", root");\
-		} else if (Name##RBTreeNode_is_nil(self->left) && Name##RBTreeNode_is_nil(self->right)) {\
+		} else if (CSTL_RBTREE_NODE_IS_NIL(self->left, Name##RBTree) && CSTL_RBTREE_NODE_IS_NIL(self->right, Name##RBTree)) {\
 			printf(", leaf");\
 		}\
 	}\
@@ -94,12 +94,12 @@ static void Name##_p(Name##RBTreeNode *self, size_t depth)\
 static void Name##Node_print(Name##RBTreeNode *self)\
 {\
 	static size_t depth = 0;\
-	if (Name##RBTreeNode_is_nil(self)) {\
+	if (CSTL_RBTREE_NODE_IS_NIL(self, Name##RBTree)) {\
 		return;\
 	}\
 	depth++;\
 	if (Name##_max_depth < depth) Name##_max_depth = depth;\
-	if (Name##RBTreeNode_is_nil(self->right) && Name##RBTreeNode_is_nil(self->left)) {\
+	if (CSTL_RBTREE_NODE_IS_NIL(self->right, Name##RBTree) && CSTL_RBTREE_NODE_IS_NIL(self->left, Name##RBTree)) {\
 		if (Name##_min_depth > depth) Name##_min_depth = depth;\
 	}\
 	if (visual) {\
@@ -117,7 +117,7 @@ static void Name##Node_print(Name##RBTreeNode *self)\
 void Name##_print(Name *self)\
 {\
 	Name##RBTreeNode *root;\
-	assert(Name##RBTreeNode_is_head(self->tree));\
+	assert(CSTL_RBTREE_NODE_IS_HEAD(self->tree));\
 	root = Name##RBTree_get_root(self->tree);\
 	Name##_max_depth = 0;\
 	Name##_min_depth = UINT_MAX;\
@@ -129,7 +129,7 @@ void Name##_print(Name *self)\
 static size_t Name##RBTreeNode_black_count(Name##RBTreeNode *t, Name##RBTreeNode *root)\
 {\
 	size_t count;\
-	if (Name##RBTreeNode_is_nil(t)) {\
+	if (CSTL_RBTREE_NODE_IS_NIL(t, Name##RBTree)) {\
 		return 0;\
 	}\
 	count = t->color == CSTL_RBTREE_BLACK ? 1 : 0;\
@@ -156,18 +156,18 @@ int Name##_verify(Name *self)\
 		l = pos->left;\
 		r = pos->right;\
 		if (pos->color == CSTL_RBTREE_RED) {\
-			if ((!Name##RBTreeNode_is_nil(l) && l->color == CSTL_RBTREE_RED) ||\
-				(!Name##RBTreeNode_is_nil(r) && r->color == CSTL_RBTREE_RED)) {\
+			if ((!CSTL_RBTREE_NODE_IS_NIL(l, Name##RBTree) && l->color == CSTL_RBTREE_RED) ||\
+				(!CSTL_RBTREE_NODE_IS_NIL(r, Name##RBTree) && r->color == CSTL_RBTREE_RED)) {\
 				return 0;\
 			}\
 		}\
-		if (!Name##RBTreeNode_is_nil(l) && Compare(pos->key, l->key) < 0) {\
+		if (!CSTL_RBTREE_NODE_IS_NIL(l, Name##RBTree) && Compare(pos->key, l->key) < 0) {\
 			return 0;\
 		}\
-		if (!Name##RBTreeNode_is_nil(r) && Compare(r->key, pos->key) < 0) {\
+		if (!CSTL_RBTREE_NODE_IS_NIL(r, Name##RBTree) && Compare(r->key, pos->key) < 0) {\
 			return 0;\
 		}\
-		if (Name##RBTreeNode_is_nil(l) && Name##RBTreeNode_is_nil(r) &&\
+		if (CSTL_RBTREE_NODE_IS_NIL(l, Name##RBTree) && CSTL_RBTREE_NODE_IS_NIL(r, Name##RBTree) &&\
 			Name##RBTreeNode_black_count(pos, Name##RBTree_get_root(tree)) != len) {\
 			return 0;\
 		}\

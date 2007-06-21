@@ -78,7 +78,7 @@ ValueType *Name##_value(Name##Iterator pos)\
 {\
 	assert(pos && "Map_value");\
 	assert(pos->magic && "Map_value");\
-	assert(!Name##RBTreeNode_is_head(pos) && "Map_value");\
+	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "Map_value");\
 	return &pos->value;\
 }\
 \
