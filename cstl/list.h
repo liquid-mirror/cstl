@@ -49,7 +49,14 @@
 #define CSTL_LIST_MAGIC(x)
 #endif
 
-#define CSTL_LIST_AT(pos)	pos->elem
+
+#define CSTL_LIST_BEGIN(self)	self->terminator->next
+#define CSTL_LIST_END(self)		self->terminator
+#define CSTL_LIST_RBEGIN(self)	self->terminator->prev
+#define CSTL_LIST_REND(self)	self->terminator
+#define CSTL_LIST_NEXT(pos)		pos->next
+#define CSTL_LIST_PREV(pos)		pos->prev
+#define CSTL_LIST_AT(pos)		pos->elem
 
 
 /*! 
@@ -164,7 +171,7 @@ int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
 	assert(last->magic && "List_assign");\
 	x = Name##_new();\
 	if (!x) return 0;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+	for (pos = first; pos != last; pos = CSTL_LIST_NEXT(pos)) {\
 		if (!Name##_push_back(x, CSTL_LIST_AT(pos))) {\
 			Name##_delete(x);\
 			return 0;\
@@ -183,7 +190,7 @@ int Name##_push_back(Name *self, Type elem)\
 	assert(self->magic == self && "List_push_back");\
 	node = (Name##Node *) malloc(sizeof(Name##Node));\
 	if (!node) return 0;\
-	pos = Name##_end(self);\
+	pos = CSTL_LIST_END(self);\
 	node->elem = elem;\
 	node->next = pos;\
 	node->prev = pos->prev;\
@@ -202,7 +209,7 @@ int Name##_push_front(Name *self, Type elem)\
 	assert(self->magic == self && "List_push_front");\
 	node = (Name##Node *) malloc(sizeof(Name##Node));\
 	if (!node) return 0;\
-	pos = Name##_begin(self);\
+	pos = CSTL_LIST_BEGIN(self);\
 	node->elem = elem;\
 	node->next = pos;\
 	node->prev = pos->prev;\
@@ -219,8 +226,8 @@ Type Name##_pop_front(Name *self)\
 	assert(self && "List_pop_front");\
 	assert(self->magic == self && "List_pop_front");\
 	assert(!Name##_empty(self) && "List_pop_front");\
-	elem = CSTL_LIST_AT(Name##_begin(self));\
-	Name##_erase(self, Name##_begin(self));\
+	elem = CSTL_LIST_AT(CSTL_LIST_BEGIN(self));\
+	Name##_erase(self, CSTL_LIST_BEGIN(self));\
 	return elem;\
 }\
 \
@@ -230,8 +237,8 @@ Type Name##_pop_back(Name *self)\
 	assert(self && "List_pop_back");\
 	assert(self->magic == self && "List_pop_back");\
 	assert(!Name##_empty(self) && "List_pop_back");\
-	elem = CSTL_LIST_AT(Name##_rbegin(self));\
-	Name##_erase(self, Name##_rbegin(self));\
+	elem = CSTL_LIST_AT(CSTL_LIST_RBEGIN(self));\
+	Name##_erase(self, CSTL_LIST_RBEGIN(self));\
 	return elem;\
 }\
 \
@@ -253,7 +260,7 @@ void Name##_clear(Name *self)\
 {\
 	assert(self && "List_clear");\
 	assert(self->magic == self && "List_clear");\
-	Name##_erase_range(self, Name##_begin(self), Name##_end(self));\
+	Name##_erase_range(self, CSTL_LIST_BEGIN(self), CSTL_LIST_END(self));\
 }\
 \
 Type *Name##_at(Name##Iterator pos)\
@@ -283,42 +290,42 @@ Name##Iterator Name##_begin(Name *self)\
 {\
 	assert(self && "List_begin");\
 	assert(self->magic == self && "List_begin");\
-	return self->terminator->next;\
+	return CSTL_LIST_BEGIN(self);\
 }\
 \
 Name##Iterator Name##_end(Name *self)\
 {\
 	assert(self && "List_end");\
 	assert(self->magic == self && "List_end");\
-	return self->terminator;\
+	return CSTL_LIST_END(self);\
 }\
 \
 Name##Iterator Name##_rbegin(Name *self)\
 {\
 	assert(self && "List_rbegin");\
 	assert(self->magic == self && "List_rbegin");\
-	return self->terminator->prev;\
+	return CSTL_LIST_RBEGIN(self);\
 }\
 \
 Name##Iterator Name##_rend(Name *self)\
 {\
 	assert(self && "List_rend");\
 	assert(self->magic == self && "List_rend");\
-	return self->terminator;\
+	return CSTL_LIST_REND(self);\
 }\
 \
 Name##Iterator Name##_next(Name##Iterator pos)\
 {\
 	assert(pos && "List_next");\
 	assert(pos->magic && "List_next");\
-	return pos->next;\
+	return CSTL_LIST_NEXT(pos);\
 }\
 \
 Name##Iterator Name##_prev(Name##Iterator pos)\
 {\
 	assert(pos && "List_prev");\
 	assert(pos->magic && "List_prev");\
-	return pos->prev;\
+	return CSTL_LIST_PREV(pos);\
 }\
 \
 Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
@@ -357,7 +364,7 @@ int Name##_insert_array(Name *self, Name##Iterator pos, Type *elems, size_t n)\
 			return 0;\
 		}\
 	}\
-	Name##_splice(self, pos, x, Name##_begin(x), Name##_end(x));\
+	Name##_splice(self, pos, x, CSTL_LIST_BEGIN(x), CSTL_LIST_END(x));\
 	Name##_delete(x);\
 	return 1;\
 }\
@@ -376,14 +383,14 @@ int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Na
 	assert(last->magic && "List_insert_range");\
 	x = Name##_new();\
 	if (!x) return 0;\
-	for (i = first; i != last; i = Name##_next(i)) {\
+	for (i = first; i != last; i = CSTL_LIST_NEXT(i)) {\
 		assert(i->magic && "List_insert_range");\
 		if (!Name##_push_back(x, CSTL_LIST_AT(i))) {\
 			Name##_delete(x);\
 			return 0;\
 		}\
 	}\
-	Name##_splice(self, pos, x, Name##_begin(x), Name##_end(x));\
+	Name##_splice(self, pos, x, CSTL_LIST_BEGIN(x), CSTL_LIST_END(x));\
 	Name##_delete(x);\
 	return 1;\
 }\
@@ -432,7 +439,7 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 	size = Name##_size(self);\
 	if (size >= n) {\
 		for (i = 0; i < size - n; i++) {\
-			Name##_erase(self, Name##_rbegin(self));\
+			Name##_erase(self, CSTL_LIST_RBEGIN(self));\
 		}\
 	} else {\
 		Name *x;\
@@ -444,7 +451,7 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 				return 0;\
 			}\
 		}\
-		Name##_splice(self, Name##_end(self), x, Name##_begin(x), Name##_end(x));\
+		Name##_splice(self, CSTL_LIST_END(self), x, CSTL_LIST_BEGIN(x), CSTL_LIST_END(x));\
 		Name##_delete(x);\
 	}\
 	return 1;\
@@ -482,7 +489,7 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 	assert(first->magic == x->terminator && "List_splice");\
 	assert(last->magic == x->terminator && "List_splice");\
 	if (first == last || pos == last) return;\
-	for (i = first; i != last; i = Name##_next(i)) {\
+	for (i = first; i != last; i = CSTL_LIST_NEXT(i)) {\
 		assert(i != pos && "List_splice");\
 		assert(i->magic == x->terminator && "List_splice");\
 		CSTL_LIST_MAGIC(i->magic = self->terminator;)\
@@ -554,7 +561,7 @@ void Name##_sort(Name *self, int (*comp)(const void *, const void *))\
 {\
 	assert(self && "List_sort");\
 	assert(self->magic == self && "List_sort");\
-	Name##_merge_sort(Name##_begin(self), Name##_end(self), comp);\
+	Name##_merge_sort(CSTL_LIST_BEGIN(self), CSTL_LIST_END(self), comp);\
 }\
 \
 

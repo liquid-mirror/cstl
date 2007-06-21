@@ -104,6 +104,8 @@ size_t Name##_find_first_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len
 size_t Name##_find_first_not_of_c(Type *x, Type c, size_t idx);\
 size_t Name##_find_last_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len);\
 size_t Name##_find_last_not_of_c(Type *x, Type c, size_t idx);\
+void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+int Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
 CSTL_STRING_END_EXTERN_C()\
 
 
@@ -192,21 +194,21 @@ size_t Name##_size(Name *self)\
 {\
 	assert(self && "String_size");\
 	assert(self->magic == self && "String_size");\
-	return Name##__CharVector_size(self->data) - 1;\
+	return CSTL_VECTOR_SIZE(self->data) - 1;\
 }\
 \
 size_t Name##_length(Name *self)\
 {\
 	assert(self && "String_length");\
 	assert(self->magic == self && "String_length");\
-	return Name##__CharVector_size(self->data) - 1;\
+	return CSTL_VECTOR_SIZE(self->data) - 1;\
 }\
 \
 size_t Name##_capacity(Name *self)\
 {\
 	assert(self && "String_capacity");\
 	assert(self->magic == self && "String_capacity");\
-	return Name##__CharVector_capacity(self->data) - 1;\
+	return CSTL_VECTOR_CAPACITY(self->data) - 1;\
 }\
 \
 int Name##_reserve(Name *self, size_t n)\
@@ -227,7 +229,7 @@ int Name##_empty(Name *self)\
 {\
 	assert(self && "String_empty");\
 	assert(self->magic == self && "String_empty");\
-	return Name##__CharVector_size(self->data) == 1;\
+	return CSTL_VECTOR_SIZE(self->data) == 1;\
 }\
 \
 int Name##_compare(Name *self, Name *x)\
@@ -278,15 +280,15 @@ int Name##_resize(Name *self, size_t n, Type c)\
 	size_t num;\
 	assert(self && "String_resize");\
 	assert(self->magic == self && "String_resize");\
-	num = Name##__CharVector_size(self->data) - 1;\
+	num = CSTL_VECTOR_SIZE(self->data) - 1;\
 	if (!Name##__CharVector_resize(self->data, n + 1, c)) {\
 		return 0;\
 	}\
-	if (num < Name##__CharVector_size(self->data)) {\
+	if (num < CSTL_VECTOR_SIZE(self->data)) {\
 		/* '\0'‚ðã‘‚« */\
 		CSTL_VECTOR_AT(self->data, num) = c;\
 	}\
-	CSTL_VECTOR_AT(self->data, Name##__CharVector_size(self->data) - 1) = '\0';\
+	CSTL_VECTOR_AT(self->data, CSTL_VECTOR_SIZE(self->data) - 1) = '\0';\
 	return 1;\
 }\
 \
@@ -342,7 +344,7 @@ int Name##_append(Name *self, Type *cstr, size_t cstr_len)\
 	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
-	return Name##__CharVector_insert_array(self->data, Name##__CharVector_size(self->data) - 1, cstr, cstr_len);\
+	return Name##__CharVector_insert_array(self->data, CSTL_VECTOR_SIZE(self->data) - 1, cstr, cstr_len);\
 }\
 \
 int Name##_append_c(Name *self, size_t n, Type c)\
@@ -363,7 +365,7 @@ int Name##_push_back(Name *self, Type c)\
 {\
 	assert(self && "String_push_back");\
 	assert(self->magic == self && "String_push_back");\
-	return Name##__CharVector_insert(self->data, Name##__CharVector_size(self->data) - 1, c);\
+	return Name##__CharVector_insert(self->data, CSTL_VECTOR_SIZE(self->data) - 1, c);\
 }\
 \
 int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
@@ -694,6 +696,7 @@ size_t Name##_find_last_not_of_c(Type *x, Type c, size_t idx)\
 	return Name##_find_last_not_of(x, &c, idx, 1);\
 }\
 \
+CSTL_ALGORITHM_SORT(Name, Type, CSTL_STRING_AT)\
 
 
 #endif /* CSTL_STRING_H_INCLUDED */
