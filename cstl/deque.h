@@ -96,8 +96,8 @@ CSTL_DEQUE_END_EXTERN_C()\
  */
 #define CSTL_DEQUE_IMPLEMENT(Name, Type)	\
 \
-CSTL_RING_INTERFACE(Name##__Ring, Type)\
-CSTL_RING_IMPLEMENT(Name##__Ring, Type)\
+CSTL_RING_INTERFACE_FOR_DEQUE(Name##__Ring, Type)\
+CSTL_RING_IMPLEMENT_FOR_DEQUE(Name##__Ring, Type)\
 CSTL_VECTOR_INTERFACE(Name##__RingVector, Name##__Ring*)\
 CSTL_VECTOR_IMPLEMENT(Name##__RingVector, Name##__Ring*)\
 \
@@ -141,7 +141,7 @@ static void Name##_push_ring(Name *self, Name##__Ring *ring)\
 		/* poolの拡張はしない */\
 		Name##__Ring_delete(ring);\
 	} else {\
-		Name##__Ring_clear(ring);\
+		CSTL_RING_CLEAR(ring);\
 		Name##__RingVector_push_back(self->pool, ring);\
 	}\
 }\
@@ -221,7 +221,7 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 				return 0;\
 			}\
 		} else {\
-			Name##__Ring_clear(CSTL_VECTOR_AT(self->map, i));\
+			CSTL_RING_CLEAR(CSTL_VECTOR_AT(self->map, i));\
 		}\
 	}\
 	return 1;\
@@ -267,7 +267,7 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 				return 0;\
 			}\
 		} else {\
-			Name##__Ring_clear(CSTL_VECTOR_AT(self->map, i));\
+			CSTL_RING_CLEAR(CSTL_VECTOR_AT(self->map, i));\
 		}\
 	}\
 	return 1;\
@@ -414,7 +414,7 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 		}\
 		self->end = self->begin + 1;\
 		self->nelems = 0;\
-		Name##__Ring_clear(CSTL_VECTOR_AT(self->map, self->begin));\
+		CSTL_RING_CLEAR(CSTL_VECTOR_AT(self->map, self->begin));\
 		for (i = 0; i < n; i++) {\
 			Name##_push_back(self, *Name##_at(x, i));\
 		}\
@@ -430,10 +430,12 @@ int Name##_push_back(Name *self, Type elem)\
 		if (!Name##_expand_end_side(self, 1)) {\
 			return 0;\
 		}\
-		Name##__Ring_push_back(CSTL_VECTOR_AT(self->map, self->end), elem);\
+		Name##__Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end));\
+		CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end)) = elem;\
 		self->end++;\
 	} else {\
-		Name##__Ring_push_back(CSTL_VECTOR_AT(self->map, self->end - 1), elem);\
+		Name##__Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end - 1));\
+		CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end - 1)) = elem;\
 	}\
 	self->nelems++;\
 	return 1;\
@@ -447,10 +449,12 @@ int Name##_push_front(Name *self, Type elem)\
 		if (!Name##_expand_begin_side(self, 1)) {\
 			return 0;\
 		}\
-		Name##__Ring_push_front(CSTL_VECTOR_AT(self->map, self->begin - 1), elem);\
+		Name##__Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin - 1));\
+		CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin - 1)) = elem;\
 		self->begin--;\
 	} else {\
-		Name##__Ring_push_front(CSTL_VECTOR_AT(self->map, self->begin), elem);\
+		Name##__Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin));\
+		CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin)) = elem;\
 	}\
 	self->nelems++;\
 	return 1;\
@@ -513,7 +517,7 @@ void Name##_clear(Name *self)\
 	assert(self->magic == self && "Deque_clear");\
 	self->end = self->begin + 1;\
 	self->nelems = 0;\
-	Name##__Ring_clear(CSTL_VECTOR_AT(self->map, self->begin));\
+	CSTL_RING_CLEAR(CSTL_VECTOR_AT(self->map, self->begin));\
 	for (i = self->end; i < CSTL_VECTOR_SIZE(self->map) && CSTL_VECTOR_AT(self->map, i); i++) {\
 		Name##_push_ring(self, CSTL_VECTOR_AT(self->map, i));\
 		CSTL_VECTOR_AT(self->map, i) = 0;\

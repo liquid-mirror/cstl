@@ -62,15 +62,10 @@
 #define CSTL_RING_SIZE(self)					CSTL_RING_DISTANCE(self, self->begin, self->end)
 #define CSTL_RING_FRONT(self)					self->buf[self->begin]
 #define CSTL_RING_BACK(self)					self->buf[CSTL_RING_PREV(self, self->end)]
+#define CSTL_RING_CLEAR(self)					self->end = self->begin
 
 
-/*! 
- * \brief インターフェイスマクロ
- * 
- * \param Name コンテナ名
- * \param Type 要素の型
- */
-#define CSTL_RING_INTERFACE(Name, Type)	\
+#define CSTL_RING_INTERFACE_FOR_DEQUE(Name, Type)	\
 typedef struct Name##_t Name;\
 /*! 
  * \brief リングバッファ構造体
@@ -87,6 +82,21 @@ CSTL_RING_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
 void Name##_init(Name *self, Type *buf, size_t n);\
 void Name##_delete(Name *self);\
+void Name##_erase(Name *self, size_t idx, size_t n);\
+CSTL_RING_END_EXTERN_C()\
+
+
+/*! 
+ * \brief インターフェイスマクロ
+ * 
+ * \param Name コンテナ名
+ * \param Type 要素の型
+ */
+#define CSTL_RING_INTERFACE(Name, Type)	\
+\
+CSTL_RING_INTERFACE_FOR_DEQUE(Name, Type)\
+\
+CSTL_RING_BEGIN_EXTERN_C()\
 int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
 int Name##_push_back(Name *self, Type elem);\
 int Name##_push_front(Name *self, Type elem);\
@@ -102,19 +112,12 @@ Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
-void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
 CSTL_RING_END_EXTERN_C()\
 
 
-/*! 
- * \brief 実装マクロ
- * 
- * \param Name コンテナ名
- * \param Type 要素の型
- */
-#define CSTL_RING_IMPLEMENT(Name, Type)	\
+#define CSTL_RING_IMPLEMENT_FOR_DEQUE(Name, Type)	\
 \
 Name *Name##_new(size_t n)\
 {\
@@ -151,6 +154,58 @@ void Name##_init(Name *self, Type *buf, size_t n)\
 	self->nelems = n;\
 	CSTL_RING_MAGIC(self->magic = self;)\
 }\
+\
+static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
+{\
+	size_t i;\
+	for (i = CSTL_RING_PREV(self, last); i != CSTL_RING_PREV(self, first); i = CSTL_RING_PREV(self, i)) {\
+		self->buf[CSTL_RING_FORWARD(self, i, n)] = self->buf[i];\
+	}\
+}\
+\
+static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n)\
+{\
+	size_t i;\
+	for (i = first; i != last; i = CSTL_RING_NEXT(self, i)) {\
+		self->buf[CSTL_RING_BACKWARD(self, i, n)] = self->buf[i];\
+	}\
+}\
+\
+void Name##_erase(Name *self, size_t idx, size_t n)\
+{\
+	size_t pos1;\
+	size_t pos2;\
+	assert(self && "Ring_erase");\
+	assert(self->magic == self && "Ring_erase");\
+	assert(CSTL_RING_SIZE(self) >= idx + n && "Ring_erase");\
+	assert(CSTL_RING_SIZE(self) >= n && "Ring_erase");\
+	assert(CSTL_RING_SIZE(self) > idx && "Ring_erase");\
+	if (!n) return;\
+	pos1 = CSTL_RING_FORWARD(self, self->begin, idx);\
+	pos2 = CSTL_RING_FORWARD(self, pos1, n);\
+	if (CSTL_RING_DISTANCE(self, self->begin, pos1) >= \
+		CSTL_RING_DISTANCE(self, pos2, self->end)) {\
+		/* end側を移動 */\
+		Name##_move_backward(self, pos2, self->end, n);\
+		self->end = CSTL_RING_BACKWARD(self, self->end, n);\
+	} else {\
+		/* begin側を移動 */\
+		Name##_move_forward(self, self->begin, pos1, n);\
+		self->begin = CSTL_RING_FORWARD(self, self->begin, n);\
+	}\
+}\
+\
+
+
+/*! 
+ * \brief 実装マクロ
+ * 
+ * \param Name コンテナ名
+ * \param Type 要素の型
+ */
+#define CSTL_RING_IMPLEMENT(Name, Type)	\
+\
+CSTL_RING_IMPLEMENT_FOR_DEQUE(Name, Type)\
 \
 int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 {\
@@ -251,7 +306,7 @@ void Name##_clear(Name *self)\
 {\
 	assert(self && "Ring_clear");\
 	assert(self->magic == self && "Ring_clear");\
-	self->end = self->begin;\
+	CSTL_RING_CLEAR(self);\
 }\
 \
 Type *Name##_at(Name *self, size_t idx)\
@@ -276,22 +331,6 @@ Type Name##_back(Name *self)\
 	assert(self->magic == self && "Ring_back");\
 	assert(!CSTL_RING_EMPTY(self) && "Ring_back");\
 	return CSTL_RING_BACK(self);\
-}\
-\
-static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
-{\
-	size_t i;\
-	for (i = CSTL_RING_PREV(self, last); i != CSTL_RING_PREV(self, first); i = CSTL_RING_PREV(self, i)) {\
-		self->buf[CSTL_RING_FORWARD(self, i, n)] = self->buf[i];\
-	}\
-}\
-\
-static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n)\
-{\
-	size_t i;\
-	for (i = first; i != last; i = CSTL_RING_NEXT(self, i)) {\
-		self->buf[CSTL_RING_BACKWARD(self, i, n)] = self->buf[i];\
-	}\
 }\
 \
 int Name##_insert(Name *self, size_t idx, Type elem)\
@@ -326,30 +365,6 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 		self->buf[i] = elems[j];\
 	}\
 	return 1;\
-}\
-\
-void Name##_erase(Name *self, size_t idx, size_t n)\
-{\
-	size_t pos1;\
-	size_t pos2;\
-	assert(self && "Ring_erase");\
-	assert(self->magic == self && "Ring_erase");\
-	assert(CSTL_RING_SIZE(self) >= idx + n && "Ring_erase");\
-	assert(CSTL_RING_SIZE(self) >= n && "Ring_erase");\
-	assert(CSTL_RING_SIZE(self) > idx && "Ring_erase");\
-	if (!n) return;\
-	pos1 = CSTL_RING_FORWARD(self, self->begin, idx);\
-	pos2 = CSTL_RING_FORWARD(self, pos1, n);\
-	if (CSTL_RING_DISTANCE(self, self->begin, pos1) >= \
-		CSTL_RING_DISTANCE(self, pos2, self->end)) {\
-		/* end側を移動 */\
-		Name##_move_backward(self, pos2, self->end, n);\
-		self->end = CSTL_RING_BACKWARD(self, self->end, n);\
-	} else {\
-		/* begin側を移動 */\
-		Name##_move_forward(self, self->begin, pos1, n);\
-		self->begin = CSTL_RING_FORWARD(self, self->begin, n);\
-	}\
 }\
 \
 int Name##_resize(Name *self, size_t n, Type elem)\
