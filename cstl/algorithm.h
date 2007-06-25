@@ -180,6 +180,61 @@ int Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void 
 	return 1;\
 }\
 \
+size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *))\
+{\
+	size_t first;\
+	size_t last;\
+	size_t mid;\
+	first = idx;\
+	last = idx + n - 1;\
+	while (first < last) {\
+		mid = (first + last) / 2;\
+		if (comp(&value, &DIRECT_ACCESS(self, mid)) <= 0) {\
+			last = mid;\
+		} else {\
+			first = mid + 1;\
+		}\
+	}\
+	if (first == idx + n - 1 && comp(&value, &DIRECT_ACCESS(self, first)) > 0) {\
+		first++;\
+	}\
+	return first;\
+}\
+\
+size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *))\
+{\
+	size_t first;\
+	size_t last;\
+	size_t mid;\
+	first = idx;\
+	last = idx + n - 1;\
+	while (first < last) {\
+		mid = (first + last) / 2;\
+		if (comp(&value, &DIRECT_ACCESS(self, mid)) < 0) {\
+			last = mid;\
+		} else {\
+			first = mid + 1;\
+		}\
+	}\
+	if (first == idx + n - 1 && comp(&value, &DIRECT_ACCESS(self, first)) >= 0) {\
+		first++;\
+	}\
+	return first;\
+}\
+\
+size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *))\
+{\
+	size_t i;\
+	i = Name##_lower_bound(self, idx, n, value, comp);\
+	if (i == idx + n) {\
+		return i;\
+	} else if (comp(&value, &DIRECT_ACCESS(self, i)) != 0) {\
+		return idx + n;\
+	} else {\
+		return i;\
+	}\
+}\
+\
 
 
 #endif /* CSTL_ALGORITHM_H_INCLUDED */
