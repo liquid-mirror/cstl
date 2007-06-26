@@ -246,7 +246,7 @@ static void Name##_merge_with_buffer(Name *self, size_t first, size_t middle, si
 	}\
 }\
 \
-static void Name##_merge_sort(Name *self, Type *buf, size_t first, size_t last, int (*comp)(const void *, const void *))\
+static void Name##_merge_sort(Name *self, size_t first, size_t last, Type *buf, int (*comp)(const void *, const void *))\
 {\
 	size_t middle;\
 	if (last - first <= 1) {\
@@ -257,8 +257,8 @@ static void Name##_merge_sort(Name *self, Type *buf, size_t first, size_t last, 
 		return;\
 	}\
 	middle = (first + last) / 2;\
-	Name##_merge_sort(self, buf, first, middle, comp);\
-	Name##_merge_sort(self, buf, middle, last, comp);\
+	Name##_merge_sort(self, first, middle, buf, comp);\
+	Name##_merge_sort(self, middle, last, buf, comp);\
 	/* merge */\
 	if (buf) {\
 		Name##_merge_with_buffer(self, first, middle, last, buf, comp);\
@@ -281,7 +281,7 @@ void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void
 		return;\
 	}\
 	buf = (Type *) malloc(sizeof(Type) * n);\
-	Name##_merge_sort(self, buf, idx, idx + n, comp);\
+	Name##_merge_sort(self, idx, idx + n, buf, comp);\
 	free(buf);\
 }\
 \
