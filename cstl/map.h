@@ -27,6 +27,8 @@
  * \brief map/multimapコンテナ
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2006-11-11
+ * $URL$
+ * $Id$
  */
 #ifndef CSTL_MAP_H_INCLUDED
 #define CSTL_MAP_H_INCLUDED

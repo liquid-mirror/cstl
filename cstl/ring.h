@@ -27,6 +27,8 @@
  * \brief リングバッファ
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2006-02-25
+ * $URL$
+ * $Id$
  */
 #ifndef CSTL_RING_H_INCLUDED
 #define CSTL_RING_H_INCLUDED

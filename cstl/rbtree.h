@@ -27,6 +27,8 @@
  * \brief 赤黒木
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2006-10-29
+ * $URL$
+ * $Id$
  *
  * このファイルを直接インクルードしないこと
  */

@@ -27,6 +27,8 @@
  * \brief set/multisetコンテナ
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2006-11-11
+ * $URL$
+ * $Id$
  */
 #ifndef CSTL_SET_H_INCLUDED
 #define CSTL_SET_H_INCLUDED

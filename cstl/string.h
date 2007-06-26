@@ -27,6 +27,8 @@
  * \brief •¶Žš—ñƒRƒ“ƒeƒi
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2007-01-09
+ * $URL$
+ * $Id$
  */
 #ifndef CSTL_STRING_H_INCLUDED
 #define CSTL_STRING_H_INCLUDED

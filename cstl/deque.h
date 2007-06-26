@@ -27,6 +27,8 @@
  * \brief dequeコンテナ
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2007-04-01
+ * $URL$
+ * $Id$
  */
 #ifndef CSTL_DEQUE_H_INCLUDED
 #define CSTL_DEQUE_H_INCLUDED

@@ -27,6 +27,8 @@
  * \brief vectorコンテナ
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2006-11-29
+ * $URL$
+ * $Id$
  */
 #ifndef CSTL_VECTOR_H_INCLUDED
 #define CSTL_VECTOR_H_INCLUDED

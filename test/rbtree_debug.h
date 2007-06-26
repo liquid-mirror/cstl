@@ -27,8 +27,8 @@
  * \brief set/mapデバッグ用
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2006-11-14
- * $Id$
  * $URL$
+ * $Id$
  *
  * 赤黒木の表示とベリファイ
  */

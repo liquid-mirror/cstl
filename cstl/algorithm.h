@@ -27,6 +27,8 @@
  * \brief ƒAƒ‹ƒSƒŠƒYƒ€
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2007-06-20
+ * $URL$
+ * $Id$
  */
 #ifndef CSTL_ALGORITHM_H_INCLUDED
 #define CSTL_ALGORITHM_H_INCLUDED

@@ -27,6 +27,8 @@
  * \brief listコンテナ
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2006-02-26
+ * $URL$
+ * $Id$
  */
 #ifndef CSTL_LIST_H_INCLUDED
 #define CSTL_LIST_H_INCLUDED
