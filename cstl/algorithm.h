@@ -53,7 +53,7 @@ static void Name##_insertion_sort(Name *self, size_t idx, size_t n, int (*comp)(
 void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
 {\
 	size_t l, r;\
-	size_t mid;\
+	size_t middle;\
 	size_t low[32];\
 	size_t high[32];\
 	register size_t sp;\
@@ -78,17 +78,17 @@ void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, con
 				continue;\
 			}\
 			/* med3 */\
-			mid = (l + r) / 2;\
-			if (comp(&DIRECT_ACCESS(self, l), &DIRECT_ACCESS(self, mid)) > 0) {\
-				CSTL_ALGORITHM_SWAP(l, mid, tmp, DIRECT_ACCESS);\
+			middle = (l + r) / 2;\
+			if (comp(&DIRECT_ACCESS(self, l), &DIRECT_ACCESS(self, middle)) > 0) {\
+				CSTL_ALGORITHM_SWAP(l, middle, tmp, DIRECT_ACCESS);\
 			}\
 			if (comp(&DIRECT_ACCESS(self, l), &DIRECT_ACCESS(self, r)) > 0) {\
 				CSTL_ALGORITHM_SWAP(l, r, tmp, DIRECT_ACCESS);\
 			}\
-			if (comp(&DIRECT_ACCESS(self, mid), &DIRECT_ACCESS(self, r)) > 0) {\
-				CSTL_ALGORITHM_SWAP(mid, r, tmp, DIRECT_ACCESS);\
+			if (comp(&DIRECT_ACCESS(self, middle), &DIRECT_ACCESS(self, r)) > 0) {\
+				CSTL_ALGORITHM_SWAP(middle, r, tmp, DIRECT_ACCESS);\
 			}\
-			CSTL_ALGORITHM_SWAP(mid, r - 1, tmp, DIRECT_ACCESS); /* r - 1ÇÃóvëfÇÇêïé≤Ç…Ç∑ÇÈ */\
+			CSTL_ALGORITHM_SWAP(middle, r - 1, tmp, DIRECT_ACCESS); /* r - 1ÇÃóvëfÇÇêïé≤Ç…Ç∑ÇÈ */\
 			/* partition */\
 			i = l;\
 			j = r - 1;\
@@ -136,7 +136,7 @@ static size_t Name##_gcd(size_t m, size_t n)\
 	return m;\
 }\
 \
-static size_t Name##_rotate(Name *self, size_t first, size_t mid, size_t last)\
+size_t Name##_rotate(Name *self, size_t first, size_t middle, size_t last)\
 {\
 	size_t n, k, l;\
 	size_t result;\
@@ -145,14 +145,14 @@ static size_t Name##_rotate(Name *self, size_t first, size_t mid, size_t last)\
 	size_t d;\
 	Type tmp;\
 	n = last - first;\
-	k = mid - first;\
+	k = middle - first;\
 	l = n - k;\
-	result = first + (last - mid);\
+	result = first + (last - middle);\
 	if (k == 0) {\
 		return last;\
 	} else if (k == l) {\
 		for (i = 0; i < k; i++) {\
-			CSTL_ALGORITHM_SWAP(first + i, mid + i, tmp, DIRECT_ACCESS);\
+			CSTL_ALGORITHM_SWAP(first + i, middle + i, tmp, DIRECT_ACCESS);\
 		}\
 		return result;\
 	}\
@@ -186,46 +186,46 @@ static size_t Name##_rotate(Name *self, size_t first, size_t mid, size_t last)\
 	return result;\
 }\
 \
-static void Name##_merge_without_buffer(Name *self, size_t first, size_t mid, size_t last, \
+static void Name##_merge_without_buffer(Name *self, size_t first, size_t middle, size_t last, \
 							size_t len1, size_t len2, int (*comp)(const void *, const void *))\
 {\
 	size_t len11 = 0;\
 	size_t len22 = 0;\
 	size_t first_cut;\
 	size_t second_cut;\
-	size_t new_mid;\
+	size_t new_middle;\
 	Type tmp;\
 	if (len1 == 0 || len2 == 0) {\
 		return;\
 	}\
 	if (len1 + len2 == 2) {\
-		if (comp(&DIRECT_ACCESS(self, first), &DIRECT_ACCESS(self, mid)) > 0) {\
-			CSTL_ALGORITHM_SWAP(first, mid, tmp, DIRECT_ACCESS);\
+		if (comp(&DIRECT_ACCESS(self, first), &DIRECT_ACCESS(self, middle)) > 0) {\
+			CSTL_ALGORITHM_SWAP(first, middle, tmp, DIRECT_ACCESS);\
 		}\
 		return;\
 	}\
 	first_cut = first;\
-	second_cut = mid;\
+	second_cut = middle;\
 	if (len1 > len2) {\
 		len11 = len1 / 2;\
 		first_cut += len11;\
-		second_cut = Name##_lower_bound(self, mid, last - mid, DIRECT_ACCESS(self, first_cut), comp);\
-		len22 = second_cut - mid;\
+		second_cut = Name##_lower_bound(self, middle, last - middle, DIRECT_ACCESS(self, first_cut), comp);\
+		len22 = second_cut - middle;\
 	} else {\
 		len22 = len2 / 2;\
 		second_cut += len22;\
-		first_cut = Name##_upper_bound(self, first, mid - first, DIRECT_ACCESS(self, second_cut), comp);\
+		first_cut = Name##_upper_bound(self, first, middle - first, DIRECT_ACCESS(self, second_cut), comp);\
 		len11 = first_cut - first;\
 	}\
-	new_mid = Name##_rotate(self, first_cut, mid, second_cut);\
-	Name##_merge_without_buffer(self, first, first_cut, new_mid, len11, len22, comp);\
-	Name##_merge_without_buffer(self, new_mid, second_cut, last, len1 - len11, len2 - len22, comp);\
+	new_middle = Name##_rotate(self, first_cut, middle, second_cut);\
+	Name##_merge_without_buffer(self, first, first_cut, new_middle, len11, len22, comp);\
+	Name##_merge_without_buffer(self, new_middle, second_cut, last, len1 - len11, len2 - len22, comp);\
 }\
 \
 static void Name##_merge_sort(Name *self, size_t idx, Type *buf, size_t low, size_t high, int (*comp)(const void *, const void *))\
 {\
 	size_t i, j, k;\
-	size_t mid;\
+	size_t middle;\
 	if (low >= high) {\
 		return;\
 	}\
@@ -233,16 +233,16 @@ static void Name##_merge_sort(Name *self, size_t idx, Type *buf, size_t low, siz
 		Name##_insertion_sort(self, low, high - low + 1, comp);\
 		return;\
 	}\
-	mid = (low + high) / 2;\
-	Name##_merge_sort(self, idx, buf, low, mid, comp);\
-	Name##_merge_sort(self, idx, buf, mid + 1, high, comp);\
+	middle = (low + high) / 2;\
+	Name##_merge_sort(self, idx, buf, low, middle, comp);\
+	Name##_merge_sort(self, idx, buf, middle + 1, high, comp);\
 	/* merge */\
 	if (buf) {\
 		/* with buffer */\
-		for (i = low; i <= mid; i++) {\
+		for (i = low; i <= middle; i++) {\
 			buf[i - idx] = DIRECT_ACCESS(self, i);\
 		}\
-		for (i = mid + 1, j = high; i <= high; i++, j--) {\
+		for (i = middle + 1, j = high; i <= high; i++, j--) {\
 			buf[i - idx] = DIRECT_ACCESS(self, j);\
 		}\
 		i = low;\
@@ -258,7 +258,7 @@ static void Name##_merge_sort(Name *self, size_t idx, Type *buf, size_t low, siz
 		}\
 	} else {\
 		/* without buffer */\
-		Name##_merge_without_buffer(self, low, mid + 1, high + 1, mid + 1 - low, high - mid, comp);\
+		Name##_merge_without_buffer(self, low, middle + 1, high + 1, middle + 1 - low, high - middle, comp);\
 	}\
 }\
 \
@@ -283,7 +283,7 @@ size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 {\
 	size_t first;\
 	size_t last;\
-	size_t mid;\
+	size_t middle;\
 	assert(self && "lower_bound");\
 	assert(self->magic == self && "lower_bound");\
 	assert(Name##_size(self) >= idx + n && "lower_bound");\
@@ -292,11 +292,11 @@ size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	first = idx;\
 	last = idx + n - 1;\
 	while (first < last) {\
-		mid = (first + last) / 2;\
-		if (comp(&value, &DIRECT_ACCESS(self, mid)) <= 0) {\
-			last = mid;\
+		middle = (first + last) / 2;\
+		if (comp(&value, &DIRECT_ACCESS(self, middle)) <= 0) {\
+			last = middle;\
 		} else {\
-			first = mid + 1;\
+			first = middle + 1;\
 		}\
 	}\
 	if (first == idx + n - 1 && comp(&value, &DIRECT_ACCESS(self, first)) > 0) {\
@@ -309,7 +309,7 @@ size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 {\
 	size_t first;\
 	size_t last;\
-	size_t mid;\
+	size_t middle;\
 	assert(self && "upper_bound");\
 	assert(self->magic == self && "upper_bound");\
 	assert(Name##_size(self) >= idx + n && "upper_bound");\
@@ -318,11 +318,11 @@ size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	first = idx;\
 	last = idx + n - 1;\
 	while (first < last) {\
-		mid = (first + last) / 2;\
-		if (comp(&value, &DIRECT_ACCESS(self, mid)) < 0) {\
-			last = mid;\
+		middle = (first + last) / 2;\
+		if (comp(&value, &DIRECT_ACCESS(self, middle)) < 0) {\
+			last = middle;\
 		} else {\
-			first = mid + 1;\
+			first = middle + 1;\
 		}\
 	}\
 	if (first == idx + n - 1 && comp(&value, &DIRECT_ACCESS(self, first)) >= 0) {\
@@ -346,6 +346,25 @@ size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*
 		return idx + n;\
 	} else {\
 		return i;\
+	}\
+}\
+\
+void Name##_reverse(Name *self, size_t idx, size_t n)\
+{\
+	size_t first;\
+	size_t last;\
+	Type tmp;\
+	assert(self && "reverse");\
+	assert(self->magic == self && "reverse");\
+	assert(Name##_size(self) >= idx + n && "reverse");\
+	assert(Name##_size(self) >= n && "reverse");\
+	assert(Name##_size(self) > idx && "reverse");\
+	first = idx;\
+	last = idx + n - 1;\
+	while (first < last) {\
+		CSTL_ALGORITHM_SWAP(first, last, tmp, DIRECT_ACCESS);\
+		first++;\
+		last--;\
 	}\
 }\
 \
