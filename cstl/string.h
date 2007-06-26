@@ -105,7 +105,10 @@ size_t Name##_find_first_not_of_c(Type *x, Type c, size_t idx);\
 size_t Name##_find_last_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len);\
 size_t Name##_find_last_not_of_c(Type *x, Type c, size_t idx);\
 void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
-int Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
+size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
+size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
 CSTL_STRING_END_EXTERN_C()\
 
 

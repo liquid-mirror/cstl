@@ -125,6 +125,103 @@ void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, con
 	}\
 }\
 \
+static size_t Name##_gcd(size_t m, size_t n)\
+{\
+	size_t i;\
+	while (n) {\
+		i = m % n;\
+		m = n;\
+		n = i;\
+	}\
+	return m;\
+}\
+\
+static size_t Name##_rotate(Name *self, size_t first, size_t mid, size_t last)\
+{\
+	size_t n, k, l;\
+	size_t result;\
+	size_t i, j;\
+	size_t p;\
+	size_t d;\
+	Type tmp;\
+	n = last - first;\
+	k = mid - first;\
+	l = n - k;\
+	result = first + (last - mid);\
+	if (k == 0) {\
+		return last;\
+	} else if (k == l) {\
+		for (i = 0; i < k; i++) {\
+			CSTL_ALGORITHM_SWAP(first + i, mid + i, tmp, DIRECT_ACCESS);\
+		}\
+		return result;\
+	}\
+	/* Å‘åŒö–ñ” */\
+	d = Name##_gcd(n, k);\
+	for (i = 0; i < d; i++) {\
+		tmp = DIRECT_ACCESS(self, first);\
+		p = first;\
+		if (k < l) {\
+			for (j = 0; j < l / d; j++) {\
+				if (p > first + l) {\
+					DIRECT_ACCESS(self, p) = DIRECT_ACCESS(self, p - l);\
+					p -= l;\
+				}\
+				DIRECT_ACCESS(self, p) = DIRECT_ACCESS(self, p + k);\
+				p += k;\
+			}\
+		} else {\
+			for (j = 0; j < k / d - 1; j++) {\
+				if (p < last - k) {\
+					DIRECT_ACCESS(self, p) = DIRECT_ACCESS(self, p + k);\
+					p += k;\
+				}\
+				DIRECT_ACCESS(self, p) = DIRECT_ACCESS(self, p - l);\
+				p -= l;\
+			}\
+		}\
+		DIRECT_ACCESS(self, p) = tmp;\
+		first++;\
+	}\
+	return result;\
+}\
+\
+static void Name##_merge_without_buffer(Name *self, size_t first, size_t mid, size_t last, \
+							size_t len1, size_t len2, int (*comp)(const void *, const void *))\
+{\
+	size_t len11 = 0;\
+	size_t len22 = 0;\
+	size_t first_cut;\
+	size_t second_cut;\
+	size_t new_mid;\
+	Type tmp;\
+	if (len1 == 0 || len2 == 0) {\
+		return;\
+	}\
+	if (len1 + len2 == 2) {\
+		if (comp(&DIRECT_ACCESS(self, first), &DIRECT_ACCESS(self, mid)) > 0) {\
+			CSTL_ALGORITHM_SWAP(first, mid, tmp, DIRECT_ACCESS);\
+		}\
+		return;\
+	}\
+	first_cut = first;\
+	second_cut = mid;\
+	if (len1 > len2) {\
+		len11 = len1 / 2;\
+		first_cut += len11;\
+		second_cut = Name##_lower_bound(self, mid, last - mid, DIRECT_ACCESS(self, first_cut), comp);\
+		len22 = second_cut - mid;\
+	} else {\
+		len22 = len2 / 2;\
+		second_cut += len22;\
+		first_cut = Name##_upper_bound(self, first, mid - first, DIRECT_ACCESS(self, second_cut), comp);\
+		len11 = first_cut - first;\
+	}\
+	new_mid = Name##_rotate(self, first_cut, mid, second_cut);\
+	Name##_merge_without_buffer(self, first, first_cut, new_mid, len11, len22, comp);\
+	Name##_merge_without_buffer(self, new_mid, second_cut, last, len1 - len11, len2 - len22, comp);\
+}\
+\
 static void Name##_merge_sort(Name *self, size_t idx, Type *buf, size_t low, size_t high, int (*comp)(const void *, const void *))\
 {\
 	size_t i, j, k;\
@@ -140,26 +237,32 @@ static void Name##_merge_sort(Name *self, size_t idx, Type *buf, size_t low, siz
 	Name##_merge_sort(self, idx, buf, low, mid, comp);\
 	Name##_merge_sort(self, idx, buf, mid + 1, high, comp);\
 	/* merge */\
-	for (i = low; i <= mid; i++) {\
-		buf[i - idx] = DIRECT_ACCESS(self, i);\
-	}\
-	for (i = mid + 1, j = high; i <= high; i++, j--) {\
-		buf[i - idx] = DIRECT_ACCESS(self, j);\
-	}\
-	i = low;\
-	j = high;\
-	for (k = low; k <= high; k++) {\
-		if (comp(&buf[i - idx], &buf[j - idx]) <= 0) {\
-			DIRECT_ACCESS(self, k) = buf[i - idx];\
-			i++;\
-		} else {\
-			DIRECT_ACCESS(self, k) = buf[j - idx];\
-			j--;\
+	if (buf) {\
+		/* with buffer */\
+		for (i = low; i <= mid; i++) {\
+			buf[i - idx] = DIRECT_ACCESS(self, i);\
 		}\
+		for (i = mid + 1, j = high; i <= high; i++, j--) {\
+			buf[i - idx] = DIRECT_ACCESS(self, j);\
+		}\
+		i = low;\
+		j = high;\
+		for (k = low; k <= high; k++) {\
+			if (comp(&buf[i - idx], &buf[j - idx]) <= 0) {\
+				DIRECT_ACCESS(self, k) = buf[i - idx];\
+				i++;\
+			} else {\
+				DIRECT_ACCESS(self, k) = buf[j - idx];\
+				j--;\
+			}\
+		}\
+	} else {\
+		/* without buffer */\
+		Name##_merge_without_buffer(self, low, mid + 1, high + 1, mid + 1 - low, high - mid, comp);\
 	}\
 }\
 \
-int Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
 {\
 	Type *buf;\
 	assert(self && "stable_sort");\
@@ -169,15 +272,11 @@ int Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void 
 	assert(Name##_size(self) > idx && "stable_sort");\
 	if (n < 9) {\
 		Name##_insertion_sort(self, idx, n, comp);\
-		return 1;\
+		return;\
 	}\
 	buf = (Type *) malloc(sizeof(Type) * n);\
-	if (!buf) {\
-		return 0;\
-	}\
 	Name##_merge_sort(self, idx, buf, idx, idx + n - 1, comp);\
 	free(buf);\
-	return 1;\
 }\
 \
 size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *))\
@@ -185,6 +284,11 @@ size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	size_t first;\
 	size_t last;\
 	size_t mid;\
+	assert(self && "lower_bound");\
+	assert(self->magic == self && "lower_bound");\
+	assert(Name##_size(self) >= idx + n && "lower_bound");\
+	assert(Name##_size(self) >= n && "lower_bound");\
+	assert(Name##_size(self) > idx && "lower_bound");\
 	first = idx;\
 	last = idx + n - 1;\
 	while (first < last) {\
@@ -206,6 +310,11 @@ size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	size_t first;\
 	size_t last;\
 	size_t mid;\
+	assert(self && "upper_bound");\
+	assert(self->magic == self && "upper_bound");\
+	assert(Name##_size(self) >= idx + n && "upper_bound");\
+	assert(Name##_size(self) >= n && "upper_bound");\
+	assert(Name##_size(self) > idx && "upper_bound");\
 	first = idx;\
 	last = idx + n - 1;\
 	while (first < last) {\
@@ -225,6 +334,11 @@ size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *))\
 {\
 	size_t i;\
+	assert(self && "binary_search");\
+	assert(self->magic == self && "binary_search");\
+	assert(Name##_size(self) >= idx + n && "binary_search");\
+	assert(Name##_size(self) >= n && "binary_search");\
+	assert(Name##_size(self) > idx && "binary_search");\
 	i = Name##_lower_bound(self, idx, n, value, comp);\
 	if (i == idx + n) {\
 		return i;\

@@ -88,7 +88,10 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 void Name##_swap(Name *self, Name *x);\
 void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
-int Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
+size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
+size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
 CSTL_VECTOR_END_EXTERN_C()\
 
 
