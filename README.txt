@@ -19,6 +19,8 @@ SourceForge.jp CSTL
     set.h         set/multiset
     map.h         map/multimap
     string.h      string
+    algorithm.h   アルゴリズム
+    VERSION       バージョン番号
   doc/
     CSTL.rd       CSTLのドキュメント
     CSTL.html     CSTL.rdをhtml化したもの(tarballのみに同梱)
