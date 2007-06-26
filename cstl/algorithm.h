@@ -64,6 +64,7 @@ void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, con
 	assert(Name##_size(self) >= idx + n && "sort");\
 	assert(Name##_size(self) >= n && "sort");\
 	assert(Name##_size(self) > idx && "sort");\
+	assert(comp && "sort");\
 	low[0] = idx;\
 	high[0] = idx + n - 1;\
 	sp = 1;\
@@ -136,7 +137,7 @@ static size_t Name##_gcd(size_t m, size_t n)\
 	return m;\
 }\
 \
-size_t Name##_rotate(Name *self, size_t first, size_t middle, size_t last)\
+static size_t Name##_rotate_aux(Name *self, size_t first, size_t middle, size_t last)\
 {\
 	size_t n, k, l;\
 	size_t result;\
@@ -217,48 +218,52 @@ static void Name##_merge_without_buffer(Name *self, size_t first, size_t middle,
 		first_cut = Name##_upper_bound(self, first, middle - first, DIRECT_ACCESS(self, second_cut), comp);\
 		len11 = first_cut - first;\
 	}\
-	new_middle = Name##_rotate(self, first_cut, middle, second_cut);\
+	new_middle = Name##_rotate_aux(self, first_cut, middle, second_cut);\
 	Name##_merge_without_buffer(self, first, first_cut, new_middle, len11, len22, comp);\
 	Name##_merge_without_buffer(self, new_middle, second_cut, last, len1 - len11, len2 - len22, comp);\
 }\
 \
-static void Name##_merge_sort(Name *self, size_t idx, Type *buf, size_t low, size_t high, int (*comp)(const void *, const void *))\
+static void Name##_merge_with_buffer(Name *self, size_t first, size_t middle, size_t last, \
+							Type *buf, int (*comp)(const void *, const void *))\
 {\
 	size_t i, j, k;\
+	for (i = first; i < middle; i++) {\
+		buf[i] = DIRECT_ACCESS(self, i);\
+	}\
+	for (i = middle, j = last - 1; i < last; i++, j--) {\
+		buf[i] = DIRECT_ACCESS(self, j);\
+	}\
+	i = first;\
+	j = last - 1;\
+	for (k = first; k < last; k++) {\
+		if (comp(&buf[i], &buf[j]) <= 0) {\
+			DIRECT_ACCESS(self, k) = buf[i];\
+			i++;\
+		} else {\
+			DIRECT_ACCESS(self, k) = buf[j];\
+			j--;\
+		}\
+	}\
+}\
+\
+static void Name##_merge_sort(Name *self, Type *buf, size_t first, size_t last, int (*comp)(const void *, const void *))\
+{\
 	size_t middle;\
-	if (low >= high) {\
+	if (last - first <= 1) {\
 		return;\
 	}\
-	if (high - low < 8) {\
-		Name##_insertion_sort(self, low, high - low + 1, comp);\
+	if (last - first < 9) {\
+		Name##_insertion_sort(self, first, last - first, comp);\
 		return;\
 	}\
-	middle = (low + high) / 2;\
-	Name##_merge_sort(self, idx, buf, low, middle, comp);\
-	Name##_merge_sort(self, idx, buf, middle + 1, high, comp);\
+	middle = (first + last) / 2;\
+	Name##_merge_sort(self, buf, first, middle, comp);\
+	Name##_merge_sort(self, buf, middle, last, comp);\
 	/* merge */\
 	if (buf) {\
-		/* with buffer */\
-		for (i = low; i <= middle; i++) {\
-			buf[i - idx] = DIRECT_ACCESS(self, i);\
-		}\
-		for (i = middle + 1, j = high; i <= high; i++, j--) {\
-			buf[i - idx] = DIRECT_ACCESS(self, j);\
-		}\
-		i = low;\
-		j = high;\
-		for (k = low; k <= high; k++) {\
-			if (comp(&buf[i - idx], &buf[j - idx]) <= 0) {\
-				DIRECT_ACCESS(self, k) = buf[i - idx];\
-				i++;\
-			} else {\
-				DIRECT_ACCESS(self, k) = buf[j - idx];\
-				j--;\
-			}\
-		}\
+		Name##_merge_with_buffer(self, first, middle, last, buf, comp);\
 	} else {\
-		/* without buffer */\
-		Name##_merge_without_buffer(self, low, middle + 1, high + 1, middle + 1 - low, high - middle, comp);\
+		Name##_merge_without_buffer(self, first, middle, last, middle - first, last - middle, comp);\
 	}\
 }\
 \
@@ -270,12 +275,13 @@ void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void
 	assert(Name##_size(self) >= idx + n && "stable_sort");\
 	assert(Name##_size(self) >= n && "stable_sort");\
 	assert(Name##_size(self) > idx && "stable_sort");\
+	assert(comp && "stable_sort");\
 	if (n < 9) {\
 		Name##_insertion_sort(self, idx, n, comp);\
 		return;\
 	}\
 	buf = (Type *) malloc(sizeof(Type) * n);\
-	Name##_merge_sort(self, idx, buf, idx, idx + n - 1, comp);\
+	Name##_merge_sort(self, buf, idx, idx + n, comp);\
 	free(buf);\
 }\
 \
@@ -289,6 +295,7 @@ size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	assert(Name##_size(self) >= idx + n && "lower_bound");\
 	assert(Name##_size(self) >= n && "lower_bound");\
 	assert(Name##_size(self) > idx && "lower_bound");\
+	assert(comp && "lower_bound");\
 	first = idx;\
 	last = idx + n - 1;\
 	while (first < last) {\
@@ -315,6 +322,7 @@ size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	assert(Name##_size(self) >= idx + n && "upper_bound");\
 	assert(Name##_size(self) >= n && "upper_bound");\
 	assert(Name##_size(self) > idx && "upper_bound");\
+	assert(comp && "upper_bound");\
 	first = idx;\
 	last = idx + n - 1;\
 	while (first < last) {\
@@ -339,6 +347,7 @@ size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*
 	assert(Name##_size(self) >= idx + n && "binary_search");\
 	assert(Name##_size(self) >= n && "binary_search");\
 	assert(Name##_size(self) > idx && "binary_search");\
+	assert(comp && "binary_search");\
 	i = Name##_lower_bound(self, idx, n, value, comp);\
 	if (i == idx + n) {\
 		return i;\
@@ -365,6 +374,35 @@ void Name##_reverse(Name *self, size_t idx, size_t n)\
 		CSTL_ALGORITHM_SWAP(first, last, tmp, DIRECT_ACCESS);\
 		first++;\
 		last--;\
+	}\
+}\
+\
+void Name##_rotate(Name *self, size_t first, size_t middle, size_t last)\
+{\
+	assert(self && "rotate");\
+	assert(self->magic == self && "rotate");\
+	assert(first <= middle && "rotate");\
+	assert(middle <= last && "rotate");\
+	Name##_rotate_aux(self, first, middle, last);\
+}\
+\
+void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const void *, const void *))\
+{\
+	Type *buf;\
+	assert(self && "inplace_merge");\
+	assert(self->magic == self && "inplace_merge");\
+	assert(first <= middle && "inplace_merge");\
+	assert(middle <= last && "inplace_merge");\
+	assert(comp && "inplace_merge");\
+	if (first == middle || middle == last) {\
+		return;\
+	}\
+	buf = (Type *) malloc(sizeof(Type) * (last - first));\
+	if (buf) {\
+		Name##_merge_with_buffer(self, first, middle, last, buf, comp);\
+		free(buf);\
+	} else {\
+		Name##_merge_without_buffer(self, first, middle, last, middle - first, last - middle, comp);\
 	}\
 }\
 \
