@@ -297,7 +297,7 @@ size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	assert(Name##_size(self) > idx && "lower_bound");\
 	assert(comp && "lower_bound");\
 	first = idx;\
-	last = idx + n - 1;\
+	last = idx + n;\
 	while (first < last) {\
 		middle = (first + last) / 2;\
 		if (comp(&value, &DIRECT_ACCESS(self, middle)) <= 0) {\
@@ -305,9 +305,6 @@ size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 		} else {\
 			first = middle + 1;\
 		}\
-	}\
-	if (first == idx + n - 1 && comp(&value, &DIRECT_ACCESS(self, first)) > 0) {\
-		first++;\
 	}\
 	return first;\
 }\
@@ -324,7 +321,7 @@ size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	assert(Name##_size(self) > idx && "upper_bound");\
 	assert(comp && "upper_bound");\
 	first = idx;\
-	last = idx + n - 1;\
+	last = idx + n;\
 	while (first < last) {\
 		middle = (first + last) / 2;\
 		if (comp(&value, &DIRECT_ACCESS(self, middle)) < 0) {\
@@ -332,9 +329,6 @@ size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 		} else {\
 			first = middle + 1;\
 		}\
-	}\
-	if (first == idx + n - 1 && comp(&value, &DIRECT_ACCESS(self, first)) >= 0) {\
-		first++;\
 	}\
 	return first;\
 }\
