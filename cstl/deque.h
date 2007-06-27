@@ -101,10 +101,16 @@ CSTL_DEQUE_END_EXTERN_C()\
  */
 #define CSTL_DEQUE_IMPLEMENT(Name, Type)	\
 \
-CSTL_RING_INTERFACE_FOR_DEQUE(Name##__Ring, Type)\
+CSTL_RING_INTERFACE(Name##__Ring, Type)\
 CSTL_RING_IMPLEMENT_FOR_DEQUE(Name##__Ring, Type)\
 CSTL_VECTOR_INTERFACE(Name##__RingVector, Name##__Ring*)\
-CSTL_VECTOR_IMPLEMENT(Name##__RingVector, Name##__Ring*)\
+CSTL_VECTOR_IMPLEMENT_BASE(Name##__RingVector, Name##__Ring*)\
+CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name##__RingVector, Name##__Ring*)\
+CSTL_VECTOR_IMPLEMENT_POP_BACK(Name##__RingVector, Name##__Ring*)\
+CSTL_VECTOR_IMPLEMENT_RESERVE(Name##__RingVector, Name##__Ring*)\
+CSTL_VECTOR_IMPLEMENT_RESIZE(Name##__RingVector, Name##__Ring*)\
+CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##__RingVector, Name##__Ring*)\
+CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##__RingVector, Name##__Ring*)\
 \
 /*! 
  * \brief deque構造体

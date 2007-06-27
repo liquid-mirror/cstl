@@ -148,7 +148,15 @@ static size_t Name##my_strlen(const Type *cstr)\
 }\
 \
 CSTL_VECTOR_INTERFACE(Name##__CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT(Name##__CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_BASE(Name##__CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name##__CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_RESERVE(Name##__CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_SHRINK(Name##__CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_RESIZE(Name##__CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##__CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##__CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT(Name##__CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_ERASE(Name##__CharVector, Type)\
 \
 /*! 
  * \brief string\‘¢‘Ì
@@ -191,7 +199,7 @@ void Name##_clear(Name *self)\
 {\
 	assert(self && "String_clear");\
 	assert(self->magic == self && "String_clear");\
-	Name##__CharVector_clear(self->data);\
+	CSTL_VECTOR_CLEAR(self->data);\
 	Name##__CharVector_push_back(self->data, '\0');\
 }\
 \
@@ -320,7 +328,7 @@ int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\
 	if (!Name##__CharVector_expand(self->data, cstr_len + 1)) {\
 		return 0;\
 	}\
-	Name##__CharVector_clear(self->data);\
+	CSTL_VECTOR_CLEAR(self->data);\
 	Name##__CharVector_insert_array(self->data, 0, cstr, cstr_len);\
 	Name##__CharVector_push_back(self->data, '\0');\
 	return 1;\

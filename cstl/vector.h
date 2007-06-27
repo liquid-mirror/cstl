@@ -58,6 +58,7 @@
 #define CSTL_VECTOR_EMPTY(self)		(self->end == 0)
 #define CSTL_VECTOR_CAPACITY(self)	self->nelems
 #define CSTL_VECTOR_FULL(self)		(CSTL_VECTOR_SIZE(self) == CSTL_VECTOR_CAPACITY(self))
+#define CSTL_VECTOR_CLEAR(self)		self->end = 0
 
 
 /*! 
@@ -97,13 +98,11 @@ size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 CSTL_VECTOR_END_EXTERN_C()\
 
 
-/*! 
- * \brief 実装マクロ
- * 
- * \param Name コンテナ名
- * \param Type 要素の型
- */
-#define CSTL_VECTOR_IMPLEMENT(Name, Type)	\
+
+#define CSTL_VECTOR_IMPLEMENT_BASE(Name, Type)	\
+static int Name##_expand(Name *self, size_t size);\
+static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n);\
+static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n);\
 /*! 
  * \brief vector構造体
  */\
@@ -113,13 +112,6 @@ struct Name##_t {\
 	Type *buf;\
 	CSTL_VECTOR_MAGIC(Name *magic;)\
 };\
-\
-static int Name##_expand(Name *self, size_t size)\
-{\
-	size_t n;\
-	n = (size > CSTL_VECTOR_CAPACITY(self) * 2) ? size : CSTL_VECTOR_CAPACITY(self) * 2;\
-	return Name##_reserve(self, n);\
-}\
 \
 Name *Name##_new(size_t n)\
 {\
@@ -149,6 +141,8 @@ void Name##_delete(Name *self)\
 	free(self);\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_ASSIGN(Name, Type)	\
 int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 {\
 	size_t i;\
@@ -170,7 +164,7 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 		if (n > CSTL_VECTOR_CAPACITY(self)) {\
 			if (!Name##_expand(self, CSTL_VECTOR_CAPACITY(self) + n)) return 0;\
 		}\
-		Name##_clear(self);\
+		CSTL_VECTOR_CLEAR(self);\
 		for (i = 0; i < n; i++) {\
 			Name##_push_back(self, CSTL_VECTOR_AT(x, i));\
 		}\
@@ -178,6 +172,8 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 	return 1;\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name, Type)	\
 int Name##_push_back(Name *self, Type elem)\
 {\
 	assert(self && "Vector_push_back");\
@@ -190,6 +186,8 @@ int Name##_push_back(Name *self, Type elem)\
 	return 1;\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_POP_BACK(Name, Type)	\
 Type Name##_pop_back(Name *self)\
 {\
 	assert(self && "Vector_pop_back");\
@@ -199,6 +197,8 @@ Type Name##_pop_back(Name *self)\
 	return self->buf[self->end];\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_SIZE(Name, Type)	\
 size_t Name##_size(Name *self)\
 {\
 	assert(self && "Vector_size");\
@@ -206,6 +206,8 @@ size_t Name##_size(Name *self)\
 	return CSTL_VECTOR_SIZE(self);\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_CAPACITY(Name, Type)	\
 size_t Name##_capacity(Name *self)\
 {\
 	assert(self && "Vector_capacity");\
@@ -213,6 +215,8 @@ size_t Name##_capacity(Name *self)\
 	return CSTL_VECTOR_CAPACITY(self);\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_EMPTY(Name, Type)	\
 int Name##_empty(Name *self)\
 {\
 	assert(self && "Vector_empty");\
@@ -220,11 +224,22 @@ int Name##_empty(Name *self)\
 	return CSTL_VECTOR_EMPTY(self);\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_CLEAR(Name, Type)	\
 void Name##_clear(Name *self)\
 {\
 	assert(self && "Vector_clear");\
 	assert(self->magic == self && "Vector_clear");\
-	self->end = 0;\
+	CSTL_VECTOR_CLEAR(self);\
+}\
+\
+
+#define CSTL_VECTOR_IMPLEMENT_RESERVE(Name, Type)	\
+static int Name##_expand(Name *self, size_t size)\
+{\
+	size_t n;\
+	n = (size > CSTL_VECTOR_CAPACITY(self) * 2) ? size : CSTL_VECTOR_CAPACITY(self) * 2;\
+	return Name##_reserve(self, n);\
 }\
 \
 int Name##_reserve(Name *self, size_t n)\
@@ -240,6 +255,8 @@ int Name##_reserve(Name *self, size_t n)\
 	return 1;\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_SHRINK(Name, Type)	\
 void Name##_shrink(Name *self, size_t n)\
 {\
 	Type *newbuf;\
@@ -257,6 +274,8 @@ void Name##_shrink(Name *self, size_t n)\
 	}\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_RESIZE(Name, Type)	\
 int Name##_resize(Name *self, size_t n, Type elem)\
 {\
 	size_t size;\
@@ -277,6 +296,8 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 	return 1;\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_AT(Name, Type)	\
 Type *Name##_at(Name *self, size_t idx)\
 {\
 	assert(self && "Vector_at");\
@@ -285,6 +306,8 @@ Type *Name##_at(Name *self, size_t idx)\
 	return &CSTL_VECTOR_AT(self, idx);\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_FRONT(Name, Type)	\
 Type Name##_front(Name *self)\
 {\
 	assert(self && "Vector_front");\
@@ -293,6 +316,8 @@ Type Name##_front(Name *self)\
 	return self->buf[0];\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_BACK(Name, Type)	\
 Type Name##_back(Name *self)\
 {\
 	assert(self && "Vector_back");\
@@ -301,6 +326,8 @@ Type Name##_back(Name *self)\
 	return self->buf[self->end - 1];\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)	\
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
 {\
 	size_t i;\
@@ -309,6 +336,8 @@ static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)
 	}\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)	\
 static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n)\
 {\
 	size_t i;\
@@ -317,6 +346,8 @@ static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n
 	}\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_INSERT(Name, Type)	\
 int Name##_insert(Name *self, size_t idx, Type elem)\
 {\
 	assert(self && "Vector_insert");\
@@ -343,6 +374,8 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 	return 1;\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_ERASE(Name, Type)	\
 void Name##_erase(Name *self, size_t idx, size_t n)\
 {\
 	assert(self && "Vector_erase");\
@@ -355,6 +388,8 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 	self->end -= n;\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_SWAP(Name, Type)	\
 void Name##_swap(Name *self, Name *x)\
 {\
 	size_t tmp_end;\
@@ -375,6 +410,34 @@ void Name##_swap(Name *self, Name *x)\
 	x->buf = tmp_buf;\
 }\
 \
+
+
+/*! 
+ * \brief 実装マクロ
+ * 
+ * \param Name コンテナ名
+ * \param Type 要素の型
+ */
+#define CSTL_VECTOR_IMPLEMENT(Name, Type)	\
+CSTL_VECTOR_IMPLEMENT_BASE(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_ASSIGN(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_POP_BACK(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_SIZE(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_CAPACITY(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_EMPTY(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_CLEAR(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_RESERVE(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_SHRINK(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_RESIZE(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_AT(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_FRONT(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_BACK(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_ERASE(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_SWAP(Name, Type)\
 CSTL_ALGORITHM_SORT(Name, Type, CSTL_VECTOR_AT)\
 
 

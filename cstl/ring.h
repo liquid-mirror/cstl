@@ -67,7 +67,14 @@
 #define CSTL_RING_CLEAR(self)					self->end = self->begin
 
 
-#define CSTL_RING_INTERFACE_FOR_DEQUE(Name, Type)	\
+/*! 
+ * \brief インターフェイスマクロ
+ * 
+ * \param Name コンテナ名
+ * \param Type 要素の型
+ */
+#define CSTL_RING_INTERFACE(Name, Type)	\
+\
 typedef struct Name##_t Name;\
 /*! 
  * \brief リングバッファ構造体
@@ -85,20 +92,6 @@ Name *Name##_new(size_t n);\
 void Name##_init(Name *self, Type *buf, size_t n);\
 void Name##_delete(Name *self);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
-CSTL_RING_END_EXTERN_C()\
-
-
-/*! 
- * \brief インターフェイスマクロ
- * 
- * \param Name コンテナ名
- * \param Type 要素の型
- */
-#define CSTL_RING_INTERFACE(Name, Type)	\
-\
-CSTL_RING_INTERFACE_FOR_DEQUE(Name, Type)\
-\
-CSTL_RING_BEGIN_EXTERN_C()\
 int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
 int Name##_push_back(Name *self, Type elem);\
 int Name##_push_front(Name *self, Type elem);\
@@ -228,7 +221,7 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 		}\
 	} else {\
 		if (n > CSTL_RING_MAX_SIZE(self)) return 0;\
-		Name##_clear(self);\
+		CSTL_RING_CLEAR(self);\
 		for (i = 0; i < n; i++) {\
 			Name##_push_back(self, CSTL_RING_AT(x, i));\
 		}\
