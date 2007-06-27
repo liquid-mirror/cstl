@@ -96,6 +96,7 @@ struct BlockHeader_t {
 #ifdef HEAP_DEBUG
 	char *file;
 	size_t line;
+	size_t alloc_size;		/* ユーザが指定したサイズ */
 #endif
 };
 
@@ -123,17 +124,21 @@ void hex_dump(void *buf, size_t size);
 size_t dump_memory_leak(Heap *self, int dump);
 void dump_memory_block(Heap *self, void *ptr);
 void dump_memory_list(Heap *self);
+int check_heap_overflow(void *ptr);
+void dump_heap_overflow(Heap *self);
 #define Heap_alloc(h, s)		Heap_alloc_debug(h, s, __FILE__, __LINE__)
 #define Heap_realloc(h, p, s)	Heap_realloc_debug(h, p, s, __FILE__, __LINE__)
 #define DUMP_MEMORY_LEAK(h, d)	dump_memory_leak(h, d)
 #define DUMP_MEMORY_BLOCK(h, p)	dump_memory_block(h, p)
 #define DUMP_MEMORY_LIST(h)		dump_memory_list(h)
+#define DUMP_HEAP_OVERFLOW(h)	dump_heap_overflow(h)
 #else
 void *Heap_alloc(Heap *self, size_t size);
 void *Heap_realloc(Heap *self, void *ptr, size_t newsize);
 #define DUMP_MEMORY_LEAK(h, d)
 #define DUMP_MEMORY_BLOCK(h, p)
 #define DUMP_MEMORY_LIST(h)
+#define DUMP_HEAP_OVERFLOW(h)
 #endif
 #ifdef __cplusplus
 }

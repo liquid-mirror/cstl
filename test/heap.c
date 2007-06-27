@@ -43,6 +43,13 @@
 #define SPLIT_MIN		(ALIGN_SIZE*4)	/* 分割された空きブロックのヘッダサイズ分を除いた最小サイズ */
 #define MAGIC_NO		0x17			/* マジックナンバー */
 
+#ifdef HEAP_DEBUG
+#define WALL_SIZE	32		/* ヒープオーバーフローのチェック用の壁のサイズ */
+#define WALL_CHAR	0xCC
+static void clear_wall(BlockHeader *p);
+#endif
+
+
 /* ヘッダサイズ */
 static const size_t HEADER_SIZE = ALIGN_UP(sizeof(BlockHeader));
 
@@ -58,7 +65,7 @@ void Heap_init(Heap *self, double *buf, size_t size)
 
 	self->list_term.size = 0;
 	self->list_term.occupied = 1;
-	self->list_term.magic = ~MAGIC_NO;
+	self->list_term.magic = ~MAGIC_NO & 0xFF;
 	self->list_term.next = p;
 #ifndef SLIST_BLOCK
 	self->list_term.prev = p;
@@ -92,7 +99,12 @@ void *Heap_alloc(Heap *self, size_t size)
 {
 	BlockHeader *p;
 	BlockHeader *s;
+#ifdef HEAP_DEBUG
+	size_t i;
+	size_t alloc_block_size = ALIGN_UP(HEADER_SIZE + size + WALL_SIZE * 2);
+#else
 	size_t alloc_block_size = ALIGN_UP(HEADER_SIZE + size);
+#endif
 
 	if (self->init_flag != self) {
 		assert(0);
@@ -117,9 +129,18 @@ void *Heap_alloc(Heap *self, size_t size)
 #ifdef HEAP_DEBUG
 			p->file = file;
 			p->line = line;
+			p->alloc_size = size;
+			for (i = 0; i < WALL_SIZE; i++) {
+				((char *) p)[HEADER_SIZE + i] = WALL_CHAR;
+				((char *) p)[HEADER_SIZE + WALL_SIZE + size + i] = WALL_CHAR;
+			}
 #endif
 			self->loop_p = p;
+#ifdef HEAP_DEBUG
+			return (char *) p + HEADER_SIZE + WALL_SIZE;
+#else
 			return (char *) p + HEADER_SIZE;
+#endif
 		}
 	}
 	return 0;
@@ -140,6 +161,7 @@ void *Heap_realloc_debug(Heap *self, void *ptr, size_t newsize, char *file, size
 void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 #endif
 {
+	size_t i;
 	BlockHeader *p;
 	BlockHeader *s;
 	size_t new_alloc_block_size;
@@ -158,9 +180,17 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 		Heap_free(self, ptr);
 		return 0;
 	}
+#ifdef HEAP_DEBUG
+	p = (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE));
+#else
 	p = (BlockHeader *) ((char *) ptr - HEADER_SIZE);
+#endif
 	if (p->magic != MAGIC_NO || !p->occupied) return 0;
+#ifdef HEAP_DEBUG
+	new_alloc_block_size = ALIGN_UP(HEADER_SIZE + newsize + WALL_SIZE * 2);
+#else
 	new_alloc_block_size = ALIGN_UP(HEADER_SIZE + newsize);
+#endif
 	if (p->size >= new_alloc_block_size) {
 		if (p->size >= 2 * new_alloc_block_size && new_alloc_block_size >= HEADER_SIZE + SPLIT_MIN) {
 			/* 縮んだ分を空き領域として回収 */
@@ -189,11 +219,16 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 			p->size = new_alloc_block_size;
 			p->next = s;
 		}
+#ifdef HEAP_DEBUG
+		p->alloc_size = newsize;
+		for (i = 0; i < WALL_SIZE; i++) {
+			((char *) ptr)[newsize + i] = WALL_CHAR;
+		}
+#endif
 		return ptr;
 	}
 	/* 以下、拡張 */
 	if (p->next->occupied || p->size + p->next->size < new_alloc_block_size) {
-		size_t i;
 #ifdef HEAP_DEBUG
 		void *newptr = Heap_alloc_debug(self, newsize, file, line);
 #else
@@ -202,7 +237,13 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 		if (!newptr) {
 			return 0;
 		}
-		for (i = 0; i < p->size - HEADER_SIZE; i++) {
+		for (i = 0;
+#ifdef HEAP_DEBUG
+				i < p->alloc_size;
+#else
+				i < p->size - HEADER_SIZE;
+#endif
+				i++) {
 			((char *) newptr)[i] = ((char *) ptr)[i];
 		}
 		Heap_free(self, ptr);
@@ -236,6 +277,10 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 #ifdef HEAP_DEBUG
 	p->file = file;
 	p->line = line;
+	p->alloc_size = newsize;
+	for (i = 0; i < WALL_SIZE; i++) {
+		((char *) ptr)[newsize + i] = WALL_CHAR;
+	}
 #endif
 	return ptr;
 }
@@ -262,7 +307,13 @@ void Heap_free(Heap *self, void *ptr)
 	prev = &self->list_term;
 	pprev = &self->list_term;
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
+#ifdef HEAP_DEBUG
+		if (p == (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE))) {
+			assert(check_heap_overflow(ptr));
+			clear_wall(p);
+#else
 		if (p == (BlockHeader *) ((char *) ptr - HEADER_SIZE)) {
+#endif
 			if (p->magic != MAGIC_NO || !p->occupied) {
 				assert(0);
 				return;
@@ -303,7 +354,13 @@ void Heap_free(Heap *self, void *ptr)
 	if (!ptr) {
 		return;
 	}
+#ifdef HEAP_DEBUG
+	p = (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE));
+	assert(check_heap_overflow(ptr));
+	clear_wall(p);
+#else
 	p = (BlockHeader *) ((char *) ptr - HEADER_SIZE);
+#endif
 	if (p->magic != MAGIC_NO || !p->occupied) {
 		assert(0);
 		return;
@@ -376,6 +433,66 @@ void hex_dump(void *buf, size_t size)
 }
 
 /*! 
+ * \brief 壁をクリアする
+ * \param p メモリブロック
+ */
+static void clear_wall(BlockHeader *p)
+{
+	size_t i;
+	for (i = 0; i < WALL_SIZE; i++) {
+		((char *) p)[HEADER_SIZE + i] = ~WALL_CHAR & 0xFF;
+		((char *) p)[HEADER_SIZE + WALL_SIZE + p->alloc_size + i] = ~WALL_CHAR & 0xFF;
+	}
+}
+
+/*! 
+ * \brief ヒープオーバーフローをチェックする
+ * \param ptr Heap_alloc()で取得したポインタ
+ * \return 確保したメモリサイズを超えて書き込みをしていなければ真を返す
+ */
+int check_heap_overflow(void *ptr)
+{
+	size_t i;
+	BlockHeader *p = (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE));
+	for (i = 0; i < WALL_SIZE; i++) {
+		if (((unsigned char *) p)[HEADER_SIZE + i] != WALL_CHAR) {
+			return 0;
+		}
+		if (((unsigned char *) p)[HEADER_SIZE + WALL_SIZE + p->alloc_size + i] != WALL_CHAR) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+/*! 
+ * \brief ヒープオーバーフローを検出する
+ * \param self ヒープへのポインタ
+ */
+void dump_heap_overflow(Heap *self)
+{
+	BlockHeader *p;
+	void *ptr;
+	int flag = 0;
+	if (self->init_flag != self) {
+		assert(0);
+		return;
+	}
+	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
+		ptr = (char *) p + HEADER_SIZE + WALL_SIZE;
+		if (p->occupied && !check_heap_overflow(ptr)) {
+			if (!flag) {
+				printf("\ndetected heap overflow!\n");
+				flag = 1;
+			}
+			printf("%s(%d): ", p->file, p->line);
+			printf("ptr(%p): alloc(%d bytes)\n", ptr, p->alloc_size);
+			hex_dump((char *) p + HEADER_SIZE, p->size - HEADER_SIZE);
+		}
+	}
+}
+
+/*! 
  * \brief メモリリークを検出する
  * \param self ヒープへのポインタ
  * \param dump 真ならばリークをダンプする
@@ -428,16 +545,16 @@ void dump_memory_block(Heap *self, void *ptr)
 		return;
 	}
 	if (!ptr) goto NG_block;
-	p = (BlockHeader *) ((char *) ptr - HEADER_SIZE);
+	p = (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE));
 	if (p->magic != MAGIC_NO) goto NG_block;
 
 	if (p->occupied) {
 		printf("%s(%d): ", p->file, p->line);
+		printf("block(%d bytes): alloc(%d bytes)\n", p->size, p->alloc_size);
 	} else {
 		printf("*** free ***: ");
+		printf("block(%d bytes)\n", p->size);
 	}
-	printf("block(%d bytes): alloc(%d bytes)\n"
-			, p->size, p->size - HEADER_SIZE);
 #ifdef SLIST_BLOCK
 	printf("next(%p)\n", p->next);
 #else
@@ -473,7 +590,7 @@ void dump_memory_list(Heap *self)
 	hex_dump((char *) (&self->list_term), HEADER_SIZE);
 	printf("\n");
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
-		dump_memory_block(self, (char *) p + HEADER_SIZE);
+		dump_memory_block(self, (char *) p + (HEADER_SIZE + WALL_SIZE));
 	}
 }
 #endif
