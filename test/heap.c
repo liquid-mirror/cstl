@@ -308,16 +308,20 @@ void Heap_free(Heap *self, void *ptr)
 	pprev = &self->list_term;
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
 #ifdef HEAP_DEBUG
-		if (p == (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE))) {
-			assert(check_heap_overflow(ptr));
-			clear_wall(p);
+		if (p == (BlockHeader *) ((char *) ptr - 
+										(HEADER_SIZE + WALL_SIZE)
 #else
-		if (p == (BlockHeader *) ((char *) ptr - HEADER_SIZE)) {
+										HEADER_SIZE
 #endif
+									)) {
 			if (p->magic != MAGIC_NO || !p->occupied) {
 				assert(0);
 				return;
 			}
+#ifdef HEAP_DEBUG
+			assert(check_heap_overflow(ptr));
+			clear_wall(p);
+#endif
 			p->occupied = 0;
 			if (p == self->loop_p) {
 				self->loop_p = prev;
@@ -356,8 +360,6 @@ void Heap_free(Heap *self, void *ptr)
 	}
 #ifdef HEAP_DEBUG
 	p = (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE));
-	assert(check_heap_overflow(ptr));
-	clear_wall(p);
 #else
 	p = (BlockHeader *) ((char *) ptr - HEADER_SIZE);
 #endif
@@ -365,6 +367,10 @@ void Heap_free(Heap *self, void *ptr)
 		assert(0);
 		return;
 	}
+#ifdef HEAP_DEBUG
+	assert(check_heap_overflow(ptr));
+	clear_wall(p);
+#endif
 	p->occupied = 0;
 	if (p == self->loop_p) {
 		self->loop_p = p->prev;
@@ -454,6 +460,7 @@ int check_heap_overflow(void *ptr)
 {
 	size_t i;
 	BlockHeader *p = (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE));
+	assert(p->occupied);
 	for (i = 0; i < WALL_SIZE; i++) {
 		if (((unsigned char *) p)[HEADER_SIZE + i] != WALL_CHAR) {
 			return 0;
@@ -533,17 +540,11 @@ size_t dump_memory_leak(Heap *self, int dump)
 
 /*! 
  * \brief メモリブロックをダンプする
- * \param self ヒープへのポインタ
  * \param ptr Heap_alloc()で取得したポインタ
  */
-void dump_memory_block(Heap *self, void *ptr)
+void dump_memory_block(void *ptr)
 {
 	BlockHeader *p;
-
-	if (self->init_flag != self) {
-		assert(0);
-		return;
-	}
 	if (!ptr) goto NG_block;
 	p = (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE));
 	if (p->magic != MAGIC_NO) goto NG_block;
@@ -590,7 +591,7 @@ void dump_memory_list(Heap *self)
 	hex_dump((char *) (&self->list_term), HEADER_SIZE);
 	printf("\n");
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
-		dump_memory_block(self, (char *) p + (HEADER_SIZE + WALL_SIZE));
+		dump_memory_block((char *) p + (HEADER_SIZE + WALL_SIZE));
 	}
 }
 #endif

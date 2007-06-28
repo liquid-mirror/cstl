@@ -109,7 +109,7 @@ typedef struct Heap_t Heap;
 struct Heap_t {
 	BlockHeader list_term;	/* メモリブロックリストターミネータ */
 	BlockHeader *loop_p;	/* ループ用ポインタ */
-	void *init_flag;
+	Heap *init_flag;
 };
 
 #ifdef __cplusplus
@@ -122,14 +122,14 @@ void *Heap_alloc_debug(Heap *self, size_t size, char *file, size_t line);
 void *Heap_realloc_debug(Heap *self, void *ptr, size_t newsize, char *file, size_t line);
 void hex_dump(void *buf, size_t size);
 size_t dump_memory_leak(Heap *self, int dump);
-void dump_memory_block(Heap *self, void *ptr);
+void dump_memory_block(void *ptr);
 void dump_memory_list(Heap *self);
 int check_heap_overflow(void *ptr);
 void dump_heap_overflow(Heap *self);
 #define Heap_alloc(h, s)		Heap_alloc_debug(h, s, __FILE__, __LINE__)
 #define Heap_realloc(h, p, s)	Heap_realloc_debug(h, p, s, __FILE__, __LINE__)
 #define DUMP_MEMORY_LEAK(h, d)	dump_memory_leak(h, d)
-#define DUMP_MEMORY_BLOCK(h, p)	dump_memory_block(h, p)
+#define DUMP_MEMORY_BLOCK(p)	dump_memory_block(p)
 #define DUMP_MEMORY_LIST(h)		dump_memory_list(h)
 #define DUMP_HEAP_OVERFLOW(h)	dump_heap_overflow(h)
 #else

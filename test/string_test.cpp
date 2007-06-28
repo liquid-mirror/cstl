@@ -45,6 +45,7 @@ void StringTest_test_1_1(void)
 	assert(String_empty(x));
 	assert(String_size(x) == 0);
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	String_delete(x);
 }
 
@@ -133,6 +134,7 @@ void StringTest_test_1_2(void)
 	assert(String_size(y) == 7);
 	assert(String_size(x) == 8);
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	String_delete(x);
 	String_delete(y);
 }
@@ -354,6 +356,7 @@ void StringTest_test_1_4(void)
 	printf("%s\n", s.c_str());
 #endif
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	String_delete(x);
 }
 

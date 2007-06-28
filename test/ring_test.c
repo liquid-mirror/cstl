@@ -93,6 +93,7 @@ void RingTest_test_1_1(void)
 		assert(UCharRing_size(ur) == 0);
 	}
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	UCharRing_delete(ur);
 }
 
@@ -153,6 +154,7 @@ void RingTest_test_1_2(void)
 		assert(!UCharRing_full(ur));
 	}
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	UCharRing_delete(ur);
 }
 
@@ -214,6 +216,7 @@ void RingTest_test_1_3(void)
 		assert(!UCharRing_full(ur));
 	}
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	UCharRing_delete(ur);
 }
 
@@ -300,6 +303,7 @@ void RingTest_test_1_4(void)
 
 	}
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	UCharRing_delete(ur);
 }
 
@@ -434,6 +438,7 @@ void RingTest_test_1_5(void)
 		assert(UCharRing_size(ur) == 0);
 	}
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	UCharRing_delete(ur);
 }
 
@@ -509,6 +514,7 @@ void RingTest_test_1_6(void)
 	assert(UCharRing_size(x) == MAX);
 
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	UCharRing_delete(ur);
 	UCharRing_delete(x);
 }
@@ -558,6 +564,7 @@ void RingTest_test_2_1(void)
 		assert(IntRing_size(ir) == 0);
 	}
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	IntRing_delete(ir);
 }
 
@@ -618,6 +625,7 @@ void RingTest_test_2_2(void)
 		assert(!IntRing_full(ir));
 	}
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	IntRing_delete(ir);
 }
 
@@ -679,6 +687,7 @@ void RingTest_test_2_3(void)
 		assert(!IntRing_full(ir));
 	}
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	IntRing_delete(ir);
 }
 
@@ -765,6 +774,7 @@ void RingTest_test_2_4(void)
 
 	}
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	IntRing_delete(ir);
 }
 
@@ -899,6 +909,7 @@ void RingTest_test_2_5(void)
 		assert(IntRing_size(ir) == 0);
 	}
 
+	DUMP_HEAP_OVERFLOW(&heap);
 	IntRing_delete(ir);
 }
 
