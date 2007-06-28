@@ -44,9 +44,16 @@
 #define MAGIC_NO		0x17			/* マジックナンバー */
 
 #ifdef HEAP_DEBUG
+#include <stdio.h>
+#include <stdarg.h>
+#include <ctype.h>
 #define WALL_SIZE	32		/* ヒープオーバーフローのチェック用の壁のサイズ */
 #define WALL_CHAR	0xCC
 static void clear_wall(BlockHeader *p);
+static void debug_log(char *fmt, ...);
+#define DEBUGLOG(x)		debug_log x
+#else
+#define DEBUGLOG(x)
 #endif
 
 
@@ -107,6 +114,7 @@ void *Heap_alloc(Heap *self, size_t size)
 #endif
 
 	if (self->init_flag != self) {
+		DEBUGLOG(("Heap_alloc(): heap is not initialized: %s(%d)\n", file, line));
 		assert(0);
 		return 0;
 	}
@@ -143,6 +151,7 @@ void *Heap_alloc(Heap *self, size_t size)
 #endif
 		}
 	}
+	DEBUGLOG(("Heap_alloc(): return NULL: %s(%d)\n", file, line));
 	return 0;
 }
 
@@ -166,6 +175,7 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 	BlockHeader *s;
 	size_t new_alloc_block_size;
 	if (self->init_flag != self) {
+		DEBUGLOG(("Heap_realloc(): heap is not initialized: %s(%d)\n", file, line));
 		assert(0);
 		return 0;
 	}
@@ -235,6 +245,7 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 		void *newptr = Heap_alloc(self, newsize);
 #endif
 		if (!newptr) {
+			DEBUGLOG(("Heap_realloc(): return NULL: %s(%d)\n", file, line));
 			return 0;
 		}
 		for (i = 0;
@@ -298,6 +309,7 @@ void Heap_free(Heap *self, void *ptr)
 	BlockHeader *pprev;
 
 	if (self->init_flag != self) {
+		DEBUGLOG(("Heap_free(): heap is not initialized\n"));
 		assert(0);
 		return;
 	}
@@ -314,12 +326,21 @@ void Heap_free(Heap *self, void *ptr)
 										HEADER_SIZE
 #endif
 									)) {
-			if (p->magic != MAGIC_NO || !p->occupied) {
+			if (p->magic != MAGIC_NO) {
+				DEBUGLOG(("Heap_free(): NG pointer\n"));
+				assert(0);
+				return;
+			}
+			if (!p->occupied) {
+				DEBUGLOG(("Heap_free(): double free: %s(%d)\n", p->file, p->line));
 				assert(0);
 				return;
 			}
 #ifdef HEAP_DEBUG
-			assert(check_heap_overflow(ptr));
+			if (!check_heap_overflow(ptr)) {
+				DEBUGLOG(("Heap_free(): heap overflow: %s(%d)\n", p->file, p->line));
+				assert(0);
+			}
 			clear_wall(p);
 #endif
 			p->occupied = 0;
@@ -343,6 +364,7 @@ void Heap_free(Heap *self, void *ptr)
 		pprev = prev;
 		prev = p;
 	}
+	DEBUGLOG(("Heap_free(): NG pointer\n"));
 	assert(0);
 }
 #else
@@ -352,6 +374,7 @@ void Heap_free(Heap *self, void *ptr)
 	BlockHeader *tmp;
 
 	if (self->init_flag != self) {
+		DEBUGLOG(("Heap_free(): heap is not initialized\n"));
 		assert(0);
 		return;
 	}
@@ -363,12 +386,21 @@ void Heap_free(Heap *self, void *ptr)
 #else
 	p = (BlockHeader *) ((char *) ptr - HEADER_SIZE);
 #endif
-	if (p->magic != MAGIC_NO || !p->occupied) {
+	if (p->magic != MAGIC_NO) {
+		DEBUGLOG(("Heap_free(): NG pointer\n"));
+		assert(0);
+		return;
+	}
+	if (!p->occupied) {
+		DEBUGLOG(("Heap_free(): double free: %s(%d)\n", p->file, p->line));
 		assert(0);
 		return;
 	}
 #ifdef HEAP_DEBUG
-	assert(check_heap_overflow(ptr));
+	if (!check_heap_overflow(ptr)) {
+		DEBUGLOG(("Heap_free(): heap overflow: %s(%d)\n", p->file, p->line));
+		assert(0);
+	}
 	clear_wall(p);
 #endif
 	p->occupied = 0;
@@ -397,8 +429,16 @@ void Heap_free(Heap *self, void *ptr)
 
 /* 以下、デバッグ用 */
 #ifdef HEAP_DEBUG
-#include <stdio.h>
-#include <ctype.h>
+void debug_log(char *fmt, ...)
+{
+	va_list args;
+	char buf[256];
+	va_start(args, fmt);
+	vsprintf(buf, fmt, args);
+	va_end(args);
+	printf("%s", buf);
+}
+
 /*! 
  * \brief 16進ダンプ
  * \param buf バッファ
@@ -413,27 +453,27 @@ void hex_dump(void *buf, size_t size)
 	p = (unsigned char *) buf;
 	for (i = 0; i < size; i++) {
 		if (i%16 == 0) {
-			printf("%p: ", &p[i]);
+			debug_log("%p: ", &p[i]);
 		}
-		printf("%02x ", p[i]);
+		debug_log("%02x ", p[i]);
 		tmp[i%16] = p[i];
 		if (i == size -1) {
 			for (j = i+1; j < i + (16 - i%16); j++) {
 				tmp[j%16] = ' ';
-				printf("   ");
+				debug_log("   ");
 			}
 			i = j - 1;
 		}
 		if (i%16 == 15) {
-			printf(" ");
+			debug_log(" ");
 			for (j = 0; j < 16; j++) {
 				if (isprint(tmp[j])) {
-					printf("%c", tmp[j]);
+					debug_log("%c", tmp[j]);
 				} else {
-					printf(".");
+					debug_log(".");
 				}
 			}
-			printf("\n");
+			debug_log("\n");
 		}
 	}
 }
@@ -482,6 +522,7 @@ void dump_heap_overflow(Heap *self)
 	void *ptr;
 	int flag = 0;
 	if (self->init_flag != self) {
+		debug_log("heap is not initialized\n");
 		assert(0);
 		return;
 	}
@@ -489,11 +530,11 @@ void dump_heap_overflow(Heap *self)
 		ptr = (char *) p + HEADER_SIZE + WALL_SIZE;
 		if (p->occupied && !check_heap_overflow(ptr)) {
 			if (!flag) {
-				printf("\ndetected heap overflow!\n");
+				debug_log("\ndetected heap overflow!\n");
 				flag = 1;
 			}
-			printf("%s(%d): ", p->file, p->line);
-			printf("ptr(%p): alloc(%d bytes)\n", ptr, p->alloc_size);
+			debug_log("%s(%d): ", p->file, p->line);
+			debug_log("ptr(%p): alloc(%d bytes)\n", ptr, p->alloc_size);
 			hex_dump((char *) p + HEADER_SIZE, p->size - HEADER_SIZE);
 		}
 	}
@@ -512,20 +553,21 @@ size_t dump_memory_leak(Heap *self, int dump)
 	size_t total = 0;
 	int flag = 0;
 	if (self->init_flag != self) {
+		debug_log("heap is not initialized\n");
 		assert(0);
 		return 0;
 	}
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
 		if (p->occupied) {
 			if (!flag) {
-				printf("\ndetected memory leaks!\n");
+				debug_log("\ndetected memory leaks!\n");
 				flag = 1;
 			}
 			if (dump || n < 10) {
-				printf("%s(%d): ", p->file, p->line);
-				printf("%d bytes\n", p->size - HEADER_SIZE);
+				debug_log("%s(%d): ", p->file, p->line);
+				debug_log("%d bytes\n", p->size - HEADER_SIZE);
 			} else if (n == 10) {
-				printf("...\n");
+				debug_log("...\n");
 			}
 			if (dump) {
 				hex_dump((char *) p + HEADER_SIZE, p->size - HEADER_SIZE);
@@ -534,7 +576,7 @@ size_t dump_memory_leak(Heap *self, int dump)
 			total += p->size - HEADER_SIZE;
 		}
 	}
-	printf("\ntotal memory leaks: %d bytes\n", total);
+	debug_log("\ntotal memory leaks: %d bytes\n", total);
 	return n;
 }
 
@@ -550,23 +592,23 @@ void dump_memory_block(void *ptr)
 	if (p->magic != MAGIC_NO) goto NG_block;
 
 	if (p->occupied) {
-		printf("%s(%d): ", p->file, p->line);
-		printf("block(%d bytes): alloc(%d bytes)\n", p->size, p->alloc_size);
+		debug_log("%s(%d): ", p->file, p->line);
+		debug_log("block(%d bytes): alloc(%d bytes)\n", p->size, p->alloc_size);
 	} else {
-		printf("*** free ***: ");
-		printf("block(%d bytes)\n", p->size);
+		debug_log("*** free ***: ");
+		debug_log("block(%d bytes)\n", p->size);
 	}
 #ifdef SLIST_BLOCK
-	printf("next(%p)\n", p->next);
+	debug_log("next(%p)\n", p->next);
 #else
-	printf("prev(%p): next(%p)\n", p->prev, p->next);
+	debug_log("prev(%p): next(%p)\n", p->prev, p->next);
 #endif
 	hex_dump((char *) p, HEADER_SIZE);
 	hex_dump((char *) p + HEADER_SIZE, p->size - HEADER_SIZE);
-	printf("\n");
+	debug_log("\n");
 	return;
 NG_block:
-	printf("NG memory block: %p\n", p);
+	debug_log("NG memory block: %p\n", p);
 }
 
 /*! 
@@ -577,19 +619,20 @@ void dump_memory_list(Heap *self)
 {
 	BlockHeader *p;
 	if (self->init_flag != self) {
+		debug_log("heap is not initialized\n");
 		assert(0);
 		return;
 	}
-	printf("\ndump_memory_list()\n");
-	printf("block header size: %d bytes\n", HEADER_SIZE);
-	printf("block list terminator\n");
+	debug_log("\ndump_memory_list()\n");
+	debug_log("block header size: %d bytes\n", HEADER_SIZE);
+	debug_log("block list terminator\n");
 #ifdef SLIST_BLOCK
-	printf("next(%p)\n", self->list_term.next);
+	debug_log("next(%p)\n", self->list_term.next);
 #else
-	printf("prev(%p): next(%p)\n", self->list_term.prev, self->list_term.next);
+	debug_log("prev(%p): next(%p)\n", self->list_term.prev, self->list_term.next);
 #endif
 	hex_dump((char *) (&self->list_term), HEADER_SIZE);
-	printf("\n");
+	debug_log("\n");
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
 		dump_memory_block((char *) p + (HEADER_SIZE + WALL_SIZE));
 	}
