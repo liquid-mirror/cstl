@@ -82,6 +82,7 @@ Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
+int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
@@ -569,13 +570,8 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 	return Name##_insert_array(self, idx, &elem, 1);\
 }\
 \
-int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
+static int Name##_expand_for_insert(Name *self, size_t idx, size_t n)\
 {\
-	size_t i;\
-	assert(self && "Deque_insert_array");\
-	assert(self->magic == self && "Deque_insert_array");\
-	assert(Name##_size(self) >= idx && "Deque_insert_array");\
-	assert(elems && "Deque_insert_array");\
 	if (Name##_size(self) / 2 < idx) {\
 		/* end側を移動 */\
 		size_t s;\
@@ -593,8 +589,62 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 		Name##_push_front_n_no_elem(self, n);\
 		Name##_move_backward(self, n, n + idx, n);\
 	}\
+	return 1;\
+}\
+\
+int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
+{\
+	size_t i;\
+	assert(self && "Deque_insert_array");\
+	assert(self->magic == self && "Deque_insert_array");\
+	assert(Name##_size(self) >= idx && "Deque_insert_array");\
+	assert(elems && "Deque_insert_array");\
+	if (!n) return 1;\
+	if (!Name##_expand_for_insert(self, idx, n)) {\
+		return 0;\
+	}\
 	for (i = 0; i < n; i++) {\
 		*Name##_at(self, idx + i) = elems[i];\
+	}\
+	return 1;\
+}\
+\
+int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
+{\
+	size_t i, j;\
+	assert(self && "Deque_insert_range");\
+	assert(self->magic == self && "Deque_insert_range");\
+	assert(Name##_size(self) >= idx && "Deque_insert_range");\
+	assert(x && "Deque_insert_range");\
+	assert(x->magic == x && "Deque_insert_range");\
+	assert(Name##_size(x) >= xidx + n && "Deque_insert_range");\
+	assert(Name##_size(x) >= n && "Deque_insert_range");\
+	assert(Name##_size(x) > xidx && "Deque_insert_range");\
+	if (!n) return 1;\
+	if (!Name##_expand_for_insert(self, idx, n)) {\
+		return 0;\
+	}\
+	if (self == x) {\
+		if (idx <= xidx) {\
+			for (i = idx, j = 0; j < n; i++, j++) {\
+				*Name##_at(self, i) = *Name##_at(self, xidx + n + j);\
+			}\
+		} else if (xidx < idx && idx < xidx + n) {\
+			for (i = 0; i < idx - xidx; i++) {\
+				*Name##_at(self, idx + i) = *Name##_at(self, xidx + i);\
+			}\
+			for (i = 0; i < n - (idx - xidx); i++) {\
+				*Name##_at(self, idx + (idx - xidx) + i) = *Name##_at(self, idx + n + i);\
+			}\
+		} else {\
+			for (i = 0; i < n; i++) {\
+				*Name##_at(self, idx + i) = *Name##_at(x, xidx + i);\
+			}\
+		}\
+	} else {\
+		for (i = 0; i < n; i++) {\
+			*Name##_at(self, idx + i) = *Name##_at(x, xidx + i);\
+		}\
 	}\
 	return 1;\
 }\

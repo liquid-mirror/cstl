@@ -491,6 +491,67 @@ void DequeTest_test_1_6(void)
 	assert(UCharDeque_size(ud) == sizeof b);
 	assert(ud_cmp(x, 0, hoge, MAX) == 0);
 	assert(UCharDeque_size(x) == MAX);
+	/* insert_range */
+	UCharDeque_clear(ud);
+	UCharDeque_clear(x);
+	assert(UCharDeque_insert_array(ud, 0, hoge, 15));
+	assert(UCharDeque_insert_array(x, 0, b, sizeof b));
+	assert(UCharDeque_insert_range(ud, 0, x, 0, sizeof b));
+	for (i = 0; i < UCharDeque_size(ud); i++) {
+		if (i < sizeof b) {
+			assert(*UCharDeque_at(ud, i) == *UCharDeque_at(x, i));
+		} else {
+			assert(*UCharDeque_at(ud, i) == hoge[i - sizeof b]);
+		}
+		printf("%02d ", *UCharDeque_at(ud, i));
+	}
+	printf("\n");
+	UCharDeque_clear(ud);
+	assert(UCharDeque_insert_array(ud, 0, hoge, 15));
+	for (i = 0; i < UCharDeque_size(ud); i++) {
+		printf("%02d ", *UCharDeque_at(ud, i));
+	}
+	printf("\n");
+
+	assert(UCharDeque_insert_range(ud, 0, ud, 1, 4));
+	for (i = 0; i < UCharDeque_size(ud); i++) {
+		if (i < 4) {
+			assert(*UCharDeque_at(ud, i) == hoge[1 + i]);
+		} else {
+			assert(*UCharDeque_at(ud, i) == hoge[i - 4]);
+		}
+		printf("%02d ", *UCharDeque_at(ud, i));
+	}
+	printf("\n");
+	UCharDeque_clear(ud);
+	assert(UCharDeque_insert_array(ud, 0, hoge, 15));
+	assert(UCharDeque_insert_range(ud, 3, ud, 1, 4));
+	for (i = 0; i < UCharDeque_size(ud); i++) {
+		if (i < 3) {
+			assert(*UCharDeque_at(ud, i) == hoge[i]);
+		} else if (3 <= i && i < 3 + 4) {
+			assert(*UCharDeque_at(ud, i) == hoge[1 + i - 3]);
+		} else {
+			assert(*UCharDeque_at(ud, i) == hoge[i - 4]);
+		}
+		printf("%02d ", *UCharDeque_at(ud, i));
+	}
+	printf("\n");
+	UCharDeque_clear(ud);
+	assert(UCharDeque_insert_array(ud, 0, hoge, 15));
+	assert(UCharDeque_insert_range(ud, 5, ud, 1, 4));
+	for (i = 0; i < UCharDeque_size(ud); i++) {
+		if (i < 5) {
+			assert(*UCharDeque_at(ud, i) == hoge[i]);
+		} else if (5 <= i && i < 5 + 4) {
+			assert(*UCharDeque_at(ud, i) == hoge[1 + i - 5]);
+		} else {
+			assert(*UCharDeque_at(ud, i) == hoge[i - 4]);
+		}
+		printf("%02d ", *UCharDeque_at(ud, i));
+	}
+	printf("\n");
+
 
 
 	DUMP_HEAP_OVERFLOW(&heap);

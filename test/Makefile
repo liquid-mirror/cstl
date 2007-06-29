@@ -15,7 +15,7 @@ vector_test.o: ../cstl/vector.h vector_test.c heap.o
 ring_test.o: ../cstl/ring.h ring_test.c heap.o
 	$(CC) $(CFLAGS) -c ring_test.c
 
-deque_test.o: ../cstl/deque.h deque_test.c heap.o
+deque_test.o: ../cstl/deque.h ../cstl/vector.h ../cstl/ring.h deque_test.c heap.o
 	$(CC) $(CFLAGS) -c deque_test.c
 
 list_test.o: ../cstl/list.h list_test.c heap.o

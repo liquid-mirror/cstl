@@ -88,6 +88,7 @@ Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
+int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 void Name##_swap(Name *self, Name *x);\
 void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
@@ -375,6 +376,49 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 }\
 \
 
+#define CSTL_VECTOR_IMPLEMENT_INSERT_RANGE(Name, Type)	\
+int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
+{\
+	size_t i, j;\
+	assert(self && "Vector_insert_range");\
+	assert(self->magic == self && "Vector_insert_range");\
+	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_range");\
+	assert(x && "Vector_insert_range");\
+	assert(x->magic == x && "Vector_insert_range");\
+	assert(CSTL_VECTOR_SIZE(x) >= xidx + n && "Vector_insert_range");\
+	assert(CSTL_VECTOR_SIZE(x) >= n && "Vector_insert_range");\
+	assert(CSTL_VECTOR_SIZE(x) > xidx && "Vector_insert_range");\
+	if (!n) return 1;\
+	if (CSTL_VECTOR_SIZE(self) + n > CSTL_VECTOR_CAPACITY(self)) {\
+		if (!Name##_expand(self, CSTL_VECTOR_CAPACITY(self) + n)) return 0;\
+	}\
+	if (self == x) {\
+		if (idx <= xidx) {\
+			Name##_move_forward(self, idx, self->end, n);\
+			self->end += n;\
+			for (i = idx, j = 0; j < n; i++, j++) {\
+				self->buf[i] = self->buf[xidx + n + j];\
+			}\
+			return 1;\
+		} else if (xidx < idx && idx < xidx + n) {\
+			Name##_move_forward(self, idx, self->end, n);\
+			self->end += n;\
+			for (i = 0; i < idx - xidx; i++) {\
+				self->buf[idx + i] = self->buf[xidx + i];\
+			}\
+			for (i = 0; i < n - (idx - xidx); i++) {\
+				self->buf[idx + (idx - xidx) + i] = self->buf[idx + n + i];\
+			}\
+			return 1;\
+		} else {\
+			return Name##_insert_array(self, idx, &CSTL_VECTOR_AT(self, xidx), n);\
+		}\
+	} else {\
+		return Name##_insert_array(self, idx, &CSTL_VECTOR_AT(x, xidx), n);\
+	}\
+}\
+\
+
 #define CSTL_VECTOR_IMPLEMENT_ERASE(Name, Type)	\
 void Name##_erase(Name *self, size_t idx, size_t n)\
 {\
@@ -436,6 +480,7 @@ CSTL_VECTOR_IMPLEMENT_BACK(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT_RANGE(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_ERASE(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_SWAP(Name, Type)\
 CSTL_ALGORITHM_SORT(Name, Type, CSTL_VECTOR_AT)\

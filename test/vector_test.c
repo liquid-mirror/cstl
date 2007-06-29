@@ -353,6 +353,68 @@ void VectorTest_test_1_6(void)
 	assert(memcmp(UCharVector_at(x, 0), hoge, SIZE) == 0);
 	assert(UCharVector_size(x) == SIZE);
 	assert(UCharVector_capacity(x) == cap1);
+	/* insert_range */
+	UCharVector_clear(uv);
+	UCharVector_shrink(uv, 0);
+	UCharVector_clear(x);
+	UCharVector_shrink(x, 0);
+	assert(UCharVector_insert_array(uv, 0, hoge, SIZE));
+	assert(UCharVector_insert_array(x, 0, b, sizeof b));
+	assert(UCharVector_insert_range(uv, 0, x, 0, sizeof b));
+	for (i = 0; i < UCharVector_size(uv); i++) {
+		if (i < sizeof b) {
+			assert(*UCharVector_at(uv, i) == *UCharVector_at(x, i));
+		} else {
+			assert(*UCharVector_at(uv, i) == hoge[i - sizeof b]);
+		}
+		printf("%02d ", *UCharVector_at(uv, i));
+	}
+	printf("\n");
+	UCharVector_clear(uv);
+	assert(UCharVector_insert_array(uv, 0, hoge, SIZE));
+	for (i = 0; i < UCharVector_size(uv); i++) {
+		printf("%02d ", *UCharVector_at(uv, i));
+	}
+	printf("\n");
+
+	assert(UCharVector_insert_range(uv, 0, uv, 1, 4));
+	for (i = 0; i < UCharVector_size(uv); i++) {
+		if (i < 4) {
+			assert(*UCharVector_at(uv, i) == hoge[1 + i]);
+		} else {
+			assert(*UCharVector_at(uv, i) == hoge[i - 4]);
+		}
+		printf("%02d ", *UCharVector_at(uv, i));
+	}
+	printf("\n");
+	UCharVector_clear(uv);
+	assert(UCharVector_insert_array(uv, 0, hoge, SIZE));
+	assert(UCharVector_insert_range(uv, 3, uv, 1, 4));
+	for (i = 0; i < UCharVector_size(uv); i++) {
+		if (i < 3) {
+			assert(*UCharVector_at(uv, i) == hoge[i]);
+		} else if (3 <= i && i < 3 + 4) {
+			assert(*UCharVector_at(uv, i) == hoge[1 + i - 3]);
+		} else {
+			assert(*UCharVector_at(uv, i) == hoge[i - 4]);
+		}
+		printf("%02d ", *UCharVector_at(uv, i));
+	}
+	printf("\n");
+	UCharVector_clear(uv);
+	assert(UCharVector_insert_array(uv, 0, hoge, SIZE));
+	assert(UCharVector_insert_range(uv, 5, uv, 1, 4));
+	for (i = 0; i < UCharVector_size(uv); i++) {
+		if (i < 5) {
+			assert(*UCharVector_at(uv, i) == hoge[i]);
+		} else if (5 <= i && i < 5 + 4) {
+			assert(*UCharVector_at(uv, i) == hoge[1 + i - 5]);
+		} else {
+			assert(*UCharVector_at(uv, i) == hoge[i - 4]);
+		}
+		printf("%02d ", *UCharVector_at(uv, i));
+	}
+	printf("\n");
 
 
 
