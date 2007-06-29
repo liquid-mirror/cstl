@@ -40,7 +40,11 @@
 	DIRECT_ACCESS(self, j) = tmp;\
 
 
-#define CSTL_ALGORITHM_SORT(Name, Type, DIRECT_ACCESS)	\
+#ifdef CSTL_ALGORITHM_IMPLEMENT
+#undef CSTL_ALGORITHM_IMPLEMENT
+#endif
+
+#define CSTL_ALGORITHM_IMPLEMENT(Name, Type, DIRECT_ACCESS)	\
 static void Name##_insertion_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
 {\
 	register size_t i, j;\

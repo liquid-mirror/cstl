@@ -52,6 +52,10 @@
 #define CSTL_STRING_MAGIC(x)
 #endif
 
+#ifndef CSTL_ALGORITHM_IMPLEMENT
+#define CSTL_ALGORITHM_IMPLEMENT(Name, Type, DIRECT_ACCESS)
+#endif
+
 /*! 
  * \brief 検索失敗用インデックス
  */
@@ -111,6 +115,9 @@ void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void
 size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
 size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
 size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
+void Name##_reverse(Name *self, size_t idx, size_t n);\
+void Name##_rotate(Name *self, size_t first, size_t middle, size_t last);\
+void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const void *, const void *));\
 CSTL_STRING_END_EXTERN_C()\
 
 
@@ -709,7 +716,7 @@ size_t Name##_find_last_not_of_c(Type *x, Type c, size_t idx)\
 	return Name##_find_last_not_of(x, &c, idx, 1);\
 }\
 \
-CSTL_ALGORITHM_SORT(Name, Type, CSTL_STRING_AT)\
+CSTL_ALGORITHM_IMPLEMENT(Name, Type, CSTL_STRING_AT)\
 
 
 #endif /* CSTL_STRING_H_INCLUDED */
