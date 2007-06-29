@@ -210,6 +210,14 @@ CSTL_VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 * 事前条件は、elemsがNULLでないこと、かつidxがselfの現在の要素数以下の値であること。
 <<< br
 
+  int Vector_insert_range(Vector *self, size_t idx, Vector *x, size_t xidx, size_t n);
+* selfのidxが示すインデックスの位置にxのxidxが示すインデックスの位置からn個の要素のコピーを挿入する。
+* selfとxは同じオブジェクトでもよい。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件は、xidx + nがxの現在の要素数以下の値であること、かつidxがselfの現在の要素数以下の値であること。
+<<< br
+
   int Vector_push_back(Vector *self, T elem);
 * elemのコピーをselfの最後の要素として追加する。
 * 追加に成功した場合、0以外の値を返す。
@@ -333,6 +341,14 @@ CSTL_DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件は、elemsがNULLでないこと、かつidxがselfの現在の要素数以下の値であること。
+<<< br
+
+  int Deque_insert_range(Deque *self, size_t idx, Deque *x, size_t xidx, size_t n);
+* selfのidxが示すインデックスの位置にxのxidxが示すインデックスの位置からn個の要素のコピーを挿入する。
+* selfとxは同じオブジェクトでもよい。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件は、xidx + nがxの現在の要素数以下の値であること、かつidxがselfの現在の要素数以下の値であること。
 <<< br
 
   int Deque_push_back(Deque *self, T elem);
@@ -871,7 +887,7 @@ CSTL_MAP_INTERFACE/CSTL_MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT
 
   ValueT *Map_lookup(Map *self, KeyT key);
 * selfのkeyというキーの要素の値へのポインタを返す。
-* selfがkeyというキーの要素を持っていない場合、keyというキーの新しい要素(値は0で初期化)を挿入し、その要素の値へのポインタを返す。
+* selfがkeyというキーの要素を持っていない場合、keyというキーの新しい要素(値は不定)を挿入し、その要素の値へのポインタを返す。
 * メモリ不足の場合、NDEBUGマクロが未定義ならばアサーションに失敗し、定義済みならばselfの変更を行わずNULLを返す。
 * この関数はmapのみで提供される。
 <<< br
