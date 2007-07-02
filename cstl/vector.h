@@ -245,6 +245,7 @@ void Name##_clear(Name *self)\
 static int Name##_expand(Name *self, size_t size)\
 {\
 	size_t n;\
+	if (size <= CSTL_VECTOR_CAPACITY(self)) return 1;\
 	n = (size > CSTL_VECTOR_CAPACITY(self) * 2) ? size : CSTL_VECTOR_CAPACITY(self) * 2;\
 	return Name##_reserve(self, n);\
 }\
