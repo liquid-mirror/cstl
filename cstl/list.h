@@ -103,6 +103,7 @@ int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
 void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last);\
 void Name##_sort(Name *self, int (*comp)(const void *, const void *));\
+void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *));\
 void Name##_reverse(Name *self);\
 CSTL_LIST_END_EXTERN_C()\
 
@@ -565,6 +566,26 @@ void Name##_sort(Name *self, int (*comp)(const void *, const void *))\
 	assert(self && "List_sort");\
 	assert(self->magic == self && "List_sort");\
 	Name##_merge_sort(CSTL_LIST_BEGIN(self), CSTL_LIST_END(self), comp);\
+}\
+\
+void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *))\
+{\
+	Name##Node *p;\
+	Name##Node *q;\
+	assert(self && "List_merge");\
+	assert(self->magic == self && "List_merge");\
+	assert(x && "List_merge");\
+	assert(x->magic == x && "List_merge");\
+	if (self == x || !Name##_size(x)) return;\
+	if (!Name##_size(self)) {\
+		Name##_splice(self, CSTL_LIST_END(self), x, CSTL_LIST_BEGIN(x), CSTL_LIST_END(x));\
+		return;\
+	}\
+	p = CSTL_LIST_RBEGIN(self);\
+	q = CSTL_LIST_BEGIN(x);\
+	Name##_splice(self, CSTL_LIST_END(self), x, CSTL_LIST_BEGIN(x), CSTL_LIST_END(x));\
+	p->next = CSTL_LIST_END(self);\
+	Name##_merge_list(CSTL_LIST_BEGIN(self), q, CSTL_LIST_END(self), comp);\
 }\
 \
 void Name##_reverse(Name *self)\
