@@ -401,12 +401,16 @@ int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 	if (cstr_len && Name##_c_str(self) + idx < cstr + cstr_len && cstr < Name##_c_str(self) + Name##_size(self)) {\
 		size_t i;\
 		Type *buf;\
+		if (!Name##_expand(self, Name##_size(self) + cstr_len)) {\
+			return 0;\
+		}\
 		buf = (Type *) malloc(sizeof(Type) * cstr_len);\
 		if (!buf) return 0;\
 		for (i = 0; i < cstr_len; i++) {\
 			buf[i] = cstr[i];\
 		}\
 		ret = Name##__CharVector_insert_array(self->data, idx, buf, cstr_len);\
+		assert(ret && "String_insert");\
 		free(buf);\
 	} else {\
 		ret = Name##__CharVector_insert_array(self->data, idx, cstr, cstr_len);\
@@ -423,12 +427,16 @@ int Name##_insert_c(Name *self, size_t idx, size_t n, Type c)\
 	if (n > 1) {\
 		size_t i;\
 		Type *buf;\
+		if (!Name##_expand(self, Name##_size(self) + n)) {\
+			return 0;\
+		}\
 		buf = (Type *) malloc(sizeof(Type) * n);\
 		if (!buf) return 0;\
 		for (i = 0; i < n; i++) {\
 			buf[i] = c;\
 		}\
 		ret = Name##_insert(self, idx, buf, n);\
+		assert(ret && "String_insert_c");\
 		free(buf);\
 	} else if (n == 1) {\
 		ret = Name##__CharVector_insert(self->data, idx, c);\
@@ -454,6 +462,9 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 		cstr_len = Name##my_strlen(cstr);\
 	}\
 	if (cstr_len && Name##_c_str(self) + idx < cstr + cstr_len && cstr < Name##_c_str(self) + Name##_size(self)) {\
+		if (cstr_len > len && !Name##_expand(self, Name##_size(self) + (cstr_len - len))) {\
+			return 0;\
+		}\
 		buf = (Type *) malloc(sizeof(Type) * cstr_len);\
 		if (!buf) return 0;\
 		for (i = 0; i < cstr_len; i++) {\
@@ -501,12 +512,16 @@ int Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c)\
 	if (n > 1) {\
 		size_t i;\
 		Type *buf;\
+		if (n > len && !Name##_expand(self, Name##_size(self) + (n - len))) {\
+			return 0;\
+		}\
 		buf = (Type *) malloc(sizeof(Type) * n);\
 		if (!buf) return 0;\
 		for (i = 0; i < n; i++) {\
 			buf[i] = c;\
 		}\
 		ret = Name##_replace(self, idx, len, buf, n);\
+		assert(ret && "String_replace_c");\
 		free(buf);\
 	} else {\
 		ret = Name##_replace(self, idx, len, &c, n);\
