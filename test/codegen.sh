@@ -28,6 +28,7 @@ CSTL_${upper}_INTERFACE($name, $type)"
 
 src="\
 #include <cstl/${lower}.h>
+#include <cstl/algorithm.h>
 #undef assert
 #define assert(x) assert(x)
 #undef CSTL_VECTOR_MAGIC
