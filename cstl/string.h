@@ -170,7 +170,7 @@ CSTL_VECTOR_IMPLEMENT_ERASE(Name##__CharVector, Type)\
  */\
 struct Name##_t {\
 	Name##__CharVector *data;\
-	CSTL_STRING_MAGIC(Name *magic;)\
+	CSTL_STRING_MAGIC(Name *magic);\
 };\
 \
 static int Name##_expand(Name *self, size_t n)\
@@ -189,7 +189,7 @@ Name *Name##_new(size_t n)\
 		return 0;\
 	}\
 	Name##__CharVector_push_back(self->data, '\0');\
-	CSTL_STRING_MAGIC(self->magic = self;)\
+	CSTL_STRING_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
@@ -197,7 +197,7 @@ void Name##_delete(Name *self)\
 {\
 	assert(self && "String_delete");\
 	assert(self->magic == self && "String_delete");\
-	CSTL_STRING_MAGIC(self->magic = 0;)\
+	CSTL_STRING_MAGIC(self->magic = 0);\
 	Name##__CharVector_delete(self->data);\
 	free(self);\
 }\

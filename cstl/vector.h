@@ -117,7 +117,7 @@ struct Name##_t {\
 	size_t end;\
 	size_t nelems;\
 	Type *buf;\
-	CSTL_VECTOR_MAGIC(Name *magic;)\
+	CSTL_VECTOR_MAGIC(Name *magic);\
 };\
 \
 Name *Name##_new(size_t n)\
@@ -135,7 +135,7 @@ Name *Name##_new(size_t n)\
 	}\
 	self->end = 0;\
 	self->buf = buf;\
-	CSTL_VECTOR_MAGIC(self->magic = self;)\
+	CSTL_VECTOR_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
@@ -143,7 +143,7 @@ void Name##_delete(Name *self)\
 {\
 	assert(self && "Vector_delete");\
 	assert(self->magic == self && "Vector_delete");\
-	CSTL_VECTOR_MAGIC(self->magic = 0;)\
+	CSTL_VECTOR_MAGIC(self->magic = 0);\
 	free(self->buf);\
 	free(self);\
 }\

@@ -128,7 +128,7 @@ struct Name##_t {\
 	size_t nelems;\
 	Name##__RingVector *map;\
 	Name##__RingVector *pool;\
-	CSTL_DEQUE_MAGIC(Name *magic;)\
+	CSTL_DEQUE_MAGIC(Name *magic);\
 };\
 \
 static void Name##_coordinate(Name *self, size_t idx, size_t *map_idx, size_t *ring_idx)\
@@ -384,7 +384,7 @@ Name *Name##_new(void)\
 		free(self);\
 		return 0;\
 	}\
-	CSTL_DEQUE_MAGIC(self->magic = self;)\
+	CSTL_DEQUE_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
@@ -403,7 +403,7 @@ void Name##_delete(Name *self)\
 	}\
 	Name##__RingVector_delete(self->map);\
 	Name##__RingVector_delete(self->pool);\
-	CSTL_DEQUE_MAGIC(self->magic = 0;)\
+	CSTL_DEQUE_MAGIC(self->magic = 0);\
 	free(self);\
 }\
 \

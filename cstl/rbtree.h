@@ -145,7 +145,7 @@ static Name *Name##_new(void)\
 	self->right = &Name##_nil;\
 	self->parent = &Name##_nil;\
 	self->color = CSTL_RBTREE_HEAD;\
-	CSTL_RBTREE_MAGIC(self->magic = self;)\
+	CSTL_RBTREE_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
@@ -171,7 +171,7 @@ static void Name##_clear(Name *self)\
 			t->parent->right = &Name##_nil;\
 		}\
 		tmp = t->parent;\
-		CSTL_RBTREE_MAGIC(t->magic = 0;)\
+		CSTL_RBTREE_MAGIC(t->magic = 0);\
 		free(t);\
 		t = tmp;\
 		if (CSTL_RBTREE_NODE_IS_HEAD(t)) break;\
@@ -182,7 +182,7 @@ static void Name##_delete(Name *self)\
 {\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_delete");\
 	Name##_clear(self);\
-	CSTL_RBTREE_MAGIC(self->magic = 0;)\
+	CSTL_RBTREE_MAGIC(self->magic = 0);\
 	free(self);\
 }\
 \
@@ -469,7 +469,7 @@ static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 		Name##Node *root = Name##Node_new(key, value, CSTL_RBTREE_BLACK);\
 		if (!root) return 0;	/* メモリ不足 */\
 		Name##_set_root(self, root);\
-		CSTL_RBTREE_MAGIC(root->magic = self;)\
+		CSTL_RBTREE_MAGIC(root->magic = self);\
 		return root;\
 	}\
 	/* 2分探索木の挿入 */\
@@ -490,7 +490,7 @@ static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 		Name##Node_set_right(tmp, n);\
 	}\
 	Name##Node_balance_for_insert(n);\
-	CSTL_RBTREE_MAGIC(n->magic = self;)\
+	CSTL_RBTREE_MAGIC(n->magic = self);\
 	return n;\
 }\
 \
@@ -633,7 +633,7 @@ static void Name##_erase(Name *self, Name##Iterator pos)\
 		Name##Node_balance_for_erase(n->left, n->parent);\
 	}\
 end:\
-	CSTL_RBTREE_MAGIC(n->magic = 0;)\
+	CSTL_RBTREE_MAGIC(n->magic = 0);\
 	free(n);\
 }\
 \
@@ -757,7 +757,7 @@ typedef struct Name##RBTreeNode_t Name##RBTree;\
 struct Name##_t {\
 	Name##RBTree *tree;\
 	size_t nelems;\
-	CSTL_RBTREE_MAGIC(Name *magic;)\
+	CSTL_RBTREE_MAGIC(Name *magic);\
 };\
 \
 CSTL_RBTREE_IMPLEMENT(Name##RBTree, KeyType, ValueType, Compare)\
@@ -773,7 +773,7 @@ Name *Name##_new(void)\
 		return 0;\
 	}\
 	self->nelems = 0;\
-	CSTL_RBTREE_MAGIC(self->magic = self;)\
+	CSTL_RBTREE_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
@@ -782,7 +782,7 @@ void Name##_delete(Name *self)\
 	assert(self && "RBTree_delete");\
 	assert(self->magic == self && "RBTree_delete");\
 	Name##RBTree_delete(self->tree);\
-	CSTL_RBTREE_MAGIC(self->magic = 0;)\
+	CSTL_RBTREE_MAGIC(self->magic = 0);\
 	free(self);\
 }\
 \

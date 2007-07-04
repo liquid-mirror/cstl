@@ -84,7 +84,7 @@ struct Name##_t {\
 	size_t end;\
 	size_t nelems;\
 	Type *buf;\
-	CSTL_RING_MAGIC(Name *magic;)\
+	CSTL_RING_MAGIC(Name *magic);\
 };\
 \
 CSTL_RING_BEGIN_EXTERN_C()\
@@ -134,7 +134,7 @@ void Name##_delete(Name *self)\
 {\
 	assert(self && "Ring_delete");\
 	assert(self->magic == self && "Ring_delete");\
-	CSTL_RING_MAGIC(self->magic = 0;)\
+	CSTL_RING_MAGIC(self->magic = 0);\
 	free(self->buf);\
 	free(self);\
 }\
@@ -147,7 +147,7 @@ void Name##_init(Name *self, Type *buf, size_t n)\
 	self->end = 0;\
 	self->buf = buf;\
 	self->nelems = n;\
-	CSTL_RING_MAGIC(self->magic = self;)\
+	CSTL_RING_MAGIC(self->magic = self);\
 }\
 \
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
