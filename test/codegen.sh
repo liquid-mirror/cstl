@@ -7,6 +7,9 @@ if [ "$4" = "" ]; then
 else
 	path=`echo "$4" | sed -e "s:[^/]$:&/:"`$name
 fi
+if [ "$5" != "" ]; then
+	heap=$5
+fi
 
 lower=`echo $container | tr "[:upper:]" "[:lower:]"`
 upper=`echo $container | tr "[:lower:]" "[:upper:]"`
@@ -114,6 +117,15 @@ echo -e "\
 #else
 #define CSTL_VECTOR_MAGIC(x)
 #endif\n" >> "$path"".c"
+fi
+if [ "$heap" != "" ]; then
+echo -e "\
+#include \"heap.h\"
+extern Heap $heap;
+#define malloc(s)      Heap_alloc(&$heap, s)
+#define realloc(p, s)  Heap_realloc(&$heap, p, s)
+#define free(p)        Heap_free(&$heap, p)
+" >> "$path"".c"
 fi
 echo "$src" | cpp -I.. | grep "$name" | indent -kr -ut -ts4 >> "$path"".c"
 

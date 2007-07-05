@@ -7,7 +7,10 @@ container=$5
 if [ "$6" = "" ]; then
 	path=$name
 else
-	path=`echo "$5" | sed -e "s:[^/]$:&/:"`$name
+	path=`echo "$6" | sed -e "s:[^/]$:&/:"`$name
+fi
+if [ "$7" != "" ]; then
+	heap=$7
 fi
 
 lower="map"
@@ -60,6 +63,15 @@ echo -e "\
 #else
 #define CSTL_RBTREE_MAGIC(x)
 #endif\n" >> "$path"".c"
+if [ "$heap" != "" ]; then
+echo -e "\
+#include \"heap.h\"
+extern Heap $heap;
+#define malloc(s)      Heap_alloc(&$heap, s)
+#define realloc(p, s)  Heap_realloc(&$heap, p, s)
+#define free(p)        Heap_free(&$heap, p)
+" >> "$path"".c"
+fi
 echo -e "\
 enum {
 	CSTL_RBTREE_RED,
