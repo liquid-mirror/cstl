@@ -118,7 +118,6 @@ Name *Name##_new(size_t n)\
 {\
 	Name *self;\
 	Type *buf;\
-	if (!n) return 0;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
 	buf = (Type *) malloc(sizeof(Type) * (n + 1));\
@@ -175,7 +174,6 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 	assert(CSTL_RING_SIZE(self) >= idx + n && "Ring_erase");\
 	assert(CSTL_RING_SIZE(self) >= n && "Ring_erase");\
 	assert(CSTL_RING_SIZE(self) > idx && "Ring_erase");\
-	if (!n) return;\
 	pos1 = CSTL_RING_FORWARD(self, self->begin, idx);\
 	pos2 = CSTL_RING_FORWARD(self, pos1, n);\
 	if (CSTL_RING_DISTANCE(self, self->begin, pos1) >= \

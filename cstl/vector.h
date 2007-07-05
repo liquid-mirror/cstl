@@ -395,7 +395,6 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 	assert(CSTL_VECTOR_SIZE(x) >= xidx + n && "Vector_insert_range");\
 	assert(CSTL_VECTOR_SIZE(x) >= n && "Vector_insert_range");\
 	assert(CSTL_VECTOR_SIZE(x) > xidx && "Vector_insert_range");\
-	if (!n) return 1;\
 	if (CSTL_VECTOR_SIZE(self) + n > CSTL_VECTOR_CAPACITY(self)) {\
 		if (!Name##_expand(self, CSTL_VECTOR_CAPACITY(self) + n)) return 0;\
 	}\
@@ -434,7 +433,6 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 	assert(CSTL_VECTOR_SIZE(self) >= idx + n && "Vector_erase");\
 	assert(CSTL_VECTOR_SIZE(self) >= n && "Vector_erase");\
 	assert(CSTL_VECTOR_SIZE(self) > idx && "Vector_erase");\
-	if (!n) return;\
 	Name##_move_backward(self, idx + n, self->end, n);\
 	self->end -= n;\
 }\

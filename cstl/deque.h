@@ -605,7 +605,6 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 	assert(self->magic == self && "Deque_insert_array");\
 	assert(Name##_size(self) >= idx && "Deque_insert_array");\
 	assert(elems && "Deque_insert_array");\
-	if (!n) return 1;\
 	if (!Name##_expand_for_insert(self, idx, n)) {\
 		return 0;\
 	}\
@@ -626,7 +625,6 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 	assert(Name##_size(x) >= xidx + n && "Deque_insert_range");\
 	assert(Name##_size(x) >= n && "Deque_insert_range");\
 	assert(Name##_size(x) > xidx && "Deque_insert_range");\
-	if (!n) return 1;\
 	if (!Name##_expand_for_insert(self, idx, n)) {\
 		return 0;\
 	}\

@@ -287,7 +287,6 @@ void Name##_erase(Name *self, size_t idx, size_t len)\
 	assert(self && "String_erase");\
 	assert(self->magic == self && "String_erase");\
 	assert(Name##_size(self) > idx && "String_erase");\
-	if (!len) return;\
 	size = Name##_size(self);\
 	if (len > size - idx) {\
 		len = size - idx;\
