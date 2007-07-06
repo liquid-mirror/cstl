@@ -388,7 +388,7 @@ static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
 \
 int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 {\
-	size_t i, j;\
+	size_t i;\
 	assert(self && "String_insert");\
 	assert(self->magic == self && "String_insert");\
 	assert(Name##_size(self) >= idx && "String_insert");\
@@ -402,8 +402,8 @@ int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 	if (Name##_c_str(self) <= cstr && cstr < Name##_c_str(self) + Name##_size(self)) {\
 		/* cstr‚ªself“à‚Ì•¶Žš—ñ */\
 		if (&CSTL_STRING_AT(self, idx) <= cstr) {\
-			for (i = idx, j = 0; j < cstr_len; i++, j++) {\
-				CSTL_STRING_AT(self, i) = cstr[cstr_len + j];\
+			for (i = 0; i < cstr_len; i++) {\
+				CSTL_STRING_AT(self, idx + i) = cstr[cstr_len + i];\
 			}\
 		} else if (cstr < &CSTL_STRING_AT(self, idx) && &CSTL_STRING_AT(self, idx) < cstr + cstr_len) {\
 			size_t k = &CSTL_STRING_AT(self, idx) - cstr;\

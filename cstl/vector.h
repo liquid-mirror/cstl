@@ -90,6 +90,7 @@ Type *Name##_at(Name *self, size_t idx);\
 Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
+int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem);\
 int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
@@ -372,9 +373,24 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 	return Name##_insert_array(self, idx, &elem, 1);\
 }\
 \
+int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
+{\
+	size_t i;\
+	assert(self && "Vector_insert_n");\
+	assert(self->magic == self && "Vector_insert_n");\
+	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n");\
+	if (!Name##_insert_n_no_elem(self, idx, n)) {\
+		return 0;\
+	}\
+	for (i = 0; i < n; i++) {\
+		self->buf[idx + i] = elem;\
+	}\
+	return 1;\
+}\
+\
 int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 {\
-	size_t i, j;\
+	size_t i;\
 	assert(self && "Vector_insert_array");\
 	assert(self->magic == self && "Vector_insert_array");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_array");\
@@ -382,8 +398,8 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 	if (!Name##_insert_n_no_elem(self, idx, n)) {\
 		return 0;\
 	}\
-	for (i = idx, j = 0; j < n; i++, j++) {\
-		self->buf[i] = elems[j];\
+	for (i = 0; i < n; i++) {\
+		self->buf[idx + i] = elems[i];\
 	}\
 	return 1;\
 }\
@@ -392,7 +408,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 #define CSTL_VECTOR_IMPLEMENT_INSERT_RANGE(Name, Type)	\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 {\
-	size_t i, j;\
+	size_t i;\
 	assert(self && "Vector_insert_range");\
 	assert(self->magic == self && "Vector_insert_range");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_range");\
@@ -406,8 +422,8 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 	}\
 	if (self == x) {\
 		if (idx <= xidx) {\
-			for (i = idx, j = 0; j < n; i++, j++) {\
-				CSTL_VECTOR_AT(self, i) = CSTL_VECTOR_AT(self, xidx + n + j);\
+			for (i = 0; i < n; i++) {\
+				CSTL_VECTOR_AT(self, idx + i) = CSTL_VECTOR_AT(self, xidx + n + i);\
 			}\
 		} else if (xidx < idx && idx < xidx + n) {\
 			for (i = 0; i < idx - xidx; i++) {\

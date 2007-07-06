@@ -84,6 +84,7 @@ Type *Name##_at(Name *self, size_t idx);\
 Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
+int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem);\
 int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
@@ -592,6 +593,21 @@ static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
 	return 1;\
 }\
 \
+int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
+{\
+	size_t i;\
+	assert(self && "Deque_insert_n");\
+	assert(self->magic == self && "Deque_insert_n");\
+	assert(Name##_size(self) >= idx && "Deque_insert_n");\
+	if (!Name##_insert_n_no_elem(self, idx, n)) {\
+		return 0;\
+	}\
+	for (i = 0; i < n; i++) {\
+		*Name##_at(self, idx + i) = elem;\
+	}\
+	return 1;\
+}\
+\
 int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 {\
 	size_t i;\
@@ -610,7 +626,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 \
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 {\
-	size_t i, j;\
+	size_t i;\
 	assert(self && "Deque_insert_range");\
 	assert(self->magic == self && "Deque_insert_range");\
 	assert(Name##_size(self) >= idx && "Deque_insert_range");\
@@ -624,8 +640,8 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 	}\
 	if (self == x) {\
 		if (idx <= xidx) {\
-			for (i = idx, j = 0; j < n; i++, j++) {\
-				*Name##_at(self, i) = *Name##_at(self, xidx + n + j);\
+			for (i = 0; i < n; i++) {\
+				*Name##_at(self, idx + i) = *Name##_at(self, xidx + n + i);\
 			}\
 		} else if (xidx < idx && idx < xidx + n) {\
 			for (i = 0; i < idx - xidx; i++) {\
