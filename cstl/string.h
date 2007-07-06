@@ -342,16 +342,13 @@ int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\
 \
 int Name##_assign_c(Name *self, size_t n, Type c)\
 {\
-	size_t i;\
 	assert(self && "String_assign_c");\
 	assert(self->magic == self && "String_assign_c");\
 	if (!Name##_expand(self, n)) {\
 		return 0;\
 	}\
 	Name##_clear(self);\
-	for (i = 0; i < n; i++) {\
-		Name##_push_back(self, c);\
-	}\
+	Name##_insert_c(self, 0, n, c);\
 	return 1;\
 }\
 \
@@ -363,20 +360,17 @@ int Name##_append(Name *self, Type *cstr, size_t cstr_len)\
 	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
-	return Name##__CharVector_insert_array(self->data, CSTL_VECTOR_SIZE(self->data) - 1, cstr, cstr_len);\
+	return Name##_insert(self, Name##_size(self), cstr, cstr_len);\
 }\
 \
 int Name##_append_c(Name *self, size_t n, Type c)\
 {\
-	size_t i;\
 	assert(self && "String_append_c");\
 	assert(self->magic == self && "String_append_c");\
 	if (!Name##_expand(self, Name##_size(self) + n)) {\
 		return 0;\
 	}\
-	for (i = 0; i < n; i++) {\
-		Name##_push_back(self, c);\
-	}\
+	Name##_insert_c(self, Name##_size(self), n, c);\
 	return 1;\
 }\
 \
@@ -384,7 +378,7 @@ int Name##_push_back(Name *self, Type c)\
 {\
 	assert(self && "String_push_back");\
 	assert(self->magic == self && "String_push_back");\
-	return Name##__CharVector_insert(self->data, CSTL_VECTOR_SIZE(self->data) - 1, c);\
+	return Name##_insert_c(self, Name##_size(self), 1, c);\
 }\
 \
 static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
