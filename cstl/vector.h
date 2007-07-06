@@ -168,9 +168,7 @@ int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
 			Name##_erase(self, 0, idx);\
 		}\
 	} else {\
-		if (n > CSTL_VECTOR_CAPACITY(self)) {\
-			if (!Name##_expand(self, CSTL_VECTOR_CAPACITY(self) + n)) return 0;\
-		}\
+		if (!Name##_expand(self, CSTL_VECTOR_SIZE(self) + n)) return 0;\
 		CSTL_VECTOR_CLEAR(self);\
 		for (i = 0; i < n; i++) {\
 			Name##_push_back(self, CSTL_VECTOR_AT(x, i));\
@@ -185,9 +183,7 @@ int Name##_push_back(Name *self, Type elem)\
 {\
 	assert(self && "Vector_push_back");\
 	assert(self->magic == self && "Vector_push_back");\
-	if (CSTL_VECTOR_FULL(self)) {\
-		if (!Name##_expand(self, CSTL_VECTOR_CAPACITY(self) + 1)) return 0;\
-	}\
+	if (!Name##_expand(self, CSTL_VECTOR_SIZE(self) + 1)) return 0;\
 	self->buf[self->end] = elem;\
 	self->end++;\
 	return 1;\
@@ -355,7 +351,19 @@ static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n
 }\
 \
 
+#define CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name, Type)	\
+static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
+{\
+	if (!Name##_expand(self, CSTL_VECTOR_SIZE(self) + n)) return 0;\
+	Name##_move_forward(self, idx, self->end, n);\
+	self->end += n;\
+	return 1;\
+}\
+\
+
 #define CSTL_VECTOR_IMPLEMENT_INSERT(Name, Type)	\
+CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name, Type)\
+\
 int Name##_insert(Name *self, size_t idx, Type elem)\
 {\
 	assert(self && "Vector_insert");\
@@ -371,11 +379,9 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 	assert(self->magic == self && "Vector_insert_array");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_array");\
 	assert(elems && "Vector_insert_array");\
-	if (CSTL_VECTOR_SIZE(self) + n > CSTL_VECTOR_CAPACITY(self)) {\
-		if (!Name##_expand(self, CSTL_VECTOR_CAPACITY(self) + n)) return 0;\
+	if (!Name##_insert_n_no_elem(self, idx, n)) {\
+		return 0;\
 	}\
-	Name##_move_forward(self, idx, self->end, n);\
-	self->end += n;\
 	for (i = idx, j = 0; j < n; i++, j++) {\
 		self->buf[i] = elems[j];\
 	}\
@@ -395,33 +401,32 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 	assert(CSTL_VECTOR_SIZE(x) >= xidx + n && "Vector_insert_range");\
 	assert(CSTL_VECTOR_SIZE(x) >= n && "Vector_insert_range");\
 	assert(CSTL_VECTOR_SIZE(x) > xidx && "Vector_insert_range");\
-	if (CSTL_VECTOR_SIZE(self) + n > CSTL_VECTOR_CAPACITY(self)) {\
-		if (!Name##_expand(self, CSTL_VECTOR_CAPACITY(self) + n)) return 0;\
+	if (!Name##_insert_n_no_elem(self, idx, n)) {\
+		return 0;\
 	}\
 	if (self == x) {\
 		if (idx <= xidx) {\
-			Name##_move_forward(self, idx, self->end, n);\
-			self->end += n;\
 			for (i = idx, j = 0; j < n; i++, j++) {\
-				self->buf[i] = self->buf[xidx + n + j];\
+				CSTL_VECTOR_AT(self, i) = CSTL_VECTOR_AT(self, xidx + n + j);\
 			}\
-			return 1;\
 		} else if (xidx < idx && idx < xidx + n) {\
-			Name##_move_forward(self, idx, self->end, n);\
-			self->end += n;\
 			for (i = 0; i < idx - xidx; i++) {\
-				self->buf[idx + i] = self->buf[xidx + i];\
+				CSTL_VECTOR_AT(self, idx + i) = CSTL_VECTOR_AT(self, xidx + i);\
 			}\
 			for (i = 0; i < n - (idx - xidx); i++) {\
-				self->buf[idx + (idx - xidx) + i] = self->buf[idx + n + i];\
+				CSTL_VECTOR_AT(self, idx + (idx - xidx) + i) = CSTL_VECTOR_AT(self, idx + n + i);\
 			}\
-			return 1;\
 		} else {\
-			return Name##_insert_array(self, idx, &CSTL_VECTOR_AT(self, xidx), n);\
+			for (i = 0; i < n; i++) {\
+				CSTL_VECTOR_AT(self, idx + i) = CSTL_VECTOR_AT(self, xidx + i);\
+			}\
 		}\
 	} else {\
-		return Name##_insert_array(self, idx, &CSTL_VECTOR_AT(x, xidx), n);\
+		for (i = 0; i < n; i++) {\
+			CSTL_VECTOR_AT(self, idx + i) = CSTL_VECTOR_AT(x, xidx + i);\
+		}\
 	}\
+	return 1;\
 }\
 \
 

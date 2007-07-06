@@ -1,4 +1,5 @@
 #include "../cstl/string.h"
+#include "../cstl/algorithm.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -236,8 +237,29 @@ void StringTest_test_1_3(void)
 	assert(strcmp("gijkhabcdeflmopqn", String_c_str(x)) == 0);
 	String_insert(x, 1, String_c_str(x), CSTL_NPOS);
 	assert(String_size(x) == 34);
-	printf("%s\n", String_c_str(x));
 	assert(strcmp("ggijkhabcdeflmopqnijkhabcdeflmopqn", String_c_str(x)) == 0);
+	String_erase(x, 1, 17);
+	assert(String_size(x) == 17);
+	assert(strcmp("gijkhabcdeflmopqn", String_c_str(x)) == 0);
+
+	String_insert(x, 0, String_c_str(x) + 1, 4);
+	assert(String_size(x) == 21);
+	assert(strcmp("ijkhgijkhabcdeflmopqn", String_c_str(x)) == 0);
+	String_erase(x, 0, 4);
+	assert(String_size(x) == 17);
+	assert(strcmp("gijkhabcdeflmopqn", String_c_str(x)) == 0);
+
+	String_insert(x, 3, String_c_str(x) + 1, 4);
+	assert(String_size(x) == 21);
+	assert(strcmp("gijijkhkhabcdeflmopqn", String_c_str(x)) == 0);
+	String_erase(x, 3, 4);
+	assert(String_size(x) == 17);
+	assert(strcmp("gijkhabcdeflmopqn", String_c_str(x)) == 0);
+
+	String_insert(x, 5, String_c_str(x) + 1, 4);
+	assert(String_size(x) == 21);
+	assert(strcmp("gijkhijkhabcdeflmopqn", String_c_str(x)) == 0);
+
 	String_clear(x);
 	assert(String_size(x) == 0);
 	/* insert_c */
@@ -282,6 +304,18 @@ void StringTest_test_1_3(void)
 	String_delete(x);
 }
 
+#define Type char
+int cmp(const void *x, const void *y)
+{
+	if (*(Type *)x < *(Type *)y) {
+		return -1;
+	} else if (*(Type *)x > *(Type *)y) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
 void StringTest_test_1_4(void)
 {
 	String *x;
@@ -310,16 +344,46 @@ void StringTest_test_1_4(void)
 	String_replace(x, 0, 3, "hogehoge", 4);
 	assert(String_size(x) == 27);
 	assert(strcmp("hogeDEFGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
+
 	String_replace(x, 3, 4, String_c_str(x), 4);
 	assert(String_size(x) == 27);
 	printf("%s\n", String_c_str(x));
 	assert(strcmp("hoghogeGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
+
+	String_replace(x, 2, 4, String_c_str(x), 3);
+	assert(String_size(x) == 26);
+	printf("%s\n", String_c_str(x));
+	assert(strcmp("hohogeGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
+
+	String_replace(x, 4, 4, String_c_str(x) + 6, 3);
+	assert(String_size(x) == 25);
+	printf("%s\n", String_c_str(x));
+	assert(strcmp("hohoGHIIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
+
+	String_erase(x, 0, 8);
+	assert(String_size(x) == 17);
+	printf("%s\n", String_c_str(x));
+	assert(strcmp("jklmnopqrstuvwXYZ", String_c_str(x)) == 0);
+
+	String_replace(x, 2, 4, String_c_str(x), 5);
+	assert(String_size(x) == 18);
+	printf("%s\n", String_c_str(x));
+	assert(strcmp("jkjklmnpqrstuvwXYZ", String_c_str(x)) == 0);
+
+	String_replace(x, 4, 4, String_c_str(x) + 6, 5);
+	assert(String_size(x) == 19);
+	printf("%s\n", String_c_str(x));
+	assert(strcmp("jkjknpqrsqrstuvwXYZ", String_c_str(x)) == 0);
+
+
 	String_replace(x, 0, CSTL_NPOS, "", CSTL_NPOS);
 	assert(String_size(x) == 0);
 	assert(strcmp("", String_c_str(x)) == 0);
+
 	String_replace(x, 0, CSTL_NPOS, "abc", CSTL_NPOS);
 	assert(String_size(x) == 3);
 	assert(strcmp("abc", String_c_str(x)) == 0);
+
 	/* replace_c */
 	String_assign(x, "abcdefghijklmnopqrstuvwxyz", CSTL_NPOS);
 	assert(String_size(x) == 26);
@@ -349,6 +413,12 @@ void StringTest_test_1_4(void)
 	String_replace_c(x, 0, CSTL_NPOS, 10, '0');
 	assert(String_size(x) == 10);
 	assert(strcmp("0000000000", String_c_str(x)) == 0);
+	/* sort */
+	String_assign(x, "asortingexample", CSTL_NPOS);
+	printf("String_sort\n");
+	printf("%s\n", String_c_str(x));
+	String_sort(x, 0, String_size(x), cmp);
+	printf("%s\n", String_c_str(x));
 
 #if 0
 	string s = "abcdefghijklmnopqrstuvwxyz";

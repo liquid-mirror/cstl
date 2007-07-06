@@ -387,9 +387,14 @@ int Name##_push_back(Name *self, Type c)\
 	return Name##__CharVector_insert(self->data, CSTL_VECTOR_SIZE(self->data) - 1, c);\
 }\
 \
+static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
+{\
+	return Name##__CharVector_insert_n_no_elem(self->data, idx, n);\
+}\
+\
 int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 {\
-	int ret;\
+	size_t i, j;\
 	assert(self && "String_insert");\
 	assert(self->magic == self && "String_insert");\
 	assert(Name##_size(self) >= idx && "String_insert");\
@@ -397,58 +402,55 @@ int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
-	if (cstr_len && Name##_c_str(self) + idx < cstr + cstr_len && cstr < Name##_c_str(self) + Name##_size(self)) {\
-		size_t i;\
-		Type *buf;\
-		if (!Name##_expand(self, Name##_size(self) + cstr_len)) {\
-			return 0;\
-		}\
-		buf = (Type *) malloc(sizeof(Type) * cstr_len);\
-		if (!buf) return 0;\
-		for (i = 0; i < cstr_len; i++) {\
-			buf[i] = cstr[i];\
-		}\
-		ret = Name##__CharVector_insert_array(self->data, idx, buf, cstr_len);\
-		assert(ret && "String_insert");\
-		free(buf);\
-	} else {\
-		ret = Name##__CharVector_insert_array(self->data, idx, cstr, cstr_len);\
+	if (!Name##_insert_n_no_elem(self, idx, cstr_len)) {\
+		return 0;\
 	}\
-	return ret;\
+	if (Name##_c_str(self) <= cstr && cstr < Name##_c_str(self) + Name##_size(self)) {\
+		/* cstr‚ªself“à‚Ì•¶Žš—ñ */\
+		if (&CSTL_STRING_AT(self, idx) <= cstr) {\
+			for (i = idx, j = 0; j < cstr_len; i++, j++) {\
+				CSTL_STRING_AT(self, i) = cstr[cstr_len + j];\
+			}\
+		} else if (cstr < &CSTL_STRING_AT(self, idx) && &CSTL_STRING_AT(self, idx) < cstr + cstr_len) {\
+			size_t k = &CSTL_STRING_AT(self, idx) - cstr;\
+			for (i = 0; i < k; i++) {\
+				CSTL_STRING_AT(self, idx + i) = cstr[i];\
+			}\
+			for (i = 0; i < cstr_len - k; i++) {\
+				CSTL_STRING_AT(self, idx + k + i) = CSTL_STRING_AT(self, idx + cstr_len + i);\
+			}\
+		} else {\
+			for (i = 0; i < cstr_len; i++) {\
+				CSTL_STRING_AT(self, idx + i) = cstr[i];\
+			}\
+		}\
+	} else {\
+		for (i = 0; i < cstr_len; i++) {\
+			CSTL_STRING_AT(self, idx + i) = cstr[i];\
+		}\
+	}\
+	return 1;\
 }\
 \
 int Name##_insert_c(Name *self, size_t idx, size_t n, Type c)\
 {\
-	int ret = 1;\
+	size_t i;\
 	assert(self && "String_insert_c");\
 	assert(self->magic == self && "String_insert_c");\
 	assert(Name##_size(self) >= idx && "String_insert_c");\
-	if (n > 1) {\
-		size_t i;\
-		Type *buf;\
-		if (!Name##_expand(self, Name##_size(self) + n)) {\
-			return 0;\
-		}\
-		buf = (Type *) malloc(sizeof(Type) * n);\
-		if (!buf) return 0;\
-		for (i = 0; i < n; i++) {\
-			buf[i] = c;\
-		}\
-		ret = Name##_insert(self, idx, buf, n);\
-		assert(ret && "String_insert_c");\
-		free(buf);\
-	} else if (n == 1) {\
-		ret = Name##__CharVector_insert(self->data, idx, c);\
+	if (!Name##_insert_n_no_elem(self, idx, n)) {\
+		return 0;\
 	}\
-	return ret;\
+	for (i = 0; i < n; i++) {\
+		CSTL_STRING_AT(self, idx + i) = c;\
+	}\
+	return 1;\
 }\
 \
 int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_len)\
 {\
 	size_t i;\
 	size_t size;\
-	Type *buf;\
-	int flag = 0;\
 	assert(self && "String_replace");\
 	assert(self->magic == self && "String_replace");\
 	assert(cstr && "String_replace");\
@@ -460,72 +462,91 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 	if (cstr_len == CSTL_NPOS) {\
 		cstr_len = Name##my_strlen(cstr);\
 	}\
-	if (cstr_len && Name##_c_str(self) + idx < cstr + cstr_len && cstr < Name##_c_str(self) + Name##_size(self)) {\
-		if (cstr_len > len && !Name##_expand(self, Name##_size(self) + (cstr_len - len))) {\
-			return 0;\
-		}\
-		buf = (Type *) malloc(sizeof(Type) * cstr_len);\
-		if (!buf) return 0;\
-		for (i = 0; i < cstr_len; i++) {\
-			buf[i] = cstr[i];\
-		}\
-		flag = 1;\
-	} else {\
-		buf = cstr;\
-	}\
-	if (cstr_len <= len) {\
-		/* Šg’£•K—v‚È‚µ */\
-		for (i = 0; i < len; i++) {\
-			if (i < cstr_len) {\
-				CSTL_STRING_AT(self, i + idx) = buf[i];\
-			} else {\
-				size_t j = len - cstr_len;\
-				if (j > Name##_size(self) - (cstr_len + idx)) {\
-					j = Name##_size(self) - (cstr_len + idx);\
+	if (Name##_c_str(self) <= cstr && cstr < Name##_c_str(self) + Name##_size(self)) {\
+		/* cstr‚ªself“à‚Ì•¶Žš—ñ */\
+		if (cstr_len <= len) {\
+			/* Šg’£•K—v‚È‚µ */\
+			if (&CSTL_STRING_AT(self, idx) <= cstr) {\
+				for (i = 0; i < cstr_len; i++) {\
+					CSTL_STRING_AT(self, idx + i) = cstr[i];\
 				}\
-				Name##_erase(self, cstr_len + idx, j);\
-				break;\
+			} else {\
+				for (i = cstr_len; i > 0; i--) {\
+					CSTL_STRING_AT(self, idx + i - 1) = cstr[i - 1];\
+				}\
+			}\
+			if (cstr_len != len) {\
+				Name##_erase(self, idx + cstr_len, len - cstr_len);\
+			}\
+		} else {\
+			/* Šg’£•K—v‚ ‚è */\
+			if (!Name##_expand(self, Name##_size(self) + (cstr_len - len))) {\
+				return 0;\
+			}\
+			if (&CSTL_STRING_AT(self, idx) <= cstr) {\
+				for (i = 0; i < len; i++) {\
+					CSTL_STRING_AT(self, idx + i) = cstr[i];\
+				}\
+				Name##_insert(self, idx + len, &cstr[len], cstr_len - len);\
+			} else {\
+				Name##_insert(self, idx + len, &cstr[len], cstr_len - len);\
+				for (i = len; i > 0; i--) {\
+					CSTL_STRING_AT(self, idx + i - 1) = cstr[i - 1];\
+				}\
 			}\
 		}\
 	} else {\
-		/* Šg’£•K—v‚ ‚è */\
-		if (!Name##_expand(self, Name##_size(self) + (cstr_len - len))) {\
-			if (flag) free(buf);\
-			return 0;\
+		if (cstr_len <= len) {\
+			/* Šg’£•K—v‚È‚µ */\
+			for (i = 0; i < cstr_len; i++) {\
+				CSTL_STRING_AT(self, idx + i) = cstr[i];\
+			}\
+			if (cstr_len != len) {\
+				Name##_erase(self, idx + cstr_len, len - cstr_len);\
+			}\
+		} else {\
+			/* Šg’£•K—v‚ ‚è */\
+			if (!Name##_expand(self, Name##_size(self) + (cstr_len - len))) {\
+				return 0;\
+			}\
+			for (i = 0; i < len; i++) {\
+				CSTL_STRING_AT(self, idx + i) = cstr[i];\
+			}\
+			Name##_insert(self, idx + len, &cstr[len], cstr_len - len);\
 		}\
-		for (i = 0; i < len; i++) {\
-			CSTL_STRING_AT(self, i + idx) = buf[i];\
-		}\
-		Name##_insert(self, len + idx, &buf[len], cstr_len - len);\
 	}\
-	if (flag) free(buf);\
 	return 1;\
 }\
 \
 int Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c)\
 {\
-	int ret;\
+	size_t i;\
+	size_t size;\
 	assert(self && "String_replace_c");\
 	assert(self->magic == self && "String_replace_c");\
 	assert(Name##_size(self) >= idx && "String_replace_c");\
-	if (n > 1) {\
-		size_t i;\
-		Type *buf;\
-		if (n > len && !Name##_expand(self, Name##_size(self) + (n - len))) {\
+	size = Name##_size(self);\
+	if (len > size - idx) {\
+		len = size - idx;\
+	}\
+	if (n <= len) {\
+		/* Šg’£•K—v‚È‚µ */\
+		for (i = 0; i < n; i++) {\
+			CSTL_STRING_AT(self, idx + i) = c;\
+		}\
+		if (n != len) {\
+			Name##_erase(self, idx + n, len - n);\
+		}\
+	} else {\
+		/* Šg’£•K—v‚ ‚è */\
+		if (!Name##_insert_n_no_elem(self, idx, n - len)) {\
 			return 0;\
 		}\
-		buf = (Type *) malloc(sizeof(Type) * n);\
-		if (!buf) return 0;\
 		for (i = 0; i < n; i++) {\
-			buf[i] = c;\
+			CSTL_STRING_AT(self, idx + i) = c;\
 		}\
-		ret = Name##_replace(self, idx, len, buf, n);\
-		assert(ret && "String_replace_c");\
-		free(buf);\
-	} else {\
-		ret = Name##_replace(self, idx, len, &c, n);\
 	}\
-	return ret;\
+	return 1;\
 }\
 \
 static size_t Name##_brute_force_search(Type *str, size_t str_len, Type *ptn, size_t ptn_len)\

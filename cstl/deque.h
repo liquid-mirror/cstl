@@ -112,6 +112,7 @@ CSTL_RING_INTERFACE(Name##__Ring, Type)\
 CSTL_RING_IMPLEMENT_FOR_DEQUE(Name##__Ring, Type)\
 CSTL_VECTOR_INTERFACE(Name##__RingVector, Name##__Ring*)\
 CSTL_VECTOR_IMPLEMENT_BASE(Name##__RingVector, Name##__Ring*)\
+CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name##__RingVector, Name##__Ring*)\
 CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name##__RingVector, Name##__Ring*)\
 CSTL_VECTOR_IMPLEMENT_POP_BACK(Name##__RingVector, Name##__Ring*)\
 CSTL_VECTOR_IMPLEMENT_RESERVE(Name##__RingVector, Name##__Ring*)\
@@ -164,12 +165,6 @@ static void Name##_push_ring(Name *self, Name##__Ring *ring)\
 	}\
 }\
 \
-static void Name##__RingVector_insert_array_no_elems(Name##__RingVector *self, size_t idx, size_t n)\
-{\
-	Name##__RingVector_move_forward(self, idx, self->end, n);\
-	self->end += n;\
-}\
-\
 static size_t Name##_map_idx_begin_side(Name *self)\
 {\
 	size_t i;\
@@ -211,10 +206,9 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 			size_t j;\
 			size_t k = (CSTL_VECTOR_SIZE(self->map) > s) ? CSTL_VECTOR_SIZE(self->map) : s;\
 			/* mapを拡張する */\
-			if (!Name##__RingVector_expand(self->map, CSTL_VECTOR_SIZE(self->map) + k)) {\
+			if (!Name##__RingVector_insert_n_no_elem(self->map, 0, k)) {\
 				return 0;\
 			}\
-			Name##__RingVector_insert_array_no_elems(self->map, 0, k);\
 			for (j = 0; j < k; j++) {\
 				CSTL_VECTOR_AT(self->map, j) = 0;\
 			}\
@@ -576,7 +570,7 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 	return Name##_insert_array(self, idx, &elem, 1);\
 }\
 \
-static int Name##_expand_for_insert(Name *self, size_t idx, size_t n)\
+static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
 {\
 	if (Name##_size(self) / 2 < idx) {\
 		/* end側を移動 */\
@@ -605,7 +599,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 	assert(self->magic == self && "Deque_insert_array");\
 	assert(Name##_size(self) >= idx && "Deque_insert_array");\
 	assert(elems && "Deque_insert_array");\
-	if (!Name##_expand_for_insert(self, idx, n)) {\
+	if (!Name##_insert_n_no_elem(self, idx, n)) {\
 		return 0;\
 	}\
 	for (i = 0; i < n; i++) {\
@@ -625,7 +619,7 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 	assert(Name##_size(x) >= xidx + n && "Deque_insert_range");\
 	assert(Name##_size(x) >= n && "Deque_insert_range");\
 	assert(Name##_size(x) > xidx && "Deque_insert_range");\
-	if (!Name##_expand_for_insert(self, idx, n)) {\
+	if (!Name##_insert_n_no_elem(self, idx, n)) {\
 		return 0;\
 	}\
 	if (self == x) {\
@@ -642,7 +636,7 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 			}\
 		} else {\
 			for (i = 0; i < n; i++) {\
-				*Name##_at(self, idx + i) = *Name##_at(x, xidx + i);\
+				*Name##_at(self, idx + i) = *Name##_at(self, xidx + i);\
 			}\
 		}\
 	} else {\
