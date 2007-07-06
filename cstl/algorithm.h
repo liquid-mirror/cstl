@@ -386,6 +386,56 @@ void Name##_rotate(Name *self, size_t first, size_t middle, size_t last)\
 	Name##_rotate_aux(self, first, middle, last);\
 }\
 \
+int Name##_merge(Name *self, size_t idx, \
+		Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const void *, const void *))\
+{\
+	size_t i, j, k;\
+	assert(self && "merge");\
+	assert(self->magic == self && "merge");\
+	assert(Name##_size(self) >= idx && "merge");\
+	assert(self != x && "merge");\
+	assert(self != y && "merge");\
+	assert(x && "merge");\
+	assert(x->magic == x && "merge");\
+	assert(Name##_size(x) >= xidx + xn && "merge");\
+	assert(Name##_size(x) >= xn && "merge");\
+	assert(Name##_size(x) > xidx && "merge");\
+	assert(y && "merge");\
+	assert(y->magic == y && "merge");\
+	assert(Name##_size(y) >= yidx + yn && "merge");\
+	assert(Name##_size(y) >= yn && "merge");\
+	assert(Name##_size(y) > yidx && "merge");\
+	assert(comp && "merge");\
+	if (!Name##_insert_n_no_elem(self, idx, xn + yn)) {\
+		return 0;\
+	}\
+	i = j = k = 0;\
+	while (i < xn && j < yn) {\
+		if (comp(&DIRECT_ACCESS(x, xidx + i), &DIRECT_ACCESS(y, yidx + j)) <= 0) {\
+			DIRECT_ACCESS(self, idx + k) = DIRECT_ACCESS(x, xidx + i);\
+			i++;\
+		} else {\
+			DIRECT_ACCESS(self, idx + k) = DIRECT_ACCESS(y, yidx + j);\
+			j++;\
+		}\
+		k++;\
+	}\
+	if (i == xn) {\
+		while (j < yn) {\
+			DIRECT_ACCESS(self, idx + k) = DIRECT_ACCESS(y, yidx + j);\
+			j++;\
+			k++;\
+		}\
+	} else {\
+		while (i < xn) {\
+			DIRECT_ACCESS(self, idx + k) = DIRECT_ACCESS(x, xidx + i);\
+			i++;\
+			k++;\
+		}\
+	}\
+	return 1;\
+}\
+\
 void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const void *, const void *))\
 {\
 	Type *buf;\

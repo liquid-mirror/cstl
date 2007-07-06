@@ -117,6 +117,7 @@ size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
 void Name##_reverse(Name *self, size_t idx, size_t n);\
 void Name##_rotate(Name *self, size_t first, size_t middle, size_t last);\
+int Name##_merge(Name *self, size_t idx, Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const void *, const void *));\
 void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const void *, const void *));\
 CSTL_STRING_END_EXTERN_C()\
 
