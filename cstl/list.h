@@ -587,6 +587,7 @@ void Name##_sort(Name *self, int (*comp)(const void *, const void *))\
 {\
 	assert(self && "List_sort");\
 	assert(self->magic == self && "List_sort");\
+	assert(comp && "List_sort");\
 	Name##_merge_sort(CSTL_LIST_BEGIN(self), CSTL_LIST_END(self), comp);\
 }\
 \
@@ -598,6 +599,7 @@ void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *))\
 	assert(self->magic == self && "List_merge");\
 	assert(x && "List_merge");\
 	assert(x->magic == x && "List_merge");\
+	assert(comp && "List_merge");\
 	if (self == x || !Name##_size(x)) return;\
 	if (!Name##_size(self)) {\
 		Name##_splice(self, CSTL_LIST_END(self), x, CSTL_LIST_BEGIN(x), CSTL_LIST_END(x));\
