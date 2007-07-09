@@ -1,7 +1,7 @@
 CSTL
 ====
 
-  CSTLは、C++のSTLライクなC/C++用のコンテナライブラリです。vector, deque,
+  CSTLは、C言語で使えるC++のSTLライクなコンテナライブラリです。vector, deque,
   list, set, multiset, map, multimap, stringを提供します。
 
 

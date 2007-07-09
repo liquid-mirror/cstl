@@ -36,9 +36,6 @@ CSTLは、C++のSTLコンテナに似たインターフェイスを持つC/C++�
   ((<SourceForge.jp|URL:http://sourceforge.jp/projects/cstl/files/>))からtarballをダウンロードする。
   tarballを展開し、cstlディレクトリをインクルードパスの通ったディレクトリにコピーする。
 
-  cstlディレクトリには以下のファイルが含まれている。
-    vector.h  ring.h  deque.h  list.h  rbtree.h  set.h  map.h  string.h
-
 * ((<SVNリポジトリ|URL:http://svn.sourceforge.jp/svnroot/cstl/>))からチェックアウトする方法
 
   インクルードパスの通ったディレクトリに移動し、以下のコマンドを実行する。
@@ -203,6 +200,13 @@ CSTL_VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 * 事前条件は、idxがselfの現在の要素数以下の値であること。
 <<< br
 
+  int Vector_insert_n(Vector *self, size_t idx, size_t n, T elem);
+* selfのidxが示すインデックスの位置にelemのコピーをn個挿入する。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件は、idxがselfの現在の要素数以下の値であること。
+<<< br
+
   int Vector_insert_array(Vector *self, size_t idx, T *elems, size_t n);
 * selfのidxが示すインデックスの位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
@@ -331,6 +335,13 @@ CSTL_DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 + 挿入
   int Deque_insert(Deque *self, size_t idx, T elem);
 * selfのidxが示すインデックスの位置にelemのコピーを挿入する。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件は、idxがselfの現在の要素数以下の値であること。
+<<< br
+
+  int Deque_insert_n(Deque *self, size_t idx, size_t n, T elem);
+* selfのidxが示すインデックスの位置にelemのコピーをn個挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件は、idxがselfの現在の要素数以下の値であること。
@@ -511,6 +522,13 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 * 事前条件は、posがselfの有効なイテレータであること。
 <<< br
 
+  int List_insert_n(List *self, ListIterator pos, size_t n, T elem);
+* selfのposが示す位置にelemのコピーをn個挿入する。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件は、posがselfの有効なイテレータであること。
+<<< br
+
   int List_insert_array(List *self, ListIterator pos, Type *elems, size_t n);
 * selfのposが示す位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
@@ -578,6 +596,25 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 * [first, last)の要素の数だけselfの要素数が増加し、xの要素数が減少する。
 * 事前条件は、posがselfの有効なイテレータであり、かつ[first, last)がxの有効なイテレータであり、
   かつselfとxが同一ならばposは[first, last)の範囲外であること。
+<<< br
+
++ 並べ替え
+  void List_sort(List *self, int (*comp)(const void *p1, const void *p2));
+* selfのすべての要素を比較関数compに従ってソートする。
+* compには、*p1 = *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定する。
+<<< br
+
+  void List_reverse(List *self);
+* selfのすべての要素を逆順に並べ替える。
+<<< br
+
++ マージ
+  void List_merge(List *self, List *x, int (*comp)(const void *p1, const void *p2));
+* xのすべての要素を比較関数compに従ってselfにマージする。
+* selfはソートされた状態になり、xは空になる。
+* compには、*p1 = *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定する。
+* 事前条件はself, xが共にソートされた状態であること。
+<<< br
 
 
 === set/multiset
@@ -610,7 +647,7 @@ Compareに要素の比較ルーチンを指定する。
       #define CSTL_GREATER(x, y)  ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
   * Typeがその他の型の場合、以下のプロトタイプのような引数と戻り値を持ち、
     x = yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
-    返す比較ルーチンを用意して指定する。
+    返す比較ルーチンを指定する。
     尚、Typeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
       int Compare(Type x, Type y);
 
@@ -789,7 +826,7 @@ Compareに要素の比較ルーチンを指定する。
       #define CSTL_GREATER(x, y)  ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
   * KeyTypeがその他の型の場合、以下のプロトタイプのような引数と戻り値を持ち、
     x = yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
-    返す比較ルーチンを用意して指定する。
+    返す比較ルーチンを指定する。
     尚、KeyTypeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
       int Compare(KeyType x, KeyType y);
 
