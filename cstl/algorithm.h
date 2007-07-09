@@ -456,6 +456,98 @@ void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, 
 	}\
 }\
 \
+static void Name##_up_heap(Name *self, size_t top_idx, size_t hi_idx, int (*comp)(const void *, const void *))\
+{\
+	/* hi_の付く変数は1から始まるヒープのインデックスを示す */\
+	register size_t hi_i;\
+	Type tmp;\
+	hi_i = hi_idx;\
+	tmp = DIRECT_ACCESS(self, hi_i + top_idx - 1);\
+	while (hi_i > 1 && comp(&DIRECT_ACCESS(self, hi_i / 2 + top_idx - 1), &tmp) < 0) {\
+		DIRECT_ACCESS(self, hi_i + top_idx - 1) = DIRECT_ACCESS(self, hi_i / 2 + top_idx - 1);\
+		hi_i = hi_i / 2;\
+	}\
+	DIRECT_ACCESS(self, hi_i + top_idx - 1) = tmp;\
+}\
+\
+static void Name##_down_heap(Name *self, size_t top_idx, size_t hi_from, size_t hi_to, int (*comp)(const void *, const void *))\
+{\
+	/* hi_の付く変数は1から始まるヒープのインデックスを示す */\
+	register size_t hi_i, hi_j;\
+	Type tmp;\
+	hi_j = hi_from;\
+	tmp = DIRECT_ACCESS(self, hi_j + top_idx - 1);\
+	while (2 * hi_j <= hi_to) {\
+		hi_i = 2 * hi_j;\
+		if (hi_i < hi_to && comp(&DIRECT_ACCESS(self, hi_i + top_idx - 1), &DIRECT_ACCESS(self, hi_i + top_idx)) < 0) {\
+			/* 右の子が存在し、左より右の子が大きい */\
+			hi_i++;\
+		}\
+		if (comp(&tmp, &DIRECT_ACCESS(self, hi_i + top_idx - 1)) < 0) {\
+			DIRECT_ACCESS(self, hi_j + top_idx - 1) = DIRECT_ACCESS(self, hi_i + top_idx - 1);\
+			hi_j = hi_i;\
+		} else {\
+			break;\
+		}\
+	}\
+	DIRECT_ACCESS(self, hi_j + top_idx - 1) = tmp;\
+}\
+\
+void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+{\
+	assert(self && "push_heap");\
+	assert(self->magic == self && "push_heap");\
+	assert(Name##_size(self) >= idx + n && "push_heap");\
+	assert(Name##_size(self) >= n && "push_heap");\
+	assert(Name##_size(self) > idx && "push_heap");\
+	assert(comp && "push_heap");\
+	Name##_up_heap(self, idx, n, comp);\
+}\
+\
+void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+{\
+	Type tmp;\
+	assert(self && "pop_heap");\
+	assert(self->magic == self && "pop_heap");\
+	assert(Name##_size(self) >= idx + n && "pop_heap");\
+	assert(Name##_size(self) >= n && "pop_heap");\
+	assert(Name##_size(self) > idx && "pop_heap");\
+	assert(comp && "pop_heap");\
+	assert(n > 0 && "pop_heap");\
+	CSTL_ALGORITHM_SWAP(idx, idx + n - 1, tmp, DIRECT_ACCESS);\
+	Name##_down_heap(self, idx, 1, n - 1, comp);\
+}\
+\
+void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+{\
+	size_t i;\
+	assert(self && "make_heap");\
+	assert(self->magic == self && "make_heap");\
+	assert(Name##_size(self) >= idx + n && "make_heap");\
+	assert(Name##_size(self) >= n && "make_heap");\
+	assert(Name##_size(self) > idx && "make_heap");\
+	assert(comp && "make_heap");\
+	for (i = n / 2; i > 0; i--) {\
+		Name##_down_heap(self, idx, i, n, comp);\
+	}\
+}\
+\
+void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+{\
+	size_t i;\
+	Type tmp;\
+	assert(self && "sort_heap");\
+	assert(self->magic == self && "sort_heap");\
+	assert(Name##_size(self) >= idx + n && "sort_heap");\
+	assert(Name##_size(self) >= n && "sort_heap");\
+	assert(Name##_size(self) > idx && "sort_heap");\
+	assert(comp && "sort_heap");\
+	for (i = n; i > 1; i--) {\
+		CSTL_ALGORITHM_SWAP(idx, idx + i - 1, tmp, DIRECT_ACCESS);\
+		Name##_down_heap(self, idx, 1, i - 1, comp);\
+	}\
+}\
+\
 
 
 #endif /* CSTL_ALGORITHM_H_INCLUDED */

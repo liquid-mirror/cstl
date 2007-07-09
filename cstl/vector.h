@@ -104,6 +104,10 @@ void Name##_reverse(Name *self, size_t idx, size_t n);\
 void Name##_rotate(Name *self, size_t first, size_t middle, size_t last);\
 int Name##_merge(Name *self, size_t idx, Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const void *, const void *));\
 void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const void *, const void *));\
+void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
 CSTL_VECTOR_END_EXTERN_C()\
 
 
