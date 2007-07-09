@@ -90,19 +90,19 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);
 void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
-void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
-void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
-size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
-size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
-size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *));\
+void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
+size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
+size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
 void Name##_reverse(Name *self, size_t idx, size_t n);\
 void Name##_rotate(Name *self, size_t first, size_t middle, size_t last);\
-int Name##_merge(Name *self, size_t idx, Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const void *, const void *));\
-void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const void *, const void *));\
-void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
-void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
-void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
-void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+int Name##_merge(Name *self, size_t idx, Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const Type *, const Type *));\
+void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const Type *, const Type *));\
+void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
 CSTL_DEQUE_END_EXTERN_C()\
 
 

@@ -45,7 +45,7 @@
 #endif
 
 #define CSTL_ALGORITHM_IMPLEMENT(Name, Type, DIRECT_ACCESS)	\
-static void Name##_insertion_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+static void Name##_insertion_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *))\
 {\
 	register size_t i, j;\
 	Type tmp;\
@@ -56,7 +56,7 @@ static void Name##_insertion_sort(Name *self, size_t idx, size_t n, int (*comp)(
 	}\
 }\
 \
-void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *))\
 {\
 	size_t l, r;\
 	size_t middle;\
@@ -194,7 +194,7 @@ static size_t Name##_rotate_aux(Name *self, size_t first, size_t middle, size_t 
 }\
 \
 static void Name##_merge_without_buffer(Name *self, size_t first, size_t middle, size_t last, \
-							size_t len1, size_t len2, int (*comp)(const void *, const void *))\
+							size_t len1, size_t len2, int (*comp)(const Type *, const Type *))\
 {\
 	size_t len11 = 0;\
 	size_t len22 = 0;\
@@ -230,7 +230,7 @@ static void Name##_merge_without_buffer(Name *self, size_t first, size_t middle,
 }\
 \
 static void Name##_merge_with_buffer(Name *self, size_t first, size_t middle, size_t last, \
-							Type *buf, int (*comp)(const void *, const void *))\
+							Type *buf, int (*comp)(const Type *, const Type *))\
 {\
 	size_t i, j, k;\
 	for (i = first; i < middle; i++) {\
@@ -252,7 +252,7 @@ static void Name##_merge_with_buffer(Name *self, size_t first, size_t middle, si
 	}\
 }\
 \
-static void Name##_merge_sort(Name *self, size_t first, size_t last, Type *buf, int (*comp)(const void *, const void *))\
+static void Name##_merge_sort(Name *self, size_t first, size_t last, Type *buf, int (*comp)(const Type *, const Type *))\
 {\
 	size_t middle;\
 	if (last - first <= 1) {\
@@ -273,7 +273,7 @@ static void Name##_merge_sort(Name *self, size_t first, size_t last, Type *buf, 
 	}\
 }\
 \
-void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *))\
 {\
 	Type *buf;\
 	assert(self && "stable_sort");\
@@ -291,7 +291,7 @@ void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void
 	free(buf);\
 }\
 \
-size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *))\
+size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *))\
 {\
 	size_t first;\
 	size_t last;\
@@ -315,7 +315,7 @@ size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	return first;\
 }\
 \
-size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *))\
+size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *))\
 {\
 	size_t first;\
 	size_t last;\
@@ -339,7 +339,7 @@ size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	return first;\
 }\
 \
-size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *))\
+size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *))\
 {\
 	size_t i;\
 	assert(self && "binary_search");\
@@ -387,7 +387,7 @@ void Name##_rotate(Name *self, size_t first, size_t middle, size_t last)\
 }\
 \
 int Name##_merge(Name *self, size_t idx, \
-		Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const void *, const void *))\
+		Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const Type *, const Type *))\
 {\
 	size_t i, j, k;\
 	assert(self && "merge");\
@@ -436,7 +436,7 @@ int Name##_merge(Name *self, size_t idx, \
 	return 1;\
 }\
 \
-void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const void *, const void *))\
+void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const Type *, const Type *))\
 {\
 	Type *buf;\
 	assert(self && "inplace_merge");\
@@ -456,7 +456,7 @@ void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, 
 	}\
 }\
 \
-static void Name##_up_heap(Name *self, size_t top_idx, size_t hi_idx, int (*comp)(const void *, const void *))\
+static void Name##_up_heap(Name *self, size_t top_idx, size_t hi_idx, int (*comp)(const Type *, const Type *))\
 {\
 	/* hi_の付く変数は1から始まるヒープのインデックスを示す */\
 	register size_t hi_i;\
@@ -470,7 +470,7 @@ static void Name##_up_heap(Name *self, size_t top_idx, size_t hi_idx, int (*comp
 	DIRECT_ACCESS(self, hi_i + top_idx - 1) = tmp;\
 }\
 \
-static void Name##_down_heap(Name *self, size_t top_idx, size_t hi_from, size_t hi_to, int (*comp)(const void *, const void *))\
+static void Name##_down_heap(Name *self, size_t top_idx, size_t hi_from, size_t hi_to, int (*comp)(const Type *, const Type *))\
 {\
 	/* hi_の付く変数は1から始まるヒープのインデックスを示す */\
 	register size_t hi_i, hi_j;\
@@ -493,7 +493,7 @@ static void Name##_down_heap(Name *self, size_t top_idx, size_t hi_from, size_t 
 	DIRECT_ACCESS(self, hi_j + top_idx - 1) = tmp;\
 }\
 \
-void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *))\
 {\
 	assert(self && "push_heap");\
 	assert(self->magic == self && "push_heap");\
@@ -504,7 +504,7 @@ void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *
 	Name##_up_heap(self, idx, n, comp);\
 }\
 \
-void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *))\
 {\
 	Type tmp;\
 	assert(self && "pop_heap");\
@@ -518,7 +518,7 @@ void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *,
 	Name##_down_heap(self, idx, 1, n - 1, comp);\
 }\
 \
-void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *))\
 {\
 	size_t i;\
 	assert(self && "make_heap");\
@@ -532,7 +532,7 @@ void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *
 	}\
 }\
 \
-void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
+void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *))\
 {\
 	size_t i;\
 	Type tmp;\

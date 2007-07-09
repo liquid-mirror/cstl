@@ -304,12 +304,11 @@ void StringTest_test_1_3(void)
 	String_delete(x);
 }
 
-#define Type char
-int cmp(const void *x, const void *y)
+int cmp(const char *x, const char *y)
 {
-	if (*(Type *)x < *(Type *)y) {
+	if (*x < *y) {
 		return -1;
-	} else if (*(Type *)x > *(Type *)y) {
+	} else if (*x > *y) {
 		return 1;
 	} else {
 		return 0;
