@@ -319,8 +319,8 @@ void Heap_free(Heap *self, void *ptr)
 	prev = &self->list_term;
 	pprev = &self->list_term;
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
-#ifdef HEAP_DEBUG
 		if (p == (BlockHeader *) ((char *) ptr - 
+#ifdef HEAP_DEBUG
 										(HEADER_SIZE + WALL_SIZE)
 #else
 										HEADER_SIZE
