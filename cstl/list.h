@@ -103,8 +103,8 @@ Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterat
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
 void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last);\
-void Name##_sort(Name *self, int (*comp)(const void *, const void *));\
-void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *));\
+void Name##_sort(Name *self, int (*comp)(const Type *, const Type *));\
+void Name##_merge(Name *self, Name *x, int (*comp)(const Type *, const Type *));\
 void Name##_reverse(Name *self);\
 CSTL_LIST_END_EXTERN_C()\
 
@@ -532,7 +532,7 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 	x->nelems -= count;\
 }\
 \
-static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *last, int (*comp)(const void *, const void *))\
+static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *last, int (*comp)(const Type *, const Type *))\
 {\
 	Name##Node *head;\
 	Name##Node *p;\
@@ -562,7 +562,7 @@ static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *l
 	return head->next;\
 }\
 \
-static Name##Node *Name##_merge_sort(Name##Node *first, Name##Node *last, int (*comp)(const void *, const void *))\
+static Name##Node *Name##_merge_sort(Name##Node *first, Name##Node *last, int (*comp)(const Type *, const Type *))\
 {\
 	Name##Node *x;\
 	Name##Node *y;\
@@ -583,7 +583,7 @@ static Name##Node *Name##_merge_sort(Name##Node *first, Name##Node *last, int (*
 	return Name##_merge_list(Name##_merge_sort(first, last, comp), Name##_merge_sort(x, last, comp), last, comp);\
 }\
 \
-void Name##_sort(Name *self, int (*comp)(const void *, const void *))\
+void Name##_sort(Name *self, int (*comp)(const Type *, const Type *))\
 {\
 	assert(self && "List_sort");\
 	assert(self->magic == self && "List_sort");\
@@ -591,7 +591,7 @@ void Name##_sort(Name *self, int (*comp)(const void *, const void *))\
 	Name##_merge_sort(CSTL_LIST_BEGIN(self), CSTL_LIST_END(self), comp);\
 }\
 \
-void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *))\
+void Name##_merge(Name *self, Name *x, int (*comp)(const Type *, const Type *))\
 {\
 	Name##Node *p;\
 	Name##Node *q;\
