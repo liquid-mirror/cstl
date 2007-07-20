@@ -95,6 +95,27 @@ echo -e "#include <stdlib.h>" >> "$path"".c"
 echo -e "#include <assert.h>" >> "$path"".c"
 echo -e "#include \"$name.h\"\n" >> "$path"".c"
 if [ $lower != "ring" ]; then
+if [ $lower = "deque" ]; then
+echo -e "\
+#ifndef NDEBUG
+#define CSTL_${upper}_MAGIC(x) x
+#define CSTL_VECTOR_MAGIC(x) x
+#define CSTL_RING_MAGIC(x) x
+#else
+#define CSTL_${upper}_MAGIC(x)
+#define CSTL_VECTOR_MAGIC(x)
+#define CSTL_RING_MAGIC(x)
+#endif\n" >> "$path"".c"
+elif [ $lower = "string" ]; then
+echo -e "\
+#ifndef NDEBUG
+#define CSTL_${upper}_MAGIC(x) x
+#define CSTL_VECTOR_MAGIC(x) x
+#else
+#define CSTL_${upper}_MAGIC(x)
+#define CSTL_VECTOR_MAGIC(x)
+#endif\n" >> "$path"".c"
+else
 echo -e "\
 #ifndef NDEBUG
 #define CSTL_${upper}_MAGIC(x) x
@@ -102,22 +123,6 @@ echo -e "\
 #define CSTL_${upper}_MAGIC(x)
 #endif\n" >> "$path"".c"
 fi
-if [ $lower = "deque" ]; then
-echo -e "\
-#ifndef NDEBUG
-#define CSTL_VECTOR_MAGIC(x) x
-#define CSTL_RING_MAGIC(x) x
-#else
-#define CSTL_VECTOR_MAGIC(x)
-#define CSTL_RING_MAGIC(x)
-#endif\n" >> "$path"".c"
-elif [ $lower = "string" ]; then
-echo -e "\
-#ifndef NDEBUG
-#define CSTL_VECTOR_MAGIC(x) x
-#else
-#define CSTL_VECTOR_MAGIC(x)
-#endif\n" >> "$path"".c"
 fi
 if [ "$heap" != "" ]; then
 echo -e "\
