@@ -383,6 +383,7 @@ void Name##_rotate(Name *self, size_t first, size_t middle, size_t last)\
 	assert(self->magic == self && "rotate");\
 	assert(first <= middle && "rotate");\
 	assert(middle <= last && "rotate");\
+	assert(Name##_size(self) >= last && "rotate");\
 	Name##_rotate_aux(self, first, middle, last);\
 }\
 \
@@ -443,6 +444,7 @@ void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, 
 	assert(self->magic == self && "inplace_merge");\
 	assert(first <= middle && "inplace_merge");\
 	assert(middle <= last && "inplace_merge");\
+	assert(Name##_size(self) >= last && "inplace_merge");\
 	assert(comp && "inplace_merge");\
 	if (first == middle || middle == last) {\
 		return;\
