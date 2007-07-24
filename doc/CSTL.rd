@@ -15,6 +15,7 @@
   * ((<map|"map/multimap">))
   * ((<multimap|"map/multimap">))
   * ((<string>))
+  * ((<algorithm>))
 * ((<STLとの主な違い>))
 * ((<ライセンス>))
   * ((<日本語訳(参考)>))
@@ -53,12 +54,14 @@ CSTLは以下のコンテナを提供する。
   可変長配列。許容量を超えた要素の追加をした場合、自動的に拡張する。
   末尾での要素の挿入・削除が高速であり、それ以外の位置の要素の挿入・削除と要素の検索は遅い。
   インデックスによる要素のランダムアクセスが可能。
+  ((<アルゴリズム|algorithm>))が使用可能。
 
 * ((<deque>))
 
   両端キュー。
   先頭と末尾での要素の挿入・削除が高速であり、それ以外の位置の要素の挿入・削除と要素の検索は遅い。
   インデックスによる要素のランダムアクセスが可能。
+  ((<アルゴリズム|algorithm>))が使用可能。
 
 * ((<list>))
 
@@ -91,6 +94,7 @@ CSTLは以下のコンテナを提供する。
 * ((<string>))
 
   可変長文字列。許容量を超えた文字の追加をした場合、自動的に拡張する。
+  ((<アルゴリズム|algorithm>))が使用可能。
 
 
 == リファレンスマニュアル
@@ -598,22 +602,24 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
   かつselfとxが同一ならばposは[first, last)の範囲外であること。
 <<< br
 
-+ 並べ替え
-  void List_sort(List *self, int (*comp)(const void *p1, const void *p2));
++ ソート
+  void List_sort(List *self, int (*comp)(const T *p1, const T *p2));
 * selfのすべての要素を比較関数compに従ってソートする。
 * compには、*p1 = *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定する。
+* このソートは安定である。
 <<< br
 
++ 並べ替え
   void List_reverse(List *self);
 * selfのすべての要素を逆順に並べ替える。
 <<< br
 
 + マージ
-  void List_merge(List *self, List *x, int (*comp)(const void *p1, const void *p2));
-* xのすべての要素を比較関数compに従ってselfにマージする。
+  void List_merge(List *self, List *x, int (*comp)(const T *p1, const T *p2));
+* ソートされた状態であるselfとxにおいて、xのすべての要素を比較関数compに従ってselfにマージする。
 * selfはソートされた状態になり、xは空になる。
 * compには、*p1 = *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定する。
-* 事前条件はself, xが共にソートされた状態であること。
+* selfとxがソートされていない場合の動作は未定義である。
 <<< br
 
 
@@ -1270,6 +1276,100 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
 <<< br
 
 
+=== algorithm
+CSTLは、vector, deque, stringにおいて、共通なアルゴリズムを提供する。
+
+アルゴリズムを使うには、実装マクロCSTL_XXX_IMPLEMENT(XXXは、VECTOR, DEQUE, STRINGのいずれか)を展開する前に、
+algorithm.hというヘッダファイルをインクルードする。
+
+  #include <cstl/algorithm.h>
+
+ここではvectorを例として説明する。
+deque, stringの場合もインターフェイスは同じである。
+
+CSTL_VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
+以下のインターフェイスを提供する。
+
+==== 関数
+以下の関数において、Vector*型の引数はNULLでないことを事前条件に含める。
+
+また、int (*comp)(const T *p1, const T *p2)という関数ポインタの引数には、*p1 = *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+
++ ソート
+  void Vector_sort(Vector *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+* selfのidxが示すインデックスの位置からn個の要素を比較関数compに従ってソートする。
+* このソートは安定でない。
+* 事前条件は、idx + nがselfの現在の要素数以下の値であること。
+<<< br
+
+  void Vector_stable_sort(Vector *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+* selfのidxが示すインデックスの位置からn個の要素を比較関数compに従ってソートする。
+* このソートは安定である。
+* 事前条件は、idx + nがselfの現在の要素数以下の値であること。
+<<< br
+
++ 二分探索
+  size_t Vector_binary_search(Vector *self, size_t idx, size_t n, Type value, int (*comp)(const T *p1, const T *p2));
+* selfのidxが示すインデックスの位置からn個の要素において、valueに一致する要素のインデックスを返す。
+* 一致する要素が複数ある場合、最初の要素のインデックスを返す。
+* 見つからない場合、idx + nを返す。
+* selfの[idx, idx + n)の範囲は比較関数compに従ってソートされていなければならない。ソートされていない場合の動作は未定義である。
+* 事前条件は、idx + nがselfの現在の要素数以下の値であること。
+<<< br
+
+  size_t Vector_lower_bound(Vector *self, size_t idx, size_t n, Type value, int (*comp)(const T *p1, const T *p2));
+* selfのidxが示すインデックスの位置からn個の要素において、value以上の最初の要素のインデックスを返す。
+* 見つからない場合、idx + nを返す。
+* selfの[idx, idx + n)の範囲は比較関数compに従ってソートされていなければならない。ソートされていない場合の動作は未定義である。
+* 事前条件は、idx + nがselfの現在の要素数以下の値であること。
+<<< br
+
+  size_t Vector_upper_bound(Vector *self, size_t idx, size_t n, Type value, int (*comp)(const T *p1, const T *p2));
+* selfのidxが示すインデックスの位置からn個の要素において、valueより大きい最初の要素のインデックスを返す。
+* 見つからない場合、idx + nを返す。
+* selfの[idx, idx + n)の範囲は比較関数compに従ってソートされていなければならない。ソートされていない場合の動作は未定義である。
+* 事前条件は、idx + nがselfの現在の要素数以下の値であること。
+<<< br
+
++ 並べ替え
+  void Vector_reverse(Vector *self, size_t idx, size_t n);
+* selfのidxが示すインデックスの位置からn個の要素を逆順に並べ替える。
+* 事前条件は、idx + nがselfの現在の要素数以下の値であること。
+<<< br
+
+  void Vector_rotate(Vector *self, size_t first, size_t middle, size_t last);
+* selfの[middle, last)のインデックスの範囲の要素をfirstが示すインデックスの位置に移動する。
+* 事前条件は、first <= middle <= last <= selfの現在の要素数であること。
+<<< br
+
++ マージ
+  int Vector_merge(Vector *self, size_t idx, Vector *x, size_t xidx, size_t xn, 
+                    Vector *y, size_t yidx, size_t yn, int (*comp)(const T *p1, const T *p2));
+<<< br
+
+  void Vector_inplace_merge(Vector *self, size_t first, size_t middle, size_t last, 
+                              int (*comp)(const T *p1, const T *p2));
+<<< br
+
++ ヒープ
+  void Vector_push_heap(Vector *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+<<< br
+
+  void Vector_pop_heap(Vector *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+<<< br
+
+  void Vector_make_heap(Vector *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+<<< br
+
+  void Vector_sort_heap(Vector *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+<<< br
+
+
+
+
+
+
+
 == STLとの主な違い
 * vector, deque, stringはインデックスで要素にアクセスするため、イテレータをサポートしない。
 * vector, deque, listのpop_back(), pop_front()は削除した値を返す。
@@ -1279,7 +1379,9 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
 * set, multiset, map, multimapのerase()は削除した次の位置のイテレータを返す。
 * set, multiset, map, multimapのerase_range()は削除した次の位置のイテレータを返す。
 * 未対応なメンバ関数あり。
-* STLのアルゴリズムには未対応。
+* vector, deque, stringのみアルゴリズムをサポートする。
+* アルゴリズムのbinary_search()は見つかったインデックスを返す。
+* 未対応なアルゴリズムあり。
 
 
 == ライセンス
