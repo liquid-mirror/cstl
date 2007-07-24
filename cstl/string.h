@@ -134,7 +134,7 @@ CSTL_STRING_END_EXTERN_C()\
  */
 #define CSTL_STRING_IMPLEMENT(Name, Type)	\
 \
-static int Name##my_memcmp(const Type *x, const Type *y, size_t size)\
+static int Name##_mymemcmp(const Type *x, const Type *y, size_t size)\
 {\
 	if (size) {\
 		do {\
@@ -149,7 +149,7 @@ static int Name##my_memcmp(const Type *x, const Type *y, size_t size)\
 	return 0;\
 }\
 \
-static size_t Name##my_strlen(const Type *cstr)\
+static size_t Name##_mystrlen(const Type *cstr)\
 {\
 	size_t i = 0;\
 	while (*cstr != '\0') {\
@@ -267,7 +267,7 @@ int Name##_compare(Name *self, Name *x)\
 	assert(x->magic == x && "String_compare");\
 	len = Name##_size(self);\
 	xlen = Name##_size(x);\
-	ret = Name##my_memcmp(Name##_c_str(self), Name##_c_str(x), (len > xlen) ? xlen : len);\
+	ret = Name##_mymemcmp(Name##_c_str(self), Name##_c_str(x), (len > xlen) ? xlen : len);\
 	return ret ? ret : len - xlen;\
 }\
 \
@@ -334,7 +334,7 @@ int Name##_assign(Name *self, Type *cstr, size_t cstr_len)\
 	assert(self->magic == self && "String_assign");\
 	assert(cstr && "String_assign");\
 	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
+		cstr_len = Name##_mystrlen(cstr);\
 	}\
 	if (!Name##__CharVector_expand(self->data, cstr_len + 1)) {\
 		return 0;\
@@ -363,7 +363,7 @@ int Name##_append(Name *self, Type *cstr, size_t cstr_len)\
 	assert(self->magic == self && "String_append");\
 	assert(cstr && "String_append");\
 	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
+		cstr_len = Name##_mystrlen(cstr);\
 	}\
 	return Name##_insert(self, Name##_size(self), cstr, cstr_len);\
 }\
@@ -399,7 +399,7 @@ int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 	assert(Name##_size(self) >= idx && "String_insert");\
 	assert(cstr && "String_insert");\
 	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
+		cstr_len = Name##_mystrlen(cstr);\
 	}\
 	if (!Name##_insert_n_no_elem(self, idx, cstr_len)) {\
 		return 0;\
@@ -459,7 +459,7 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 		len = size - idx;\
 	}\
 	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
+		cstr_len = Name##_mystrlen(cstr);\
 	}\
 	if (Name##_c_str(self) <= cstr && cstr < Name##_c_str(self) + Name##_size(self)) {\
 		/* cstr‚ªself“à‚Ì•¶Žš—ñ */\
@@ -589,12 +589,12 @@ size_t Name##_find(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
 	assert(x && "String_find");\
 	assert(cstr && "String_find");\
 	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
+		cstr_len = Name##_mystrlen(cstr);\
 	}\
 	if (cstr_len == 0) {\
 		return idx;\
 	}\
-	size = Name##my_strlen(x);\
+	size = Name##_mystrlen(x);\
 	if (size < idx) return CSTL_NPOS;\
 	i = Name##_brute_force_search(&x[idx], size - idx, cstr, cstr_len);\
 	if (i == CSTL_NPOS) return i;\
@@ -613,9 +613,9 @@ size_t Name##_rfind(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
 	assert(x && "String_rfind");\
 	assert(cstr && "String_rfind");\
 	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
+		cstr_len = Name##_mystrlen(cstr);\
 	}\
-	size = Name##my_strlen(x);\
+	size = Name##_mystrlen(x);\
 	if (size - cstr_len < idx) {\
 		idx = size - cstr_len;\
 	}\
@@ -634,10 +634,10 @@ size_t Name##_find_first_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
 	size_t size;\
 	assert(x && "String_find_first_of");\
 	assert(cstr && "String_find_first_of");\
-	size = Name##my_strlen(x);\
+	size = Name##_mystrlen(x);\
 	if (size < idx) return CSTL_NPOS;\
 	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
+		cstr_len = Name##_mystrlen(cstr);\
 	}\
 	for (i = idx; i < size; i++) {\
 		for (j = 0; j < cstr_len; j++) {\
@@ -661,12 +661,12 @@ size_t Name##_find_last_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)\
 	size_t size;\
 	assert(x && "String_find_last_of");\
 	assert(cstr && "String_find_last_of");\
-	size = Name##my_strlen(x);\
+	size = Name##_mystrlen(x);\
 	if (size <= idx) {\
 		idx = size - 1;\
 	}\
 	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
+		cstr_len = Name##_mystrlen(cstr);\
 	}\
 	for (i = idx + 1; i > 0; i--) {\
 		for (j = 0; j < cstr_len; j++) {\
@@ -690,10 +690,10 @@ size_t Name##_find_first_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len
 	size_t size;\
 	assert(x && "String_find_first_not_of");\
 	assert(cstr && "String_find_first_not_of");\
-	size = Name##my_strlen(x);\
+	size = Name##_mystrlen(x);\
 	if (size < idx) return CSTL_NPOS;\
 	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
+		cstr_len = Name##_mystrlen(cstr);\
 	}\
 	if (cstr_len == 0) {\
 		return idx;\
@@ -722,12 +722,12 @@ size_t Name##_find_last_not_of(Type *x, Type *cstr, size_t idx, size_t cstr_len)
 	size_t size;\
 	assert(x && "String_find_last_not_of");\
 	assert(cstr && "String_find_last_not_of");\
-	size = Name##my_strlen(x);\
+	size = Name##_mystrlen(x);\
 	if (size <= idx) {\
 		idx = size - 1;\
 	}\
 	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##my_strlen(cstr);\
+		cstr_len = Name##_mystrlen(cstr);\
 	}\
 	if (cstr_len == 0) {\
 		return idx;\
