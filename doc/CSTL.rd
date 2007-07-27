@@ -533,7 +533,7 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 * 事前条件は、posがselfの有効なイテレータであること。
 <<< br
 
-  int List_insert_array(List *self, ListIterator pos, Type *elems, size_t n);
+  int List_insert_array(List *self, ListIterator pos, T *elems, size_t n);
 * selfのposが示す位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -1309,7 +1309,7 @@ CSTL_VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 <<< br
 
 + 二分探索
-  size_t Vector_binary_search(Vector *self, size_t idx, size_t n, Type value, int (*comp)(const T *p1, const T *p2));
+  size_t Vector_binary_search(Vector *self, size_t idx, size_t n, T value, int (*comp)(const T *p1, const T *p2));
 * selfのidxが示すインデックスの位置からn個の要素において、valueに一致する要素のインデックスを返す。
 * 一致する要素が複数ある場合、最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
@@ -1317,14 +1317,14 @@ CSTL_VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 * 事前条件は、idx + nがselfの現在の要素数以下の値であること。
 <<< br
 
-  size_t Vector_lower_bound(Vector *self, size_t idx, size_t n, Type value, int (*comp)(const T *p1, const T *p2));
+  size_t Vector_lower_bound(Vector *self, size_t idx, size_t n, T value, int (*comp)(const T *p1, const T *p2));
 * selfのidxが示すインデックスの位置からn個の要素において、value以上の最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
 * selfの[idx, idx + n)の範囲は比較関数compに従ってソートされていなければならない。ソートされていない場合の動作は未定義である。
 * 事前条件は、idx + nがselfの現在の要素数以下の値であること。
 <<< br
 
-  size_t Vector_upper_bound(Vector *self, size_t idx, size_t n, Type value, int (*comp)(const T *p1, const T *p2));
+  size_t Vector_upper_bound(Vector *self, size_t idx, size_t n, T value, int (*comp)(const T *p1, const T *p2));
 * selfのidxが示すインデックスの位置からn個の要素において、valueより大きい最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
 * selfの[idx, idx + n)の範囲は比較関数compに従ってソートされていなければならない。ソートされていない場合の動作は未定義である。
