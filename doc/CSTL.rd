@@ -1345,29 +1345,46 @@ CSTL_VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 + マージ
   int Vector_merge(Vector *self, size_t idx, Vector *x, size_t xidx, size_t xn, 
                     Vector *y, size_t yidx, size_t yn, int (*comp)(const T *p1, const T *p2));
+* xの[xidx, xidx + xn)の範囲の要素とyの[yidx, yidx + yn)の範囲の要素のコピーをマージし、selfのidxが示すインデックスの位置に挿入する。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* xとyの指定範囲は比較関数compに従ってソートされていなければならない。ソートされていない場合の動作は未定義である。
+* selfの[idx, idx + xn + yn)の範囲の要素はソートされた状態になる。
+* 事前条件は、idxがselfの現在の要素数以下の値であること、かつxidx + xnがxの現在の要素数以下の値であること、かつyidx + ynがyの現在の要素数以下の値であること、かつselfとx、selfとyは同じオブジェクトでないこと。
 <<< br
 
   void Vector_inplace_merge(Vector *self, size_t first, size_t middle, size_t last, 
                               int (*comp)(const T *p1, const T *p2));
+* selfの連続する2つの範囲[first, middle)と[middle, last)の要素を比較関数compに従ってマージする。
+* selfの[first, middle)と[middle, last)の範囲は比較関数compに従ってソートされていなければならない。ソートされていない場合の動作は未定義である。
+* selfの[first, last)の範囲の要素はソートされた状態になる。
+* 事前条件は、first <= middle <= last <= selfの現在の要素数であること。
 <<< br
 
 + ヒープ
+  void Vector_make_heap(Vector *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+* selfのidxが示すインデックスの位置からn個の要素を比較関数compに従ってヒープに変換する。
+* 事前条件は、idx + nがselfの現在の要素数以下の値であること。
+<<< br
+
   void Vector_push_heap(Vector *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+* selfのidx + n - 1のインデックスの位置の要素を、selfの[idx, idx + n - 1)の範囲のヒープに追加して、[idx, idx + n)の範囲の要素を一つのヒープとして再構成する。
+* selfの[idx, idx + n - 1)の範囲は比較関数compに従ってヒープになっていなければならない。ヒープでない場合の動作は未定義である。
+* 事前条件は、idx + nがselfの現在の要素数以下の値であること。
 <<< br
 
   void Vector_pop_heap(Vector *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
-<<< br
-
-  void Vector_make_heap(Vector *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+* selfの[idx, idx + n)の範囲のヒープから、ヒープの最初の要素とヒープの最後の要素を交換し、selfの[idx, idx + n - 1)の範囲の要素をヒープとして再構成する。
+* selfの[idx, idx + n)の範囲は比較関数compに従ってヒープになっていなければならない。ヒープでない場合の動作は未定義である。
+* 事前条件は、idx + nがselfの現在の要素数以下の値であること、かつnが1以上であること。
 <<< br
 
   void Vector_sort_heap(Vector *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+* selfのidxが示すインデックスの位置からn個の要素を比較関数compに従ってソートする。
+* selfの[idx, idx + n)の範囲は比較関数compに従ってヒープになっていなければならない。ヒープでない場合の動作は未定義である。
+* このソートは安定でない。
+* 事前条件は、idx + nがselfの現在の要素数以下の値であること。
 <<< br
-
-
-
-
-
 
 
 == STLとの主な違い
