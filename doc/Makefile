@@ -28,9 +28,9 @@ rt2txt: $(TxtByRT)
 clean:
 	rm -f *~ $(GenerateFiles)
 %.html: %.rd
-	$(RD2HTML) $< > $@ || rm -f $@
+	$(RD2HTML) $< | sed -e "s/\.rd//" > $@ || rm -f $@
 %.html: %.rt
-	$(RT2HTML) $< > $@ || rm -f $@
+	$(RT2HTML) $< | sed -e "s/\.rd//" > $@ || rm -f $@
 %.txt: %.html
 	$(HTML2TXT) $< > $@
 %.v.rd: %
