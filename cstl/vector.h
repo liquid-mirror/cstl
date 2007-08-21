@@ -107,6 +107,7 @@ static int Name##_full(Name *self)\
 static int Name##_expand(Name *self, size_t size)\
 {\
 	size_t n;\
+	if (size <= Name##_capacity(self)) return 1;\
 	n = (size > Name##_capacity(self) * 2) ? size : Name##_capacity(self) * 2;\
 	return Name##_reserve(self, n);\
 }\

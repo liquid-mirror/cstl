@@ -285,7 +285,9 @@ void StringTest_test_1_4(void)
 	String *x;
 	printf("***** test_1_4 *****\n");
 	x = String_new(SIZE);
+	String_reserve(x, 26);
 	String_assign(x, "abcdefghijklmnopqrstuvwxyz", CSTL_NPOS);
+	assert(String_capacity(x) == 26);
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
 	/* replace */
@@ -293,9 +295,11 @@ void StringTest_test_1_4(void)
 	assert(String_size(x) == 26);
 	assert(strcmp("ABCdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
 	String_replace(x, 6, 3, "GHI", CSTL_NPOS);
+	assert(String_capacity(x) == 26);
 	assert(String_size(x) == 26);
 	assert(strcmp("ABCdefGHIjklmnopqrstuvwxyz", String_c_str(x)) == 0);
 	String_replace(x, String_size(x)-3, CSTL_NPOS, "XYZ", CSTL_NPOS);
+	assert(String_capacity(x) == 26);
 	assert(String_size(x) == 26);
 	assert(strcmp("ABCdefGHIjklmnopqrstuvwXYZ", String_c_str(x)) == 0);
 	String_shrink(x, 0);
