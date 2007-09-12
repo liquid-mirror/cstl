@@ -120,8 +120,9 @@ Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *succ
 	assert(self->magic == self && "Map_insert");\
 	pos = Name##RBTree_find(self->tree, key);\
 	if (pos == Name##RBTree_end(self->tree)) {\
-		pos = Name##RBTree_insert(self->tree, key, value);\
+		pos = Name##RBTreeNode_new(key, value, CSTL_RBTREE_RED);\
 		if (pos) {\
+			Name##RBTree_insert(self->tree, pos);\
 			if (success) *success = 1;\
 			self->nelems++;\
 		} else {\
@@ -164,8 +165,9 @@ ValueType *Name##_lookup(Name *self, KeyType key)\
 	pos = Name##RBTree_find(self->tree, key);\
 	if (pos == Name##RBTree_end(self->tree)) {\
 		static ValueType value; /* 新しい要素の値 */\
-		pos = Name##RBTree_insert(self->tree, key, value);\
+		pos = Name##RBTreeNode_new(key, value, CSTL_RBTREE_RED);\
 		if (pos) {\
+			Name##RBTree_insert(self->tree, pos);\
 			self->nelems++;\
 		} else {\
 			/* メモリ不足 */\
@@ -209,8 +211,9 @@ Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 	Name##Iterator pos;\
 	assert(self && "MultiMap_insert");\
 	assert(self->magic == self && "MultiMap_insert");\
-	pos = Name##RBTree_insert(self->tree, key, value);\
+	pos = Name##RBTreeNode_new(key, value, CSTL_RBTREE_RED);\
 	if (pos) {\
+		Name##RBTree_insert(self->tree, pos);\
 		self->nelems++;\
 	}\
 	return pos;\

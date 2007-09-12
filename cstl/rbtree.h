@@ -73,7 +73,7 @@ static Name *Name##_new(void);\
 static void Name##_delete(Name *self);\
 static void Name##_clear(Name *self);\
 static int Name##_empty(Name *self);\
-static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value);\
+static void Name##_insert(Name *self, Name##Node *node);\
 static void Name##_erase(Name *self, Name##Iterator pos);\
 static size_t Name##_count(Name *self, KeyType key);\
 static Name##Iterator Name##_find(Name *self, KeyType key);\
@@ -86,7 +86,6 @@ static Name##Iterator Name##_rend(Name *self);\
 static Name##Iterator Name##_next(Name##Iterator pos);\
 static Name##Iterator Name##_prev(Name##Iterator pos);\
 \
-static Name##Node *Name##Node_new(KeyType key, ValueType value, int color);\
 static void Name##Node_set_left(Name##Node *self, Name##Node *t);\
 static void Name##Node_set_right(Name##Node *self, Name##Node *t);\
 static Name##Node *Name##_get_root(Name *self);\
@@ -458,7 +457,7 @@ static void Name##Node_balance_for_insert(Name##Node *n)\
 	}\
 }\
 \
-static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
+static void Name##_insert(Name *self, Name##Node *node)\
 {\
 	Name##Node *n;\
 	Name##Node *tmp;\
@@ -466,32 +465,28 @@ static Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 	n = Name##_get_root(self);\
 	if (CSTL_RBTREE_NODE_IS_NIL(n, Name)) {\
 		/* rootになる */\
-		Name##Node *root = Name##Node_new(key, value, CSTL_RBTREE_BLACK);\
-		if (!root) return 0;	/* メモリ不足 */\
-		Name##_set_root(self, root);\
-		CSTL_RBTREE_MAGIC(root->magic = self);\
-		return root;\
+		node->color = CSTL_RBTREE_BLACK;\
+		Name##_set_root(self, node);\
+		CSTL_RBTREE_MAGIC(node->magic = self);\
+		return;\
 	}\
 	/* 2分探索木の挿入 */\
 	while (!CSTL_RBTREE_NODE_IS_NIL(n, Name)) {\
 		tmp = n;\
-		if (Compare(key, n->key) < 0) {\
+		if (Compare(node->key, n->key) < 0) {\
 			n = n->left;\
 		} else {\
 			/* 同じ値なら右へ */\
 			n = n->right;\
 		}\
 	}\
-	n = Name##Node_new(key, value, CSTL_RBTREE_RED);\
-	if (!n) return 0;	/* メモリ不足 */\
-	if (Compare(key, tmp->key) < 0) {\
-		Name##Node_set_left(tmp, n);\
+	if (Compare(node->key, tmp->key) < 0) {\
+		Name##Node_set_left(tmp, node);\
 	} else {\
-		Name##Node_set_right(tmp, n);\
+		Name##Node_set_right(tmp, node);\
 	}\
-	Name##Node_balance_for_insert(n);\
-	CSTL_RBTREE_MAGIC(n->magic = self);\
-	return n;\
+	Name##Node_balance_for_insert(node);\
+	CSTL_RBTREE_MAGIC(node->magic = self);\
 }\
 \
 static void Name##Node_balance_for_erase(Name##Node *n, Name##Node *p_of_n)\

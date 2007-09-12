@@ -61,7 +61,7 @@ struct Name##RBTreeNode_t {\
 \
 CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare)\
 \
-static Name##RBTreeNode *Name##RBTreeNode_new(Type elem, Type value, int color)\
+static Name##RBTreeNode *Name##RBTreeNode_new(Type elem, int color)\
 {\
 	Name##RBTreeNode *self;\
 	self = (Name##RBTreeNode *) malloc(sizeof(Name##RBTreeNode));\
@@ -106,8 +106,9 @@ Name##Iterator Name##_insert(Name *self, Type elem, int *success)\
 	assert(self->magic == self && "Set_insert");\
 	pos = Name##RBTree_find(self->tree, elem);\
 	if (pos == Name##RBTree_end(self->tree)) {\
-		pos = Name##RBTree_insert(self->tree, elem, elem);\
+		pos = Name##RBTreeNode_new(elem, CSTL_RBTREE_RED);\
 		if (pos) {\
+			Name##RBTree_insert(self->tree, pos);\
 			if (success) *success = 1;\
 			self->nelems++;\
 		} else {\
@@ -172,8 +173,9 @@ Name##Iterator Name##_insert(Name *self, Type elem)\
 	Name##Iterator pos;\
 	assert(self && "MultiSet_insert");\
 	assert(self->magic == self && "MultiSet_insert");\
-	pos = Name##RBTree_insert(self->tree, elem, elem);\
+	pos = Name##RBTreeNode_new(elem, CSTL_RBTREE_RED);\
 	if (pos) {\
+		Name##RBTree_insert(self->tree, pos);\
 		self->nelems++;\
 	}\
 	return pos;\
