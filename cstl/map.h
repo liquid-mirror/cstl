@@ -134,6 +134,48 @@ Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *succ
 	return pos;\
 }\
 \
+int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
+{\
+	Name##Iterator pos;\
+	Name##Iterator *tmp;\
+	size_t count = 0;\
+	size_t i = 0;\
+	size_t j;\
+	assert(self && "Map_insert_range");\
+	assert(self->magic == self && "Map_insert_range");\
+	assert(first && "Map_insert_range");\
+	assert(last && "Map_insert_range");\
+	assert(first->magic && "Map_insert_range");\
+	assert(last->magic && "Map_insert_range");\
+	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+		if (Name##RBTree_find(self->tree, Name##_key(pos)) == Name##RBTree_end(self->tree)) {\
+			count++;\
+		}\
+	}\
+	tmp = (Name##Iterator *) malloc(sizeof(Name##Iterator) * count);\
+	if (!tmp) return 0;\
+	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+		if (Name##RBTree_find(self->tree, Name##_key(pos)) == Name##RBTree_end(self->tree)) {\
+			tmp[i] = Name##RBTreeNode_new(Name##_key(pos), *Name##_value(pos), CSTL_RBTREE_RED);\
+			if (!tmp[i]) {\
+				for (j = 0; j < i; j++) {\
+					free(tmp[j]);\
+				}\
+				free(tmp);\
+				return 0;\
+			}\
+			i++;\
+		}\
+	}\
+	assert(i == count);\
+	for (i = 0; i < count; i++) {\
+		Name##RBTree_insert(self->tree, tmp[i]);\
+	}\
+	self->nelems += count;\
+	free(tmp);\
+	return 1;\
+}\
+\
 int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
 	Name *x;\
@@ -217,6 +259,44 @@ Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 		self->nelems++;\
 	}\
 	return pos;\
+}\
+\
+int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
+{\
+	Name##Iterator pos;\
+	Name##Iterator *tmp;\
+	size_t count = 0;\
+	size_t i = 0;\
+	size_t j;\
+	assert(self && "MultiMap_insert_range");\
+	assert(self->magic == self && "MultiMap_insert_range");\
+	assert(first && "MultiMap_insert_range");\
+	assert(last && "MultiMap_insert_range");\
+	assert(first->magic && "MultiMap_insert_range");\
+	assert(last->magic && "MultiMap_insert_range");\
+	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+		count++;\
+	}\
+	tmp = (Name##Iterator *) malloc(sizeof(Name##Iterator) * count);\
+	if (!tmp) return 0;\
+	for (pos = first; pos != last; pos = Name##_next(pos)) {\
+		tmp[i] = Name##RBTreeNode_new(Name##_key(pos), *Name##_value(pos), CSTL_RBTREE_RED);\
+		if (!tmp[i]) {\
+			for (j = 0; j < i; j++) {\
+				free(tmp[j]);\
+			}\
+			free(tmp);\
+			return 0;\
+		}\
+		i++;\
+	}\
+	assert(i == count);\
+	for (i = 0; i < count; i++) {\
+		Name##RBTree_insert(self->tree, tmp[i]);\
+	}\
+	self->nelems += count;\
+	free(tmp);\
+	return 1;\
 }\
 \
 int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\

@@ -462,12 +462,12 @@ static void Name##RBTree_insert(Name##RBTree *self, Name##RBTreeNode *node)\
 	Name##RBTreeNode *n;\
 	Name##RBTreeNode *tmp;\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_insert");\
+	CSTL_RBTREE_MAGIC(node->magic = self);\
 	n = Name##RBTree_get_root(self);\
 	if (CSTL_RBTREE_NODE_IS_NIL(n, Name##RBTree)) {\
 		/* rootになる */\
 		node->color = CSTL_RBTREE_BLACK;\
 		Name##RBTree_set_root(self, node);\
-		CSTL_RBTREE_MAGIC(node->magic = self);\
 		return;\
 	}\
 	/* 2分探索木の挿入 */\
@@ -486,7 +486,6 @@ static void Name##RBTree_insert(Name##RBTree *self, Name##RBTreeNode *node)\
 		Name##RBTreeNode_set_right(tmp, node);\
 	}\
 	Name##RBTreeNode_balance_for_insert(node);\
-	CSTL_RBTREE_MAGIC(node->magic = self);\
 }\
 \
 static void Name##RBTreeNode_balance_for_erase(Name##RBTreeNode *n, Name##RBTreeNode *p_of_n)\
@@ -726,6 +725,7 @@ int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last);\
 void Name##_clear(Name *self);\
 int Name##_empty(Name *self);\
 size_t Name##_size(Name *self);\
+int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last);\
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last);\
 size_t Name##_erase_key(Name *self, KeyType key);\
