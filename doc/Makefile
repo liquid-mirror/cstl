@@ -30,7 +30,7 @@ clean:
 %.html: %.rd
 	$(RD2HTML) $< | sed -e "s/\.rd//" > $@ || rm -f $@
 %.html: %.rt
-	$(RD2HTML) $< | sed -e "s/\.rd//" > $@ || rm -f $@
+	$(RT2HTML) $< | sed -e "s/\.rd//" > $@ || rm -f $@
 %.txt: %.html
 	$(HTML2TXT) $< > $@
 %.v.rd: %
