@@ -47,22 +47,6 @@ CSTL_DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 * selfが空でない場合、0を返す。
 <<< br
 
-+ 代入
-  int Deque_assign(Deque *self, Deque *x, size_t idx, size_t n);
-* xのidx番目からn個の要素のコピーをselfの要素として代入する。
-* selfとxは同じオブジェクトでもよい。
-* 代入に成功した場合、0以外の値を返す。
-* メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件
-  * idx + nがxの現在の要素数以下の値であること。
-<<< br
-
-  void Deque_swap(Deque *self, Deque *x);
-* selfとxの内容を交換する。
-* 要素のコピーをしないので、Deque_assign(self, x, 0, Deque_size(x))よりも速い。
-  xが不要になる場合、こちらを使用するべきである。
-<<< br
-
 + 要素のアクセス
   T *Deque_at(Deque *self, size_t idx);
 * selfのidx番目の要素へのポインタを返す。
@@ -160,6 +144,11 @@ CSTL_DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 * nがselfの現在の要素数より大きい場合、要素数がnになるまでelemのコピーが末尾から追加される。
 * 要素数の変更に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
+<<< br
+
++ 交換
+  void Deque_swap(Deque *self, Deque *x);
+* selfとxの内容を交換する。
 <<< br
 
 =end

@@ -111,12 +111,6 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 * メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
-  void String_swap(String *self, String *x);
-* selfとxの内容を交換する。
-* 文字のコピーをしないので、String_assign(self, String_c_str(x), String_size(x))よりも速い。
-  xが不要になる場合、こちらを使用するべきである。
-<<< br
-
 + 追加
   int String_append(String *self, CharT *cstr, size_t cstr_len);
 * selfにcstrという文字の配列からcstr_len個の文字を追加する。
@@ -200,18 +194,26 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 * メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
++ 交換
+  void String_swap(String *self, String *x);
+* selfとxの内容を交換する。
+* 文字のコピーをしないので、String_assign(self, String_c_str(x), String_size(x))よりも速い。
+  xが不要になる場合、こちらを使用するべきである。
+<<< br
+
 + 検索
   size_t String_find(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列において、idx番目から、cstrという文字の配列のcstr_len個の文字が現れる最初の位置を前進して検索する。
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字が現れる最初の位置を前進して検索する。
 * cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * x, cstrが共にNULLでないこと。
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_find_c(CharT *x, CharT c, size_t idx);
-* xというCの文字列において、idx番目から、cという文字が現れる最初の位置を前進して検索する。
+* xというCの文字列のidx番目から、cという文字が現れる最初の位置を前進して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
@@ -219,16 +221,17 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 <<< br
 
   size_t String_rfind(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列において、idx番目から、cstrという文字の配列のcstr_len個の文字が現れる最後の位置を後退して検索する。
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字が現れる最後の位置を後退して検索する。
 * cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * x, cstrが共にNULLでないこと。
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_rfind_c(CharT *x, CharT c, size_t idx);
-* xというCの文字列において、idx番目から、cという文字が現れる最後の位置を後退して検索する。
+* xというCの文字列のidx番目から、cという文字が現れる最後の位置を後退して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
@@ -236,16 +239,17 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 <<< br
 
   size_t String_find_first_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列において、idx番目から、cstrという文字の配列のcstr_len個の文字に含まれる最初の文字が現れる位置を前進して検索する。
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれる最初の文字が現れる位置を前進して検索する。
 * cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれる文字を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * x, cstrが共にNULLでないこと。
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_find_first_of_c(CharT *x, CharT c, size_t idx);
-* xというCの文字列において、idx番目から、cという文字が現れる最初の位置を前進して検索する。
+* xというCの文字列のidx番目から、cという文字が現れる最初の位置を前進して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
@@ -253,16 +257,17 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 <<< br
 
   size_t String_find_last_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列において、idx番目から、cstrという文字の配列のcstr_len個の文字に含まれる最後の文字が現れる位置を後退して検索する。
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれる最後の文字が現れる位置を後退して検索する。
 * cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれる文字を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * x, cstrが共にNULLでないこと。
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_find_last_of_c(CharT *x, CharT c, size_t idx);
-* xというCの文字列において、idx番目から、cという文字が現れる最後の位置を後退して検索する。
+* xというCの文字列のidx番目から、cという文字が現れる最後の位置を後退して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
@@ -270,16 +275,17 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 <<< br
 
   size_t String_find_first_not_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列において、idx番目から、cstrという文字の配列のcstr_len個の文字に含まれない最初の文字が現れる位置を前進して検索する。
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれない最初の文字が現れる位置を前進して検索する。
 * cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれない文字を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * x, cstrが共にNULLでないこと。
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_find_first_not_of_c(CharT *x, CharT c, size_t idx);
-* xというCの文字列において、idx番目から、c以外の文字が現れる最初の位置を前進して検索する。
+* xというCの文字列のidx番目から、c以外の文字が現れる最初の位置を前進して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
@@ -287,16 +293,17 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
 <<< br
 
   size_t String_find_last_not_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列において、idx番目から、cstrという文字の配列のcstr_len個の文字に含まれない最後の文字が現れる位置を後退して検索する。
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれない最後の文字が現れる位置を後退して検索する。
 * cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれない文字を検索する。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * x, cstrが共にNULLでないこと。
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_find_last_not_of_c(CharT *x, CharT c, size_t idx);
-* xというCの文字列において、idx番目から、c以外の文字が現れる最後の位置を後退して検索する。
+* xというCの文字列のidx番目から、c以外の文字が現れる最後の位置を後退して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件

@@ -92,7 +92,6 @@ Name *Name##_new(size_t n);\
 void Name##_init(Name *self, Type *buf, size_t n);\
 void Name##_delete(Name *self);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
-int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
 int Name##_push_back(Name *self, Type elem);\
 int Name##_push_front(Name *self, Type elem);\
 Type Name##_pop_front(Name *self);\
@@ -199,33 +198,6 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 #define CSTL_RING_IMPLEMENT(Name, Type)	\
 \
 CSTL_RING_IMPLEMENT_FOR_DEQUE(Name, Type)\
-\
-int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
-{\
-	size_t i;\
-	assert(self && "Ring_assign");\
-	assert(self->magic == self && "Ring_assign");\
-	assert(x && "Ring_assign");\
-	assert(x->magic == x && "Ring_assign");\
-	assert(CSTL_RING_SIZE(x) >= idx + n && "Ring_assign");\
-	assert(CSTL_RING_SIZE(x) >= n && "Ring_assign");\
-	assert(CSTL_RING_SIZE(x) > idx && "Ring_assign");\
-	if (self == x) {\
-		if (CSTL_RING_SIZE(self) > idx + n) {\
-			Name##_erase(self, idx + n, CSTL_RING_SIZE(self) - (idx + n));\
-		}\
-		if (!CSTL_RING_EMPTY(self)) {\
-			Name##_erase(self, 0, idx);\
-		}\
-	} else {\
-		if (n > CSTL_RING_MAX_SIZE(self)) return 0;\
-		CSTL_RING_CLEAR(self);\
-		for (i = 0; i < n; i++) {\
-			Name##_push_back(self, CSTL_RING_AT(x, i));\
-		}\
-	}\
-	return 1;\
-}\
 \
 int Name##_push_back(Name *self, Type elem)\
 {\

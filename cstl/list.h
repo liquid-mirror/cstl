@@ -77,7 +77,6 @@ typedef struct Name##Node_t *Name##Iterator;\
 CSTL_LIST_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
 void Name##_delete(Name *self);\
-int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last);\
 int Name##_push_back(Name *self, Type elem);\
 int Name##_push_front(Name *self, Type elem);\
 Type Name##_pop_front(Name *self);\
@@ -162,29 +161,6 @@ void Name##_delete(Name *self)\
 	CSTL_LIST_MAGIC(self->magic = 0);\
 	free(self->terminator);\
 	free(self);\
-}\
-\
-int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
-{\
-	Name *x;\
-	Name##Iterator pos;\
-	assert(self && "List_assign");\
-	assert(self->magic == self && "List_assign");\
-	assert(first && "List_assign");\
-	assert(last && "List_assign");\
-	assert(first->magic && "List_assign");\
-	assert(last->magic && "List_assign");\
-	x = Name##_new();\
-	if (!x) return 0;\
-	for (pos = first; pos != last; pos = CSTL_LIST_NEXT(pos)) {\
-		if (!Name##_push_back(x, CSTL_LIST_AT(pos))) {\
-			Name##_delete(x);\
-			return 0;\
-		}\
-	}\
-	Name##_swap(self, x);\
-	Name##_delete(x);\
-	return 1;\
 }\
 \
 int Name##_push_back(Name *self, Type elem)\

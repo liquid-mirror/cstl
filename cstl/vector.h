@@ -76,7 +76,6 @@ typedef struct Name##_t Name;\
 CSTL_VECTOR_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
 void Name##_delete(Name *self);\
-int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
 int Name##_push_back(Name *self, Type elem);\
 Type Name##_pop_back(Name *self);\
 size_t Name##_size(Name *self);\
@@ -155,34 +154,6 @@ void Name##_delete(Name *self)\
 }\
 \
 
-#define CSTL_VECTOR_IMPLEMENT_ASSIGN(Name, Type)	\
-int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
-{\
-	size_t i;\
-	assert(self && "Vector_assign");\
-	assert(self->magic == self && "Vector_assign");\
-	assert(x && "Vector_assign");\
-	assert(x->magic == x && "Vector_assign");\
-	assert(CSTL_VECTOR_SIZE(x) >= idx + n && "Vector_assign");\
-	assert(CSTL_VECTOR_SIZE(x) >= n && "Vector_assign");\
-	assert(CSTL_VECTOR_SIZE(x) > idx && "Vector_assign");\
-	if (self == x) {\
-		if (CSTL_VECTOR_SIZE(self) > idx + n) {\
-			Name##_erase(self, idx + n, CSTL_VECTOR_SIZE(self) - (idx + n));\
-		}\
-		if (!CSTL_VECTOR_EMPTY(self)) {\
-			Name##_erase(self, 0, idx);\
-		}\
-	} else {\
-		if (!Name##_expand(self, CSTL_VECTOR_SIZE(self) + n)) return 0;\
-		CSTL_VECTOR_CLEAR(self);\
-		for (i = 0; i < n; i++) {\
-			Name##_push_back(self, CSTL_VECTOR_AT(x, i));\
-		}\
-	}\
-	return 1;\
-}\
-\
 
 #define CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name, Type)	\
 int Name##_push_back(Name *self, Type elem)\
@@ -495,7 +466,6 @@ void Name##_swap(Name *self, Name *x)\
  */
 #define CSTL_VECTOR_IMPLEMENT(Name, Type)	\
 CSTL_VECTOR_IMPLEMENT_BASE(Name, Type)\
-CSTL_VECTOR_IMPLEMENT_ASSIGN(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_POP_BACK(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_SIZE(Name, Type)\

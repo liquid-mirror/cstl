@@ -45,7 +45,8 @@ CSTL_SET_INTERFACE/CSTL_MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した場
 
   SetIterator
 イテレータの型。要素の位置を示す。
-削除された要素を示すイテレータは無効となる。
+関数から返されたイテレータを有効なイテレータという。
+宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
 
 ==== 関数
 以下の関数において、Set*型の引数はNULLでないことを事前条件に含める。
@@ -103,22 +104,6 @@ CSTL_SET_INTERFACE/CSTL_MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した場
   * posがSet_end()またはSet_rend()でないこと。
 <<< br
 
-+ 代入
-  int Set_assign(Set *self, SetIterator first, SetIterator last);
-* [first, last)の範囲の要素のコピーをselfの要素として代入する。
-* [first, last)の要素はselfが持つ要素でもよい。
-* 代入に成功した場合、0以外の値を返す。
-* メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件
-  * [first, last)が有効なイテレータであること。
-<<< br
-
-  void Set_swap(Set *self, Set *x);
-* selfとxの内容を交換する。
-* 要素のコピーをしないので、Set_assign(self, Set_begin(x), Set_end(x))よりも速い。
-  xが不要になる場合、こちらを使用するべきである。
-<<< br
-
 + 要素のアクセス
   T Set_key(SetIterator pos);
 * posが示す位置の要素を返す。
@@ -174,6 +159,11 @@ CSTL_SET_INTERFACE/CSTL_MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した場
 
   void Set_clear(Set *self);
 * selfのすべての要素を削除する。
+<<< br
+
++ 交換
+  void Set_swap(Set *self, Set *x);
+* selfとxの内容を交換する。
 <<< br
 
 + 検索

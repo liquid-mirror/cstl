@@ -24,7 +24,8 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 
   ListIterator
 イテレータの型。要素の位置を示す。
-削除された要素を示すイテレータは無効となる。
+関数から返されたイテレータを有効なイテレータという。
+宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
 
 ==== 関数
 以下の関数において、List*型の引数はNULLでないことを事前条件に含める。
@@ -80,22 +81,6 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 * 事前条件
   * posが有効なイテレータであること。
   * posがList_end()またはList_rend()でないこと。
-<<< br
-
-+ 代入
-  int List_assign(List *self, ListIterator first, ListIterator last);
-* [first, last)の範囲の要素のコピーをselfの要素として代入する。
-* [first, last)の要素はselfが持つ要素でもよい。
-* 代入に成功した場合、0以外の値を返す。
-* メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件
-  * [first, last)が有効なイテレータであること。
-<<< br
-
-  void List_swap(List *self, List *x);
-* selfとxの内容を交換する。
-* 要素のコピーをしないので、List_assign(self, List_begin(x), List_end(x))よりも速い。
-  xが不要になる場合、こちらを使用するべきである。
 <<< br
 
 + 要素のアクセス
@@ -203,6 +188,11 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 * nがselfの現在の要素数より大きい場合、要素数がnになるまでelemのコピーが末尾から追加される。
 * 要素数の変更に成功した場合、0以外の値を返す。
 * メモリ不足の場合、0を返す。
+<<< br
+
++ 交換
+  void List_swap(List *self, List *x);
+* selfとxの内容を交換する。
 <<< br
 
 + つなぎ替え

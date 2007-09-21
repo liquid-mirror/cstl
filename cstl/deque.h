@@ -72,7 +72,6 @@ typedef struct Name##_t Name;\
 CSTL_DEQUE_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
 void Name##_delete(Name *self);\
-int Name##_assign(Name *self, Name *x, size_t idx, size_t n);\
 int Name##_push_back(Name *self, Type elem);\
 int Name##_push_front(Name *self, Type elem);\
 Type Name##_pop_front(Name *self);\
@@ -405,39 +404,6 @@ void Name##_delete(Name *self)\
 	Name##__RingVector_delete(self->pool);\
 	CSTL_DEQUE_MAGIC(self->magic = 0);\
 	free(self);\
-}\
-\
-int Name##_assign(Name *self, Name *x, size_t idx, size_t n)\
-{\
-	size_t i;\
-	assert(self && "Deque_assign");\
-	assert(self->magic == self && "Deque_assign");\
-	assert(x && "Deque_assign");\
-	assert(x->magic == x && "Deque_assign");\
-	assert(Name##_size(x) >= idx + n && "Deque_assign");\
-	assert(Name##_size(x) >= n && "Deque_assign");\
-	assert(Name##_size(x) > idx && "Deque_assign");\
-	if (self == x) {\
-		if (Name##_size(self) > idx + n) {\
-			Name##_erase(self, idx + n, Name##_size(self) - (idx + n));\
-		}\
-		if (!Name##_empty(self)) {\
-			Name##_erase(self, 0, idx);\
-		}\
-	} else {\
-		if (n > Name##_size(self)) {\
-			if (!Name##_expand_end_side(self, n - Name##_size(self))) {\
-				return 0;\
-			}\
-		}\
-		self->end = self->begin + 1;\
-		self->nelems = 0;\
-		CSTL_RING_CLEAR(CSTL_VECTOR_AT(self->map, self->begin));\
-		for (i = 0; i < n; i++) {\
-			Name##_push_back(self, *Name##_at(x, i));\
-		}\
-	}\
-	return 1;\
 }\
 \
 int Name##_push_back(Name *self, Type elem)\

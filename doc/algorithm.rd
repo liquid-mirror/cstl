@@ -1,6 +1,6 @@
 =begin
 == algorithm
-CSTLは、vector, deque, stringにおいて、共通なアルゴリズムを提供する。
+CSTLは、((<vector|URL:vector.html>)), ((<deque|URL:deque.html>)), ((<string|URL:string.html>))において、共通なアルゴリズムを提供する。
 
 アルゴリズムを使うには、実装マクロCSTL_XXX_IMPLEMENT((-XXXは、VECTOR, DEQUE, STRINGのいずれか-))を展開する前に、
 algorithm.hというヘッダファイルをインクルードする。

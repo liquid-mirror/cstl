@@ -162,29 +162,6 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	return 1;\
 }\
 \
-int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
-{\
-	Name *x;\
-	Name##Iterator pos;\
-	assert(self && "Set_assign");\
-	assert(self->magic == self && "Set_assign");\
-	assert(first && "Set_assign");\
-	assert(last && "Set_assign");\
-	assert(first->magic && "Set_assign");\
-	assert(last->magic && "Set_assign");\
-	x = Name##_new();\
-	if (!x) return 0;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (!Name##_insert(x, Name##_key(pos), 0)) {\
-			Name##_delete(x);\
-			return 0;\
-		}\
-	}\
-	Name##_swap(self, x);\
-	Name##_delete(x);\
-	return 1;\
-}\
-\
 
 
 /*! 
@@ -258,29 +235,6 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	}\
 	self->nelems += count;\
 	free(tmp);\
-	return 1;\
-}\
-\
-int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
-{\
-	Name *x;\
-	Name##Iterator pos;\
-	assert(self && "MultiSet_assign");\
-	assert(self->magic == self && "MultiSet_assign");\
-	assert(first && "MultiSet_assign");\
-	assert(last && "MultiSet_assign");\
-	assert(first->magic && "MultiSet_assign");\
-	assert(last->magic && "MultiSet_assign");\
-	x = Name##_new();\
-	if (!x) return 0;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (!Name##_insert(x, Name##_key(pos))) {\
-			Name##_delete(x);\
-			return 0;\
-		}\
-	}\
-	Name##_swap(self, x);\
-	Name##_delete(x);\
 	return 1;\
 }\
 \

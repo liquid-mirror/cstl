@@ -176,29 +176,6 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	return 1;\
 }\
 \
-int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
-{\
-	Name *x;\
-	Name##Iterator pos;\
-	assert(self && "Map_assign");\
-	assert(self->magic == self && "Map_assign");\
-	assert(first && "Map_assign");\
-	assert(last && "Map_assign");\
-	assert(first->magic && "Map_assign");\
-	assert(last->magic && "Map_assign");\
-	x = Name##_new();\
-	if (!x) return 0;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (!Name##_insert(x, Name##_key(pos), *Name##_value(pos), 0)) {\
-			Name##_delete(x);\
-			return 0;\
-		}\
-	}\
-	Name##_swap(self, x);\
-	Name##_delete(x);\
-	return 1;\
-}\
-\
 ValueType *Name##_lookup(Name *self, KeyType key)\
 {\
 	Name##Iterator pos;\
@@ -296,29 +273,6 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	}\
 	self->nelems += count;\
 	free(tmp);\
-	return 1;\
-}\
-\
-int Name##_assign(Name *self, Name##Iterator first, Name##Iterator last)\
-{\
-	Name *x;\
-	Name##Iterator pos;\
-	assert(self && "MultiMap_assign");\
-	assert(self->magic == self && "MultiMap_assign");\
-	assert(first && "MultiMap_assign");\
-	assert(last && "MultiMap_assign");\
-	assert(first->magic && "MultiMap_assign");\
-	assert(last->magic && "MultiMap_assign");\
-	x = Name##_new();\
-	if (!x) return 0;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (!Name##_insert(x, Name##_key(pos), *Name##_value(pos))) {\
-			Name##_delete(x);\
-			return 0;\
-		}\
-	}\
-	Name##_swap(self, x);\
-	Name##_delete(x);\
 	return 1;\
 }\
 \

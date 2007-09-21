@@ -45,7 +45,8 @@ CSTL_MAP_INTERFACE/CSTL_MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, Valu
 
   MapIterator
 イテレータの型。要素の位置を示す。
-削除された要素を示すイテレータは無効となる。
+関数から返されたイテレータを有効なイテレータという。
+宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
 
 ==== 関数
 以下の関数において、Map*型の引数はNULLでないことを事前条件に含める。
@@ -101,22 +102,6 @@ CSTL_MAP_INTERFACE/CSTL_MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, Valu
 * 事前条件
   * posが有効なイテレータであること。
   * posがMap_end()またはMap_rend()でないこと。
-<<< br
-
-+ 代入
-  int Map_assign(Map *self, MapIterator first, MapIterator last);
-* [first, last)の範囲の要素のコピーをselfの要素として代入する。
-* [first, last)の要素はselfが持つ要素でもよい。
-* 代入に成功した場合、0以外の値を返す。
-* メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件
-  * [first, last)が有効なイテレータであること。
-<<< br
-
-  void Map_swap(Map *self, Map *x);
-* selfとxの内容を交換する。
-* 要素のコピーをしないので、Map_assign(self, Map_begin(x), Map_end(x))よりも速い。
-  xが不要になる場合、こちらを使用するべきである。
 <<< br
 
 + 要素のアクセス
@@ -188,6 +173,11 @@ CSTL_MAP_INTERFACE/CSTL_MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, Valu
 
   void Map_clear(Map *self);
 * selfのすべての要素を削除する。
+<<< br
+
++ 交換
+  void Map_swap(Map *self, Map *x);
+* selfとxの内容を交換する。
 <<< br
 
 + 検索

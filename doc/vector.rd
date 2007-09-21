@@ -66,22 +66,6 @@ CSTL_VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 * nがselfの現在の許容量以上の場合、何もしない。
 <<< br
 
-+ 代入
-  int Vector_assign(Vector *self, Vector *x, size_t idx, size_t n);
-* xのidx番目からn個の要素のコピーをselfの要素として代入する。
-* selfとxは同じオブジェクトでもよい。
-* 代入に成功した場合、0以外の値を返す。
-* メモリ不足の場合、selfの変更を行わず0を返す。
-* 事前条件
-  * idx + nがxの現在の要素数以下の値であること。
-<<< br
-
-  void Vector_swap(Vector *self, Vector *x);
-* selfとxの内容を交換する。
-* 要素のコピーをしないので、Vector_assign(self, x, 0, Vector_size(x))よりも速い。
-  xが不要になる場合、こちらを使用するべきである。
-<<< br
-
 + 要素のアクセス
   T *Vector_at(Vector *self, size_t idx);
 * selfのidx番目の要素へのポインタを返す。
@@ -167,6 +151,11 @@ CSTL_VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
 * nがselfの現在の要素数より大きい場合、要素数がnになるまでelemのコピーが末尾から追加される。
 * 要素数の変更に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
+<<< br
+
++ 交換
+  void Vector_swap(Vector *self, Vector *x);
+* selfとxの内容を交換する。
 <<< br
 
 =end
