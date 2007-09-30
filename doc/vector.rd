@@ -1,161 +1,161 @@
 =begin
 == vector
-vector���g���ɂ́Avector.h�Ƃ����w�b�_�t�@�C�����C���N���[�h����B
+vectorを使うには、vector.hというヘッダファイルをインクルードする。
   #include <cstl/vector.h>
 
-�ȉ��̃}�N����p���ăR�[�h��W�J����K�v������B
+以下のマクロを用いてコードを展開する必要がある。
 
-  /* �C���^�[�t�F�C�X��W�J */
+  /* インターフェイスを展開 */
   #define CSTL_VECTOR_INTERFACE(Name, Type)
 
-  /* ������W�J */
+  /* 実装を展開 */
   #define CSTL_VECTOR_IMPLEMENT(Name, Type)
 
-Name�Ɋ����̌^�Əd�����Ȃ��C�ӂ̖��O���AType�ɔC�ӂ̗v�f�̌^���w�肷��B
+Nameに既存の型と重複しない任意の名前を、Typeに任意の要素の型を指定する。
 <<< br
 
-CSTL_VECTOR_INTERFACE�̈�����Name��Vector, Type��T���w�肵���ꍇ�A
-�ȉ��̃C���^�[�t�F�C�X��񋟂���B
+CSTL_VECTOR_INTERFACEの引数のNameにVector, TypeにTを指定した場合、
+以下のインターフェイスを提供する。
 
-==== �^
+==== 型
 
   Vector
-�R���e�i�̌^�B���ۃf�[�^�^�ƂȂ��Ă���A�ȉ��̊֐��ɂ���Ă̂݃A�N�Z�X�ł���B
+コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
-==== �֐�
-�ȉ��̊֐��ɂ����āAVector*�^�̈�����NULL�łȂ����Ƃ����O�����Ɋ܂߂�B
+==== 関数
+以下の関数において、Vector*型の引数はNULLでないことを事前条件に含める。
 
-+ ����
++ 生成
   Vector *Vector_new(size_t n);
-* ���e��(�����������̍Ċ��蓖�Ă��s�킸�Ɋi�[�ł���v�f��)��n��vector�𐶐�����B
-* �����ɐ��������ꍇ�A���̃I�u�W�F�N�g�ւ̃|�C���^��Ԃ��B
-* �������s���̏ꍇ�ANULL��Ԃ��B
+* 許容量(内部メモリの再割り当てを行わずに格納できる要素数)がn個のvectorを生成する。
+* 生成に成功した場合、そのオブジェクトへのポインタを返す。
+* メモリ不足の場合、NULLを返す。
 <<< br
 
-+ �j��
++ 破棄
   void Vector_delete(Vector *self);
-* self�̂��ׂĂ̗v�f���폜���Aself��j������B
+* selfのすべての要素を削除し、selfを破棄する。
 <<< br
 
-+ �T�C�Y
++ サイズ
   size_t Vector_size(Vector *self);
-* self�̌��݂̗v�f����Ԃ��B
+* selfの現在の要素数を返す。
 <<< br
 
   int Vector_empty(Vector *self);
-* self����̏ꍇ�A0�ȊO�̒l��Ԃ��B
-* self����łȂ��ꍇ�A0��Ԃ��B
+* selfが空の場合、0以外の値を返す。
+* selfが空でない場合、0を返す。
 <<< br
 
-+ ���e��
++ 許容量
   size_t Vector_capacity(Vector *self);
-* self�̋��e�ʂ�Ԃ��B
+* selfの許容量を返す。
 <<< br
 
   int Vector_reserve(Vector *self, size_t n);
-* self�̋��e�ʂ�v�fn�̗̈�Ɋg������B
-* self�����v�f�͈ێ�����A�g�������̈�̏������͂��Ȃ��B
-* �g���ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* n��self�̌��݂̋��e�ʈȉ��̏ꍇ�Aself�̕ύX���s�킸0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
+* selfの許容量を要素n個の領域に拡張する。
+* selfが持つ要素は維持され、拡張した領域の初期化はしない。
+* 拡張に成功した場合、0以外の値を返す。
+* nがselfの現在の許容量以下の場合、selfの変更を行わず0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
   void Vector_shrink(Vector *self, size_t n);
-* self�̋��e�ʂ�v�fn�̗̈�ɏk������B
-* n��self�̌��݂̗v�f���ȉ��̏ꍇ�Aself�̋��e�ʂ�v�f���Ɠ����ɂ���B
-* n��self�̌��݂̋��e�ʈȏ�̏ꍇ�A�������Ȃ��B
+* selfの許容量を要素n個の領域に縮小する。
+* nがselfの現在の要素数以下の場合、selfの許容量を要素数と同じにする。
+* nがselfの現在の許容量以上の場合、何もしない。
 <<< br
 
-+ �v�f�̃A�N�Z�X
++ 要素のアクセス
   T *Vector_at(Vector *self, size_t idx);
-* self��idx�Ԗڂ̗v�f�ւ̃|�C���^��Ԃ��B
-* ���O����
-  * idx��self�̌��݂̗v�f����菬�����l�ł��邱�ƁB
+* selfのidx番目の要素へのポインタを返す。
+* 事前条件
+  * idxがselfの現在の要素数より小さい値であること。
 <<< br
 
   T Vector_front(Vector *self);
-* self�̍ŏ��̗v�f��Ԃ��B
-* ���O����
-  * self����łȂ����ƁB
+* selfの最初の要素を返す。
+* 事前条件
+  * selfが空でないこと。
 <<< br
 
   T Vector_back(Vector *self);
-* self�̍Ō�̗v�f��Ԃ��B
-* ���O����
-  * self����łȂ����ƁB
+* selfの最後の要素を返す。
+* 事前条件
+  * selfが空でないこと。
 <<< br
 
-+ �}��
++ 挿入
   int Vector_insert(Vector *self, size_t idx, T elem);
-* self��idx�Ԗڂ̈ʒu��elem�̃R�s�[��}������B
-* �}���ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* ���O����
-  * idx��self�̌��݂̗v�f���ȉ��̒l�ł��邱�ƁB
+* selfのidx番目の位置にelemのコピーを挿入する。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * idxがselfの現在の要素数以下の値であること。
 <<< br
 
   int Vector_insert_n(Vector *self, size_t idx, size_t n, T elem);
-* self��idx�Ԗڂ̈ʒu��elem�̃R�s�[��n�}������B
-* �}���ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* ���O����
-  * idx��self�̌��݂̗v�f���ȉ��̒l�ł��邱�ƁB
+* selfのidx番目の位置にelemのコピーをn個挿入する。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * idxがselfの現在の要素数以下の値であること。
 <<< br
 
   int Vector_insert_array(Vector *self, size_t idx, T *elems, size_t n);
-* self��idx�Ԗڂ̈ʒu��elems�Ƃ����z�񂩂�n�̗v�f�̃R�s�[��}������B
-* �}���ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* ���O����
-  * elems��NULL�łȂ����ƁB
-  * idx��self�̌��݂̗v�f���ȉ��̒l�ł��邱�ƁB
+* selfのidx番目の位置にelemsという配列からn個の要素のコピーを挿入する。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * elemsがNULLでないこと。
+  * idxがselfの現在の要素数以下の値であること。
 <<< br
 
   int Vector_insert_range(Vector *self, size_t idx, Vector *x, size_t xidx, size_t n);
-* self��idx�Ԗڂ̈ʒu��x��xidx�Ԗڂ���n�̗v�f�̃R�s�[��}������B
-* self��x�͓����I�u�W�F�N�g�ł��悢�B
-* �}���ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* ���O����
-  * xidx + n��x�̌��݂̗v�f���ȉ��̒l�ł��邱�ƁB
-  * idx��self�̌��݂̗v�f���ȉ��̒l�ł��邱�ƁB
+* selfのidx番目の位置にxのxidx番目からn個の要素のコピーを挿入する。
+* selfとxは同じオブジェクトでもよい。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * xidx + nがxの現在の要素数以下の値であること。
+  * idxがselfの現在の要素数以下の値であること。
 <<< br
 
   int Vector_push_back(Vector *self, T elem);
-* elem�̃R�s�[��self�̍Ō�̗v�f�Ƃ��Ēǉ�����B
-* �ǉ��ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
+* elemのコピーをselfの最後の要素として追加する。
+* 追加に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
-+ �폜
++ 削除
   void Vector_erase(Vector *self, size_t idx, size_t n);
-* self��idx�Ԗڂ���n�̗v�f���폜����B
-* ���O����
-  * idx + n��self�̌��݂̗v�f���ȉ��̒l�ł��邱�ƁB
+* selfのidx番目からn個の要素を削除する。
+* 事前条件
+  * idx + nがselfの現在の要素数以下の値であること。
 <<< br
 
   T Vector_pop_back(Vector *self);
-* self�̍Ō�̗v�f���폜���A���̗v�f��Ԃ��B
-* ���O����
-  * self����łȂ����ƁB
+* selfの最後の要素を削除し、その要素を返す。
+* 事前条件
+  * selfが空でないこと。
 <<< br
 
   void Vector_clear(Vector *self);
-* self�̂��ׂĂ̗v�f���폜����B
+* selfのすべての要素を削除する。
 <<< br
 
-+ �T�C�Y�̕ύX
++ サイズの変更
   int Vector_resize(Vector *self, size_t n, T elem);
-* self�̗v�f����n�ɕύX����B
-* n��self�̌��݂̗v�f���ȉ��̏ꍇ�A�v�f����n�ɂȂ�܂Ŗ�������v�f���폜�����B
-* n��self�̌��݂̗v�f�����傫���ꍇ�A�v�f����n�ɂȂ�܂�elem�̃R�s�[����������ǉ������B
-* �v�f���̕ύX�ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
+* selfの要素数をn個に変更する。
+* nがselfの現在の要素数以下の場合、要素数がnになるまで末尾から要素が削除される。
+* nがselfの現在の要素数より大きい場合、要素数がnになるまでelemのコピーが末尾から追加される。
+* 要素数の変更に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
-+ ����
++ 交換
   void Vector_swap(Vector *self, Vector *x);
-* self��x�̓��e����������B
+* selfとxの内容を交換する。
 <<< br
 
 =end

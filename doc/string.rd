@@ -1,313 +1,313 @@
 =begin
 == string
-string���g���ɂ́Astring.h�Ƃ����w�b�_�t�@�C�����C���N���[�h����B
+stringを使うには、string.hというヘッダファイルをインクルードする。
   #include <cstl/string.h>
-�ȉ��̃}�N����p���ăR�[�h��W�J����K�v������B
+以下のマクロを用いてコードを展開する必要がある。
 
-  /* �C���^�[�t�F�C�X��W�J */
+  /* インターフェイスを展開 */
   #define CSTL_STRING_INTERFACE(Name, Type)
 
-  /* ������W�J */
+  /* 実装を展開 */
   #define CSTL_STRING_IMPLEMENT(Name, Type)
 
-Name�Ɋ����̌^�Əd�����Ȃ��C�ӂ̖��O���AType�ɔC�ӂ̕����̌^���w�肷��B
+Nameに既存の型と重複しない任意の名前を、Typeに任意の文字の型を指定する。
 <<< br
 
-CSTL_STRING_INTERFACE�̈�����Name��String, Type��CharT���w�肵���ꍇ�A
-�ȉ��̃C���^�[�t�F�C�X��񋟂���B
+CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場合、
+以下のインターフェイスを提供する。
 
-==== �萔
+==== 定数
   #define CSTL_NPOS  ((size_t)-1)
-* size_t�^�̍ő�l�B
-* �����֐��ɂ����āA�����Ɏ��s�������ɕԂ����B
-* CharT *cstr, size_t cstr_len�Ƃ����֐��̈����ɂ����āAcstr_len��CSTL_NPOS���w�肵���ꍇ�Acstr��C�̕�����Ƃ��Ĉ�����B
+* size_t型の最大値。
+* 検索関数において、検索に失敗した時に返される。
+* CharT *cstr, size_t cstr_lenという関数の引数において、cstr_lenにCSTL_NPOSを指定した場合、cstrはCの文字列として扱われる。
 
-==== �^
+==== 型
 
   String
-�R���e�i�̌^�B���ۃf�[�^�^�ƂȂ��Ă���A�ȉ��̊֐��ɂ���Ă̂݃A�N�Z�X�ł���B
+コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
-==== �֐�
-�ȉ��̊֐��ɂ����āAString*�^�̈�����NULL�łȂ����Ƃ����O�����Ɋ܂߂�B
+==== 関数
+以下の関数において、String*型の引数はNULLでないことを事前条件に含める。
 
-+ ����
++ 生成
   String *String_new(size_t n);
-* ���e��(�����������̍Ċ��蓖�Ă��s�킸�Ɋi�[�ł��镶����)��n��string�𐶐�����B
-* �����ɐ��������ꍇ�A���̃I�u�W�F�N�g�ւ̃|�C���^��Ԃ��B
-* �������s���̏ꍇ�ANULL��Ԃ��B
+* 許容量(内部メモリの再割り当てを行わずに格納できる文字数)がn個のstringを生成する。
+* 生成に成功した場合、そのオブジェクトへのポインタを返す。
+* メモリ不足の場合、NULLを返す。
 <<< br
 
-+ �j��
++ 破棄
   void String_delete(String *self);
-* self�̂��ׂĂ̕������폜���Aself��j������B
+* selfのすべての文字を削除し、selfを破棄する。
 <<< br
 
-+ �T�C�Y
++ サイズ
   size_t String_size(String *self);
-* self�̌��݂̕�������Ԃ��BString_length(self)�Ɠ����ł���B
+* selfの現在の文字数を返す。String_length(self)と等価である。
 <<< br
 
   size_t String_length(String *self);
-* self�̌��݂̕�������Ԃ��BString_size(self)�Ɠ����ł���B
+* selfの現在の文字数を返す。String_size(self)と等価である。
 <<< br
 
   int String_empty(String *self);
-* self����̏ꍇ�A0�ȊO�̒l��Ԃ��B
-* self����łȂ��ꍇ�A0��Ԃ��B
+* selfが空の場合、0以外の値を返す。
+* selfが空でない場合、0を返す。
 <<< br
 
-+ ���e��
++ 許容量
   size_t String_capacity(String *self);
-* self�̋��e�ʂ�Ԃ��B
+* selfの許容量を返す。
 <<< br
 
   int String_reserve(String *self, size_t n);
-* self�̋��e�ʂ𕶎�n�̗̈�Ɋg������B
-* self���������͈ێ�����A�g�������̈�̏������͂��Ȃ��B
-* �g���ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* n��self�̌��݂̋��e�ʈȉ��̏ꍇ�Aself�̕ύX���s�킸0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
+* selfの許容量を文字n個の領域に拡張する。
+* selfが持つ文字は維持され、拡張した領域の初期化はしない。
+* 拡張に成功した場合、0以外の値を返す。
+* nがselfの現在の許容量以下の場合、selfの変更を行わず0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
   void String_shrink(String *self, size_t n);
-* self�̋��e�ʂ𕶎�n�̗̈�ɏk������B
-* n��self�̌��݂̕������ȉ��̏ꍇ�Aself�̋��e�ʂ𕶎����Ɠ����ɂ���B
-* n��self�̌��݂̋��e�ʈȏ�̏ꍇ�A�������Ȃ��B
+* selfの許容量を文字n個の領域に縮小する。
+* nがselfの現在の文字数以下の場合、selfの許容量を文字数と同じにする。
+* nがselfの現在の許容量以上の場合、何もしない。
 <<< br
 
-+ ��r
++ 比較
   int String_compare(String *self, String *x);
-* self��x�̕�������r����B
-* �����񂪓������ꍇ�A0��Ԃ��B
-* self��x��莫�����ʂŏ������ꍇ�A���̒l��Ԃ��B
-* self��x��莫�����ʂő傫���ꍇ�A���̒l��Ԃ��B
+* selfとxの文字列を比較する。
+* 文字列が等しい場合、0を返す。
+* selfがxより辞書順位で小さい場合、負の値を返す。
+* selfがxより辞書順位で大きい場合、正の値を返す。
 <<< br
 
-+ �����̃A�N�Z�X
++ 文字のアクセス
   CharT *String_at(String *self, size_t idx);
-* self��idx�Ԗڂ̕����ւ̃|�C���^��Ԃ��B
-* ���O����
-  * idx��self�̌��݂̕�������菬�����l�ł��邱�ƁB
+* selfのidx番目の文字へのポインタを返す。
+* 事前条件
+  * idxがselfの現在の文字数より小さい値であること。
 <<< br
 
   CharT *String_c_str(String *self);
-* self�̕������'\0'�ŏI�[����C�̕�����Ƃ��ĕԂ��B
+* selfの文字列を'\0'で終端したCの文字列として返す。
 <<< br
 
-+ ���
++ 代入
   int String_assign(String *self, CharT *cstr, size_t cstr_len);
-* self��cstr�Ƃ��������̔z�񂩂�cstr_len�̕�����������B
-* cstr_len��CSTL_NPOS�Ɠ������ꍇ�Acstr�Ƃ���C�̕������������B������cstr��'\0'�ŏI�[���Ă��Ȃ���΂Ȃ�Ȃ��B
-* cstr��self���̕�����ł��悢�B
-* ����ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* ���O����
-  * cstr��NULL�łȂ����ƁB
+* selfにcstrという文字の配列からcstr_len個の文字を代入する。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を代入する。ただしcstrは'\0'で終端していなければならない。
+* cstrはself内の文字列でもよい。
+* 代入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * cstrがNULLでないこと。
 <<< br
 
   int String_assign_c(String *self, size_t n, CharT c);
-* self��c�Ƃ���������n�������B
-* ����ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
+* selfにcという文字をn個代入する。
+* 代入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
-+ �ǉ�
++ 追加
   int String_append(String *self, CharT *cstr, size_t cstr_len);
-* self��cstr�Ƃ��������̔z�񂩂�cstr_len�̕�����ǉ�����B
-* cstr_len��CSTL_NPOS�Ɠ������ꍇ�Acstr�Ƃ���C�̕������ǉ�����B������cstr��'\0'�ŏI�[���Ă��Ȃ���΂Ȃ�Ȃ��B
-* cstr��self���̕�����ł��悢�B
-* �ǉ��ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* ���O����
-  * cstr��NULL�łȂ����ƁB
+* selfにcstrという文字の配列からcstr_len個の文字を追加する。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を追加する。ただしcstrは'\0'で終端していなければならない。
+* cstrはself内の文字列でもよい。
+* 追加に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * cstrがNULLでないこと。
 <<< br
 
   int String_append_c(String *self, size_t n, CharT c);
-* self��c�Ƃ���������n�ǉ�����B
-* �ǉ��ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
+* selfにcという文字をn個追加する。
+* 追加に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
   int String_push_back(String *self, CharT c);
-* self��c�Ƃ���������ǉ�����B
-* �ǉ��ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
+* selfにcという文字を追加する。
+* 追加に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
-+ �}��
++ 挿入
   int String_insert(String *self, size_t idx, CharT *cstr, size_t cstr_len);
-* self��idx�Ԗڂ̈ʒu��cstr�Ƃ��������̔z�񂩂�cstr_len�̕�����}������B
-* cstr_len��CSTL_NPOS�Ɠ������ꍇ�Acstr�Ƃ���C�̕������}������B������cstr��'\0'�ŏI�[���Ă��Ȃ���΂Ȃ�Ȃ��B
-* cstr��self���̕�����ł��悢�B
-* �}���ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* ���O����
-  * cstr��NULL�łȂ����ƁB
-  * idx��self�̕������ȉ��̒l�ł��邱�ƁB
+* selfのidx番目の位置にcstrという文字の配列からcstr_len個の文字を挿入する。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を挿入する。ただしcstrは'\0'で終端していなければならない。
+* cstrはself内の文字列でもよい。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * cstrがNULLでないこと。
+  * idxがselfの文字数以下の値であること。
 <<< br
 
   int String_insert_c(String *self, size_t idx, size_t n, CharT c);
-* self��idx�Ԗڂ̈ʒu��c�Ƃ���������n�}������B
-* �}���ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* ���O����
-  * idx��self�̕������ȉ��̒l�ł��邱�ƁB
+* selfのidx番目の位置にcという文字をn個挿入する。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * idxがselfの文字数以下の値であること。
 <<< br
 
-+ �u��
++ 置換
   int String_replace(String *self, size_t idx, size_t len, CharT *cstr, size_t cstr_len);
-* self��idx�Ԗڂ���ő�len�̕������Acstr�Ƃ��������̔z���cstr_len�̕����Œu������B
-* cstr_len��CSTL_NPOS�Ɠ������ꍇ�Acstr�Ƃ���C�̕�����Œu������B������cstr��'\0'�ŏI�[���Ă��Ȃ���΂Ȃ�Ȃ��B
-* cstr��self���̕�����ł��悢�B
-* �u���ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* ���O����
-  * cstr��NULL�łȂ����ƁB
-  * idx��self�̕������ȉ��̒l�ł��邱�ƁB
+* selfのidx番目から最大len個の文字を、cstrという文字の配列のcstr_len個の文字で置換する。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列で置換する。ただしcstrは'\0'で終端していなければならない。
+* cstrはself内の文字列でもよい。
+* 置換に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * cstrがNULLでないこと。
+  * idxがselfの文字数以下の値であること。
 <<< br
 
   int String_replace_c(String *self, size_t idx, size_t len, size_t n, CharT c);
-* self��idx�Ԗڂ���ő�len�̕������Ac�Ƃ�������n�Œu������B
-* �u���ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* ���O����
-  * idx��self�̕������ȉ��̒l�ł��邱�ƁB
+* selfのidx番目から最大len個の文字を、cという文字n個で置換する。
+* 置換に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * idxがselfの文字数以下の値であること。
 <<< br
 
-+ �폜
++ 削除
   void String_erase(String *self, size_t idx, size_t len);
-* self��idx�Ԗڂ̕�������ő�len�̕������폜����B
-* ���O����
-  * idx��self�̕������ȉ��̒l�ł��邱�ƁB
+* selfのidx番目の文字から最大len個の文字を削除する。
+* 事前条件
+  * idxがselfの文字数以下の値であること。
 <<< br
 
   void String_clear(String *self);
-* self�̂��ׂĂ̕������폜����B
+* selfのすべての文字を削除する。
 <<< br
 
-+ �T�C�Y�̕ύX
++ サイズの変更
   int String_resize(String *self, size_t n, CharT c);
-* self�̕�������n�ɕύX����B
-* n��self�̌��݂̕������ȉ��̏ꍇ�A��������n�ɂȂ�܂Ŗ������當�����폜�����B
-* n��self�̌��݂̕��������傫���ꍇ�A��������n�ɂȂ�܂�c�Ƃ�����������������ǉ������B
-* �v�f���̕ύX�ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
+* selfの文字数をn個に変更する。
+* nがselfの現在の文字数以下の場合、文字数がnになるまで末尾から文字が削除される。
+* nがselfの現在の文字数より大きい場合、文字数がnになるまでcという文字が末尾から追加される。
+* 要素数の変更に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
-+ ����
++ 交換
   void String_swap(String *self, String *x);
-* self��x�̓��e����������B
-* �����̃R�s�[�����Ȃ��̂ŁAString_assign(self, String_c_str(x), String_size(x))���������B
-  x���s�v�ɂȂ�ꍇ�A��������g�p����ׂ��ł���B
+* selfとxの内容を交換する。
+* 文字のコピーをしないので、String_assign(self, String_c_str(x), String_size(x))よりも速い。
+  xが不要になる場合、こちらを使用するべきである。
 <<< br
 
-+ ����
++ 検索
   size_t String_find(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* x�Ƃ���C�̕������idx�Ԗڂ���Acstr�Ƃ��������̔z���cstr_len�̕����������ŏ��̈ʒu��O�i���Č�������B
-* cstr_len��CSTL_NPOS�Ɠ������ꍇ�Acstr�Ƃ���C�̕��������������B������cstr��'\0'�ŏI�[���Ă��Ȃ���΂Ȃ�Ȃ��B
-* �����ɐ��������ꍇ�A������������������̍ŏ��̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
-  * cstr��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字が現れる最初の位置を前進して検索する。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を検索する。ただしcstrは'\0'で終端していなければならない。
+* 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_find_c(CharT *x, CharT c, size_t idx);
-* x�Ƃ���C�̕������idx�Ԗڂ���Ac�Ƃ��������������ŏ��̈ʒu��O�i���Č�������B
-* �����ɐ��������ꍇ�A���̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、cという文字が現れる最初の位置を前進して検索する。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
 <<< br
 
   size_t String_rfind(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* x�Ƃ���C�̕������idx�Ԗڂ���Acstr�Ƃ��������̔z���cstr_len�̕����������Ō�̈ʒu����ނ��Č�������B
-* cstr_len��CSTL_NPOS�Ɠ������ꍇ�Acstr�Ƃ���C�̕��������������B������cstr��'\0'�ŏI�[���Ă��Ȃ���΂Ȃ�Ȃ��B
-* �����ɐ��������ꍇ�A������������������̍ŏ��̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
-  * cstr��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字が現れる最後の位置を後退して検索する。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を検索する。ただしcstrは'\0'で終端していなければならない。
+* 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_rfind_c(CharT *x, CharT c, size_t idx);
-* x�Ƃ���C�̕������idx�Ԗڂ���Ac�Ƃ��������������Ō�̈ʒu����ނ��Č�������B
-* �����ɐ��������ꍇ�A���̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、cという文字が現れる最後の位置を後退して検索する。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
 <<< br
 
   size_t String_find_first_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* x�Ƃ���C�̕������idx�Ԗڂ���Acstr�Ƃ��������̔z���cstr_len�̕����Ɋ܂܂��ŏ��̕����������ʒu��O�i���Č�������B
-* cstr_len��CSTL_NPOS�Ɠ������ꍇ�Acstr�Ƃ���C�̕�����Ɋ܂܂�镶������������B������cstr��'\0'�ŏI�[���Ă��Ȃ���΂Ȃ�Ȃ��B
-* �����ɐ��������ꍇ�A���̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
-  * cstr��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれる最初の文字が現れる位置を前進して検索する。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれる文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_find_first_of_c(CharT *x, CharT c, size_t idx);
-* x�Ƃ���C�̕������idx�Ԗڂ���Ac�Ƃ��������������ŏ��̈ʒu��O�i���Č�������B
-* �����ɐ��������ꍇ�A���̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、cという文字が現れる最初の位置を前進して検索する。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
 <<< br
 
   size_t String_find_last_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* x�Ƃ���C�̕������idx�Ԗڂ���Acstr�Ƃ��������̔z���cstr_len�̕����Ɋ܂܂��Ō�̕����������ʒu����ނ��Č�������B
-* cstr_len��CSTL_NPOS�Ɠ������ꍇ�Acstr�Ƃ���C�̕�����Ɋ܂܂�镶������������B������cstr��'\0'�ŏI�[���Ă��Ȃ���΂Ȃ�Ȃ��B
-* �����ɐ��������ꍇ�A���̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
-  * cstr��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれる最後の文字が現れる位置を後退して検索する。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれる文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_find_last_of_c(CharT *x, CharT c, size_t idx);
-* x�Ƃ���C�̕������idx�Ԗڂ���Ac�Ƃ��������������Ō�̈ʒu����ނ��Č�������B
-* �����ɐ��������ꍇ�A���̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、cという文字が現れる最後の位置を後退して検索する。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
 <<< br
 
   size_t String_find_first_not_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* x�Ƃ���C�̕������idx�Ԗڂ���Acstr�Ƃ��������̔z���cstr_len�̕����Ɋ܂܂�Ȃ��ŏ��̕����������ʒu��O�i���Č�������B
-* cstr_len��CSTL_NPOS�Ɠ������ꍇ�Acstr�Ƃ���C�̕�����Ɋ܂܂�Ȃ���������������B������cstr��'\0'�ŏI�[���Ă��Ȃ���΂Ȃ�Ȃ��B
-* �����ɐ��������ꍇ�A���̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
-  * cstr��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれない最初の文字が現れる位置を前進して検索する。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれない文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_find_first_not_of_c(CharT *x, CharT c, size_t idx);
-* x�Ƃ���C�̕������idx�Ԗڂ���Ac�ȊO�̕����������ŏ��̈ʒu��O�i���Č�������B
-* �����ɐ��������ꍇ�A���̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、c以外の文字が現れる最初の位置を前進して検索する。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
 <<< br
 
   size_t String_find_last_not_of(CharT *x, CharT *cstr, size_t idx, size_t cstr_len);
-* x�Ƃ���C�̕������idx�Ԗڂ���Acstr�Ƃ��������̔z���cstr_len�̕����Ɋ܂܂�Ȃ��Ō�̕����������ʒu����ނ��Č�������B
-* cstr_len��CSTL_NPOS�Ɠ������ꍇ�Acstr�Ƃ���C�̕�����Ɋ܂܂�Ȃ���������������B������cstr��'\0'�ŏI�[���Ă��Ȃ���΂Ȃ�Ȃ��B
-* �����ɐ��������ꍇ�A���̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
-  * cstr��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれない最後の文字が現れる位置を後退して検索する。
+* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれない文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
 <<< br
 
   size_t String_find_last_not_of_c(CharT *x, CharT c, size_t idx);
-* x�Ƃ���C�̕������idx�Ԗڂ���Ac�ȊO�̕����������Ō�̈ʒu����ނ��Č�������B
-* �����ɐ��������ꍇ�A���̕����̃C���f�b�N�X��Ԃ��B
-* �����Ɏ��s�����ꍇ�ACSTL_NPOS��Ԃ��B
-* ���O����
-  * x��NULL�łȂ����ƁB
+* xというCの文字列のidx番目から、c以外の文字が現れる最後の位置を後退して検索する。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
 <<< br
 
 =end

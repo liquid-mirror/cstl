@@ -1,203 +1,203 @@
 =begin
 == map/multimap
-map/multimap���g���ɂ́Amap.h�Ƃ����w�b�_�t�@�C�����C���N���[�h����B
+map/multimapを使うには、map.hというヘッダファイルをインクルードする。
   #include <cstl/map.h>
 
-�ȉ��̃}�N����p���ăR�[�h��W�J����K�v������B
+以下のマクロを用いてコードを展開する必要がある。
 
-* map�̏ꍇ
-    /* �C���^�[�t�F�C�X��W�J */
+* mapの場合
+    /* インターフェイスを展開 */
     #define CSTL_MAP_INTERFACE(Name, KeyType, ValueType)
 
-    /* ������W�J */
+    /* 実装を展開 */
     #define CSTL_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
 
-* multimap�̏ꍇ
-    /* �C���^�[�t�F�C�X��W�J */
+* multimapの場合
+    /* インターフェイスを展開 */
     #define CSTL_MULTIMAP_INTERFACE(Name, KeyType, ValueType)
 
-    /* ������W�J */
+    /* 実装を展開 */
     #define CSTL_MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
 
-Name�Ɋ����̌^�Əd�����Ȃ��C�ӂ̖��O���AKeyType�ɔC�ӂ̗v�f�̃L�[�̌^���AValueType�ɔC�ӂ̗v�f�̒l�̌^���w�肷��B
+Nameに既存の型と重複しない任意の名前を、KeyTypeに任意の要素のキーの型を、ValueTypeに任意の要素の値の型を指定する。
 
-Compare�ɗv�f�̔�r���[�`�����w�肷��B
-  * KeyType�������^�A�����^�A�|�C���^�^�ȂǁA2�̒l��P���ɔ�r�ł���^�̏ꍇ�A
-    �v�f�̃\�[�g�̏����������ɂ���Ȃ��CSTL_LESS�}�N�����A�~���ɂ���Ȃ��CSTL_GREATER�}�N�����w�肷��B
-    CSTL_LESS/CSTL_GREATER�}�N���̓w�b�_�ňȉ��̂悤�ɒ�`����Ă���B
+Compareに要素の比較ルーチンを指定する。
+  * KeyTypeが整数型、小数型、ポインタ型など、2つの値を単純に比較できる型の場合、
+    要素のソートの順序を昇順にするならばCSTL_LESSマクロを、降順にするならばCSTL_GREATERマクロを指定する。
+    CSTL_LESS/CSTL_GREATERマクロはヘッダで以下のように定義されている。
       #define CSTL_LESS(x, y)     ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
       #define CSTL_GREATER(x, y)  ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
-  * KeyType�����̑��̌^�̏ꍇ�A�ȉ��̃v���g�^�C�v�̂悤�Ȉ����Ɩ߂�l�������A
-    x = y�Ȃ��0���Ax < y�Ȃ�ΐ��܂��͕��̐������Ax > y�Ȃ��x < y�̏ꍇ�Ƌt�̕����̐�����
-    �Ԃ���r���[�`�����w�肷��B
-    ���AKeyType��������^(char*)�Ȃ�΁AC�W���֐���strcmp���w��\�ł���B
+  * KeyTypeがその他の型の場合、以下のプロトタイプのような引数と戻り値を持ち、
+    x = yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
+    返す比較ルーチンを指定する。
+    尚、KeyTypeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
       int Compare(KeyType x, KeyType y);
 
 <<< br
 
-CSTL_MAP_INTERFACE/CSTL_MULTIMAP_INTERFACE�̈�����Name��Map, KeyType��KeyT, ValueType��ValueT���w�肵���ꍇ�A
-�ȉ��̃C���^�[�t�F�C�X��񋟂���B
+CSTL_MAP_INTERFACE/CSTL_MULTIMAP_INTERFACEの引数のNameにMap, KeyTypeにKeyT, ValueTypeにValueTを指定した場合、
+以下のインターフェイスを提供する。
 
-==== �^
+==== 型
 
   Map
-�R���e�i�̌^�B���ۃf�[�^�^�ƂȂ��Ă���A�ȉ��̊֐��ɂ���Ă̂݃A�N�Z�X�ł���B
+コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 
   MapIterator
-�C�e���[�^�̌^�B�v�f�̈ʒu�������B
-�֐�����Ԃ��ꂽ�C�e���[�^��L���ȃC�e���[�^�Ƃ����B
-�錾���ꂽ�����̃C�e���[�^�A�܂��͍폜���ꂽ�v�f�̃C�e���[�^�𖳌��ȃC�e���[�^�Ƃ����B
+イテレータの型。要素の位置を示す。
+関数から返されたイテレータを有効なイテレータという。
+宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
 
-==== �֐�
-�ȉ��̊֐��ɂ����āAMap*�^�̈�����NULL�łȂ����Ƃ����O�����Ɋ܂߂�B
+==== 関数
+以下の関数において、Map*型の引数はNULLでないことを事前条件に含める。
 
-+ ����
++ 生成
   Map *Map_new(void);
-* map/multimap�𐶐�����B
-* �����ɐ��������ꍇ�A���̃I�u�W�F�N�g�ւ̃|�C���^��Ԃ��B
-* �������s���̏ꍇ�ANULL��Ԃ��B
+* map/multimapを生成する。
+* 生成に成功した場合、そのオブジェクトへのポインタを返す。
+* メモリ不足の場合、NULLを返す。
 <<< br
 
-+ �j��
++ 破棄
   void Map_delete(Map *self);
-* self�̂��ׂĂ̗v�f���폜���Aself��j������B
+* selfのすべての要素を削除し、selfを破棄する。
 <<< br
 
-+ �T�C�Y
++ サイズ
   size_t Map_size(Map *self);
-* self�̌��݂̗v�f����Ԃ��B
+* selfの現在の要素数を返す。
 <<< br
 
   int Map_empty(Map *self);
-* self����̏ꍇ�A0�ȊO�̒l��Ԃ��B
-* self����łȂ��ꍇ�A0��Ԃ��B
+* selfが空の場合、0以外の値を返す。
+* selfが空でない場合、0を返す。
 <<< br
 
-+ �C�e���[�^
++ イテレータ
   MapIterator Map_begin(Map *self);
-* self�̍ŏ��̗v�f�̃C�e���[�^��Ԃ��B
+* selfの最初の要素のイテレータを返す。
 <<< br
 
   MapIterator Map_end(Map *self);
-* self�̍Ō�̗v�f�̎��̃C�e���[�^��Ԃ��B
+* selfの最後の要素の次のイテレータを返す。
 <<< br
 
   MapIterator Map_rbegin(Map *self);
-* self�̍Ō�̗v�f�̃C�e���[�^��Ԃ��B
+* selfの最後の要素のイテレータを返す。
 <<< br
 
   MapIterator Map_rend(Map *self);
-* self�̍ŏ��̗v�f�̑O�̃C�e���[�^��Ԃ��B
+* selfの最初の要素の前のイテレータを返す。
 <<< br
 
   MapIterator Map_next(MapIterator pos);
-* pos�������ʒu�̗v�f�̎��̃C�e���[�^��Ԃ��B
-* ���O����
-  * pos���L���ȃC�e���[�^�ł��邱�ƁB
-  * pos��Map_end()�܂���Map_rend()�łȂ����ƁB
+* posが示す位置の要素の次のイテレータを返す。
+* 事前条件
+  * posが有効なイテレータであること。
+  * posがMap_end()またはMap_rend()でないこと。
 <<< br
 
   MapIterator Map_prev(MapIterator pos);
-* pos�������ʒu�̗v�f�̑O�̃C�e���[�^��Ԃ��B
-* ���O����
-  * pos���L���ȃC�e���[�^�ł��邱�ƁB
-  * pos��Map_end()�܂���Map_rend()�łȂ����ƁB
+* posが示す位置の要素の前のイテレータを返す。
+* 事前条件
+  * posが有効なイテレータであること。
+  * posがMap_end()またはMap_rend()でないこと。
 <<< br
 
-+ �v�f�̃A�N�Z�X
++ 要素のアクセス
   KeyT Map_key(MapIterator pos);
-* pos�������ʒu�̗v�f�̃L�[��Ԃ��B
-* ���O����
-  * pos���L���ȃC�e���[�^�ł��邱�ƁB
-  * pos��Map_end()�܂���Map_rend()�łȂ����ƁB
+* posが示す位置の要素のキーを返す。
+* 事前条件
+  * posが有効なイテレータであること。
+  * posがMap_end()またはMap_rend()でないこと。
 <<< br
 
   ValueT *Map_value(MapIterator pos);
-* pos�������ʒu�̗v�f�̒l�ւ̃|�C���^��Ԃ��B
-* ���O����
-  * pos���L���ȃC�e���[�^�ł��邱�ƁB
-  * pos��Map_end()�܂���Map_rend()�łȂ����ƁB
+* posが示す位置の要素の値へのポインタを返す。
+* 事前条件
+  * posが有効なイテレータであること。
+  * posがMap_end()またはMap_rend()でないこと。
 <<< br
 
   ValueT *Map_lookup(Map *self, KeyT key);
-* self��key�Ƃ����L�[�̗v�f�̒l�ւ̃|�C���^��Ԃ��B
-* self��key�Ƃ����L�[�̗v�f�������Ă��Ȃ��ꍇ�Akey�Ƃ����L�[�̐V�����v�f(�l�͕s��)��}�����A���̗v�f�̒l�ւ̃|�C���^��Ԃ��B
-* �������s���̏ꍇ�ANDEBUG�}�N��������`�Ȃ�΃A�T�[�V�����Ɏ��s���A��`�ς݂Ȃ��self�̕ύX���s�킸NULL��Ԃ��B
-* ���̊֐���map�݂̂Œ񋟂����B
+* selfのkeyというキーの要素の値へのポインタを返す。
+* selfがkeyというキーの要素を持っていない場合、keyというキーの新しい要素(値は不定)を挿入し、その要素の値へのポインタを返す。
+* メモリ不足の場合、NDEBUGマクロが未定義ならばアサーションに失敗し、定義済みならばselfの変更を行わずNULLを返す。
+* この関数はmapのみで提供される。
 <<< br
 
-+ �}��
++ 挿入
   MapIterator Map_insert(Map *self, KeyT key, ValueT value, int *success);
-* key��value�̃R�s�[�̃y�A��v�f�Ƃ���self�ɑ}������B
-* �}���ɐ��������ꍇ�A*success��0�ȊO�̒l���i�[���A�V�����v�f�̃C�e���[�^��Ԃ��B
-* self������key�Ƃ����L�[�̗v�f�������Ă���ꍇ�A�}�����s�킸�A*success��0���i�[���A���̗v�f�̃C�e���[�^��Ԃ��B
-* �������s���̏ꍇ�A*success��0���i�[���Aself�̕ύX���s�킸0��Ԃ��B
-* success��NULL���w�肵���ꍇ�A*success�ɃA�N�Z�X���Ȃ��B
-* ���̊֐���map�݂̂Œ񋟂����B
+* keyとvalueのコピーのペアを要素としてselfに挿入する。
+* 挿入に成功した場合、*successに0以外の値を格納し、新しい要素のイテレータを返す。
+* selfが既にkeyというキーの要素を持っている場合、挿入を行わず、*successに0を格納し、その要素のイテレータを返す。
+* メモリ不足の場合、*successに0を格納し、selfの変更を行わず0を返す。
+* successにNULLを指定した場合、*successにアクセスしない。
+* この関数はmapのみで提供される。
 <<< br
 
   MapIterator Map_insert(Map *self, KeyT key, ValueT value);
-* key��value�̃R�s�[�̃y�A��v�f�Ƃ���self�ɑ}������B
-* �}���ɐ��������ꍇ�A�V�����v�f�̃C�e���[�^��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* self������key�Ƃ����L�[�̗v�f�������Ă���ꍇ�A���̃L�[�̈�ԍŌ�̈ʒu�ɑ}�������B
-* ���̊֐���multimap�݂̂Œ񋟂����B
+* keyとvalueのコピーのペアを要素としてselfに挿入する。
+* 挿入に成功した場合、新しい要素のイテレータを返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* selfが既にkeyというキーの要素を持っている場合、そのキーの一番最後の位置に挿入される。
+* この関数はmultimapのみで提供される。
 <<< br
 
   int Map_insert_range(Map *self, MapIterator first, MapIterator last);
-* [first, last)�͈̗̔͂v�f�̃R�s�[��self�ɑ}������B
-* multimap�̏ꍇ�A[first, last)�̗v�f��self�����v�f�ł��悢�B
-* �}���ɐ��������ꍇ�A0�ȊO�̒l��Ԃ��B
-* �������s���̏ꍇ�Aself�̕ύX���s�킸0��Ԃ��B
-* ���O����
-  * [first, last)���L���ȃC�e���[�^�ł��邱�ƁB
+* [first, last)の範囲の要素のコピーをselfに挿入する。
+* multimapの場合、[first, last)の要素はselfが持つ要素でもよい。
+* 挿入に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * [first, last)が有効なイテレータであること。
 <<< br
 
-+ �폜
++ 削除
   MapIterator Map_erase(Map *self, MapIterator pos);
-* self��pos�������ʒu�̗v�f���폜���A���̎��̃C�e���[�^��Ԃ��B
-* ���O����
-  * pos��self�̗L���ȃC�e���[�^�ł��邱�ƁB
-  * pos��Map_end()�܂���Map_rend()�łȂ����ƁB
+* selfのposが示す位置の要素を削除し、その次のイテレータを返す。
+* 事前条件
+  * posがselfの有効なイテレータであること。
+  * posがMap_end()またはMap_rend()でないこと。
 <<< br
 
   MapIterator Map_erase_range(Map *self, MapIterator first, MapIterator last);
-* self��[first, last)�͈̗̔͂v�f���폜���A�폜�����v�f�̎��̃C�e���[�^��Ԃ��B
-* ���O����
-  * [first, last)��self�̗L���ȃC�e���[�^�ł��邱�ƁB
+* selfの[first, last)の範囲の要素を削除し、削除した要素の次のイテレータを返す。
+* 事前条件
+  * [first, last)がselfの有効なイテレータであること。
 <<< br
 
   size_t Map_erase_key(Map *self, KeyT key);
-* self��key�Ƃ����L�[�̗v�f�����ׂč폜���A�폜��������Ԃ��B
+* selfのkeyというキーの要素をすべて削除し、削除した数を返す。
 <<< br
 
   void Map_clear(Map *self);
-* self�̂��ׂĂ̗v�f���폜����B
+* selfのすべての要素を削除する。
 <<< br
 
-+ ����
++ 交換
   void Map_swap(Map *self, Map *x);
-* self��x�̓��e����������B
+* selfとxの内容を交換する。
 <<< br
 
-+ ����
++ 検索
   size_t Map_count(Map *self, KeyT key);
-* self��key�Ƃ����L�[�̗v�f�̐���Ԃ��B
+* selfのkeyというキーの要素の数を返す。
 <<< br
 
   MapIterator Map_find(Map *self, KeyT key);
-* self��key�Ƃ����L�[�̗v�f���������A�ŏ��Ɍ��������v�f�̃C�e���[�^��Ԃ��B
-* ������Ȃ����Map_end(self)��Ԃ��B
+* selfのkeyというキーの要素を検索し、最初に見つかった要素のイテレータを返す。
+* 見つからなければMap_end(self)を返す。
 <<< br
 
   MapIterator Map_lower_bound(Map *self, KeyT key);
-* �\�[�g�̊�ɏ]���Aself��key�ȏ�̃L�[�̍ŏ��̗v�f�̃C�e���[�^��Ԃ��B
-* ������Ȃ����Map_end(self)��Ԃ��B
+* ソートの基準に従い、selfのkey以上のキーの最初の要素のイテレータを返す。
+* 見つからなければMap_end(self)を返す。
 <<< br
 
   MapIterator Map_upper_bound(Map *self, KeyT key);
-* �\�[�g�̊�ɏ]���Aself��key���傫���L�[�̍ŏ��̗v�f�̃C�e���[�^��Ԃ��B
-* ������Ȃ����Map_end(self)��Ԃ��B
+* ソートの基準に従い、selfのkeyより大きいキーの最初の要素のイテレータを返す。
+* 見つからなければMap_end(self)を返す。
 <<< br
 
 =end

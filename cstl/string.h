@@ -24,7 +24,7 @@
  */
 /*! 
  * \file string.h
- * \brief •¶š—ñƒRƒ“ƒeƒi
+ * \brief æ–‡å­—åˆ—ã‚³ãƒ³ãƒ†ãƒŠ
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2007-01-09
  * $URL$
@@ -57,7 +57,7 @@
 #endif
 
 /*! 
- * \brief ŒŸõ¸”s—pƒCƒ“ƒfƒbƒNƒX
+ * \brief æ¤œç´¢å¤±æ•—ç”¨ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
  */
 #define CSTL_NPOS	((size_t)-1)
 
@@ -65,10 +65,10 @@
 
 
 /*! 
- * \brief ƒCƒ“ƒ^[ƒtƒFƒCƒXƒ}ƒNƒ
+ * \brief ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ã‚¤ã‚¹ãƒã‚¯ãƒ­
  * 
- * \param Name ƒRƒ“ƒeƒi–¼
- * \param Type —v‘f‚ÌŒ^
+ * \param Name ã‚³ãƒ³ãƒ†ãƒŠå
+ * \param Type è¦ç´ ã®å‹
  */
 #define CSTL_STRING_INTERFACE(Name, Type)	\
 typedef struct Name##_t Name;\
@@ -127,10 +127,10 @@ CSTL_STRING_END_EXTERN_C()\
 
 
 /*! 
- * \brief À‘•ƒ}ƒNƒ
+ * \brief å®Ÿè£…ãƒã‚¯ãƒ­
  * 
- * \param Name ƒRƒ“ƒeƒi–¼
- * \param Type —v‘f‚ÌŒ^
+ * \param Name ã‚³ãƒ³ãƒ†ãƒŠå
+ * \param Type è¦ç´ ã®å‹
  */
 #define CSTL_STRING_IMPLEMENT(Name, Type)	\
 \
@@ -171,7 +171,7 @@ CSTL_VECTOR_IMPLEMENT_INSERT(Name##__CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_ERASE(Name##__CharVector, Type)\
 \
 /*! 
- * \brief string\‘¢‘Ì
+ * \brief stringæ§‹é€ ä½“
  */\
 struct Name##_t {\
 	Name##__CharVector *data;\
@@ -309,7 +309,7 @@ int Name##_resize(Name *self, size_t n, Type c)\
 		return 0;\
 	}\
 	if (num < CSTL_VECTOR_SIZE(self->data)) {\
-		/* '\0'‚ğã‘‚« */\
+		/* '\0'ã‚’ä¸Šæ›¸ã */\
 		CSTL_VECTOR_AT(self->data, num) = c;\
 	}\
 	CSTL_VECTOR_AT(self->data, CSTL_VECTOR_SIZE(self->data) - 1) = '\0';\
@@ -405,7 +405,7 @@ int Name##_insert(Name *self, size_t idx, Type *cstr, size_t cstr_len)\
 		return 0;\
 	}\
 	if (Name##_c_str(self) <= cstr && cstr < Name##_c_str(self) + Name##_size(self)) {\
-		/* cstr‚ªself“à‚Ì•¶š—ñ */\
+		/* cstrãŒselfå†…ã®æ–‡å­—åˆ— */\
 		if (&CSTL_STRING_AT(self, idx) <= cstr) {\
 			for (i = 0; i < cstr_len; i++) {\
 				CSTL_STRING_AT(self, idx + i) = cstr[cstr_len + i];\
@@ -462,9 +462,9 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 		cstr_len = Name##_mystrlen(cstr);\
 	}\
 	if (Name##_c_str(self) <= cstr && cstr < Name##_c_str(self) + Name##_size(self)) {\
-		/* cstr‚ªself“à‚Ì•¶š—ñ */\
+		/* cstrãŒselfå†…ã®æ–‡å­—åˆ— */\
 		if (cstr_len <= len) {\
-			/* Šg’£•K—v‚È‚µ */\
+			/* æ‹¡å¼µå¿…è¦ãªã— */\
 			if (&CSTL_STRING_AT(self, idx) <= cstr) {\
 				for (i = 0; i < cstr_len; i++) {\
 					CSTL_STRING_AT(self, idx + i) = cstr[i];\
@@ -478,7 +478,7 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 				Name##_erase(self, idx + cstr_len, len - cstr_len);\
 			}\
 		} else {\
-			/* Šg’£•K—v‚ ‚è */\
+			/* æ‹¡å¼µå¿…è¦ã‚ã‚Š */\
 			if (!Name##_expand(self, Name##_size(self) + (cstr_len - len))) {\
 				return 0;\
 			}\
@@ -496,7 +496,7 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 		}\
 	} else {\
 		if (cstr_len <= len) {\
-			/* Šg’£•K—v‚È‚µ */\
+			/* æ‹¡å¼µå¿…è¦ãªã— */\
 			for (i = 0; i < cstr_len; i++) {\
 				CSTL_STRING_AT(self, idx + i) = cstr[i];\
 			}\
@@ -504,7 +504,7 @@ int Name##_replace(Name *self, size_t idx, size_t len, Type *cstr, size_t cstr_l
 				Name##_erase(self, idx + cstr_len, len - cstr_len);\
 			}\
 		} else {\
-			/* Šg’£•K—v‚ ‚è */\
+			/* æ‹¡å¼µå¿…è¦ã‚ã‚Š */\
 			if (!Name##_expand(self, Name##_size(self) + (cstr_len - len))) {\
 				return 0;\
 			}\
@@ -529,7 +529,7 @@ int Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c)\
 		len = size - idx;\
 	}\
 	if (n <= len) {\
-		/* Šg’£•K—v‚È‚µ */\
+		/* æ‹¡å¼µå¿…è¦ãªã— */\
 		for (i = 0; i < n; i++) {\
 			CSTL_STRING_AT(self, idx + i) = c;\
 		}\
@@ -537,7 +537,7 @@ int Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c)\
 			Name##_erase(self, idx + n, len - n);\
 		}\
 	} else {\
-		/* Šg’£•K—v‚ ‚è */\
+		/* æ‹¡å¼µå¿…è¦ã‚ã‚Š */\
 		if (!Name##_insert_n_no_elem(self, idx, n - len)) {\
 			return 0;\
 		}\

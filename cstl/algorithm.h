@@ -24,7 +24,7 @@
  */
 /*! 
  * \file algorithm.h
- * \brief ƒAƒ‹ƒSƒŠƒYƒ€
+ * \brief ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ 
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2007-06-20
  * $URL$
@@ -95,7 +95,7 @@ void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, con
 			if (comp(&DIRECT_ACCESS(self, middle), &DIRECT_ACCESS(self, r)) > 0) {\
 				CSTL_ALGORITHM_SWAP(middle, r, tmp, DIRECT_ACCESS);\
 			}\
-			CSTL_ALGORITHM_SWAP(middle, r - 1, tmp, DIRECT_ACCESS); /* r - 1‚Ì—v‘f‚ğ‚ğ•²‚É‚·‚é */\
+			CSTL_ALGORITHM_SWAP(middle, r - 1, tmp, DIRECT_ACCESS); /* r - 1ã®è¦ç´ ã‚’ã‚’æ¢è»¸ã«ã™ã‚‹ */\
 			/* partition */\
 			i = l;\
 			j = r - 1;\
@@ -163,7 +163,7 @@ static size_t Name##_rotate_aux(Name *self, size_t first, size_t middle, size_t 
 		}\
 		return result;\
 	}\
-	/* Å‘åŒö–ñ” */\
+	/* æœ€å¤§å…¬ç´„æ•° */\
 	d = Name##_gcd(n, k);\
 	for (i = 0; i < d; i++) {\
 		tmp = DIRECT_ACCESS(self, first);\
@@ -460,7 +460,7 @@ void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, 
 \
 static void Name##_up_heap(Name *self, size_t top_idx, size_t hi_idx, int (*comp)(const Type *, const Type *))\
 {\
-	/* hi_‚Ì•t‚­•Ï”‚Í1‚©‚çn‚Ü‚éƒq[ƒv‚ÌƒCƒ“ƒfƒbƒNƒX‚ğ¦‚· */\
+	/* hi_ã®ä»˜ãå¤‰æ•°ã¯1ã‹ã‚‰å§‹ã¾ã‚‹ãƒ’ãƒ¼ãƒ—ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’ç¤ºã™ */\
 	register size_t hi_i;\
 	Type tmp;\
 	hi_i = hi_idx;\
@@ -474,7 +474,7 @@ static void Name##_up_heap(Name *self, size_t top_idx, size_t hi_idx, int (*comp
 \
 static void Name##_down_heap(Name *self, size_t top_idx, size_t hi_from, size_t hi_to, int (*comp)(const Type *, const Type *))\
 {\
-	/* hi_‚Ì•t‚­•Ï”‚Í1‚©‚çn‚Ü‚éƒq[ƒv‚ÌƒCƒ“ƒfƒbƒNƒX‚ğ¦‚· */\
+	/* hi_ã®ä»˜ãå¤‰æ•°ã¯1ã‹ã‚‰å§‹ã¾ã‚‹ãƒ’ãƒ¼ãƒ—ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’ç¤ºã™ */\
 	register size_t hi_i, hi_j;\
 	Type tmp;\
 	hi_j = hi_from;\
@@ -482,7 +482,7 @@ static void Name##_down_heap(Name *self, size_t top_idx, size_t hi_from, size_t 
 	while (2 * hi_j <= hi_to) {\
 		hi_i = 2 * hi_j;\
 		if (hi_i < hi_to && comp(&DIRECT_ACCESS(self, hi_i + top_idx - 1), &DIRECT_ACCESS(self, hi_i + top_idx)) < 0) {\
-			/* ‰E‚Ìq‚ª‘¶İ‚µA¶‚æ‚è‰E‚Ìq‚ª‘å‚«‚¢ */\
+			/* å³ã®å­ãŒå­˜åœ¨ã—ã€å·¦ã‚ˆã‚Šå³ã®å­ãŒå¤§ãã„ */\
 			hi_i++;\
 		}\
 		if (comp(&tmp, &DIRECT_ACCESS(self, hi_i + top_idx - 1)) < 0) {\
