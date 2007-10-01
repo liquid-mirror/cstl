@@ -311,25 +311,8 @@ void VectorTest_test_1_6(void)
 	UCharVector_shrink(uv, 0);
 	assert(UCharVector_capacity(uv) == 10);
 	assert(UCharVector_size(uv) == 10);
-	/* assign */
-	x = UCharVector_new(SIZE);
-	assert(UCharVector_assign(x, uv, 0, UCharVector_size(uv)));
-	assert(UCharVector_size(x) == 10);
-	for (i = 0; i < UCharVector_size(uv); i++) {
-		assert(*UCharVector_at(x, i) == *UCharVector_at(uv, i));
-	}
-	assert(UCharVector_assign(x, x, 0, UCharVector_size(x)));
-	assert(UCharVector_size(uv) == UCharVector_size(x));
-	for (i = 0; i < UCharVector_size(uv); i++) {
-		assert(*UCharVector_at(x, i) == *UCharVector_at(uv, i));
-	}
-	assert(UCharVector_assign(x, x, 1, 2));
-	assert(UCharVector_size(x) == 2);
-	assert(*UCharVector_at(x, 0) == *UCharVector_at(uv, 1));
-	assert(*UCharVector_at(x, 1) == *UCharVector_at(uv, 2));
-	assert(UCharVector_assign(x, x, 0, 0));
-	assert(UCharVector_size(x) == 0);
 	/* swap */
+	x = UCharVector_new(SIZE);
 	UCharVector_clear(uv);
 	UCharVector_shrink(uv, 0);
 	UCharVector_clear(uv);

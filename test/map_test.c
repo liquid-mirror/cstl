@@ -196,9 +196,15 @@ void MapTest_test_1_1(void)
 /*    IntIntMapA_print(x);*/
 	assert(IntIntMapA_size(ia) == 3);
 	assert(IntIntMapA_size(x) == 5);
-	/* assign */
-	assert(IntIntMapA_assign(x, IntIntMapA_begin(ia), IntIntMapA_end(ia)));
-	assert(IntIntMapA_size(ia) == IntIntMapA_size(x));
+	/* insert_range */
+/*    IntIntMapA_print(ia);*/
+/*    IntIntMapA_print(x);*/
+	assert(IntIntMapA_insert_range(x, IntIntMapA_begin(ia), IntIntMapA_end(ia)));
+/*    IntIntMapA_print(ia);*/
+/*    IntIntMapA_print(x);*/
+	assert(IntIntMapA_size(x) == 8);
+	assert(IntIntMapA_insert_range(x, IntIntMapA_begin(ia), IntIntMapA_end(ia)));
+	assert(IntIntMapA_size(x) == 8);
 	IntIntMapA_print(ia);
 	IntIntMapA_print(x);
 

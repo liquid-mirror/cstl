@@ -431,26 +431,6 @@ void DequeTest_test_1_6(void)
 	for (i = 0; i < MAX; i++) {
 		assert(UCharDeque_push_back(ud, hoge[i]));
 	}
-	/* assign */
-	assert(UCharDeque_size(ud) == MAX);
-	x = UCharDeque_new();
-	assert(UCharDeque_assign(x, ud, 0, UCharDeque_size(ud)));
-	assert(UCharDeque_size(ud) == UCharDeque_size(x));
-/*    assert(UCharDeque_max_size(ud) == UCharDeque_max_size(x));*/
-	for (i = 0; i < UCharDeque_size(ud); i++) {
-		assert(*UCharDeque_at(x, i) == *UCharDeque_at(ud, i));
-	}
-	assert(UCharDeque_assign(x, x, 0, UCharDeque_size(x)));
-	assert(UCharDeque_size(ud) == UCharDeque_size(x));
-	for (i = 0; i < UCharDeque_size(ud); i++) {
-		assert(*UCharDeque_at(x, i) == *UCharDeque_at(ud, i));
-	}
-	assert(UCharDeque_assign(x, x, 1, 2));
-	assert(UCharDeque_size(x) == 2);
-	assert(*UCharDeque_at(x, 0) == *UCharDeque_at(ud, 1));
-	assert(*UCharDeque_at(x, 1) == *UCharDeque_at(ud, 2));
-	assert(UCharDeque_assign(x, x, 0, 0));
-	assert(UCharDeque_size(x) == 0);
 	/* resize */
 	UCharDeque_clear(ud);
 	assert(UCharDeque_resize(ud, 64, 100));
@@ -476,6 +456,7 @@ void DequeTest_test_1_6(void)
 	assert(UCharDeque_resize(ud, 0, 100));
 	assert(UCharDeque_size(ud) == 0);
 	/* swap */
+	x = UCharDeque_new();
 	UCharDeque_clear(ud);
 	assert(UCharDeque_insert_array(ud, 0, hoge, MAX));
 	assert(ud_cmp(ud, 0, hoge, MAX) == 0);

@@ -213,12 +213,18 @@ void SetTest_test_1_1(void)
 /*    IntSetA_print(x);*/
 	assert(IntSetA_size(x) == SIZE/2);
 	assert(IntSetA_size(ia) == sizeof b / sizeof b[0]);
-	/* assign */
-	assert(IntSetA_assign(x, IntSetA_begin(ia), IntSetA_end(ia)));
+	/* insert_range */
+	count = IntSetA_size(x);
+	assert(IntSetA_insert_range(x, IntSetA_begin(ia), IntSetA_end(ia)));
+
+/*    IntSetA_print(ia);*/
+/*    IntSetA_print(x);*/
 	assert(IntSetA_size(ia) == sizeof b / sizeof b[0]);
-	assert(IntSetA_size(x)  == sizeof b / sizeof b[0]);
-	IntSetA_print(ia);
-	IntSetA_print(x);
+	assert(IntSetA_size(x)  == count + sizeof b / sizeof b[0]);
+
+	assert(IntSetA_insert_range(x, IntSetA_begin(ia), IntSetA_end(ia)));
+	assert(IntSetA_size(ia) == sizeof b / sizeof b[0]);
+	assert(IntSetA_size(x)  == count + sizeof b / sizeof b[0]);
 
 	DUMP_HEAP_OVERFLOW(&heap);
 	IntSetA_delete(ia);

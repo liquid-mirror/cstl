@@ -452,26 +452,6 @@ void RingTest_test_1_6(void)
 	for (i = 0; i < MAX; i++) {
 		assert(UCharRing_push_back(ur, hoge[i]));
 	}
-	/* assign */
-	assert(UCharRing_size(ur) == MAX);
-	x = UCharRing_new(MAX);
-	assert(UCharRing_assign(x, ur, 0, UCharRing_size(ur)));
-	assert(UCharRing_size(ur) == UCharRing_size(x));
-	assert(UCharRing_max_size(ur) == UCharRing_max_size(x));
-	for (i = 0; i < UCharRing_size(ur); i++) {
-		assert(*UCharRing_at(x, i) == *UCharRing_at(ur, i));
-	}
-	assert(UCharRing_assign(x, x, 0, UCharRing_size(x)));
-	assert(UCharRing_size(ur) == UCharRing_size(x));
-	for (i = 0; i < UCharRing_size(ur); i++) {
-		assert(*UCharRing_at(x, i) == *UCharRing_at(ur, i));
-	}
-	assert(UCharRing_assign(x, x, 1, 2));
-	assert(UCharRing_size(x) == 2);
-	assert(*UCharRing_at(x, 0) == *UCharRing_at(ur, 1));
-	assert(*UCharRing_at(x, 1) == *UCharRing_at(ur, 2));
-	assert(UCharRing_assign(x, x, 0, 0));
-	assert(UCharRing_size(x) == 0);
 	/* resize */
 	UCharRing_clear(ur);
 	assert(UCharRing_resize(ur, 64, 100));
@@ -497,6 +477,7 @@ void RingTest_test_1_6(void)
 	assert(UCharRing_resize(ur, 0, 100));
 	assert(UCharRing_size(ur) == 0);
 	/* swap */
+	x = UCharRing_new(MAX);
 	UCharRing_clear(ur);
 	assert(UCharRing_insert_array(ur, 0, hoge, MAX));
 	assert(ur_cmp(ur, 0, hoge, MAX) == 0);

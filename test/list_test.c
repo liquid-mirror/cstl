@@ -345,19 +345,10 @@ void ListTest_test_2_1(void)
 	assert(IntList_resize(il, 0, 99));
 	assert(IntList_size(il) == 0);
 	assert(IntList_resize(il, 100, 99));
-	/* assign */
-	x = IntList_new();
-	assert(IntList_assign(x, IntList_begin(il), IntList_end(il)));
-	assert(IntList_size(x) == IntList_size(il));
-	pos2 = IntList_begin(x);
-	for (pos = IntList_begin(il); pos != IntList_end(il); pos = IntList_next(pos)) {
-		assert(*IntList_at(pos) == *IntList_at(pos2));
-		pos2 = IntList_next(pos2);
-	}
 	/* swap */
+	x = IntList_new();
 	IntList_clear(il);
 	assert(IntList_insert_array(il, IntList_begin(il), buf, 32));
-	IntList_clear(x);
 	assert(IntList_insert_array(x, IntList_begin(x), b, sizeof b / sizeof b[0]));
 	assert(IntList_size(il) == 32);
 	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
