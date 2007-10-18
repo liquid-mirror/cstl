@@ -88,7 +88,7 @@ void DequeTest_test_1_1(void)
 	UCharDeque_clear(ud);
 	assert(UCharDeque_size(ud) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharDeque_delete(ud);
 }
 
@@ -147,7 +147,7 @@ void DequeTest_test_1_2(void)
 	assert(UCharDeque_size(ud) == c);
 	assert(!UCharDeque_empty(ud));
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharDeque_delete(ud);
 }
 
@@ -207,7 +207,7 @@ void DequeTest_test_1_3(void)
 	assert(UCharDeque_size(ud) == c);
 	assert(!UCharDeque_empty(ud));
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharDeque_delete(ud);
 }
 
@@ -290,7 +290,7 @@ void DequeTest_test_1_4(void)
 	}
 	assert(UCharDeque_size(ud) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharDeque_delete(ud);
 }
 
@@ -417,7 +417,7 @@ void DequeTest_test_1_5(void)
 	UCharDeque_erase(ud, 0, UCharDeque_size(ud));
 	assert(UCharDeque_size(ud) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharDeque_delete(ud);
 }
 
@@ -535,7 +535,7 @@ void DequeTest_test_1_6(void)
 
 
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharDeque_delete(ud);
 	UCharDeque_delete(x);
 }
@@ -579,7 +579,7 @@ void DequeTest_test_2_1(void)
 	IntDeque_clear(id);
 	assert(IntDeque_size(id) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntDeque_delete(id);
 }
 
@@ -637,7 +637,7 @@ void DequeTest_test_2_2(void)
 	assert(IntDeque_size(id) == c);
 	assert(!IntDeque_empty(id));
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntDeque_delete(id);
 }
 
@@ -696,7 +696,7 @@ void DequeTest_test_2_3(void)
 	assert(IntDeque_size(id) == c);
 	assert(!IntDeque_empty(id));
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntDeque_delete(id);
 }
 
@@ -779,7 +779,7 @@ void DequeTest_test_2_4(void)
 	}
 	assert(IntDeque_size(id) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntDeque_delete(id);
 }
 
@@ -905,7 +905,7 @@ void DequeTest_test_2_5(void)
 	IntDeque_erase(id, 0, IntDeque_size(id));
 	assert(IntDeque_size(id) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntDeque_delete(id);
 }
 

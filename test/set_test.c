@@ -74,7 +74,7 @@ void set_init_hoge(void)
 /*        printf("%4d: int[%3d], double[%5g], ptr[%p], str[%s]\n",*/
 /*                i, hoge_int[i], hoge_double[i], hoge_ptr[i], hoge_str[i]);*/
 	}
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntRing_delete(q);
 }
 
@@ -226,7 +226,7 @@ void SetTest_test_1_1(void)
 	assert(IntSetA_size(ia) == sizeof b / sizeof b[0]);
 	assert(IntSetA_size(x)  == count + sizeof b / sizeof b[0]);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntSetA_delete(ia);
 	IntSetA_delete(x);
 }
@@ -331,7 +331,7 @@ void SetTest_test_1_2(void)
 	assert(IntSetD_size(id) == count);
 	printf("count: %d\n", count);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntSetD_delete(id);
 }
 
@@ -454,7 +454,7 @@ void SetTest_test_1_3(void)
 	assert(IntMSetA_size(ima) == count);
 	printf("count: %d\n", count);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntMSetA_delete(ima);
 }
 
@@ -568,7 +568,7 @@ void SetTest_test_2_1(void)
 	DoubleSetA_clear(da);
 	assert(DoubleSetA_size(da) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	DoubleSetA_delete(da);
 }
 
@@ -684,7 +684,7 @@ void SetTest_test_3_1(void)
 	PtrSetA_clear(pa);
 	assert(PtrSetA_size(pa) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	PtrSetA_delete(pa);
 }
 
@@ -801,7 +801,7 @@ void SetTest_test_4_1(void)
 	StrSetA_clear(sa);
 	assert(StrSetA_size(sa) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	StrSetA_delete(sa);
 }
 
@@ -921,7 +921,7 @@ void SetTest_test_5_1(void)
 	UIntSetA_clear(uia);
 	assert(UIntSetA_size(uia) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UIntSetA_delete(uia);
 }
 

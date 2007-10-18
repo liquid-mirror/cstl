@@ -46,7 +46,7 @@ void map_init_hoge(void)
 /*        printf("%4d: int[%3d], double[%5g], ptr[%p], str[%s]\n",*/
 /*                i, hoge_int[i], hoge_double[i], hoge_ptr[i], hoge_str[i]);*/
 	}
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntRing_delete(q);
 }
 
@@ -210,7 +210,7 @@ void MapTest_test_1_1(void)
 
 
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntIntMapA_delete(ia);
 	IntIntMapA_delete(x);
 }
@@ -334,7 +334,7 @@ void MapTest_test_1_2(void)
 	assert(IntIntMMapA_size(ima) == count);
 	printf("count: %d\n", count);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntIntMMapA_delete(ima);
 }
 

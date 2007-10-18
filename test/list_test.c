@@ -404,7 +404,7 @@ void ListTest_test_2_1(void)
 	}
 	printf("\n");
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntList_delete(il);
 	IntList_delete(x);
 }
@@ -426,7 +426,7 @@ void ListTest_run(void)
 	ListTest_test_1_7();
 	ListTest_test_2_1();
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	HogeList_delete(hl);
 }
 

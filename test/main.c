@@ -6,7 +6,7 @@ Heap heap;
 int main(void)
 {
 #ifdef MY_MALLOC
-	Heap_init(&heap, buf, sizeof buf);
+	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
 #endif
 
 	VectorTest_run();
@@ -17,7 +17,7 @@ int main(void)
 	MapTest_run();
 
 #ifdef MY_MALLOC
-	DUMP_MEMORY_LEAK(&heap, 0);
+	HEAP_DUMP_LEAK(&heap, 0);
 #endif
 	return 0;
 }

@@ -85,7 +85,7 @@ void VectorTest_test_1_1(void)
 	assert(UCharVector_size(uv) == 0);
 	assert(UCharVector_empty(uv));
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharVector_delete(uv);
 }
 
@@ -132,7 +132,7 @@ void VectorTest_test_1_2(void)
 	assert(UCharVector_empty(uv));
 	assert(UCharVector_capacity(uv) == a);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharVector_delete(uv);
 }
 
@@ -159,7 +159,7 @@ void VectorTest_test_1_3(void)
 	assert(UCharVector_size(uv) == SIZE);
 	assert(!UCharVector_empty(uv));
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharVector_delete(uv);
 }
 
@@ -206,7 +206,7 @@ void VectorTest_test_1_4(void)
 	}
 	assert(UCharVector_size(uv) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharVector_delete(uv);
 }
 
@@ -259,7 +259,7 @@ void VectorTest_test_1_5(void)
 	UCharVector_erase(uv, 0, SIZE);
 	assert(UCharVector_size(uv) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharVector_delete(uv);
 }
 
@@ -401,7 +401,7 @@ void VectorTest_test_1_6(void)
 
 
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	UCharVector_delete(uv);
 	UCharVector_delete(x);
 }
@@ -462,7 +462,7 @@ void VectorTest_test_2_1(void)
 	assert(IntVector_size(iv) == 0);
 	assert(IntVector_empty(iv));
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntVector_delete(iv);
 }
 
@@ -509,7 +509,7 @@ void VectorTest_test_2_2(void)
 	assert(IntVector_empty(iv));
 	assert(IntVector_capacity(iv) == a);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntVector_delete(iv);
 }
 
@@ -536,7 +536,7 @@ void VectorTest_test_2_3(void)
 	assert(IntVector_size(iv) == SIZE);
 	assert(!IntVector_empty(iv));
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntVector_delete(iv);
 }
 
@@ -583,7 +583,7 @@ void VectorTest_test_2_4(void)
 	}
 	assert(IntVector_size(iv) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntVector_delete(iv);
 }
 
@@ -630,7 +630,7 @@ void VectorTest_test_2_5(void)
 	IntVector_erase(iv, 0, SIZE);
 	assert(IntVector_size(iv) == 0);
 
-	DUMP_HEAP_OVERFLOW(&heap);
+	HEAP_DUMP_OVERFLOW(&heap);
 	IntVector_delete(iv);
 }
 

@@ -1,9 +1,9 @@
 #!/bin/sh
 usage()
 {
-echo -e "Usage: codegen.sh {vector | deque | list | string} name type [path] [heap]"
-echo -e "  or:  codegen.sh {set | multiset} name type comp [path] [heap]"
-echo -e "  or:  codegen.sh {map | multimap} name keytype valuetype comp [path] [heap]"
+	echo -e "Usage: codegen.sh {vector | deque | list | string} name type [path] [heap]"
+	echo -e "  or:  codegen.sh {set | multiset} name type comp [path] [heap]"
+	echo -e "  or:  codegen.sh {map | multimap} name keytype valuetype comp [path] [heap]"
 }
 
 container=$1
@@ -277,4 +277,4 @@ echo "$src" | cpp -I.. | grep "$name" | indent -kr -ut -ts4 \
 
 # コンパイル確認
 gcc -Wall "$path"".c" -c
-
+rm "$path"".o"
