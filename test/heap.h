@@ -44,7 +44,7 @@
  * {
  *     int i;
  *     char *hoge;
- *     Heap_init(&heap, buf, sizeof buf);
+ *     Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
  *     hoge = Heap_alloc(&heap, 16);
  *     for (i = 0; i < 16; i++) {
  *         hoge[i] = i;
@@ -61,7 +61,7 @@
  *     }
  *     free(hoge);
  *
- *     DUMP_MEMORY_LEAK(&heap, 1);
+ *     HEAP_DUMP_LEAK(&heap, 1);
  *     return 0;
  * }
  * \endcode
@@ -72,17 +72,17 @@
 #include <stddef.h>
 
 /* 
- * SLIST_BLOCKをマクロ定義した場合、メモリブロックのリストが単方向リストとな
- * る。メモリブロックヘッダのサイズがポインタ一つ分小さくなり、freeの計算量
- * がO(n)になる。
- * SLIST_BLOCKを定義しない場合、メモリブロックのリストが双方向リストとなる。
- * メモリブロックヘッダのサイズがポインタ一つ分大きくなり、freeの計算量が
- * O(1)になる。
+ * SLIST_BLOCKをマクロ定義した場合(メモリブロックリストが単方向リスト)
+ * - メモリブロックヘッダのサイズがポインタ一つ分小さくなる。
+ * - freeの計算量がO(n)になる。
+ *
+ * SLIST_BLOCKをマクロ定義しない場合(メモリブロックリストが双方向リスト)
+ * - メモリブロックヘッダのサイズがポインタ一つ分大きくなる。
+ * - freeの計算量がO(1)になる。
  *
  * HEAP_DEBUGをマクロ定義した場合、メモリリーク、ヒープオーバーフロー、メモ
  * リ確保失敗、不正なポインタの解放などの検出ができる。
  */
-/*#define SLIST_BLOCK*/
 
 /*! 
  * \brief メモリブロックヘッダ構造体
@@ -113,37 +113,47 @@ struct Heap_t {
 	BlockHeader list_term;	/* メモリブロックリストターミネータ */
 	BlockHeader *loop_p;	/* ループ用ポインタ */
 	Heap *init_flag;
+	size_t align_size;
+	size_t header_size;
+#ifdef HEAP_DEBUG
+	size_t wall_size;
+	int fail_count;
+#endif
 };
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-void Heap_init(Heap *self, double *buf, size_t size);
+void Heap_init(Heap *self, void *buf, size_t size, size_t alignment);
 #ifdef HEAP_DEBUG
 void *Heap_alloc_debug(Heap *self, size_t size, char *file, size_t line);
 void *Heap_realloc_debug(Heap *self, void *ptr, size_t newsize, char *file, size_t line);
 void Heap_free_debug(Heap *self, void *ptr, char *file, size_t line);
 void hex_dump(void *buf, size_t size);
-size_t dump_memory_leak(Heap *self, int dump);
-void dump_memory_block(void *ptr);
-void dump_memory_list(Heap *self);
-int check_heap_overflow(void *ptr);
-void dump_heap_overflow(Heap *self);
+size_t Heap_dump_leak(Heap *self, int dump);
+void Heap_dump_block(Heap *self, void *ptr);
+void Heap_dump_list(Heap *self);
+int Heap_check_overflow(Heap *self, void *ptr);
+void Heap_dump_overflow(Heap *self);
 #define Heap_alloc(h, s)		Heap_alloc_debug(h, s, __FILE__, __LINE__)
 #define Heap_realloc(h, p, s)	Heap_realloc_debug(h, p, s, __FILE__, __LINE__)
 #define Heap_free(h, p)			Heap_free_debug(h, p, __FILE__, __LINE__)
-#define DUMP_MEMORY_LEAK(h, d)	dump_memory_leak(h, d)
-#define DUMP_MEMORY_BLOCK(p)	dump_memory_block(p)
-#define DUMP_MEMORY_LIST(h)		dump_memory_list(h)
-#define DUMP_HEAP_OVERFLOW(h)	dump_heap_overflow(h)
+#define HEAP_DUMP_LEAK(h, d)	Heap_dump_leak(h, d)
+#define HEAP_DUMP_BLOCK(h, p)	Heap_dump_block(h, p)
+#define HEAP_DUMP_LIST(h)		Heap_dump_list(h)
+#define HEAP_DUMP_OVERFLOW(h)	Heap_dump_overflow(h)
+#define HEAP_SET_FAIL_COUNT(h, c)	(h)->fail_count = (c)
+#define HEAP_RESET_FAIL_COUNT(h)	(h)->fail_count = -1
 #else
 void *Heap_alloc(Heap *self, size_t size);
 void *Heap_realloc(Heap *self, void *ptr, size_t newsize);
 void Heap_free(Heap *self, void *ptr);
-#define DUMP_MEMORY_LEAK(h, d)
-#define DUMP_MEMORY_BLOCK(h, p)
-#define DUMP_MEMORY_LIST(h)
-#define DUMP_HEAP_OVERFLOW(h)
+#define HEAP_DUMP_LEAK(h, d)
+#define HEAP_DUMP_BLOCK(h, p)
+#define HEAP_DUMP_LIST(h)
+#define HEAP_DUMP_OVERFLOW(h)
+#define HEAP_SET_FAIL_COUNT(h, c)
+#define HEAP_RESET_FAIL_COUNT(h)
 #endif
 #ifdef __cplusplus
 }

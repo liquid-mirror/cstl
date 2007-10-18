@@ -33,8 +33,10 @@
 #include "heap.h"
 
 
-/* アラインメントのサイズ。環境に合わせて変更してもよい。 */
-#define ALIGN_SIZE		(sizeof(double))
+/* ヘッダサイズ */
+#define HEADER_SIZE		(self->header_size)
+/* アラインメントのサイズ */
+#define ALIGN_SIZE		(self->align_size)
 /* ALIGN_SIZE単位の切り上げ */
 #define ALIGN_UP(s)		(((s) + (ALIGN_SIZE - 1)) & (~(ALIGN_SIZE - 1)))
 /* ALIGN_SIZE単位の切り捨て */
@@ -47,9 +49,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <ctype.h>
-#define WALL_SIZE	32		/* ヒープオーバーフローのチェック用の壁のサイズ */
-#define WALL_CHAR	0xCC
-static void clear_wall(BlockHeader *p);
+/* ヒープオーバーフローのチェック用の壁のサイズ */
+#define WALL_SIZE		(self->wall_size)
+#define WALL_CHAR		0xCC
+static void clear_wall(Heap *self, BlockHeader *p);
 static void debug_log(char *fmt, ...);
 #define DEBUGLOG(x)		debug_log x
 #else
@@ -57,18 +60,26 @@ static void debug_log(char *fmt, ...);
 #endif
 
 
-/* ヘッダサイズ */
-static const size_t HEADER_SIZE = ALIGN_UP(sizeof(BlockHeader));
-
 /*! 
  * \brief ヒープの初期化
  * \param self ヒープへのポインタ
  * \param buf バッファへのポインタ
- * \param size バッファのサイズ(バイト数)
+ * \param size バッファのサイズ
+ * \param alignment アラインメント
+ *
+ * \pre bufはalignmentでアラインメントされていなければならない。
+ * \pre alignmentは2のべき乗でなければならない。
  */
-void Heap_init(Heap *self, double *buf, size_t size)
+void Heap_init(Heap *self, void *buf, size_t size, size_t alignment)
 {
-	BlockHeader *p = (BlockHeader *) buf;
+	BlockHeader *p;
+	self->align_size = alignment;
+	self->header_size = ALIGN_UP(sizeof(BlockHeader));
+#ifdef HEAP_DEBUG
+	self->wall_size = (alignment > 32) ? alignment : 32;
+	self->fail_count = -1;
+#endif
+	p = (BlockHeader *) buf;
 
 	self->list_term.size = 0;
 	self->list_term.occupied = 1;
@@ -118,6 +129,19 @@ void *Heap_alloc(Heap *self, size_t size)
 		assert(0);
 		return 0;
 	}
+#ifdef HEAP_DEBUG
+	if (!size) {
+		DEBUGLOG(("Heap_alloc: alloc 0 bytes: %s(%d)\n", file, line));
+	}
+	if (self->fail_count >= 0) {
+		if (self->fail_count > 0) {
+			self->fail_count--;
+		} else {
+			DEBUGLOG(("Heap_alloc: return NULL by fail_count: %s(%d)\n", file, line));
+			return 0;
+		}
+	}
+#endif
 	for (p = self->loop_p->next; p != self->loop_p; p = p->next) {
 		if (!p->occupied && p->size >= alloc_block_size) {
 			if (p->size >= alloc_block_size + HEADER_SIZE + SPLIT_MIN) {
@@ -350,11 +374,11 @@ void Heap_free(Heap *self, void *ptr)
 				return;
 			}
 #ifdef HEAP_DEBUG
-			if (!check_heap_overflow(ptr)) {
+			if (!Heap_check_overflow(self, ptr)) {
 				DEBUGLOG(("Heap_free: heap overflow: %s(%d), %s(%d)\n", p->file, p->line, file, line));
 				assert(0);
 			}
-			clear_wall(p);
+			clear_wall(self, p);
 #endif
 			p->occupied = 0;
 			if (p == self->loop_p) {
@@ -409,11 +433,11 @@ void Heap_free(Heap *self, void *ptr)
 		return;
 	}
 #ifdef HEAP_DEBUG
-	if (!check_heap_overflow(ptr)) {
+	if (!Heap_check_overflow(self, ptr)) {
 		DEBUGLOG(("Heap_free: heap overflow: %s(%d), %s(%d)\n", p->file, p->line, file, line));
 		assert(0);
 	}
-	clear_wall(p);
+	clear_wall(self, p);
 #endif
 	p->occupied = 0;
 	if (p == self->loop_p) {
@@ -497,9 +521,10 @@ void hex_dump(void *buf, size_t size)
 
 /*! 
  * \brief 壁をクリアする
+ * \param self ヒープへのポインタ
  * \param p メモリブロック
  */
-static void clear_wall(BlockHeader *p)
+static void clear_wall(Heap *self, BlockHeader *p)
 {
 	size_t i;
 	for (i = 0; i < WALL_SIZE; i++) {
@@ -510,10 +535,11 @@ static void clear_wall(BlockHeader *p)
 
 /*! 
  * \brief ヒープオーバーフローをチェックする
+ * \param self ヒープへのポインタ
  * \param ptr Heap_alloc()で取得したポインタ
  * \return 確保したメモリサイズを超えて書き込みをしていなければ真を返す
  */
-int check_heap_overflow(void *ptr)
+int Heap_check_overflow(Heap *self, void *ptr)
 {
 	size_t i;
 	BlockHeader *p = (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE));
@@ -533,7 +559,7 @@ int check_heap_overflow(void *ptr)
  * \brief ヒープオーバーフローを検出する
  * \param self ヒープへのポインタ
  */
-void dump_heap_overflow(Heap *self)
+void Heap_dump_overflow(Heap *self)
 {
 	BlockHeader *p;
 	void *ptr;
@@ -545,7 +571,7 @@ void dump_heap_overflow(Heap *self)
 	}
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
 		ptr = (char *) p + HEADER_SIZE + WALL_SIZE;
-		if (p->occupied && !check_heap_overflow(ptr)) {
+		if (p->occupied && !Heap_check_overflow(self, ptr)) {
 			if (!flag) {
 				debug_log("\ndetected heap overflow!\n");
 				flag = 1;
@@ -563,7 +589,7 @@ void dump_heap_overflow(Heap *self)
  * \param dump 真ならばリークをダンプする
  * \return メモリリークの検出個数
  */
-size_t dump_memory_leak(Heap *self, int dump)
+size_t Heap_dump_leak(Heap *self, int dump)
 {
 	BlockHeader *p;
 	size_t n = 0;
@@ -599,9 +625,10 @@ size_t dump_memory_leak(Heap *self, int dump)
 
 /*! 
  * \brief メモリブロックをダンプする
+ * \param self ヒープへのポインタ
  * \param ptr Heap_alloc()で取得したポインタ
  */
-void dump_memory_block(void *ptr)
+void Heap_dump_block(Heap *self, void *ptr)
 {
 	BlockHeader *p;
 	if (!ptr) goto NG_block;
@@ -632,7 +659,7 @@ NG_block:
  * \brief 全メモリブロックのリストをダンプする
  * \param self ヒープへのポインタ
  */
-void dump_memory_list(Heap *self)
+void Heap_dump_list(Heap *self)
 {
 	BlockHeader *p;
 	if (self->init_flag != self) {
@@ -640,7 +667,7 @@ void dump_memory_list(Heap *self)
 		assert(0);
 		return;
 	}
-	debug_log("\ndump_memory_list\n");
+	debug_log("\nHeap_dump_list\n");
 	debug_log("block header size: %d bytes\n", HEADER_SIZE);
 	debug_log("block list terminator\n");
 #ifdef SLIST_BLOCK
@@ -651,8 +678,9 @@ void dump_memory_list(Heap *self)
 	hex_dump((char *) (&self->list_term), HEADER_SIZE);
 	debug_log("\n");
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
-		dump_memory_block((char *) p + (HEADER_SIZE + WALL_SIZE));
+		Heap_dump_block(self, (char *) p + (HEADER_SIZE + WALL_SIZE));
 	}
 }
+
 #endif
 
