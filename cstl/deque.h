@@ -53,11 +53,15 @@
 #define CSTL_DEQUE_MAGIC(x)
 #endif
 
+#ifndef CSTL_ALGORITHM_INTERFACE
+#define CSTL_ALGORITHM_INTERFACE(Name, Type)
+#endif
+
 #ifndef CSTL_ALGORITHM_IMPLEMENT
 #define CSTL_ALGORITHM_IMPLEMENT(Name, Type, DIRECT_ACCESS)
 #endif
 
-#define CSTL_DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 511 ? 511 / sizeof(Type) : 1)
+#define CSTL_DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 512 ? 512 / sizeof(Type) : 1)
 #define CSTL_DEQUE_INITIAL_MAP_SIZE		(8)
 
 /*! 
@@ -89,19 +93,7 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);
 void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
-void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
-void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
-size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
-size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
-size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
-void Name##_reverse(Name *self, size_t idx, size_t n);\
-void Name##_rotate(Name *self, size_t first, size_t middle, size_t last);\
-int Name##_merge(Name *self, size_t idx, Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const Type *, const Type *));\
-void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const Type *, const Type *));\
-void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
-void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
-void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
-void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+CSTL_ALGORITHM_INTERFACE(Name, Type)\
 CSTL_DEQUE_END_EXTERN_C()\
 
 
@@ -172,7 +164,7 @@ static void Name##_push_ring(Name *self, Name##__Ring *ring)\
 \
 static size_t Name##_map_idx_begin_side(Name *self)\
 {\
-	size_t i;\
+	register size_t i;\
 	for (i = self->begin; i > 0; i--) {\
 		if (!CSTL_VECTOR_AT(self->map, i - 1)) {\
 			break;\
@@ -183,7 +175,7 @@ static size_t Name##_map_idx_begin_side(Name *self)\
 \
 static size_t Name##_map_idx_end_side(Name *self)\
 {\
-	size_t i;\
+	register size_t i;\
 	for (i = self->end; i < CSTL_VECTOR_SIZE(self->map); i++) {\
 		if (!CSTL_VECTOR_AT(self->map, i)) {\
 			break;\
@@ -196,7 +188,7 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 {\
 	size_t m;\
 	size_t s;\
-	size_t i;\
+	register size_t i;\
 	m = CSTL_RING_MAX_SIZE(CSTL_VECTOR_AT(self->map, self->begin)) - \
 		CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, self->begin));\
 	if (n <= m) {\
@@ -208,7 +200,7 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 		b = Name##_map_idx_begin_side(self);\
 		e = Name##_map_idx_end_side(self);\
 		if (CSTL_VECTOR_SIZE(self->map) - e + self->begin < s) {\
-			size_t j;\
+			register size_t j;\
 			size_t k = (CSTL_VECTOR_SIZE(self->map) > s) ? CSTL_VECTOR_SIZE(self->map) : s;\
 			/* mapを拡張する */\
 			if (!Name##__RingVector_insert_n_no_elem(self->map, 0, k)) {\
@@ -248,7 +240,7 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 {\
 	size_t m;\
 	size_t s;\
-	size_t i;\
+	register size_t i;\
 	m = CSTL_RING_MAX_SIZE(CSTL_VECTOR_AT(self->map, self->end - 1)) - \
 		CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, self->end - 1));\
 	if (n <= m) {\
@@ -316,7 +308,7 @@ static void Name##__Ring_pop_front_no_elem(Name##__Ring *self)\
 \
 static void Name##_push_front_n_no_elem(Name *self, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	for (i = 0; i < n; i++) {\
 		if (!Name##__Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin))) {\
 			self->begin--;\
@@ -329,7 +321,7 @@ static void Name##_push_front_n_no_elem(Name *self, size_t n)\
 \
 static void Name##_push_back_n_no_elem(Name *self, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	for (i = 0; i < n; i++) {\
 		if (!Name##__Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end - 1))) {\
 			self->end++;\
@@ -342,7 +334,7 @@ static void Name##_push_back_n_no_elem(Name *self, size_t n)\
 \
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	for (i = last; i > first; i--) {\
 		*Name##_at(self, i - 1 + n) = *Name##_at(self, i - 1);\
 	}\
@@ -350,7 +342,7 @@ static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)
 \
 static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	for (i = first; i < last; i++) {\
 		*Name##_at(self, i - n) = *Name##_at(self, i);\
 	}\
@@ -389,7 +381,7 @@ Name *Name##_new(void)\
 \
 void Name##_delete(Name *self)\
 {\
-	size_t i;\
+	register size_t i;\
 	assert(self && "Deque_delete");\
 	assert(self->magic == self && "Deque_delete");\
 	for (i = 0; i < CSTL_VECTOR_SIZE(self->map); i++) {\
@@ -496,7 +488,7 @@ int Name##_empty(Name *self)\
 \
 void Name##_clear(Name *self)\
 {\
-	size_t i;\
+	register size_t i;\
 	assert(self && "Deque_clear");\
 	assert(self->magic == self && "Deque_clear");\
 	self->end = self->begin + 1;\
@@ -566,7 +558,7 @@ static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
 \
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
 {\
-	size_t i;\
+	register size_t i;\
 	assert(self && "Deque_insert_n");\
 	assert(self->magic == self && "Deque_insert_n");\
 	assert(Name##_size(self) >= idx && "Deque_insert_n");\
@@ -581,7 +573,7 @@ int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
 \
 int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	assert(self && "Deque_insert_array");\
 	assert(self->magic == self && "Deque_insert_array");\
 	assert(Name##_size(self) >= idx && "Deque_insert_array");\
@@ -597,7 +589,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 \
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	assert(self && "Deque_insert_range");\
 	assert(self->magic == self && "Deque_insert_range");\
 	assert(Name##_size(self) >= idx && "Deque_insert_range");\
@@ -636,7 +628,8 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 \
 void Name##_erase(Name *self, size_t idx, size_t n)\
 {\
-	size_t i, j, k;\
+	size_t i, j;\
+	register size_t k;\
 	assert(self && "Deque_erase");\
 	assert(self->magic == self && "Deque_erase");\
 	assert(Name##_size(self) >= idx + n && "Deque_erase");\
@@ -677,7 +670,7 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 \
 int Name##_resize(Name *self, size_t n, Type elem)\
 {\
-	size_t i;\
+	register size_t i;\
 	size_t size;\
 	assert(self && "Deque_resize");\
 	assert(self->magic == self && "Deque_resize");\
@@ -685,11 +678,11 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 	if (size >= n) {\
 		Name##_erase(self, n, size - n);\
 	} else {\
-		if (!Name##_expand_end_side(self, n - size)) {\
+		if (!Name##_insert_n_no_elem(self, size, n - size)) {\
 			return 0;\
 		}\
-		for (i = 0; i < n - size; i++) {\
-			Name##_push_back(self, elem);\
+		for (i = size; i < n; i++) {\
+			*Name##_at(self, i) = elem;\
 		}\
 	}\
 	return 1;\

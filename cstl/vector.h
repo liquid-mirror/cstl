@@ -51,6 +51,10 @@
 #define CSTL_VECTOR_MAGIC(x)
 #endif
 
+#ifndef CSTL_ALGORITHM_INTERFACE
+#define CSTL_ALGORITHM_INTERFACE(Name, Type)
+#endif
+
 #ifndef CSTL_ALGORITHM_IMPLEMENT
 #define CSTL_ALGORITHM_IMPLEMENT(Name, Type, DIRECT_ACCESS)
 #endif
@@ -94,19 +98,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 void Name##_swap(Name *self, Name *x);\
-void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
-void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
-size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
-size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
-size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
-void Name##_reverse(Name *self, size_t idx, size_t n);\
-void Name##_rotate(Name *self, size_t first, size_t middle, size_t last);\
-int Name##_merge(Name *self, size_t idx, Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const Type *, const Type *));\
-void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const Type *, const Type *));\
-void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
-void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
-void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
-void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+CSTL_ALGORITHM_INTERFACE(Name, Type)\
 CSTL_VECTOR_END_EXTERN_C()\
 
 
@@ -115,6 +107,7 @@ CSTL_VECTOR_END_EXTERN_C()\
 static int Name##_expand(Name *self, size_t size);\
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n);\
 static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n);\
+static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n);\
 /*! 
  * \brief vector構造体
  */\
@@ -266,12 +259,12 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 	if (size >= n) {\
 		self->end = n;\
 	} else {\
-		size_t i;\
-		if (!Name##_expand(self, n)) {\
+		register size_t i;\
+		if (!Name##_insert_n_no_elem(self, size, n - size)) {\
 			return 0;\
 		}\
-		for (i = 0; i < n - size; i++) {\
-			Name##_push_back(self, elem);\
+		for (i = size; i < n; i++) {\
+			CSTL_VECTOR_AT(self, i) = elem;\
 		}\
 	}\
 	return 1;\
@@ -311,7 +304,7 @@ Type Name##_back(Name *self)\
 #define CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)	\
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	for (i = last; i > first; i--) {\
 		self->buf[i - 1 + n] = self->buf[i - 1];\
 	}\
@@ -321,7 +314,7 @@ static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)
 #define CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)	\
 static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	for (i = first; i < last; i++) {\
 		self->buf[i - n] = self->buf[i];\
 	}\
@@ -351,7 +344,7 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 \
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
 {\
-	size_t i;\
+	register size_t i;\
 	assert(self && "Vector_insert_n");\
 	assert(self->magic == self && "Vector_insert_n");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n");\
@@ -366,7 +359,7 @@ int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
 \
 int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	assert(self && "Vector_insert_array");\
 	assert(self->magic == self && "Vector_insert_array");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_array");\
@@ -384,7 +377,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 #define CSTL_VECTOR_IMPLEMENT_INSERT_RANGE(Name, Type)	\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	assert(self && "Vector_insert_range");\
 	assert(self->magic == self && "Vector_insert_range");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_range");\

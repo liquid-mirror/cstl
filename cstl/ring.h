@@ -52,7 +52,7 @@
 #endif
 
 
-#define CSTL_RING_FORWARD(self, idx, n)			(((idx) + (n)) % self->nelems)
+#define CSTL_RING_FORWARD(self, idx, n)			((idx) + (n) >= self->nelems ? (idx) + (n) - self->nelems : (idx) + (n))
 #define CSTL_RING_BACKWARD(self, idx, n)		((idx) >= (n) ? (idx) - (n) : self->nelems + (idx) - (n))
 #define CSTL_RING_NEXT(self, idx)				CSTL_RING_FORWARD(self, idx, 1)
 #define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD(self, idx, 1)
@@ -150,15 +150,16 @@ void Name##_init(Name *self, Type *buf, size_t n)\
 \
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
 {\
-	size_t i;\
-	for (i = CSTL_RING_PREV(self, last); i != CSTL_RING_PREV(self, first); i = CSTL_RING_PREV(self, i)) {\
+	register size_t i;\
+	register size_t j = CSTL_RING_PREV(self, first);\
+	for (i = CSTL_RING_PREV(self, last); i != j; i = CSTL_RING_PREV(self, i)) {\
 		self->buf[CSTL_RING_FORWARD(self, i, n)] = self->buf[i];\
 	}\
 }\
 \
 static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	for (i = first; i != last; i = CSTL_RING_NEXT(self, i)) {\
 		self->buf[CSTL_RING_BACKWARD(self, i, n)] = self->buf[i];\
 	}\

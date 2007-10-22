@@ -40,9 +40,29 @@
 	DIRECT_ACCESS(self, j) = tmp;\
 
 
+#ifdef CSTL_ALGORITHM_INTERFACE
+#undef CSTL_ALGORITHM_INTERFACE
+#endif
+
 #ifdef CSTL_ALGORITHM_IMPLEMENT
 #undef CSTL_ALGORITHM_IMPLEMENT
 #endif
+
+#define CSTL_ALGORITHM_INTERFACE(Name, Type)	\
+void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
+size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
+size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *));\
+void Name##_reverse(Name *self, size_t idx, size_t n);\
+void Name##_rotate(Name *self, size_t first, size_t middle, size_t last);\
+int Name##_merge(Name *self, size_t idx, Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const Type *, const Type *));\
+void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const Type *, const Type *));\
+void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *));\
+
 
 #define CSTL_ALGORITHM_IMPLEMENT(Name, Type, DIRECT_ACCESS)	\
 static void Name##_insertion_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *))\
@@ -50,7 +70,7 @@ static void Name##_insertion_sort(Name *self, size_t idx, size_t n, int (*comp)(
 	register size_t i, j;\
 	Type tmp;\
 	for (i = 1; i < n; i++) {\
-		for (j = i; j >= 1 && comp(&DIRECT_ACCESS(self, idx + j - 1), &DIRECT_ACCESS(self, idx + j)) > 0; j--) {\
+		for (j = i; j > 0 && comp(&DIRECT_ACCESS(self, idx + j - 1), &DIRECT_ACCESS(self, idx + j)) > 0; j--) {\
 			CSTL_ALGORITHM_SWAP(idx + j, idx + j - 1, tmp, DIRECT_ACCESS);\
 		}\
 	}\
@@ -134,7 +154,7 @@ void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type *, con
 \
 static size_t Name##_gcd(size_t m, size_t n)\
 {\
-	size_t i;\
+	register size_t i;\
 	while (n) {\
 		i = m % n;\
 		m = n;\
@@ -145,9 +165,9 @@ static size_t Name##_gcd(size_t m, size_t n)\
 \
 static size_t Name##_rotate_aux(Name *self, size_t first, size_t middle, size_t last)\
 {\
+	register size_t i, j;\
 	size_t n, k, l;\
 	size_t result;\
-	size_t i, j;\
 	size_t p;\
 	size_t d;\
 	Type tmp;\
@@ -169,7 +189,8 @@ static size_t Name##_rotate_aux(Name *self, size_t first, size_t middle, size_t 
 		tmp = DIRECT_ACCESS(self, first);\
 		p = first;\
 		if (k < l) {\
-			for (j = 0; j < l / d; j++) {\
+			size_t t = l / d;\
+			for (j = 0; j < t; j++) {\
 				if (p > first + l) {\
 					DIRECT_ACCESS(self, p) = DIRECT_ACCESS(self, p - l);\
 					p -= l;\
@@ -178,7 +199,8 @@ static size_t Name##_rotate_aux(Name *self, size_t first, size_t middle, size_t 
 				p += k;\
 			}\
 		} else {\
-			for (j = 0; j < k / d - 1; j++) {\
+			size_t t = k / d - 1;\
+			for (j = 0; j < t; j++) {\
 				if (p < last - k) {\
 					DIRECT_ACCESS(self, p) = DIRECT_ACCESS(self, p + k);\
 					p += k;\
@@ -232,7 +254,7 @@ static void Name##_merge_without_buffer(Name *self, size_t first, size_t middle,
 static void Name##_merge_with_buffer(Name *self, size_t first, size_t middle, size_t last, \
 							Type *buf, int (*comp)(const Type *, const Type *))\
 {\
-	size_t i, j, k;\
+	register size_t i, j, k;\
 	for (i = first; i < middle; i++) {\
 		buf[i] = DIRECT_ACCESS(self, i);\
 	}\
@@ -293,9 +315,9 @@ void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const Type
 \
 size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *))\
 {\
-	size_t first;\
-	size_t last;\
-	size_t middle;\
+	register size_t first;\
+	register size_t last;\
+	register size_t middle;\
 	assert(self && "lower_bound");\
 	assert(self->magic == self && "lower_bound");\
 	assert(Name##_size(self) >= idx + n && "lower_bound");\
@@ -317,9 +339,9 @@ size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 \
 size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*comp)(const Type *, const Type *))\
 {\
-	size_t first;\
-	size_t last;\
-	size_t middle;\
+	register size_t first;\
+	register size_t last;\
+	register size_t middle;\
 	assert(self && "upper_bound");\
 	assert(self->magic == self && "upper_bound");\
 	assert(Name##_size(self) >= idx + n && "upper_bound");\
@@ -360,8 +382,8 @@ size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*
 \
 void Name##_reverse(Name *self, size_t idx, size_t n)\
 {\
-	size_t first;\
-	size_t last;\
+	register size_t first;\
+	register size_t last;\
 	Type tmp;\
 	assert(self && "reverse");\
 	assert(self->magic == self && "reverse");\
@@ -390,7 +412,7 @@ void Name##_rotate(Name *self, size_t first, size_t middle, size_t last)\
 int Name##_merge(Name *self, size_t idx, \
 		Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const Type *, const Type *))\
 {\
-	size_t i, j, k;\
+	register size_t i, j, k;\
 	assert(self && "merge");\
 	assert(self->magic == self && "merge");\
 	assert(Name##_size(self) >= idx && "merge");\
@@ -522,7 +544,7 @@ void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *,
 \
 void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *))\
 {\
-	size_t i;\
+	register size_t i;\
 	assert(self && "make_heap");\
 	assert(self->magic == self && "make_heap");\
 	assert(Name##_size(self) >= idx + n && "make_heap");\
@@ -536,7 +558,7 @@ void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *
 \
 void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const Type *, const Type *))\
 {\
-	size_t i;\
+	register size_t i;\
 	Type tmp;\
 	assert(self && "sort_heap");\
 	assert(self->magic == self && "sort_heap");\
