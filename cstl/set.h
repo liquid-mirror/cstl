@@ -122,11 +122,11 @@ Name##Iterator Name##_insert(Name *self, Type elem, int *success)\
 \
 int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
-	Name##Iterator pos;\
+	register Name##Iterator pos;\
 	Name##Iterator *tmp;\
-	size_t count = 0;\
-	size_t i = 0;\
-	size_t j;\
+	register size_t count = 0;\
+	register size_t i = 0;\
+	register size_t j;\
 	assert(self && "Set_insert_range");\
 	assert(self->magic == self && "Set_insert_range");\
 	assert(first && "Set_insert_range");\
@@ -202,11 +202,11 @@ Name##Iterator Name##_insert(Name *self, Type elem)\
 \
 int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
-	Name##Iterator pos;\
+	register Name##Iterator pos;\
 	Name##Iterator *tmp;\
-	size_t count = 0;\
-	size_t i = 0;\
-	size_t j;\
+	register size_t count = 0;\
+	register size_t i = 0;\
+	register size_t j;\
 	assert(self && "MultiSet_insert_range");\
 	assert(self->magic == self && "MultiSet_insert_range");\
 	assert(first && "MultiSet_insert_range");\

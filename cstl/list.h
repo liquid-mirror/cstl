@@ -331,7 +331,7 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
 int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type elem)\
 {\
 	Name *x;\
-	size_t i;\
+	register size_t i;\
 	assert(self && "List_insert_n");\
 	assert(self->magic == self && "List_insert_n");\
 	assert(pos && "List_insert_n");\
@@ -352,7 +352,7 @@ int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type elem)\
 int Name##_insert_array(Name *self, Name##Iterator pos, Type *elems, size_t n)\
 {\
 	Name *x;\
-	size_t i;\
+	register size_t i;\
 	assert(self && "List_insert_array");\
 	assert(self->magic == self && "List_insert_array");\
 	assert(pos && "List_insert_array");\
@@ -374,7 +374,7 @@ int Name##_insert_array(Name *self, Name##Iterator pos, Type *elems, size_t n)\
 int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Name##Iterator last)\
 {\
 	Name *x;\
-	Name##Iterator i;\
+	register Name##Iterator i;\
 	assert(self && "List_insert_range");\
 	assert(self->magic == self && "List_insert_range");\
 	assert(pos && "List_insert_range");\
@@ -417,7 +417,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 \
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
-	Name##Iterator pos;\
+	register Name##Iterator pos;\
 	assert(self && "List_erase_range");\
 	assert(self->magic == self && "List_erase_range");\
 	assert(first && "List_erase_range");\
@@ -434,7 +434,7 @@ Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterat
 \
 int Name##_resize(Name *self, size_t n, Type elem)\
 {\
-	size_t i;\
+	register size_t i;\
 	size_t size;\
 	assert(self && "List_resize");\
 	assert(self->magic == self && "List_resize");\
@@ -477,9 +477,9 @@ void Name##_swap(Name *self, Name *x)\
 \
 void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last)\
 {\
-	Name##Iterator i;\
+	register Name##Iterator i;\
 	Name##Node *tmp;\
-	size_t count = 0;\
+	register size_t count = 0;\
 	assert(self && "List_splice");\
 	assert(self->magic == self && "List_splice");\
 	assert(pos && "List_splice");\
@@ -511,7 +511,7 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *last, int (*comp)(const Type *, const Type *))\
 {\
 	Name##Node *head;\
-	Name##Node *p;\
+	register Name##Node *p;\
 /*	assert(x->prev == y->prev);*/\
 	head = x->prev;\
 	p = head;\
@@ -540,8 +540,8 @@ static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *l
 \
 static Name##Node *Name##_merge_sort(Name##Node *first, Name##Node *last, int (*comp)(const Type *, const Type *))\
 {\
-	Name##Node *x;\
-	Name##Node *y;\
+	register Name##Node *x;\
+	register Name##Node *y;\
 	if (first == last || first->next == last) {\
 		return first;\
 	}\
@@ -590,8 +590,8 @@ void Name##_merge(Name *self, Name *x, int (*comp)(const Type *, const Type *))\
 \
 void Name##_reverse(Name *self)\
 {\
-	Name##Node *p;\
-	Name##Node *tmp;\
+	register Name##Node *p;\
+	register Name##Node *tmp;\
 	assert(self && "List_reverse");\
 	assert(self->magic == self && "List_reverse");\
 	p = self->terminator;\

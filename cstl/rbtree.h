@@ -150,8 +150,8 @@ static Name##RBTree *Name##RBTree_new(void)\
 \
 static void Name##RBTree_clear(Name##RBTree *self)\
 {\
-	Name##RBTreeNode *t;\
-	Name##RBTreeNode *tmp;\
+	register Name##RBTreeNode *t;\
+	register Name##RBTreeNode *tmp;\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_clear");\
 	t = Name##RBTree_get_root(self);\
 	if (CSTL_RBTREE_NODE_IS_NIL(t, Name##RBTree)) return;\
@@ -193,7 +193,7 @@ static int Name##RBTree_empty(Name##RBTree *self)\
 \
 static Name##RBTreeNode *Name##RBTreeNode_find(Name##RBTree *self, Name##RBTreeNode *t, KeyType key)\
 {\
-	int cmp;\
+	register int cmp;\
 	while (!CSTL_RBTREE_NODE_IS_NIL(t, Name##RBTree)) {\
 		cmp = Compare(key, t->key);\
 		if (cmp < 0) {\
@@ -217,10 +217,10 @@ static Name##RBTreeIterator Name##RBTree_find(Name##RBTree *self, KeyType key)\
 \
 static size_t Name##RBTree_count(Name##RBTree *self, KeyType key)\
 {\
-	Name##RBTreeIterator first;\
-	Name##RBTreeIterator last;\
-	Name##RBTreeIterator pos;\
-	size_t count = 0;\
+	register size_t count = 0;\
+	register Name##RBTreeIterator pos;\
+	register Name##RBTreeIterator first;\
+	register Name##RBTreeIterator last;\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_count");\
 	first = Name##RBTree_lower_bound(self, key);\
 	last = Name##RBTree_upper_bound(self, key);\
@@ -232,8 +232,8 @@ static size_t Name##RBTree_count(Name##RBTree *self, KeyType key)\
 \
 static Name##RBTreeIterator Name##RBTree_lower_bound(Name##RBTree *self, KeyType key)\
 {\
-	Name##RBTreeNode *t;\
-	Name##RBTreeNode *tmp;\
+	register Name##RBTreeNode *t;\
+	register Name##RBTreeNode *tmp;\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_lower_bound");\
 	tmp = Name##RBTree_end(self);\
 	t = Name##RBTree_get_root(self);\
@@ -250,8 +250,8 @@ static Name##RBTreeIterator Name##RBTree_lower_bound(Name##RBTree *self, KeyType
 \
 static Name##RBTreeIterator Name##RBTree_upper_bound(Name##RBTree *self, KeyType key)\
 {\
-	Name##RBTreeNode *t;\
-	Name##RBTreeNode *tmp;\
+	register Name##RBTreeNode *t;\
+	register Name##RBTreeNode *tmp;\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_upper_bound");\
 	tmp = Name##RBTree_end(self);\
 	t = Name##RBTree_get_root(self);\
@@ -459,8 +459,8 @@ static void Name##RBTreeNode_balance_for_insert(Name##RBTreeNode *n)\
 \
 static void Name##RBTree_insert(Name##RBTree *self, Name##RBTreeNode *node)\
 {\
-	Name##RBTreeNode *n;\
-	Name##RBTreeNode *tmp;\
+	register Name##RBTreeNode *n;\
+	register Name##RBTreeNode *tmp;\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_insert");\
 	CSTL_RBTREE_MAGIC(node->magic = self);\
 	n = Name##RBTree_get_root(self);\
@@ -471,7 +471,7 @@ static void Name##RBTree_insert(Name##RBTree *self, Name##RBTreeNode *node)\
 		return;\
 	}\
 	/* 2分探索木の挿入 */\
-	while (!CSTL_RBTREE_NODE_IS_NIL(n, Name##RBTree)) {\
+	do {\
 		tmp = n;\
 		if (Compare(node->key, n->key) < 0) {\
 			n = n->left;\
@@ -479,7 +479,7 @@ static void Name##RBTree_insert(Name##RBTree *self, Name##RBTreeNode *node)\
 			/* 同じ値なら右へ */\
 			n = n->right;\
 		}\
-	}\
+	} while (!CSTL_RBTREE_NODE_IS_NIL(n, Name##RBTree));\
 	if (Compare(node->key, tmp->key) < 0) {\
 		Name##RBTreeNode_set_left(tmp, node);\
 	} else {\
@@ -581,8 +581,8 @@ static void Name##RBTreeNode_balance_for_erase(Name##RBTreeNode *n, Name##RBTree
 \
 static void Name##RBTree_erase(Name##RBTree *self, Name##RBTreeIterator pos)\
 {\
-	Name##RBTreeNode *n;\
-	Name##RBTreeNode *x;\
+	register Name##RBTreeNode *n;\
+	register Name##RBTreeNode *x;\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_erase");\
 	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "RBTree_erase");\
 	n = pos;\
@@ -633,8 +633,8 @@ end:\
 \
 static Name##RBTreeIterator Name##RBTree_begin(Name##RBTree *self)\
 {\
-	Name##RBTreeNode *t;\
-	Name##RBTreeNode *tmp;\
+	register Name##RBTreeNode *t;\
+	register Name##RBTreeNode *tmp;\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_begin");\
 	tmp = Name##RBTree_end(self);\
 	t = Name##RBTree_get_root(self);\
@@ -653,8 +653,8 @@ static Name##RBTreeIterator Name##RBTree_end(Name##RBTree *self)\
 \
 static Name##RBTreeIterator Name##RBTree_rbegin(Name##RBTree *self)\
 {\
-	Name##RBTreeNode *t;\
-	Name##RBTreeNode *tmp;\
+	register Name##RBTreeNode *t;\
+	register Name##RBTreeNode *tmp;\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_rbegin");\
 	tmp = Name##RBTree_rend(self);\
 	t = Name##RBTree_get_root(self);\
@@ -818,7 +818,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 \
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
-	Name##Iterator pos;\
+	register Name##Iterator pos;\
 	assert(self && "RBTree_erase_range");\
 	assert(self->magic == self && "RBTree_erase_range");\
 	assert(first && "RBTree_erase_range");\
@@ -835,9 +835,9 @@ Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterat
 \
 size_t Name##_erase_key(Name *self, KeyType key)\
 {\
-	size_t count = 0;\
-	Name##Iterator pos;\
-	Name##Iterator last;\
+	register size_t count = 0;\
+	register Name##Iterator pos;\
+	register Name##Iterator last;\
 	assert(self && "RBTree_erase_key");\
 	assert(self->magic == self && "RBTree_erase_key");\
 	pos = Name##_lower_bound(self, key);\
