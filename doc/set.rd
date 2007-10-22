@@ -28,7 +28,7 @@ Compareに要素の比較ルーチンを指定する。
       #define CSTL_LESS(x, y)     ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
       #define CSTL_GREATER(x, y)  ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
   * Typeがその他の型の場合、以下のプロトタイプのような引数と戻り値を持ち、
-    x = yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
+    x == yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
     返す比較ルーチンを指定する。
     尚、Typeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
       int Compare(Type x, Type y);

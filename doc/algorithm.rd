@@ -2,7 +2,7 @@
 == algorithm
 CSTLは、((<vector|URL:vector.html>)), ((<deque|URL:deque.html>)), ((<string|URL:string.html>))において、共通なアルゴリズムを提供する。
 
-アルゴリズムを使うには、実装マクロCSTL_XXX_IMPLEMENT((-XXXは、VECTOR, DEQUE, STRINGのいずれか-))を展開する前に、
+アルゴリズムを使うには、CSTL_XXX_INTERFACE((-XXXは、VECTOR, DEQUE, STRINGのいずれか-))を展開する前に、
 algorithm.hというヘッダファイルをインクルードする。
 
   #include <cstl/algorithm.h>
@@ -13,7 +13,7 @@ CSTL_XXX_INTERFACEの引数のNameにContainer, TypeにTを指定した場合、
 ==== 関数
 以下の関数において、Container*型の引数はNULLでないことを事前条件に含める。
 
-また、int (*comp)(const T *p1, const T *p2)という関数ポインタの引数には、*p1 = *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+また、int (*comp)(const T *p1, const T *p2)という関数ポインタには、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
 
 + ソート
   void Container_sort(Container *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
