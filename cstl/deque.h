@@ -200,17 +200,16 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 		b = Name##_map_idx_begin_side(self);\
 		e = Name##_map_idx_end_side(self);\
 		if (CSTL_VECTOR_SIZE(self->map) - e + self->begin < s) {\
-			register size_t j;\
-			size_t k = (CSTL_VECTOR_SIZE(self->map) > s) ? CSTL_VECTOR_SIZE(self->map) : s;\
+			size_t j = (CSTL_VECTOR_SIZE(self->map) > s) ? CSTL_VECTOR_SIZE(self->map) : s;\
 			/* mapを拡張する */\
-			if (!Name##__RingVector_insert_n_no_elem(self->map, 0, k)) {\
+			if (!Name##__RingVector_insert_n_no_elem(self->map, 0, j)) {\
 				return 0;\
 			}\
-			for (j = 0; j < k; j++) {\
-				CSTL_VECTOR_AT(self->map, j) = 0;\
+			for (i = 0; i < j; i++) {\
+				CSTL_VECTOR_AT(self->map, i) = 0;\
 			}\
-			self->begin += k;\
-			self->end += k;\
+			self->begin += j;\
+			self->end += j;\
 		} else {\
 			/* mapをずらす */\
 			size_t d = s - self->begin;\
@@ -252,9 +251,9 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 		b = Name##_map_idx_begin_side(self);\
 		e = Name##_map_idx_end_side(self);\
 		if (CSTL_VECTOR_SIZE(self->map) - self->end + b < s) {\
-			size_t k = (CSTL_VECTOR_SIZE(self->map) > s) ? CSTL_VECTOR_SIZE(self->map) : s;\
+			size_t j = (CSTL_VECTOR_SIZE(self->map) > s) ? CSTL_VECTOR_SIZE(self->map) : s;\
 			/* mapを拡張する */\
-			if (!Name##__RingVector_resize(self->map, self->end + k, 0)) {\
+			if (!Name##__RingVector_resize(self->map, self->end + j, 0)) {\
 				return 0;\
 			}\
 		} else {\
