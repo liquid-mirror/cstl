@@ -162,45 +162,23 @@ static void Name##_push_ring(Name *self, Name##__Ring *ring)\
 	}\
 }\
 \
-static size_t Name##_map_idx_begin_side(Name *self)\
-{\
-	register size_t i;\
-	for (i = self->begin; i > 0; i--) {\
-		if (!CSTL_VECTOR_AT(self->map, i - 1)) {\
-			break;\
-		}\
-	}\
-	return i;\
-}\
-\
-static size_t Name##_map_idx_end_side(Name *self)\
-{\
-	register size_t i;\
-	for (i = self->end; i < CSTL_VECTOR_SIZE(self->map); i++) {\
-		if (!CSTL_VECTOR_AT(self->map, i)) {\
-			break;\
-		}\
-	}\
-	return i;\
-}\
-\
 static int Name##_expand_begin_side(Name *self, size_t n)\
 {\
 	size_t m;\
-	size_t s;\
+	size_t expand;\
 	register size_t i;\
-	m = CSTL_RING_MAX_SIZE(CSTL_VECTOR_AT(self->map, self->begin)) - \
+	m = CSTL_DEQUE_RINGBUF_SIZE(Type) - \
 		CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, self->begin));\
 	if (n <= m) {\
 		return 1;\
 	}\
-	s = 1 + (n - m - 1) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
-	if (self->begin < s) {\
+	expand = 1 + (n - m - 1) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
+	if (self->begin < expand) {\
 		size_t b, e;\
-		b = Name##_map_idx_begin_side(self);\
-		e = Name##_map_idx_end_side(self);\
-		if (CSTL_VECTOR_SIZE(self->map) - e + self->begin < s) {\
-			size_t j = (CSTL_VECTOR_SIZE(self->map) > s) ? CSTL_VECTOR_SIZE(self->map) : s;\
+		b = self->begin;\
+		e = self->end;\
+		if (CSTL_VECTOR_SIZE(self->map) - e + self->begin < expand) {\
+			size_t j = (CSTL_VECTOR_SIZE(self->map) > expand) ? CSTL_VECTOR_SIZE(self->map) : expand;\
 			/* mapを拡張する */\
 			if (!Name##__RingVector_insert_n_no_elem(self->map, 0, j)) {\
 				return 0;\
@@ -212,24 +190,21 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 			self->end += j;\
 		} else {\
 			/* mapをずらす */\
-			size_t d = s - self->begin;\
-			assert(e + d <= CSTL_VECTOR_SIZE(self->map) && "Deque_expand_begin_side");\
-			Name##__RingVector_move_forward(self->map, b, e, d);\
-			self->begin += d;\
-			self->end += d;\
-			for (i = b; i < b + d; i++) {\
+			size_t slide = ((expand - self->begin) + (CSTL_VECTOR_SIZE(self->map) - e)) / 2;\
+			assert(e + slide <= CSTL_VECTOR_SIZE(self->map) && "Deque_expand_begin_side");\
+			Name##__RingVector_move_forward(self->map, b, e, slide);\
+			self->begin += slide;\
+			self->end += slide;\
+			for (i = b; i < b + slide; i++) {\
 				CSTL_VECTOR_AT(self->map, i) = 0;\
 			}\
 		}\
 	}\
-	for (i = self->begin - s; i < self->begin; i++) {\
+	for (i = self->begin - expand; i < self->begin; i++) {\
+		assert(!CSTL_VECTOR_AT(self->map, i) && "Deque_expand_begin_side");\
+		CSTL_VECTOR_AT(self->map, i) = Name##_pop_ring(self);\
 		if (!CSTL_VECTOR_AT(self->map, i)) {\
-			CSTL_VECTOR_AT(self->map, i) = Name##_pop_ring(self);\
-			if (!CSTL_VECTOR_AT(self->map, i)) {\
-				return 0;\
-			}\
-		} else {\
-			CSTL_RING_CLEAR(CSTL_VECTOR_AT(self->map, i));\
+			return 0;\
 		}\
 	}\
 	return 1;\
@@ -238,44 +213,41 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 static int Name##_expand_end_side(Name *self, size_t n)\
 {\
 	size_t m;\
-	size_t s;\
+	size_t expand;\
 	register size_t i;\
-	m = CSTL_RING_MAX_SIZE(CSTL_VECTOR_AT(self->map, self->end - 1)) - \
+	m = CSTL_DEQUE_RINGBUF_SIZE(Type) - \
 		CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, self->end - 1));\
 	if (n <= m) {\
 		return 1;\
 	}\
-	s = 1 + (n - m - 1) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
-	if (CSTL_VECTOR_SIZE(self->map) - self->end < s) {\
+	expand = 1 + (n - m - 1) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
+	if (CSTL_VECTOR_SIZE(self->map) - self->end < expand) {\
 		size_t b, e;\
-		b = Name##_map_idx_begin_side(self);\
-		e = Name##_map_idx_end_side(self);\
-		if (CSTL_VECTOR_SIZE(self->map) - self->end + b < s) {\
-			size_t j = (CSTL_VECTOR_SIZE(self->map) > s) ? CSTL_VECTOR_SIZE(self->map) : s;\
+		b = self->begin;\
+		e = self->end;\
+		if (CSTL_VECTOR_SIZE(self->map) - self->end + b < expand) {\
+			size_t j = (CSTL_VECTOR_SIZE(self->map) > expand) ? CSTL_VECTOR_SIZE(self->map) : expand;\
 			/* mapを拡張する */\
 			if (!Name##__RingVector_resize(self->map, self->end + j, 0)) {\
 				return 0;\
 			}\
 		} else {\
 			/* mapをずらす */\
-			size_t d = s - (CSTL_VECTOR_SIZE(self->map) - self->end);\
-			assert(b >= d && "Deque_expand_end_side");\
-			Name##__RingVector_move_backward(self->map, b, e, d);\
-			self->begin -= d;\
-			self->end -= d;\
-			for (i = e - d; i < e; i++) {\
+			size_t slide = ((expand - (CSTL_VECTOR_SIZE(self->map) - self->end)) + b) / 2;\
+			assert(b >= slide && "Deque_expand_end_side");\
+			Name##__RingVector_move_backward(self->map, b, e, slide);\
+			self->begin -= slide;\
+			self->end -= slide;\
+			for (i = e - slide; i < e; i++) {\
 				CSTL_VECTOR_AT(self->map, i) = 0;\
 			}\
 		}\
 	}\
-	for (i = self->end; i < self->end + s; i++) {\
+	for (i = self->end; i < self->end + expand; i++) {\
+		assert(!CSTL_VECTOR_AT(self->map, i) && "Deque_expand_end_side");\
+		CSTL_VECTOR_AT(self->map, i) = Name##_pop_ring(self);\
 		if (!CSTL_VECTOR_AT(self->map, i)) {\
-			CSTL_VECTOR_AT(self->map, i) = Name##_pop_ring(self);\
-			if (!CSTL_VECTOR_AT(self->map, i)) {\
-				return 0;\
-			}\
-		} else {\
-			CSTL_RING_CLEAR(CSTL_VECTOR_AT(self->map, i));\
+			return 0;\
 		}\
 	}\
 	return 1;\
