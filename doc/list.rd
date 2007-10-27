@@ -120,7 +120,7 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
   * posがselfの有効なイテレータであること。
 <<< br
 
-  int List_insert_array(List *self, ListIterator pos, T *elems, size_t n);
+  int List_insert_array(List *self, ListIterator pos, const T *elems, size_t n);
 * selfのposが示す位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。

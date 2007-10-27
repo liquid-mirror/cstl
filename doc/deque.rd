@@ -83,7 +83,7 @@ CSTL_DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
   * idxがselfの現在の要素数以下の値であること。
 <<< br
 
-  int Deque_insert_array(Deque *self, size_t idx, T *elems, size_t n);
+  int Deque_insert_array(Deque *self, size_t idx, const T *elems, size_t n);
 * selfのidx番目の位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。

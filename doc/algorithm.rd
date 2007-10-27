@@ -13,17 +13,17 @@ CSTL_XXX_INTERFACEの引数のNameにContainer, TypeにTを指定した場合、
 ==== 関数
 以下の関数において、Container*型の引数はNULLでないことを事前条件に含める。
 
-また、int (*comp)(const T *p1, const T *p2)という関数ポインタには、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+また、int (*comp)(const void *p1, const void *p2)という関数ポインタには、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
 
 + ソート
-  void Container_sort(Container *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+  void Container_sort(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素を比較関数compに従ってソートする。
 * このソートは安定でない。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
 <<< br
 
-  void Container_stable_sort(Container *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+  void Container_stable_sort(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素を比較関数compに従ってソートする。
 * このソートは安定である。
 * 事前条件
@@ -31,7 +31,7 @@ CSTL_XXX_INTERFACEの引数のNameにContainer, TypeにTを指定した場合、
 <<< br
 
 + 二分探索
-  size_t Container_binary_search(Container *self, size_t idx, size_t n, T value, int (*comp)(const T *p1, const T *p2));
+  size_t Container_binary_search(Container *self, size_t idx, size_t n, T value, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素において、比較関数compに従ってvalueに一致する要素のインデックスを返す。
 * 一致する要素が複数ある場合、最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
@@ -40,7 +40,7 @@ CSTL_XXX_INTERFACEの引数のNameにContainer, TypeにTを指定した場合、
   * selfのidx番目からn個の要素が比較関数compに従ってソートされていること。
 <<< br
 
-  size_t Container_lower_bound(Container *self, size_t idx, size_t n, T value, int (*comp)(const T *p1, const T *p2));
+  size_t Container_lower_bound(Container *self, size_t idx, size_t n, T value, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素において、比較関数compに従ってvalue以上の最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
 * 事前条件
@@ -48,7 +48,7 @@ CSTL_XXX_INTERFACEの引数のNameにContainer, TypeにTを指定した場合、
   * selfのidx番目からn個の要素が比較関数compに従ってソートされていること。
 <<< br
 
-  size_t Container_upper_bound(Container *self, size_t idx, size_t n, T value, int (*comp)(const T *p1, const T *p2));
+  size_t Container_upper_bound(Container *self, size_t idx, size_t n, T value, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素において、比較関数compに従ってvalueより大きい最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
 * 事前条件
@@ -72,7 +72,7 @@ CSTL_XXX_INTERFACEの引数のNameにContainer, TypeにTを指定した場合、
 
 + マージ
   int Container_merge(Container *self, size_t idx, Container *x, size_t xidx, size_t xn, 
-                    Container *y, size_t yidx, size_t yn, int (*comp)(const T *p1, const T *p2));
+                    Container *y, size_t yidx, size_t yn, int (*comp)(const void *p1, const void *p2));
 * xのxidx番目からxn個の要素とyのyidx番目からyn個の要素のコピーを比較関数compに従ってマージし、selfのidx番目の位置に挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -87,7 +87,7 @@ CSTL_XXX_INTERFACEの引数のNameにContainer, TypeにTを指定した場合、
 <<< br
 
   void Container_inplace_merge(Container *self, size_t first, size_t middle, size_t last, 
-                              int (*comp)(const T *p1, const T *p2));
+                              int (*comp)(const void *p1, const void *p2));
 * selfの連続する2つの範囲first番目からmiddle - 1番目までとmiddle番目からlast - 1番目までの要素を比較関数compに従ってマージする。
 * selfのfirst番目からlast - 1番目までの要素はソートされた状態になる。
 * 事前条件
@@ -97,20 +97,20 @@ CSTL_XXX_INTERFACEの引数のNameにContainer, TypeにTを指定した場合、
 <<< br
 
 + ヒープ
-  void Container_make_heap(Container *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+  void Container_make_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素を比較関数compに従ってヒープに変換する。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
 <<< br
 
-  void Container_push_heap(Container *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+  void Container_push_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx + n - 1番目の要素を、selfのidx番目からn - 1個の範囲のヒープに追加して、idx番目からn個の要素を一つのヒープとして再構成する。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn - 1個の要素が比較関数compに従ってヒープになっていること。
 <<< br
 
-  void Container_pop_heap(Container *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+  void Container_pop_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の範囲のヒープから、ヒープの最初の要素とヒープの最後の要素を交換し、selfのidx番目からn - 1個の要素を一つのヒープとして再構成する。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
@@ -118,7 +118,7 @@ CSTL_XXX_INTERFACEの引数のNameにContainer, TypeにTを指定した場合、
   * nが1以上であること。
 <<< br
 
-  void Container_sort_heap(Container *self, size_t idx, size_t n, int (*comp)(const T *p1, const T *p2));
+  void Container_sort_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素を比較関数compに従ってソートする。
 * このソートは安定でない。
 * 事前条件
