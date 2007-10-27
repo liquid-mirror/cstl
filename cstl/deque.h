@@ -88,7 +88,7 @@ Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem);\
-int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
+int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n);\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
@@ -193,11 +193,11 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 			size_t slide = ((expand - self->begin) + (CSTL_VECTOR_SIZE(self->map) - e)) / 2;\
 			assert(e + slide <= CSTL_VECTOR_SIZE(self->map) && "Deque_expand_begin_side");\
 			Name##__RingVector_move_forward(self->map, b, e, slide);\
-			self->begin += slide;\
-			self->end += slide;\
 			for (i = b; i < b + slide; i++) {\
 				CSTL_VECTOR_AT(self->map, i) = 0;\
 			}\
+			self->begin += slide;\
+			self->end += slide;\
 		}\
 	}\
 	for (i = self->begin - expand; i < self->begin; i++) {\
@@ -236,11 +236,11 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 			size_t slide = ((expand - (CSTL_VECTOR_SIZE(self->map) - self->end)) + b) / 2;\
 			assert(b >= slide && "Deque_expand_end_side");\
 			Name##__RingVector_move_backward(self->map, b, e, slide);\
-			self->begin -= slide;\
-			self->end -= slide;\
 			for (i = e - slide; i < e; i++) {\
 				CSTL_VECTOR_AT(self->map, i) = 0;\
 			}\
+			self->begin -= slide;\
+			self->end -= slide;\
 		}\
 	}\
 	for (i = self->end; i < self->end + expand; i++) {\
@@ -502,7 +502,7 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 	assert(self && "Deque_insert");\
 	assert(self->magic == self && "Deque_insert");\
 	assert(Name##_size(self) >= idx && "Deque_insert");\
-	return Name##_insert_array(self, idx, &elem, 1);\
+	return Name##_insert_array(self, idx, (const Type *) &elem, 1);\
 }\
 \
 static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
@@ -542,7 +542,7 @@ int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
 	return 1;\
 }\
 \
-int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
+int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n)\
 {\
 	register size_t i;\
 	assert(self && "Deque_insert_array");\
@@ -553,7 +553,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 		return 0;\
 	}\
 	for (i = 0; i < n; i++) {\
-		*Name##_at(self, idx + i) = elems[i];\
+		*Name##_at(self, idx + i) = ((Type *) elems)[i];\
 	}\
 	return 1;\
 }\

@@ -105,7 +105,7 @@ Type *Name##_at(Name *self, size_t idx);\
 Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
-int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
+int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
 CSTL_RING_END_EXTERN_C()\
@@ -304,10 +304,10 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 	assert(self && "Ring_insert");\
 	assert(self->magic == self && "Ring_insert");\
 	assert(CSTL_RING_SIZE(self) >= idx && "Ring_insert");\
-	return Name##_insert_array(self, idx, &elem, 1);\
+	return Name##_insert_array(self, idx, (const Type *) &elem, 1);\
 }\
 \
-int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
+int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n)\
 {\
 	size_t i, j;\
 	size_t pos;\
@@ -328,7 +328,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 		pos = CSTL_RING_BACKWARD(self, pos, n);\
 	}\
 	for (i = pos, j = 0; j < n; i = CSTL_RING_NEXT(self, i), j++) {\
-		self->buf[i] = elems[j];\
+		self->buf[i] = ((Type *) elems)[j];\
 	}\
 	return 1;\
 }\

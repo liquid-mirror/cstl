@@ -94,7 +94,7 @@ Type Name##_front(Name *self);\
 Type Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem);\
-int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n);\
+int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n);\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 void Name##_swap(Name *self, Name *x);\
@@ -339,7 +339,7 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 	assert(self && "Vector_insert");\
 	assert(self->magic == self && "Vector_insert");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert");\
-	return Name##_insert_array(self, idx, &elem, 1);\
+	return Name##_insert_array(self, idx, (const Type *) &elem, 1);\
 }\
 \
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
@@ -357,7 +357,7 @@ int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
 	return 1;\
 }\
 \
-int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
+int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n)\
 {\
 	register size_t i;\
 	assert(self && "Vector_insert_array");\
@@ -368,7 +368,7 @@ int Name##_insert_array(Name *self, size_t idx, Type *elems, size_t n)\
 		return 0;\
 	}\
 	for (i = 0; i < n; i++) {\
-		self->buf[idx + i] = elems[i];\
+		self->buf[idx + i] = ((Type *) elems)[i];\
 	}\
 	return 1;\
 }\

@@ -95,15 +95,15 @@ Name##Iterator Name##_next(Name##Iterator pos);\
 Name##Iterator Name##_prev(Name##Iterator pos);\
 Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem);\
 int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type elem);\
-int Name##_insert_array(Name *self, Name##Iterator pos, Type *elems, size_t n);\
+int Name##_insert_array(Name *self, Name##Iterator pos, const Type *elems, size_t n);\
 int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Name##Iterator last);\
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 void Name##_swap(Name *self, Name *x);\
 void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last);\
-void Name##_sort(Name *self, int (*comp)(const Type *, const Type *));\
-void Name##_merge(Name *self, Name *x, int (*comp)(const Type *, const Type *));\
+void Name##_sort(Name *self, int (*comp)(const void *, const void *));\
+void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *));\
 void Name##_reverse(Name *self);\
 CSTL_LIST_END_EXTERN_C()\
 
@@ -349,7 +349,7 @@ int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type elem)\
 	return 1;\
 }\
 \
-int Name##_insert_array(Name *self, Name##Iterator pos, Type *elems, size_t n)\
+int Name##_insert_array(Name *self, Name##Iterator pos, const Type *elems, size_t n)\
 {\
 	Name *x;\
 	register size_t i;\
@@ -361,7 +361,7 @@ int Name##_insert_array(Name *self, Name##Iterator pos, Type *elems, size_t n)\
 	x = Name##_new();\
 	if (!x) return 0;\
 	for (i = 0; i < n; i++) {\
-		if (!Name##_push_back(x, elems[i])) {\
+		if (!Name##_push_back(x, ((Type *) elems)[i])) {\
 			Name##_delete(x);\
 			return 0;\
 		}\
@@ -508,7 +508,7 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 	x->nelems -= count;\
 }\
 \
-static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *last, int (*comp)(const Type *, const Type *))\
+static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *last, int (*comp)(const void *, const void *))\
 {\
 	Name##Node *head;\
 	register Name##Node *p;\
@@ -538,7 +538,7 @@ static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *l
 	return head->next;\
 }\
 \
-static Name##Node *Name##_merge_sort(Name##Node *first, Name##Node *last, int (*comp)(const Type *, const Type *))\
+static Name##Node *Name##_merge_sort(Name##Node *first, Name##Node *last, int (*comp)(const void *, const void *))\
 {\
 	register Name##Node *x;\
 	register Name##Node *y;\
@@ -559,7 +559,7 @@ static Name##Node *Name##_merge_sort(Name##Node *first, Name##Node *last, int (*
 	return Name##_merge_list(Name##_merge_sort(first, last, comp), Name##_merge_sort(x, last, comp), last, comp);\
 }\
 \
-void Name##_sort(Name *self, int (*comp)(const Type *, const Type *))\
+void Name##_sort(Name *self, int (*comp)(const void *, const void *))\
 {\
 	assert(self && "List_sort");\
 	assert(self->magic == self && "List_sort");\
@@ -567,7 +567,7 @@ void Name##_sort(Name *self, int (*comp)(const Type *, const Type *))\
 	Name##_merge_sort(CSTL_LIST_BEGIN(self), CSTL_LIST_END(self), comp);\
 }\
 \
-void Name##_merge(Name *self, Name *x, int (*comp)(const Type *, const Type *))\
+void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *))\
 {\
 	Name##Node *p;\
 	Name##Node *q;\
