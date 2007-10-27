@@ -206,7 +206,7 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 <<< br
 
 + ソート
-  void List_sort(List *self, int (*comp)(const T *p1, const T *p2));
+  void List_sort(List *self, int (*comp)(const void *p1, const void *p2));
 * selfのすべての要素を比較関数compに従ってソートする。
 * compには、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定する。
 * このソートは安定である。
@@ -218,7 +218,7 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 <<< br
 
 + マージ
-  void List_merge(List *self, List *x, int (*comp)(const T *p1, const T *p2));
+  void List_merge(List *self, List *x, int (*comp)(const void *p1, const void *p2));
 * ソートされた状態であるselfとxにおいて、xのすべての要素を比較関数compに従ってselfにマージする。
 * selfはソートされた状態になり、xは空になる。
 * compには、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定する。
