@@ -12,23 +12,28 @@ Heap heap;
 #endif
 
 
+#include "hoge.h"
 
 /* list */
-typedef struct Hoge_t {
-	char *key;
-	int value;
-} Hoge;
+/*typedef struct Hoge_t {*/
+/*    char *key;*/
+/*    int value;*/
+/*} Hoge;*/
 
-CSTL_LIST_INTERFACE(UCharList, unsigned char)
-CSTL_LIST_INTERFACE(IntList, int)
-CSTL_LIST_INTERFACE(StrList, char *)
-CSTL_LIST_INTERFACE(HogeList, Hoge)
+#include "UCharList.h"
+/*CSTL_LIST_INTERFACE(UCharList, unsigned char)*/
+#include "IntList.h"
+/*CSTL_LIST_INTERFACE(IntList, int)*/
+#include "StrList.h"
+/*CSTL_LIST_INTERFACE(StrList, char *)*/
+#include "HogeList.h"
+/*CSTL_LIST_INTERFACE(HogeList, Hoge)*/
 
 
-CSTL_LIST_IMPLEMENT(UCharList, unsigned char)
-CSTL_LIST_IMPLEMENT(IntList, int)
-CSTL_LIST_IMPLEMENT(StrList, char *)
-CSTL_LIST_IMPLEMENT(HogeList, Hoge)
+/*CSTL_LIST_IMPLEMENT(UCharList, unsigned char)*/
+/*CSTL_LIST_IMPLEMENT(IntList, int)*/
+/*CSTL_LIST_IMPLEMENT(StrList, char *)*/
+/*CSTL_LIST_IMPLEMENT(HogeList, Hoge)*/
 
 
 static HogeList *hl;

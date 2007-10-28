@@ -1,9 +1,9 @@
 #!/bin/sh
 usage()
 {
-	echo -e "Usage: codegen.sh {vector | deque | list | string} name type [algo] [path]"
-	echo -e "  or:  codegen.sh {set | multiset} name type comp [debug1] [path]"
-	echo -e "  or:  codegen.sh {map | multimap} name keytype valuetype comp [debug1] [debug2] [path]"
+	echo -e "Usage: codegen.sh {vector | deque | list | string} name type [algo] [include] [path]"
+	echo -e "  or:  codegen.sh {set | multiset} name type comp [include] [debug1] [path]"
+	echo -e "  or:  codegen.sh {map | multimap} name keytype valuetype comp [include] [debug1] [debug2] [path]"
 }
 
 container=$1
@@ -14,8 +14,9 @@ case $container in
 	name=$2
 	type=$3
 	algo=$4
-	path=$5
-	heap=$6
+	include_file=$5
+	path=$6
+	heap=$7
 	;;
 "deque")
 	lower="deque"
@@ -23,8 +24,9 @@ case $container in
 	name=$2
 	type=$3
 	algo=$4
-	path=$5
-	heap=$6
+	include_file=$5
+	path=$6
+	heap=$7
 	;;
 "ring")
 	lower="ring"
@@ -32,8 +34,9 @@ case $container in
 	name=$2
 	type=$3
 	algo=$4
-	path=$5
-	heap=$6
+	include_file=$5
+	path=$6
+	heap=$7
 	;;
 "list")
 	lower="list"
@@ -41,8 +44,9 @@ case $container in
 	name=$2
 	type=$3
 	algo=$4
-	path=$5
-	heap=$6
+	include_file=$5
+	path=$6
+	heap=$7
 	;;
 "string")
 	lower="string"
@@ -50,8 +54,9 @@ case $container in
 	name=$2
 	type=$3
 	algo=$4
-	path=$5
-	heap=$6
+	include_file=$5
+	path=$6
+	heap=$7
 	;;
 "set")
 	lower="set"
@@ -59,9 +64,10 @@ case $container in
 	name=$2
 	type=$3
 	comp=$4
-	debug1=$5
-	path=$6
-	heap=$7
+	include_file=$5
+	debug1=$6
+	path=$7
+	heap=$8
 	;;
 "multiset")
 	lower="set"
@@ -69,9 +75,10 @@ case $container in
 	name=$2
 	type=$3
 	comp=$4
-	debug1=$5
-	path=$6
-	heap=$7
+	include_file=$5
+	debug1=$6
+	path=$7
+	heap=$8
 	;;
 "map")
 	lower="map"
@@ -80,9 +87,11 @@ case $container in
 	type=$3
 	value=$4
 	comp=$5
-	debug1=$6
-	debug2=$7
-	path=$8
+	include_file=$6
+	debug1=$7
+	debug2=$8
+	path=$9
+	shift
 	heap=$9
 	;;
 "multimap")
@@ -92,9 +101,11 @@ case $container in
 	type=$3
 	value=$4
 	comp=$5
-	debug1=$6
-	debug2=$7
-	path=$8
+	include_file=$6
+	debug1=$7
+	debug2=$8
+	path=$9
+	shift
 	heap=$9
 	;;
 *)
@@ -113,6 +124,9 @@ else
 fi
 if [ "$algo" = "" -o "$algo" = "no" ]; then
 	algo="false"
+fi
+if [ "$include_file" = "false" -o "$include_file" = "no" ]; then
+	include_file=""
 fi
 
 
@@ -222,7 +236,12 @@ elif [ $lower = "set" -o $lower = "multiset" -o\
 fi
 echo -e " */" >> "$path"".h"
 echo -e "#ifndef $included\n#define $included\n" >> "$path"".h"
-echo -e "#include <stddef.h>\n" >> "$path"".h"
+echo -e "#include <stddef.h>" >> "$path"".h"
+if [ "$include_file" != "" ]; then
+	echo -e "#include \"$include_file\"\n" >> "$path"".h"
+else
+	echo -e "" >> "$path"".h"
+fi
 if [ $lower = "string" ]; then
 	echo -e "#define CSTL_NPOS	((size_t)-1)\n" >> "$path"".h"
 fi

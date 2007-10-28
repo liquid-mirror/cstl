@@ -20,22 +20,24 @@ CSTL_RING_IMPLEMENT(IntRing, int)
 
 
 /* map */
-CSTL_MAP_INTERFACE(IntIntMapA, int, int)
-CSTL_MAP_DEBUG_INTERFACE(IntIntMapA)
+#include "IntIntMapA.h"
+/*CSTL_MAP_INTERFACE(IntIntMapA, int, int)*/
+/*CSTL_MAP_DEBUG_INTERFACE(IntIntMapA)*/
 
-CSTL_MULTIMAP_INTERFACE(IntIntMMapA, int, int)
-CSTL_MAP_DEBUG_INTERFACE(IntIntMMapA)
+#include "IntIntMMapA.h"
+/*CSTL_MULTIMAP_INTERFACE(IntIntMMapA, int, int)*/
+/*CSTL_MAP_DEBUG_INTERFACE(IntIntMMapA)*/
 
 
 
 
 /* int */
-CSTL_MAP_IMPLEMENT(IntIntMapA, int, int, CSTL_LESS)
-CSTL_MAP_DEBUG_IMPLEMENT(IntIntMapA, int, int, CSTL_LESS, %d, %d, VISUAL)
+/*CSTL_MAP_IMPLEMENT(IntIntMapA, int, int, CSTL_LESS)*/
+/*CSTL_MAP_DEBUG_IMPLEMENT(IntIntMapA, int, int, CSTL_LESS, %d, %d, VISUAL)*/
 static IntIntMapA *ia;
 
-CSTL_MULTIMAP_IMPLEMENT(IntIntMMapA, int, int, CSTL_LESS)
-CSTL_MAP_DEBUG_IMPLEMENT(IntIntMMapA, int, int, CSTL_LESS, %d, %d, VISUAL)
+/*CSTL_MULTIMAP_IMPLEMENT(IntIntMMapA, int, int, CSTL_LESS)*/
+/*CSTL_MAP_DEBUG_IMPLEMENT(IntIntMMapA, int, int, CSTL_LESS, %d, %d, VISUAL)*/
 static IntIntMMapA *ima;
 
 

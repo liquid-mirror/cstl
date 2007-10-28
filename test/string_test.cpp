@@ -14,8 +14,9 @@ Heap heap;
 #define free(p)			Heap_free(&heap, p)
 #endif
 
-CSTL_STRING_INTERFACE(String, char)
-CSTL_STRING_IMPLEMENT(String, char)
+#include "String.h"
+//CSTL_STRING_INTERFACE(String, char)
+//CSTL_STRING_IMPLEMENT(String, char)
 
 #define SIZE	16
 

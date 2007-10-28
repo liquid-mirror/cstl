@@ -15,11 +15,13 @@ Heap heap;
 
 
 /* deque */
-CSTL_DEQUE_INTERFACE(UCharDeque, unsigned char)
-CSTL_DEQUE_INTERFACE(IntDeque, int)
+#include "UCharDeque.h"
+/*CSTL_DEQUE_INTERFACE(UCharDeque, unsigned char)*/
+#include "IntDeque.h"
+/*CSTL_DEQUE_INTERFACE(IntDeque, int)*/
 
-CSTL_DEQUE_IMPLEMENT(UCharDeque, unsigned char)
-CSTL_DEQUE_IMPLEMENT(IntDeque, int)
+/*CSTL_DEQUE_IMPLEMENT(UCharDeque, unsigned char)*/
+/*CSTL_DEQUE_IMPLEMENT(IntDeque, int)*/
 
 static UCharDeque *ud;
 static IntDeque *id;

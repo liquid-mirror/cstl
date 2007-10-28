@@ -12,12 +12,14 @@ Heap heap;
 #endif
 
 /* vector */
-CSTL_VECTOR_INTERFACE(UCharVector, unsigned char)
-CSTL_VECTOR_INTERFACE(IntVector, int)
+#include "UCharVector.h"
+/*CSTL_VECTOR_INTERFACE(UCharVector, unsigned char)*/
+#include "IntVector.h"
+/*CSTL_VECTOR_INTERFACE(IntVector, int)*/
 
 
-CSTL_VECTOR_IMPLEMENT(UCharVector, unsigned char)
-CSTL_VECTOR_IMPLEMENT(IntVector, int)
+/*CSTL_VECTOR_IMPLEMENT(UCharVector, unsigned char)*/
+/*CSTL_VECTOR_IMPLEMENT(IntVector, int)*/
 
 static UCharVector *uv;
 static IntVector *iv;
