@@ -2,8 +2,8 @@
 usage()
 {
 	echo -e "Usage: codegen.sh {vector | deque | list | string} name type [algo] [path]"
-	echo -e "  or:  codegen.sh {set | multiset} name type comp [path]"
-	echo -e "  or:  codegen.sh {map | multimap} name keytype valuetype comp [path]"
+	echo -e "  or:  codegen.sh {set | multiset} name type comp [debug1] [path]"
+	echo -e "  or:  codegen.sh {map | multimap} name keytype valuetype comp [debug1] [debug2] [path]"
 }
 
 container=$1
@@ -59,8 +59,9 @@ case $container in
 	name=$2
 	type=$3
 	comp=$4
-	path=$5
-	heap=$6
+	debug1=$5
+	path=$6
+	heap=$7
 	;;
 "multiset")
 	lower="set"
@@ -68,8 +69,9 @@ case $container in
 	name=$2
 	type=$3
 	comp=$4
-	path=$5
-	heap=$6
+	debug1=$5
+	path=$6
+	heap=$7
 	;;
 "map")
 	lower="map"
@@ -78,8 +80,10 @@ case $container in
 	type=$3
 	value=$4
 	comp=$5
-	path=$6
-	heap=$7
+	debug1=$6
+	debug2=$7
+	path=$8
+	heap=$9
 	;;
 "multimap")
 	lower="map"
@@ -88,8 +92,10 @@ case $container in
 	type=$3
 	value=$4
 	comp=$5
-	path=$6
-	heap=$7
+	debug1=$6
+	debug2=$7
+	path=$8
+	heap=$9
 	;;
 *)
 	usage
@@ -112,6 +118,7 @@ fi
 
 hdr="\
 #include \"../cstl/${lower}.h\"
+#include \"./rbtree_debug.h\"
 #undef CSTL_VECTOR_MAGIC
 #define CSTL_VECTOR_MAGIC(x) CSTL_VECTOR_MAGIC(x)
 #undef CSTL_RING_MAGIC
@@ -132,9 +139,17 @@ if [ $container = "map" -o $container = "multimap" ]; then
 else
 	hdr=${hdr}"CSTL_${upper}_INTERFACE($name, $type)"
 fi
+if [ "$debug1" != "" ]; then
+	format=`echo "$debug1" | grep '%[#+-]*[0-9]*[dioxXucsfeEgGp]'`
+	if [ "$debug1" == "$format" ]; then
+		rbdebug=`echo "$lower" | tr "[:lower:]" "[:upper:]"`
+		hdr=${hdr}"CSTL_${rbdebug}_DEBUG_INTERFACE($name)"
+	fi
+fi
 
 src="\
 #include \"../cstl/${lower}.h\"
+#include \"./rbtree_debug.h\"
 #undef assert
 #define assert(x) assert(x)
 #undef CSTL_VECTOR_MAGIC
@@ -161,12 +176,21 @@ elif [ $container = "map" -o $container = "multimap" ]; then
 else
 	src=${src}"CSTL_${upper}_IMPLEMENT($name, $type)"
 fi
+if [ "$rbdebug" != "" ]; then
+	format=`echo "$debug2" | grep '%[#+-]*[0-9]*[dioxXucsfeEgGp]'`
+	if [ "$debug2" != "" -a "$debug2" == "$format" ]; then
+		src=${src}"CSTL_${rbdebug}_DEBUG_IMPLEMENT($name, $type, $value, $comp, $debug1, $debug2, 1)"
+	else
+		src=${src}"CSTL_${rbdebug}_DEBUG_IMPLEMENT($name, $type, $comp, $debug1, 1)"
+	fi
+fi
 
 rev=`grep '$Id' "../cstl/${lower}.h"`
 vectorrev=`grep '$Id' "../cstl/vector.h"`
 ringrev=`grep '$Id' "../cstl/ring.h"`
 algorev=`grep '$Id' "../cstl/algorithm.h"`
 rbtreerev=`grep '$Id' "../cstl/rbtree.h"`
+rbdebugrev=`grep '$Id' "./rbtree_debug.h"`
 
 # ヘッダファイル生成
 included=`echo "$name""_H_INCLUDED" | tr "[:lower:]" "[:upper:]"`
@@ -192,6 +216,9 @@ elif [ $lower = "string" ]; then
 elif [ $lower = "set" -o $lower = "multiset" -o\
 	   $lower = "map" -o $lower = "multimap" ]; then
 	echo -e "${rbtreerev}" >> "$path"".h"
+	if [ "$rbdebug" != "" ]; then
+		echo -e "${rbdebugrev}" >> "$path"".h"
+	fi
 fi
 echo -e " */" >> "$path"".h"
 echo -e "#ifndef $included\n#define $included\n" >> "$path"".h"
@@ -234,11 +261,17 @@ elif [ $lower = "string" ]; then
 elif [ $lower = "set" -o $lower = "multiset" -o\
 	   $lower = "map" -o $lower = "multimap" ]; then
 	echo -e "${rbtreerev}" >> "$path"".c"
+	if [ "$rbdebug" != "" ]; then
+		echo -e "${rbdebugrev}" >> "$path"".c"
+	fi
 fi
 echo -e " */" >> "$path"".c"
 echo -e "#include <stdlib.h>" >> "$path"".c"
 if [ "$comp" = "strcmp" ]; then
 	echo -e "#include <string.h>" >> "$path"".c"
+fi
+if [ "$rbdebug" != "" ]; then
+	echo -e "#include <stdio.h>" >> "$path"".c"
 fi
 echo -e "#include <assert.h>" >> "$path"".c"
 echo -e "#include \"$name.h\"\n" >> "$path"".c"
