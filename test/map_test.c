@@ -1,6 +1,33 @@
-#include "test.h"
-
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
 #include <time.h>
+#include "../cstl/ring.h"
+#include "../cstl/map.h"
+#include "rbtree_debug.h"
+#include "heap.h"
+#ifdef MY_MALLOC
+double buf[1024*1024/sizeof(double)];
+Heap heap;
+#define malloc(s)		Heap_alloc(&heap, s)
+#define realloc(p, s)	Heap_realloc(&heap, p, s)
+#define free(p)			Heap_free(&heap, p)
+#endif
+
+/* ring */
+CSTL_RING_INTERFACE(IntRing, int)
+CSTL_RING_IMPLEMENT(IntRing, int)
+
+
+/* map */
+CSTL_MAP_INTERFACE(IntIntMapA, int, int)
+CSTL_MAP_DEBUG_INTERFACE(IntIntMapA)
+
+CSTL_MULTIMAP_INTERFACE(IntIntMMapA, int, int)
+CSTL_MAP_DEBUG_INTERFACE(IntIntMMapA)
+
+
+
 
 /* int */
 CSTL_MAP_IMPLEMENT(IntIntMapA, int, int, CSTL_LESS)
@@ -357,3 +384,15 @@ void MapTest_run(void)
 	MapTest_test_1_2();
 }
 
+
+int main(void)
+{
+#ifdef MY_MALLOC
+	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+#endif
+	MapTest_run();
+#ifdef MY_MALLOC
+	HEAP_DUMP_LEAK(&heap, 0);
+#endif
+	return 0;
+}

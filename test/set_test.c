@@ -1,7 +1,50 @@
-#include "test.h"
-
+#include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include <time.h>
+#include "../cstl/ring.h"
+#include "../cstl/set.h"
+#include "rbtree_debug.h"
+#include "heap.h"
+#ifdef MY_MALLOC
+double buf[1024*1024/sizeof(double)];
+Heap heap;
+#define malloc(s)		Heap_alloc(&heap, s)
+#define realloc(p, s)	Heap_realloc(&heap, p, s)
+#define free(p)			Heap_free(&heap, p)
+#endif
+
+
+/* ring */
+CSTL_RING_INTERFACE(IntRing, int)
+CSTL_RING_IMPLEMENT(IntRing, int)
+
+
+
+/* set */
+CSTL_SET_INTERFACE(IntSetA, int)
+CSTL_SET_DEBUG_INTERFACE(IntSetA)
+
+CSTL_SET_INTERFACE(IntSetD, int)
+CSTL_SET_DEBUG_INTERFACE(IntSetD)
+
+CSTL_MULTISET_INTERFACE(IntMSetA, int)
+CSTL_SET_DEBUG_INTERFACE(IntMSetA)
+
+CSTL_SET_INTERFACE(DoubleSetA, double)
+CSTL_SET_DEBUG_INTERFACE(DoubleSetA)
+
+CSTL_SET_INTERFACE(PtrSetA, int*)
+CSTL_SET_DEBUG_INTERFACE(PtrSetA)
+
+CSTL_SET_INTERFACE(StrSetA, char*)
+CSTL_SET_DEBUG_INTERFACE(StrSetA)
+
+CSTL_SET_INTERFACE(UIntSetA, unsigned int)
+CSTL_SET_DEBUG_INTERFACE(UIntSetA)
+
+
+
 
 /* int */
 CSTL_SET_IMPLEMENT(IntSetA, int, CSTL_LESS)
@@ -953,3 +996,15 @@ void SetTest_run(void)
 
 }
 
+
+int main(void)
+{
+#ifdef MY_MALLOC
+	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+#endif
+	SetTest_run();
+#ifdef MY_MALLOC
+	HEAP_DUMP_LEAK(&heap, 0);
+#endif
+	return 0;
+}

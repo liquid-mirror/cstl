@@ -1,4 +1,19 @@
-#include "test.h"
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include "../cstl/vector.h"
+#include "heap.h"
+#ifdef MY_MALLOC
+double buf[1024*1024/sizeof(double)];
+Heap heap;
+#define malloc(s)		Heap_alloc(&heap, s)
+#define realloc(p, s)	Heap_realloc(&heap, p, s)
+#define free(p)			Heap_free(&heap, p)
+#endif
+
+/* vector */
+CSTL_VECTOR_INTERFACE(UCharVector, unsigned char)
+CSTL_VECTOR_INTERFACE(IntVector, int)
 
 
 CSTL_VECTOR_IMPLEMENT(UCharVector, unsigned char)
@@ -653,3 +668,15 @@ void VectorTest_run(void)
 	VectorTest_test_2_5();
 }
 
+
+int main(void)
+{
+#ifdef MY_MALLOC
+	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+#endif
+	VectorTest_run();
+#ifdef MY_MALLOC
+	HEAP_DUMP_LEAK(&heap, 0);
+#endif
+	return 0;
+}

@@ -1,5 +1,23 @@
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
 #include <limits.h>
-#include "test.h"
+#include "../cstl/deque.h"
+#include "heap.h"
+#ifdef MY_MALLOC
+double buf[1024*1024/sizeof(double)];
+Heap heap;
+#define malloc(s)		Heap_alloc(&heap, s)
+#define realloc(p, s)	Heap_realloc(&heap, p, s)
+#define free(p)			Heap_free(&heap, p)
+#endif
+
+
+
+/* deque */
+CSTL_DEQUE_INTERFACE(UCharDeque, unsigned char)
+CSTL_DEQUE_INTERFACE(IntDeque, int)
+
 CSTL_DEQUE_IMPLEMENT(UCharDeque, unsigned char)
 CSTL_DEQUE_IMPLEMENT(IntDeque, int)
 
@@ -934,3 +952,15 @@ void DequeTest_run(void)
 	DequeTest_test_2_5();
 }
 
+
+int main(void)
+{
+#ifdef MY_MALLOC
+	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+#endif
+	DequeTest_run();
+#ifdef MY_MALLOC
+	HEAP_DUMP_LEAK(&heap, 0);
+#endif
+	return 0;
+}

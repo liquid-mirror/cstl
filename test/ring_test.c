@@ -1,4 +1,20 @@
-#include "test.h"
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include "../cstl/ring.h"
+#include "heap.h"
+#ifdef MY_MALLOC
+double buf[1024*1024/sizeof(double)];
+Heap heap;
+#define malloc(s)		Heap_alloc(&heap, s)
+#define realloc(p, s)	Heap_realloc(&heap, p, s)
+#define free(p)			Heap_free(&heap, p)
+#endif
+
+
+/* ring */
+CSTL_RING_INTERFACE(UCharRing, unsigned char)
+CSTL_RING_INTERFACE(IntRing, int)
 
 
 
@@ -919,3 +935,15 @@ void RingTest_run(void)
 	RingTest_test_2_5();
 }
 
+
+int main(void)
+{
+#ifdef MY_MALLOC
+	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+#endif
+	RingTest_run();
+#ifdef MY_MALLOC
+	HEAP_DUMP_LEAK(&heap, 0);
+#endif
+	return 0;
+}

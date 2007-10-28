@@ -7,7 +7,8 @@
 
 #include "heap.h"
 #ifdef MY_MALLOC
-extern Heap heap;
+double buf[1024*1024/sizeof(double)];
+Heap heap;
 #define malloc(s)		Heap_alloc(&heap, s)
 #define realloc(p, s)	Heap_realloc(&heap, p, s)
 #define free(p)			Heap_free(&heap, p)
@@ -304,11 +305,11 @@ void StringTest_test_1_3(void)
 	String_delete(x);
 }
 
-int cmp(const char *x, const char *y)
+int cmp(const void *x, const void *y)
 {
-	if (*x < *y) {
+	if (*(char*)x < *(char*)y) {
 		return -1;
-	} else if (*x > *y) {
+	} else if (*(char*)x > *(char*)y) {
 		return 1;
 	} else {
 		return 0;
@@ -441,7 +442,7 @@ void print_find_test(const char *cstr, string &t, size_t i, size_t j, size_t k, 
 	}
 }
 
-void find_test(String *x, const string &s, size_t i, size_t j, size_t k, char *cstr)
+void find_test(String *x, const string &s, size_t i, size_t j, size_t k, const char *cstr)
 {
 	string t;
 	size_t idx1, idx2;
@@ -582,8 +583,6 @@ void StringTest_run(void)
 	StringTest_test_1_5();
 }
 
-double buf[1024*1024/sizeof(double)];
-Heap heap;
 
 int main(void)
 {

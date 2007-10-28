@@ -9,30 +9,32 @@ clean:
 heap.o: heap.c heap.h
 	$(CC) $(CFLAGS) -c heap.c
 
-vector_test.o: ../cstl/vector.h vector_test.c heap.o
-	$(CC) $(CFLAGS) -c vector_test.c
-
-ring_test.o: ../cstl/ring.h ring_test.c heap.o
-	$(CC) $(CFLAGS) -c ring_test.c
-
-deque_test.o: ../cstl/deque.h ../cstl/vector.h ../cstl/ring.h deque_test.c heap.o
-	$(CC) $(CFLAGS) -c deque_test.c
-
-list_test.o: ../cstl/list.h list_test.c heap.o
-	$(CC) $(CFLAGS) -c list_test.c
-
-set_test.o: ../cstl/set.h ../cstl/rbtree.h set_test.c heap.o rbtree_debug.h
-	$(CC) $(CFLAGS) -c set_test.c
-
-map_test.o: ../cstl/map.h ../cstl/rbtree.h map_test.c heap.o rbtree_debug.h
-	$(CC) $(CFLAGS) -c map_test.c
-
-string_test.o: ../cstl/string.h ../cstl/vector.h string_test.cpp heap.o
-	g++ $(CFLAGS) -c string_test.cpp
-
-test: test.h main.c vector_test.o ring_test.o deque_test.o list_test.o set_test.o map_test.o string_test.o
-	$(CC) $(CFLAGS) -o $@.exe main.c heap.o vector_test.o ring_test.o deque_test.o list_test.o set_test.o map_test.o
+vector: ../cstl/vector.h vector_test.c heap.o
+	$(CC) $(CFLAGS) vector_test.c heap.o -o $@.exe
 	./$@.exe
-	g++ -o string_test.exe heap.o string_test.o
-	./string_test.exe
 
+ring: ../cstl/ring.h ring_test.c heap.o
+	$(CC) $(CFLAGS) ring_test.c heap.o -o $@.exe
+	./$@.exe
+
+deque: ../cstl/deque.h ../cstl/vector.h ../cstl/ring.h deque_test.c heap.o
+	$(CC) $(CFLAGS) deque_test.c heap.o -o $@.exe
+	./$@.exe
+
+list: ../cstl/list.h list_test.c heap.o
+	$(CC) $(CFLAGS) list_test.c heap.o -o $@.exe
+	./$@.exe
+
+set: ../cstl/set.h ../cstl/rbtree.h set_test.c heap.o rbtree_debug.h
+	$(CC) $(CFLAGS) set_test.c heap.o -o $@.exe
+	./$@.exe
+
+map: ../cstl/map.h ../cstl/rbtree.h map_test.c heap.o rbtree_debug.h
+	$(CC) $(CFLAGS) map_test.c heap.o -o $@.exe
+	./$@.exe
+
+string: ../cstl/string.h ../cstl/vector.h string_test.cpp heap.o
+	g++ $(CFLAGS) string_test.cpp heap.o -o $@.exe
+	./$@.exe
+
+test: vector ring deque list set map string

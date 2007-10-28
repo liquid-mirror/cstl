@@ -1,4 +1,28 @@
-#include "test.h"
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include "../cstl/list.h"
+#include "heap.h"
+#ifdef MY_MALLOC
+double buf[1024*1024/sizeof(double)];
+Heap heap;
+#define malloc(s)		Heap_alloc(&heap, s)
+#define realloc(p, s)	Heap_realloc(&heap, p, s)
+#define free(p)			Heap_free(&heap, p)
+#endif
+
+
+
+/* list */
+typedef struct Hoge_t {
+	char *key;
+	int value;
+} Hoge;
+
+CSTL_LIST_INTERFACE(UCharList, unsigned char)
+CSTL_LIST_INTERFACE(IntList, int)
+CSTL_LIST_INTERFACE(StrList, char *)
+CSTL_LIST_INTERFACE(HogeList, Hoge)
 
 
 CSTL_LIST_IMPLEMENT(UCharList, unsigned char)
@@ -313,7 +337,6 @@ void ListTest_test_2_1(void)
 	IntList *il = IntList_new();
 	IntList *x;
 	IntListIterator pos;
-	IntListIterator pos2;
 	int buf[32];
 	int i;
 	int b[] = {1, 2, 4, 43, 2, 54, 1, 0, 2, 24};
@@ -431,3 +454,15 @@ void ListTest_run(void)
 }
 
 
+
+int main(void)
+{
+#ifdef MY_MALLOC
+	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+#endif
+	ListTest_run();
+#ifdef MY_MALLOC
+	HEAP_DUMP_LEAK(&heap, 0);
+#endif
+	return 0;
+}
