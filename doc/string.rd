@@ -112,7 +112,7 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
 <<< br
 
 + 追加
-  int String_append(String *self, CharT *cstr, size_t cstr_len);
+  int String_append(String *self, const CharT *cstr, size_t cstr_len);
 * selfにcstrという文字の配列からcstr_len個の文字を追加する。
 * cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を追加する。ただしcstrは'\0'で終端していなければならない。
 * cstrはself内の文字列でもよい。
