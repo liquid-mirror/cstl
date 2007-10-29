@@ -20,20 +20,23 @@ Heap heap;
 /*    int value;*/
 /*} Hoge;*/
 
+#ifdef CODEGEN
 #include "UCharList.h"
-/*CSTL_LIST_INTERFACE(UCharList, unsigned char)*/
 #include "IntList.h"
-/*CSTL_LIST_INTERFACE(IntList, int)*/
 #include "StrList.h"
-/*CSTL_LIST_INTERFACE(StrList, char *)*/
 #include "HogeList.h"
-/*CSTL_LIST_INTERFACE(HogeList, Hoge)*/
+#else
 
+CSTL_LIST_INTERFACE(UCharList, unsigned char)
+CSTL_LIST_INTERFACE(IntList, int)
+CSTL_LIST_INTERFACE(StrList, char *)
+CSTL_LIST_INTERFACE(HogeList, Hoge)
 
-/*CSTL_LIST_IMPLEMENT(UCharList, unsigned char)*/
-/*CSTL_LIST_IMPLEMENT(IntList, int)*/
-/*CSTL_LIST_IMPLEMENT(StrList, char *)*/
-/*CSTL_LIST_IMPLEMENT(HogeList, Hoge)*/
+CSTL_LIST_IMPLEMENT(UCharList, unsigned char)
+CSTL_LIST_IMPLEMENT(IntList, int)
+CSTL_LIST_IMPLEMENT(StrList, char *)
+CSTL_LIST_IMPLEMENT(HogeList, Hoge)
+#endif
 
 
 static HogeList *hl;

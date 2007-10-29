@@ -13,15 +13,17 @@ Heap heap;
 
 
 /* ring */
+#ifdef CODEGEN
 #include "UCharRing.h"
-/*CSTL_RING_INTERFACE(UCharRing, unsigned char)*/
 #include "IntRing.h"
-/*CSTL_RING_INTERFACE(IntRing, int)*/
+#else
 
+CSTL_RING_INTERFACE(UCharRing, unsigned char)
+CSTL_RING_INTERFACE(IntRing, int)
 
-
-/*CSTL_RING_IMPLEMENT(UCharRing, unsigned char)*/
-/*CSTL_RING_IMPLEMENT(IntRing, int)*/
+CSTL_RING_IMPLEMENT(UCharRing, unsigned char)
+CSTL_RING_IMPLEMENT(IntRing, int)
+#endif
 
 static UCharRing *ur;
 static IntRing *ir;

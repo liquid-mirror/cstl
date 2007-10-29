@@ -351,7 +351,9 @@ enum {
 };\n" >> "$path"".c"
 fi
 echo "$src" | cpp -I.. | grep "$name" | indent -kr -ut -ts4 \
-| sed -e "s/$name \* /$name */g" | sed -e "s/^} /}\n\n/" >> "$path"".c"
+| sed -e "s/$name \* /$name */g" | sed -e 's/^} /}\
+\
+/' >> "$path"".c"
 
 # コンパイル確認
 gcc -Wall "$path"".c" -c

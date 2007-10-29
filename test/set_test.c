@@ -22,71 +22,72 @@ CSTL_RING_IMPLEMENT(IntRing, int)
 
 
 /* set */
+#ifdef CODEGEN
 #include "IntSetA.h"
-/*CSTL_SET_INTERFACE(IntSetA, int)*/
-/*CSTL_SET_DEBUG_INTERFACE(IntSetA)*/
-
 #include "IntSetD.h"
-/*CSTL_SET_INTERFACE(IntSetD, int)*/
-/*CSTL_SET_DEBUG_INTERFACE(IntSetD)*/
-
 #include "IntMSetA.h"
-/*CSTL_MULTISET_INTERFACE(IntMSetA, int)*/
-/*CSTL_SET_DEBUG_INTERFACE(IntMSetA)*/
-
 #include "DoubleSetA.h"
-/*CSTL_SET_INTERFACE(DoubleSetA, double)*/
-/*CSTL_SET_DEBUG_INTERFACE(DoubleSetA)*/
-
 #include "PtrSetA.h"
-/*CSTL_SET_INTERFACE(PtrSetA, int*)*/
-/*CSTL_SET_DEBUG_INTERFACE(PtrSetA)*/
-
 #include "StrSetA.h"
-/*CSTL_SET_INTERFACE(StrSetA, char*)*/
-/*CSTL_SET_DEBUG_INTERFACE(StrSetA)*/
-
 #include "UIntSetA.h"
-/*CSTL_SET_INTERFACE(UIntSetA, unsigned int)*/
-/*CSTL_SET_DEBUG_INTERFACE(UIntSetA)*/
+#else
 
+CSTL_SET_INTERFACE(IntSetA, int)
+CSTL_SET_DEBUG_INTERFACE(IntSetA)
 
+CSTL_SET_INTERFACE(IntSetD, int)
+CSTL_SET_DEBUG_INTERFACE(IntSetD)
 
+CSTL_MULTISET_INTERFACE(IntMSetA, int)
+CSTL_SET_DEBUG_INTERFACE(IntMSetA)
+
+CSTL_SET_INTERFACE(DoubleSetA, double)
+CSTL_SET_DEBUG_INTERFACE(DoubleSetA)
+
+CSTL_SET_INTERFACE(PtrSetA, int*)
+CSTL_SET_DEBUG_INTERFACE(PtrSetA)
+
+CSTL_SET_INTERFACE(StrSetA, char*)
+CSTL_SET_DEBUG_INTERFACE(StrSetA)
+
+CSTL_SET_INTERFACE(UIntSetA, unsigned int)
+CSTL_SET_DEBUG_INTERFACE(UIntSetA)
 
 /* int */
-/*CSTL_SET_IMPLEMENT(IntSetA, int, CSTL_LESS)*/
-/*CSTL_SET_DEBUG_IMPLEMENT(IntSetA, int, CSTL_LESS, %d, VISUAL)*/
-static IntSetA *ia;
+CSTL_SET_IMPLEMENT(IntSetA, int, CSTL_LESS)
+CSTL_SET_DEBUG_IMPLEMENT(IntSetA, int, CSTL_LESS, %d, VISUAL)
 
-/*CSTL_SET_IMPLEMENT(IntSetD, int, CSTL_GREATER)*/
-/*CSTL_SET_DEBUG_IMPLEMENT(IntSetD, int, CSTL_GREATER, %d, VISUAL)*/
-static IntSetD *id;
+CSTL_SET_IMPLEMENT(IntSetD, int, CSTL_GREATER)
+CSTL_SET_DEBUG_IMPLEMENT(IntSetD, int, CSTL_GREATER, %d, VISUAL)
 
-/*CSTL_MULTISET_IMPLEMENT(IntMSetA, int, CSTL_LESS)*/
-/*CSTL_SET_DEBUG_IMPLEMENT(IntMSetA, int, CSTL_LESS, %d, VISUAL)*/
-static IntMSetA *ima;
+CSTL_MULTISET_IMPLEMENT(IntMSetA, int, CSTL_LESS)
+CSTL_SET_DEBUG_IMPLEMENT(IntMSetA, int, CSTL_LESS, %d, VISUAL)
 
 
 /* double */
-/*CSTL_SET_IMPLEMENT(DoubleSetA, double, CSTL_LESS)*/
-/*CSTL_SET_DEBUG_IMPLEMENT(DoubleSetA, double, CSTL_LESS, %g, VISUAL)*/
-static DoubleSetA *da;
+CSTL_SET_IMPLEMENT(DoubleSetA, double, CSTL_LESS)
+CSTL_SET_DEBUG_IMPLEMENT(DoubleSetA, double, CSTL_LESS, %g, VISUAL)
 
 
 /* ptr */
-/*CSTL_SET_IMPLEMENT(PtrSetA, int*, CSTL_LESS)*/
-/*CSTL_SET_DEBUG_IMPLEMENT(PtrSetA, int*, CSTL_LESS, %p, VISUAL)*/
-static PtrSetA *pa;
+CSTL_SET_IMPLEMENT(PtrSetA, int*, CSTL_LESS)
+CSTL_SET_DEBUG_IMPLEMENT(PtrSetA, int*, CSTL_LESS, %p, VISUAL)
 
 
 /* str */
-/*CSTL_SET_IMPLEMENT(StrSetA, char*, strcmp)*/
-/*CSTL_SET_DEBUG_IMPLEMENT(StrSetA, char*, strcmp, %s, VISUAL)*/
-static StrSetA *sa;
+CSTL_SET_IMPLEMENT(StrSetA, char*, strcmp)
+CSTL_SET_DEBUG_IMPLEMENT(StrSetA, char*, strcmp, %s, VISUAL)
 
 /* unsigned int */
-/*CSTL_SET_IMPLEMENT(UIntSetA, unsigned int, CSTL_LESS)*/
-/*CSTL_SET_DEBUG_IMPLEMENT(UIntSetA, unsigned int, CSTL_LESS, %d, VISUAL)*/
+CSTL_SET_IMPLEMENT(UIntSetA, unsigned int, CSTL_LESS)
+CSTL_SET_DEBUG_IMPLEMENT(UIntSetA, unsigned int, CSTL_LESS, %d, VISUAL)
+#endif
+static IntSetA *ia;
+static IntSetD *id;
+static IntMSetA *ima;
+static DoubleSetA *da;
+static PtrSetA *pa;
+static StrSetA *sa;
 static UIntSetA *uia;
 
 

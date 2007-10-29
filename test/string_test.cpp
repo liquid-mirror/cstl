@@ -14,9 +14,12 @@ Heap heap;
 #define free(p)			Heap_free(&heap, p)
 #endif
 
+#ifdef CODEGEN
 #include "String.h"
-//CSTL_STRING_INTERFACE(String, char)
-//CSTL_STRING_IMPLEMENT(String, char)
+#else
+CSTL_STRING_INTERFACE(String, char)
+CSTL_STRING_IMPLEMENT(String, char)
+#endif
 
 #define SIZE	16
 
