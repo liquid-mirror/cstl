@@ -8,7 +8,7 @@ endif
 
 all: test
 clean:
-	rm -f *.exe *.o
+	rm -f *.exe *.o UChar* Int* UInt* Double* Ptr* Str* Hoge*
 
 heap.o: heap.c heap.h
 	$(CC) $(CFLAGS) -c heap.c
