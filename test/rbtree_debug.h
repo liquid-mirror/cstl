@@ -151,7 +151,9 @@ int Name##_verify(Name *self)\
 	Name##RBTree *tree = self->tree;\
 	if (Name##RBTree_empty(tree) || Name##RBTree_begin(tree) == Name##RBTree_end(tree)) {\
 		return Name##RBTree_empty(tree) && Name##RBTree_begin(tree) == Name##RBTree_end(tree) &&\
-			tree->left == &Name##RBTree_nil && tree->right == &Name##RBTree_nil && tree->parent == &Name##RBTree_nil;\
+			tree->left == (Name##RBTreeNode *) &Name##RBTree_nil &&\
+			tree->right == (Name##RBTreeNode *) &Name##RBTree_nil &&\
+			tree->parent == (Name##RBTreeNode *) &Name##RBTree_nil;\
 	}\
 	len = Name##RBTreeNode_black_count(Name##RBTree_begin(tree), Name##RBTree_get_root(tree));\
 	for (pos = Name##RBTree_begin(tree); pos != Name##RBTree_end(tree); pos = Name##RBTree_next(pos)) {\

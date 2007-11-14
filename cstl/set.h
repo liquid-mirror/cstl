@@ -67,9 +67,9 @@ static Name##RBTreeNode *Name##RBTreeNode_new(Type elem, int color)\
 	self = (Name##RBTreeNode *) malloc(sizeof(Name##RBTreeNode));\
 	if (!self) return 0;\
 	self->key = elem;\
-	self->left = &Name##RBTree_nil;\
-	self->right = &Name##RBTree_nil;\
-	self->parent = &Name##RBTree_nil;\
+	self->left = (Name##RBTreeNode *) &Name##RBTree_nil;\
+	self->right = (Name##RBTreeNode *) &Name##RBTree_nil;\
+	self->parent = (Name##RBTreeNode *) &Name##RBTree_nil;\
 	self->color = color;\
 	return self;\
 }\

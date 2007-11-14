@@ -60,14 +60,19 @@ enum {
 
 #define CSTL_RBTREE_NODE_IS_HEAD(self)		(self->color == CSTL_RBTREE_HEAD)
 #define CSTL_RBTREE_NODE_IS_ROOT(self)		CSTL_RBTREE_NODE_IS_HEAD(self->parent)
-#define CSTL_RBTREE_NODE_IS_NIL(self, Name)	(self == &Name##_nil)
+#define CSTL_RBTREE_NODE_IS_NIL(self, Name)	(self == (Name##Node *) &Name##_nil)
 
 
 #define CSTL_RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 typedef struct Name##RBTreeNode_t Name##RBTreeNode;\
 typedef struct Name##RBTreeNode_t *Name##RBTreeIterator;\
-static Name##RBTreeNode Name##RBTree_nil = {&Name##RBTree_nil, &Name##RBTree_nil, &Name##RBTree_nil, CSTL_RBTREE_BLACK};\
+static const Name##RBTreeNode Name##RBTree_nil = {\
+	(Name##RBTreeNode *) &Name##RBTree_nil, \
+	(Name##RBTreeNode *) &Name##RBTree_nil, \
+	(Name##RBTreeNode *) &Name##RBTree_nil, \
+	CSTL_RBTREE_BLACK\
+};\
 \
 static Name##RBTree *Name##RBTree_new(void);\
 static void Name##RBTree_delete(Name##RBTree *self);\
@@ -140,9 +145,9 @@ static Name##RBTree *Name##RBTree_new(void)\
 	Name##RBTree *self;\
 	self = (Name##RBTree *) malloc(sizeof(Name##RBTree));\
 	if (!self) return 0;\
-	self->left = &Name##RBTree_nil;\
-	self->right = &Name##RBTree_nil;\
-	self->parent = &Name##RBTree_nil;\
+	self->left = (Name##RBTreeNode *) &Name##RBTree_nil;\
+	self->right = (Name##RBTreeNode *) &Name##RBTree_nil;\
+	self->parent = (Name##RBTreeNode *) &Name##RBTree_nil;\
 	self->color = CSTL_RBTREE_HEAD;\
 	CSTL_RBTREE_MAGIC(self->magic = self);\
 	return self;\
@@ -165,9 +170,9 @@ static void Name##RBTree_clear(Name##RBTree *self)\
 			continue;\
 		}\
 		if (t == t->parent->left) {\
-			t->parent->left = &Name##RBTree_nil;\
+			t->parent->left = (Name##RBTreeNode *) &Name##RBTree_nil;\
 		} else {\
-			t->parent->right = &Name##RBTree_nil;\
+			t->parent->right = (Name##RBTreeNode *) &Name##RBTree_nil;\
 		}\
 		tmp = t->parent;\
 		CSTL_RBTREE_MAGIC(t->magic = 0);\
@@ -590,11 +595,11 @@ static void Name##RBTree_erase(Name##RBTree *self, Name##RBTreeIterator pos)\
 	if (CSTL_RBTREE_NODE_IS_NIL(n->left, Name##RBTree) && CSTL_RBTREE_NODE_IS_NIL(n->right, Name##RBTree)) {\
 		if (CSTL_RBTREE_NODE_IS_ROOT(n)) {\
 			/* 最後の一つを削除 */\
-			Name##RBTree_set_root(self, &Name##RBTree_nil);\
+			Name##RBTree_set_root(self, (Name##RBTreeNode *) &Name##RBTree_nil);\
 		} else {\
-			n = Name##RBTreeNode_replace_subtree(n, &Name##RBTree_nil);\
+			n = Name##RBTreeNode_replace_subtree(n, (Name##RBTreeNode *) &Name##RBTree_nil);\
 			if (n->color == CSTL_RBTREE_BLACK) {\
-				Name##RBTreeNode_balance_for_erase(&Name##RBTree_nil, n->parent);\
+				Name##RBTreeNode_balance_for_erase((Name##RBTreeNode *) &Name##RBTree_nil, n->parent);\
 			}\
 		}\
 		goto end;\
