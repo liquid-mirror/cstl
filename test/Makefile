@@ -47,7 +47,7 @@ list: ../cstl/list.h list_test.c heap.o
 ifneq ($(CODEGEN),)
 	sh codegen.sh list IntList "int" false false . $(HEAP)
 	sh codegen.sh list HogeList "Hoge" false hoge.h . $(HEAP)
-	$(CC) $(CFLAGS) -o $@.exe list_test.c heap.o UCharList.c IntList.c StrList.c HogeList.c $(CODEGEN)
+	$(CC) $(CFLAGS) -o $@.exe list_test.c heap.o IntList.c HogeList.c $(CODEGEN)
 else
 	$(CC) $(CFLAGS) -o $@.exe list_test.c heap.o
 endif
