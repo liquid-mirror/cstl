@@ -510,11 +510,10 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 \
 static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *last, int (*comp)(const void *, const void *))\
 {\
-	Name##Node *head;\
 	register Name##Node *p;\
-/*	assert(x->prev == y->prev);*/\
-	head = x->prev;\
-	p = head;\
+	register Name##Node *q;\
+/*	assert(x->prev == y->prev && x->prev == last);*/\
+	p = last;\
 	while (x != last && y != last) {\
 		if (comp(&CSTL_LIST_AT(x), &CSTL_LIST_AT(y)) <= 0) {\
 			p->next = x;\
@@ -531,11 +530,18 @@ static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *l
 	if (x == last) {\
 		p->next = y;\
 		y->prev = p;\
+		p = y;\
 	} else {\
 		p->next = x;\
 		x->prev = p;\
+		p = x;\
 	}\
-	return head->next;\
+	do {\
+		q = p;\
+		p = p->next;\
+	} while (p != last);\
+	last->prev = q;\
+	return last->next;\
 }\
 \
 static Name##Node *Name##_merge_sort(Name##Node *first, Name##Node *last, int (*comp)(const void *, const void *))\
