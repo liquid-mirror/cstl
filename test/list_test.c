@@ -2,6 +2,7 @@
 #include <string.h>
 #include <assert.h>
 #include "../cstl/list.h"
+#include "list_debug.h"
 #include "heap.h"
 #ifdef MY_MALLOC
 double buf[1024*1024/sizeof(double)];
@@ -23,13 +24,21 @@ Heap heap;
 #ifdef CODEGEN
 #include "IntList.h"
 #include "HogeList.h"
+CSTL_LIST_DEBUG_INTERFACE(IntList)
+CSTL_LIST_DEBUG_INTERFACE(HogeList)
+CSTL_LIST_DEBUG_IMPLEMENT(IntList)
+CSTL_LIST_DEBUG_IMPLEMENT(HogeList)
 #else
 
 CSTL_LIST_INTERFACE(IntList, int)
 CSTL_LIST_INTERFACE(HogeList, Hoge)
+CSTL_LIST_DEBUG_INTERFACE(IntList)
+CSTL_LIST_DEBUG_INTERFACE(HogeList)
 
 CSTL_LIST_IMPLEMENT(IntList, int)
 CSTL_LIST_IMPLEMENT(HogeList, Hoge)
+CSTL_LIST_DEBUG_IMPLEMENT(IntList)
+CSTL_LIST_DEBUG_IMPLEMENT(HogeList)
 #endif
 
 
@@ -75,7 +84,9 @@ void ListTest_test_1_1(void)
 	assert(HogeList_push_back(hl, hoge));
 	assert(HogeList_push_back(hl, hoge));
 	assert(HogeList_push_back(hl, hoge));
+	assert(HogeList_verify(hl));
 	HogeList_clear(hl);
+	assert(HogeList_verify(hl));
 	assert(HogeList_size(hl) == 0);
 	assert(HogeList_empty(hl));
 }
@@ -88,6 +99,7 @@ void ListTest_test_1_2(void)
 	/* push_back */
 	for (i = 0; i < NELEMS(hogetab); i++) {
 		assert(HogeList_push_back(hl, hogetab[i]));
+		assert(HogeList_verify(hl));
 	}
 	assert(HogeList_size(hl) == NELEMS(hogetab));
 	assert(!HogeList_empty(hl));
@@ -105,12 +117,14 @@ void ListTest_test_1_2(void)
 		hoge = HogeList_pop_front(hl);
 		assert(!strcmp(hoge.key, hogetab[i].key));
 		assert(hoge.value == hogetab[i].value);
+		assert(HogeList_verify(hl));
 	}
 	assert(HogeList_size(hl) == 0);
 	assert(HogeList_empty(hl));
 	/* push_front */
 	for (i = 0; i < NELEMS(hogetab); i++) {
 		assert(HogeList_push_front(hl, hogetab[i]));
+		assert(HogeList_verify(hl));
 	}
 	assert(HogeList_size(hl) == NELEMS(hogetab));
 	assert(!HogeList_empty(hl));
@@ -128,6 +142,7 @@ void ListTest_test_1_2(void)
 		hoge = HogeList_pop_back(hl);
 		assert(!strcmp(hoge.key, hogetab[i].key));
 		assert(hoge.value == hogetab[i].value);
+		assert(HogeList_verify(hl));
 	}
 	assert(HogeList_size(hl) == 0);
 	assert(HogeList_empty(hl));
@@ -206,11 +221,13 @@ void ListTest_test_1_5(void)
 	/* beginの位置にinsert */
 	for (i = 0; i < NELEMS(hogetab); i++) {
 		assert(HogeList_insert(hl, HogeList_begin(hl), hogetab[i]) == HogeList_begin(hl));
+		assert(HogeList_verify(hl));
 	}
 	HogeList_clear(hl);
 	/* endの位置にinsert */
 	for (i = 0; i < NELEMS(hogetab); i++) {
 		assert(HogeList_insert(hl, HogeList_end(hl), hogetab[i]) == HogeList_rbegin(hl));
+		assert(HogeList_verify(hl));
 	}
 	assert(HogeList_size(hl) == NELEMS(hogetab));
 	assert(!HogeList_empty(hl));
@@ -222,6 +239,7 @@ void ListTest_test_1_5(void)
 		if (i == NELEMS(hogetab)/2) {
 			hoge = hogetab[0];
 			assert(HogeList_insert(hl, pos, hoge) == HogeList_prev(pos));
+			assert(HogeList_verify(hl));
 			break;
 		}
 	}
@@ -260,6 +278,7 @@ void ListTest_test_1_6(void)
 		pos = HogeList_begin(hl);
 		assert(HogeList_next(pos) == HogeList_erase(hl, pos));
 		assert(HogeList_size(hl) == --size);
+		assert(HogeList_verify(hl));
 	}
 	assert(HogeList_size(hl) == 0);
 	assert(HogeList_empty(hl));
@@ -275,6 +294,7 @@ void ListTest_test_1_6(void)
 		pos = HogeList_rbegin(hl);
 		assert(HogeList_next(pos) == HogeList_erase(hl, pos));
 		assert(HogeList_size(hl) == --size);
+		assert(HogeList_verify(hl));
 	}
 	assert(HogeList_size(hl) == 0);
 	assert(HogeList_empty(hl));
@@ -291,6 +311,7 @@ void ListTest_test_1_6(void)
 		} else {
 			pos = HogeList_next(pos);
 		}
+		assert(HogeList_verify(hl));
 	}
 	assert(HogeList_size(hl) == NELEMS(hogetab)-1);
 	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos), i++) {
@@ -307,6 +328,7 @@ void ListTest_test_1_6(void)
 	assert(!HogeList_empty(hl));
 	assert(HogeList_end(hl) == HogeList_erase_range(hl, HogeList_begin(hl), HogeList_end(hl)));
 	assert(HogeList_empty(hl));
+	assert(HogeList_verify(hl));
 }
 
 void ListTest_test_1_7(void)
@@ -392,6 +414,7 @@ void ListTest_test_1_8(void)
 	/* sort less*/
 	printf("size[%d]\n", HogeList_size(hl));
 	HogeList_sort(hl, less);
+	assert(HogeList_verify(hl));
 	printf("size[%d]\n", HogeList_size(hl));
 	printf("after sort (less)\n");
 	pos = HogeList_end(hl);
@@ -404,6 +427,7 @@ void ListTest_test_1_8(void)
 	/* sort greater*/
 	printf("size[%d]\n", HogeList_size(hl));
 	HogeList_sort(hl, greater);
+	assert(HogeList_verify(hl));
 	printf("size[%d]\n", HogeList_size(hl));
 	printf("after sort (greater)\n");
 	pos = HogeList_end(hl);
@@ -415,6 +439,7 @@ void ListTest_test_1_8(void)
 	}
 	/* reverse */
 	HogeList_reverse(hl);
+	assert(HogeList_verify(hl));
 	printf("size[%d]\n", HogeList_size(hl));
 	printf("reverse\n");
 	pos = HogeList_end(hl);
@@ -456,6 +481,8 @@ void ListTest_test_1_8(void)
 
 	printf("after merge\n");
 	HogeList_merge(hl, x, less);
+	assert(HogeList_verify(hl));
+	assert(HogeList_verify(x));
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
 	printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
@@ -485,12 +512,14 @@ void ListTest_test_2_1(void)
 	assert(IntList_size(il) == 0);
 	IntList_clear(il);
 	assert(IntList_insert_array(il, IntList_begin(il), buf, 32));
+	assert(IntList_verify(il));
 	assert(IntList_size(il) == 32);
 	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
 		assert(*IntList_at(pos) == i);
 	}
 	/* resize */
 	assert(IntList_resize(il, 64, 100));
+	assert(IntList_verify(il));
 	assert(IntList_size(il) == 64);
 	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
 		if (i < 32) {
@@ -500,11 +529,13 @@ void ListTest_test_2_1(void)
 		}
 	}
 	assert(IntList_resize(il, 16, 99));
+	assert(IntList_verify(il));
 	assert(IntList_size(il) == 16);
 	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
 		assert(*IntList_at(pos) == i);
 	}
 	assert(IntList_resize(il, 0, 99));
+	assert(IntList_verify(il));
 	assert(IntList_size(il) == 0);
 	assert(IntList_resize(il, 100, 99));
 	/* swap */
@@ -521,6 +552,8 @@ void ListTest_test_2_1(void)
 		assert(*IntList_at(pos) == b[i]);
 	}
 	IntList_swap(il, x);
+	assert(IntList_verify(il));
+	assert(IntList_verify(x));
 	assert(IntList_size(x) == 32);
 	printf("x:\n");
 	for (pos = IntList_begin(x), i = 0; pos != IntList_end(x); pos = IntList_next(pos), i++) {
@@ -542,6 +575,8 @@ void ListTest_test_2_1(void)
 /*    IntList_splice(x, IntList_begin(x), x, IntList_next(IntList_begin(x)), IntList_end(x));*/
 /*    IntList_splice(x, IntList_end(x), x, IntList_next(IntList_begin(x)), IntList_end(x));*/
 /*    IntList_splice(x, IntList_rbegin(x), x, IntList_next(IntList_begin(x)), IntList_prev(IntList_rbegin(x)));*/
+	assert(IntList_verify(il));
+	assert(IntList_verify(x));
 
 	assert(IntList_size(il) == 0);
 	assert(IntList_size(x) == 32 + sizeof b / sizeof b[0]);
@@ -564,6 +599,8 @@ void ListTest_test_2_1(void)
 	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
 		printf("%2d, ", *IntList_at(pos));
 	}
+	assert(IntList_verify(il));
+	assert(IntList_verify(x));
 	printf("\n");
 
 	HEAP_DUMP_OVERFLOW(&heap);
@@ -578,6 +615,7 @@ void ListTest_run(void)
 	printf("\n===== list test =====\n");
 	hl = HogeList_new();
 	assert(hl);
+	assert(HogeList_verify(hl));
 
 	ListTest_test_1_1();
 	ListTest_test_1_2();
