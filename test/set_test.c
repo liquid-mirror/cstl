@@ -148,6 +148,7 @@ void SetTest_test_1_1(void)
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
 		pos[i] = IntSetA_insert(ia, hoge_int[i], &success[i]);
+		assert(IntSetA_verify(ia));
 		assert(pos[i]);
 		if (i < SIZE/2) {
 			assert(success[i]);
@@ -188,6 +189,7 @@ void SetTest_test_1_1(void)
 		if (pos[i] && success[i]) {
 			IntSetAIterator itr = IntSetA_next(pos[i]);
 			assert(itr == IntSetA_erase(ia, pos[i]));
+			assert(IntSetA_verify(ia));
 			count--;
 		}
 	}
@@ -201,6 +203,7 @@ void SetTest_test_1_1(void)
 	}
 	assert(IntSetA_size(ia) == SIZE/2);
 	assert(IntSetA_find(ia, SIZE/2 -2) == IntSetA_erase_range(ia, IntSetA_find(ia, 2), IntSetA_find(ia, SIZE/2 -2)));
+	assert(IntSetA_verify(ia));
 	assert(IntSetA_size(ia) == 4);
 	assert(IntSetA_end(ia) == IntSetA_erase_range(ia, IntSetA_begin(ia), IntSetA_end(ia)));
 	assert(IntSetA_size(ia) == 0);
@@ -221,6 +224,7 @@ void SetTest_test_1_1(void)
 	assert(IntSetA_size(ia) == SIZE/2);
 	for (i = 0; i < SIZE/2; i++) {
 		assert(IntSetA_erase_key(ia, hoge_int[i]) == 1);
+		assert(IntSetA_verify(ia));
 	}
 	assert(IntSetA_size(ia) == 0);
 	/* 大量にinsert */
@@ -260,22 +264,32 @@ void SetTest_test_1_1(void)
 
 	IntSetA_swap(ia, x);
 
+	assert(IntSetA_verify(ia));
+	assert(IntSetA_verify(x));
 /*    IntSetA_print(ia);*/
 /*    IntSetA_print(x);*/
 	assert(IntSetA_size(x) == SIZE/2);
 	assert(IntSetA_size(ia) == sizeof b / sizeof b[0]);
 	/* insert_range */
 	count = IntSetA_size(x);
+	IntSetA_insert(x, b[0], 0);
+	IntSetA_insert(ia, hoge_int[0], 0);
+/*    IntSetA_print(ia);*/
+/*    IntSetA_print(x);*/
 	assert(IntSetA_insert_range(x, IntSetA_begin(ia), IntSetA_end(ia)));
 
 /*    IntSetA_print(ia);*/
 /*    IntSetA_print(x);*/
-	assert(IntSetA_size(ia) == sizeof b / sizeof b[0]);
+	assert(IntSetA_size(ia) == sizeof b / sizeof b[0] + 1);
 	assert(IntSetA_size(x)  == count + sizeof b / sizeof b[0]);
+	assert(IntSetA_verify(ia));
+	assert(IntSetA_verify(x));
 
 	assert(IntSetA_insert_range(x, IntSetA_begin(ia), IntSetA_end(ia)));
-	assert(IntSetA_size(ia) == sizeof b / sizeof b[0]);
+	assert(IntSetA_size(ia) == sizeof b / sizeof b[0] + 1);
 	assert(IntSetA_size(x)  == count + sizeof b / sizeof b[0]);
+	assert(IntSetA_verify(ia));
+	assert(IntSetA_verify(x));
 
 	HEAP_DUMP_OVERFLOW(&heap);
 	IntSetA_delete(ia);
@@ -392,6 +406,8 @@ void SetTest_test_1_3(void)
 	size_t count = 0;
 	IntMSetAIterator pos[SIZE];
 	IntMSetAIterator p;
+	IntMSetA *x;
+	int b[] = {100, 109, 101, 108, 102, 103, 104, 104, 105, 106, 107, 100, 101, 101, 108, 109};
 	int flag[SIZE/2] = {0};
 	printf("***** test_1_3 *****\n");
 	ima = IntMSetA_new();
@@ -505,8 +521,37 @@ void SetTest_test_1_3(void)
 	assert(IntMSetA_size(ima) == count);
 	printf("count: %d\n", count);
 
+	IntMSetA_clear(ima);
+
+	/* insert_range */
+	for (i = 0; i < SIZE/2; i++) {
+		pos[i] = IntMSetA_insert(ima, hoge_int[i]);
+		assert(pos[i]);
+	}
+	assert(IntMSetA_size(ima) == SIZE/2);
+	x = IntMSetA_new();
+	for (i = 0; i < sizeof b / sizeof b[0]; i++) {
+		pos[i] = IntMSetA_insert(x, b[i]);
+		assert(pos[i]);
+	}
+	for (i = 0; i < SIZE/2; i++) {
+		pos[i] = IntMSetA_insert(x, hoge_int[i]);
+		assert(pos[i]);
+	}
+	assert(IntMSetA_size(x) == sizeof b / sizeof b[0] + SIZE/2);
+/*    IntMSetA_print(ima);*/
+/*    IntMSetA_print(x);*/
+	assert(IntMSetA_insert_range(x, IntMSetA_begin(ima), IntMSetA_end(ima)));
+	assert(IntMSetA_verify(ima));
+	assert(IntMSetA_verify(x));
+/*    IntMSetA_print(ima);*/
+/*    IntMSetA_print(x);*/
+	assert(IntMSetA_size(x) == sizeof b / sizeof b[0] + SIZE);
+
+
 	HEAP_DUMP_OVERFLOW(&heap);
 	IntMSetA_delete(ima);
+	IntMSetA_delete(x);
 }
 
 void SetTest_test_2_1(void)
