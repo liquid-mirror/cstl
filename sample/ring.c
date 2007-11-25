@@ -28,14 +28,14 @@ int main(void)
 	}
 	UCharRing_delete(x);
 
-	/* ŒÄ‚Ño‚µ‘¤‚Å—pˆÓ‚µ‚½ƒIƒuƒWƒFƒNƒg‚Æƒoƒbƒtƒ@‚ğ—˜—p‚·‚éê‡ */
+	/* å‘¼ã³å‡ºã—å´ã§ç”¨æ„ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¨ãƒãƒƒãƒ•ã‚¡ã‚’åˆ©ç”¨ã™ã‚‹å ´åˆ */
 	UCharRing_init(&y, buf, NELEMS(buf));
 	UCharRing_push_back(&y, 0x01);
 	UCharRing_push_back(&y, 0x02);
 	while (!UCharRing_empty(&y)) {
 		printf("%02x\n", UCharRing_pop_front(&y));
 	}
-	/* UCharRing_delete(&y)‚ğŒÄ‚Ño‚µ‚Ä‚Í‚¢‚¯‚È‚¢ */
+	/* UCharRing_delete(&y)ã‚’å‘¼ã³å‡ºã—ã¦ã¯ã„ã‘ãªã„ */
 	return 0;
 }
 
