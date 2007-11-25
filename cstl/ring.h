@@ -52,19 +52,19 @@
 #endif
 
 
-#define CSTL_RING_FORWARD(self, idx, n)			((idx) + (n) >= self->nelems ? (idx) + (n) - self->nelems : (idx) + (n))
-#define CSTL_RING_BACKWARD(self, idx, n)		((idx) >= (n) ? (idx) - (n) : self->nelems + (idx) - (n))
-#define CSTL_RING_NEXT(self, idx)				CSTL_RING_FORWARD(self, idx, 1)
-#define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD(self, idx, 1)
-#define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : self->nelems - (first) + (last))
-#define CSTL_RING_AT(self, idx)					self->buf[CSTL_RING_FORWARD(self, self->begin, idx)]
-#define CSTL_RING_EMPTY(self)					(self->begin == self->end)
-#define CSTL_RING_MAX_SIZE(self)				(self->nelems - 1)
-#define CSTL_RING_FULL(self)					(CSTL_RING_NEXT(self, self->end) == self->begin)
-#define CSTL_RING_SIZE(self)					CSTL_RING_DISTANCE(self, self->begin, self->end)
-#define CSTL_RING_FRONT(self)					self->buf[self->begin]
-#define CSTL_RING_BACK(self)					self->buf[CSTL_RING_PREV(self, self->end)]
-#define CSTL_RING_CLEAR(self)					self->end = self->begin
+#define CSTL_RING_FORWARD(self, idx, n)			((idx) + (n) >= (self)->nelems ? (idx) + (n) - (self)->nelems : (idx) + (n))
+#define CSTL_RING_BACKWARD(self, idx, n)		((idx) >= (n) ? (idx) - (n) : (self)->nelems + (idx) - (n))
+#define CSTL_RING_NEXT(self, idx)				CSTL_RING_FORWARD((self), (idx), 1)
+#define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD((self), (idx), 1)
+#define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->nelems - (first) + (last))
+#define CSTL_RING_AT(self, idx)					(self)->buf[CSTL_RING_FORWARD((self), (self)->begin, (idx))]
+#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end)
+#define CSTL_RING_MAX_SIZE(self)				((self)->nelems - 1)
+#define CSTL_RING_FULL(self)					(CSTL_RING_NEXT((self), (self)->end) == (self)->begin)
+#define CSTL_RING_SIZE(self)					CSTL_RING_DISTANCE((self), (self)->begin, (self)->end)
+#define CSTL_RING_FRONT(self)					(self)->buf[(self)->begin]
+#define CSTL_RING_BACK(self)					(self)->buf[CSTL_RING_PREV((self), (self)->end)]
+#define CSTL_RING_CLEAR(self)					(self)->end = (self)->begin
 
 
 /*! 

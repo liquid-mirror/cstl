@@ -60,12 +60,12 @@
 #endif
 
 
-#define CSTL_VECTOR_AT(self, idx)	self->buf[idx]
-#define CSTL_VECTOR_SIZE(self)		self->end
-#define CSTL_VECTOR_EMPTY(self)		(self->end == 0)
-#define CSTL_VECTOR_CAPACITY(self)	self->nelems
-#define CSTL_VECTOR_FULL(self)		(CSTL_VECTOR_SIZE(self) == CSTL_VECTOR_CAPACITY(self))
-#define CSTL_VECTOR_CLEAR(self)		self->end = 0
+#define CSTL_VECTOR_AT(self, idx)	(self)->buf[(idx)]
+#define CSTL_VECTOR_SIZE(self)		(self)->end
+#define CSTL_VECTOR_EMPTY(self)		((self)->end == 0)
+#define CSTL_VECTOR_CAPACITY(self)	(self)->nelems
+#define CSTL_VECTOR_FULL(self)		(CSTL_VECTOR_SIZE((self)) == CSTL_VECTOR_CAPACITY((self)))
+#define CSTL_VECTOR_CLEAR(self)		(self)->end = 0
 
 
 /*! 

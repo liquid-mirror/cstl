@@ -65,7 +65,7 @@
  */
 #define CSTL_NPOS	((size_t)-1)
 
-#define CSTL_STRING_AT(self, idx)	CSTL_VECTOR_AT(self->data, idx)
+#define CSTL_STRING_AT(self, idx)	CSTL_VECTOR_AT((self)->data, (idx))
 
 
 /*! 

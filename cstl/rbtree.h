@@ -58,9 +58,9 @@ enum {
 #define CSTL_GREATER(x, y)	((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
 
 
-#define CSTL_RBTREE_NODE_IS_HEAD(self)		(self->color == CSTL_RBTREE_HEAD)
-#define CSTL_RBTREE_NODE_IS_ROOT(self)		CSTL_RBTREE_NODE_IS_HEAD(self->parent)
-#define CSTL_RBTREE_NODE_IS_NIL(self, Name)	(self == (Name##Node *) &Name##_nil)
+#define CSTL_RBTREE_NODE_IS_HEAD(self)		((self)->color == CSTL_RBTREE_HEAD)
+#define CSTL_RBTREE_NODE_IS_ROOT(self)		CSTL_RBTREE_NODE_IS_HEAD((self)->parent)
+#define CSTL_RBTREE_NODE_IS_NIL(self, Name)	((self) == (Name##Node *) &Name##_nil)
 
 
 #define CSTL_RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
