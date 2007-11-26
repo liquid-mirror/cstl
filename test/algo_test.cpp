@@ -417,6 +417,184 @@ void AlgoTest_test_1_5(void)
 #endif
 }
 
+void AlgoTest_test_1_6(void)
+{
+	static int buf[SORT_COUNT];
+	IntVector *x;
+	vector<int> y;
+	int i;
+	printf("***** test_1_6 *****\n");
+	x = IntVector_new(SORT_COUNT);
+	assert(x);
+
+	srand(time(0));
+	/* sort */
+	/* 部分的にソート */
+	for (i = 0; i < SORT_COUNT; i++) {
+		buf[i] = rand();
+		IntVector_push_back(x, buf[i]);
+		y.push_back(buf[i]);
+	}
+	size_t half_size = IntVector_size(x) / 2;
+	IntVector_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_less);
+	sort(y.begin() + half_size, y.end() - 1000, less<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* sort済みをsort */
+	IntVector_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_less);
+	sort(y.begin() + half_size, y.end() - 1000, less<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* 逆順にsort */
+	IntVector_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_greater);
+	sort(y.begin() + half_size, y.end() - 1000, greater<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* sort済みをsort */
+	IntVector_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_greater);
+	sort(y.begin() + half_size, y.end() - 1000, greater<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+
+	IntVector_delete(x);
+}
+
+void AlgoTest_test_1_7(void)
+{
+	static int buf[SORT_COUNT];
+	IntVector *x;
+	vector<int> y;
+	int i;
+	printf("***** test_1_7 *****\n");
+	x = IntVector_new(SORT_COUNT);
+	assert(x);
+
+	srand(time(0));
+	/* stable_sort */
+	/* 部分的にソート */
+	for (i = 0; i < SORT_COUNT; i++) {
+		buf[i] = rand();
+		IntVector_push_back(x, buf[i]);
+		y.push_back(buf[i]);
+	}
+	size_t half_size = IntVector_size(x) / 2;
+	IntVector_stable_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_less);
+	stable_sort(y.begin() + half_size, y.end() - 1000, less<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* stable_sort済みをstable_sort */
+	IntVector_stable_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_less);
+	stable_sort(y.begin() + half_size, y.end() - 1000, less<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* 逆順にstable_sort */
+	IntVector_stable_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_greater);
+	stable_sort(y.begin() + half_size, y.end() - 1000, greater<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* stable_sort済みをstable_sort */
+	IntVector_stable_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_greater);
+	stable_sort(y.begin() + half_size, y.end() - 1000, greater<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+
+	IntVector_delete(x);
+}
+
+void AlgoTest_test_1_8(void)
+{
+#ifdef MY_MALLOC
+	static int buf[SORT_COUNT];
+	IntVector *x;
+	vector<int> y;
+	int i;
+	printf("***** test_1_8 *****\n");
+	x = IntVector_new(SORT_COUNT);
+	assert(x);
+
+	srand(time(0));
+	/* stable_sort */
+	/* 部分的にソート */
+	for (i = 0; i < SORT_COUNT; i++) {
+		buf[i] = rand();
+		IntVector_push_back(x, buf[i]);
+		y.push_back(buf[i]);
+	}
+	HEAP_SET_FAIL_COUNT(&heap, 0);
+	size_t half_size = IntVector_size(x) / 2;
+	IntVector_stable_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_less);
+	stable_sort(y.begin() + half_size, y.end() - 1000, less<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* stable_sort済みをstable_sort */
+	IntVector_stable_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_less);
+	stable_sort(y.begin() + half_size, y.end() - 1000, less<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* 逆順にstable_sort */
+	IntVector_stable_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_greater);
+	stable_sort(y.begin() + half_size, y.end() - 1000, greater<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* stable_sort済みをstable_sort */
+	IntVector_stable_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_greater);
+	stable_sort(y.begin() + half_size, y.end() - 1000, greater<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	HEAP_RESET_FAIL_COUNT(&heap);
+
+	IntVector_delete(x);
+#endif
+}
+
 void AlgoTest_test_2_1(void)
 {
 	IntVector *x;
@@ -594,6 +772,9 @@ void AlgoTest_run(void)
 	AlgoTest_test_1_3();
 	AlgoTest_test_1_4();
 	AlgoTest_test_1_5();
+	AlgoTest_test_1_6();
+	AlgoTest_test_1_7();
+	AlgoTest_test_1_8();
 	AlgoTest_test_2_1();
 	AlgoTest_test_3_1();
 	AlgoTest_test_3_2();
