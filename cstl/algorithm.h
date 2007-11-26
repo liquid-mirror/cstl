@@ -39,6 +39,7 @@
 	DIRECT_ACCESS(self, i) = DIRECT_ACCESS(self, j);\
 	DIRECT_ACCESS(self, j) = tmp;\
 
+#define CSTL_ALGORITHM_SWITCH_INSERTION_SORT	(9)
 
 #ifdef CSTL_ALGORITHM_INTERFACE
 #undef CSTL_ALGORITHM_INTERFACE
@@ -100,7 +101,7 @@ void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, con
 		l = low[sp];\
 		r = high[sp];\
 		if (l < r) {\
-			if (r - l < 7) {\
+			if (r - l < CSTL_ALGORITHM_SWITCH_INSERTION_SORT) {\
 				Name##_insertion_sort(self, l, r - l + 1, comp);\
 				continue;\
 			}\
@@ -264,7 +265,7 @@ static void Name##_merge_with_buffer(Name *self, size_t first, size_t middle, si
 	i = first;\
 	j = last - 1;\
 	for (k = first; k < last; k++) {\
-		if (comp(&buf[i], &buf[j]) <= 0) {\
+		if (i < middle && comp(&buf[i], &buf[j]) <= 0) {\
 			DIRECT_ACCESS(self, k) = buf[i];\
 			i++;\
 		} else {\
@@ -280,7 +281,7 @@ static void Name##_merge_sort(Name *self, size_t first, size_t last, Type *buf, 
 	if (last - first <= 1) {\
 		return;\
 	}\
-	if (last - first < 9) {\
+	if (last - first < CSTL_ALGORITHM_SWITCH_INSERTION_SORT) {\
 		Name##_insertion_sort(self, first, last - first, comp);\
 		return;\
 	}\
@@ -304,7 +305,7 @@ void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void
 	assert(Name##_size(self) >= n && "stable_sort");\
 	assert(Name##_size(self) > idx && "stable_sort");\
 	assert(comp && "stable_sort");\
-	if (n < 9) {\
+	if (n < CSTL_ALGORITHM_SWITCH_INSERTION_SORT) {\
 		Name##_insertion_sort(self, idx, n, comp);\
 		return;\
 	}\
