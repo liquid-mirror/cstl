@@ -31,7 +31,8 @@ CSTL_VECTOR_IMPLEMENT(IntVector, int)
 CSTL_VECTOR_IMPLEMENT(HogeVector, Hoge)
 #endif
 
-#define COUNT	(1000000)
+#define SORT_COUNT	(1000000)
+#define SEARCH_COUNT	(1000)
 using namespace std;
 
 
@@ -69,51 +70,51 @@ int hoge_greater(const void *p1, const void *p2)
 
 void AlgoTest_test_1_1(void)
 {
-	static int buf[COUNT];
+	static int buf[SORT_COUNT];
 	IntVector *x;
 	vector<int> y;
 	int i;
 	printf("***** test_1_1 *****\n");
-	x = IntVector_new(COUNT);
+	x = IntVector_new(SORT_COUNT);
 	assert(x);
 
 	srand(time(0));
 	/* sort */
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		buf[i] = rand();
 		IntVector_push_back(x, buf[i]);
 		y.push_back(buf[i]);
 	}
 	IntVector_sort(x, 0, IntVector_size(x), int_less);
 	sort(y.begin(), y.end(), less<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
 		}
 	}
-	/* sortÏ‚Ý‚ðsort */
+	/* sortæ¸ˆã¿ã‚’sort */
 	IntVector_sort(x, 0, IntVector_size(x), int_less);
 	sort(y.begin(), y.end(), less<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
 		}
 	}
-	/* ‹t‡‚Ésort */
+	/* é€†é †ã«sort */
 	IntVector_sort(x, 0, IntVector_size(x), int_greater);
 	sort(y.begin(), y.end(), greater<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
 		}
 	}
-	/* sortÏ‚Ý‚ðsort */
+	/* sortæ¸ˆã¿ã‚’sort */
 	IntVector_sort(x, 0, IntVector_size(x), int_greater);
 	sort(y.begin(), y.end(), greater<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
@@ -125,50 +126,50 @@ void AlgoTest_test_1_1(void)
 
 void AlgoTest_test_1_2(void)
 {
-	static int buf[COUNT];
+	static int buf[SORT_COUNT];
 	IntVector *x;
 	vector<int> y;
 	int i;
 	printf("***** test_1_2 *****\n");
-	x = IntVector_new(COUNT);
+	x = IntVector_new(SORT_COUNT);
 
 	srand(time(0));
 	/* stable_sort */
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		buf[i] = rand();
 		IntVector_push_back(x, buf[i]);
 		y.push_back(buf[i]);
 	}
 	IntVector_stable_sort(x, 0, IntVector_size(x), int_less);
 	stable_sort(y.begin(), y.end(), less<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
 		}
 	}
-	/* stable_sortÏ‚Ý‚ðstable_sort */
+	/* stable_sortæ¸ˆã¿ã‚’stable_sort */
 	IntVector_stable_sort(x, 0, IntVector_size(x), int_less);
 	stable_sort(y.begin(), y.end(), less<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
 		}
 	}
-	/* ‹t‡‚Éstable_sort */
+	/* é€†é †ã«stable_sort */
 	IntVector_stable_sort(x, 0, IntVector_size(x), int_greater);
 	stable_sort(y.begin(), y.end(), greater<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
 		}
 	}
-	/* stable_sortÏ‚Ý‚ðstable_sort */
+	/* stable_sortæ¸ˆã¿ã‚’stable_sort */
 	IntVector_stable_sort(x, 0, IntVector_size(x), int_greater);
 	stable_sort(y.begin(), y.end(), greater<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
@@ -181,17 +182,17 @@ void AlgoTest_test_1_2(void)
 void AlgoTest_test_1_3(void)
 {
 #ifdef MY_MALLOC
-	static int buf[COUNT];
+	static int buf[SORT_COUNT];
 	IntVector *x;
 	vector<int> y;
 	int i;
 	printf("***** test_1_3 *****\n");
-	x = IntVector_new(COUNT);
+	x = IntVector_new(SORT_COUNT);
 
 	srand(time(0));
 	/* stable_sort */
 	/* merge_without_buffer */
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		buf[i] = rand();
 		IntVector_push_back(x, buf[i]);
 		y.push_back(buf[i]);
@@ -199,34 +200,34 @@ void AlgoTest_test_1_3(void)
 	HEAP_SET_FAIL_COUNT(&heap, 0);
 	IntVector_stable_sort(x, 0, IntVector_size(x), int_less);
 	stable_sort(y.begin(), y.end(), less<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
 		}
 	}
-	/* stable_sortÏ‚Ý‚ðstable_sort */
+	/* stable_sortæ¸ˆã¿ã‚’stable_sort */
 	IntVector_stable_sort(x, 0, IntVector_size(x), int_less);
 	stable_sort(y.begin(), y.end(), less<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
 		}
 	}
-	/* ‹t‡‚Éstable_sort */
+	/* é€†é †ã«stable_sort */
 	IntVector_stable_sort(x, 0, IntVector_size(x), int_greater);
 	stable_sort(y.begin(), y.end(), greater<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
 		}
 	}
-	/* stable_sortÏ‚Ý‚ðstable_sort */
+	/* stable_sortæ¸ˆã¿ã‚’stable_sort */
 	IntVector_stable_sort(x, 0, IntVector_size(x), int_greater);
 	stable_sort(y.begin(), y.end(), greater<int>());
-	for (i = 0; i < COUNT; i++) {
+	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntVector_at(x, i)) {
 			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
 			assert(0);
@@ -274,7 +275,7 @@ void AlgoTest_test_1_4(void)
 	HogeVector *x;
 	size_t i;
 	printf("***** test_1_4 *****\n");
-	x = HogeVector_new(COUNT);
+	x = HogeVector_new(SORT_COUNT);
 
 	srand(time(0));
 	/* stable_sort */
@@ -291,7 +292,7 @@ void AlgoTest_test_1_4(void)
 		prev = hoge;
 	}
 	printf("\n");
-	/* stable_sortÏ‚Ý‚ðstable_sort */
+	/* stable_sortæ¸ˆã¿ã‚’stable_sort */
 	HogeVector_stable_sort(x, 0, HogeVector_size(x), hoge_less);
 	prev.key = "000", prev.value = 0;
 	for (i = 0; i < NELEMS(hogetab); i++) {
@@ -302,7 +303,7 @@ void AlgoTest_test_1_4(void)
 		prev = hoge;
 	}
 	printf("\n");
-	/* ‹t‡‚Éstable_sort */
+	/* é€†é †ã«stable_sort */
 	HogeVector_clear(x);
 	for (i = 0; i < NELEMS(hogetab); i++) {
 		assert(HogeVector_push_back(x, hogetab[i]));
@@ -321,7 +322,7 @@ void AlgoTest_test_1_4(void)
 		prev = hoge;
 	}
 	printf("\n");
-	/* stable_sortÏ‚Ý‚ðstable_sort */
+	/* stable_sortæ¸ˆã¿ã‚’stable_sort */
 	HogeVector_stable_sort(x, 0, HogeVector_size(x), hoge_greater);
 	prev.key = "999", prev.value = 999;
 	for (i = 0; i < NELEMS(hogetab); i++) {
@@ -347,7 +348,7 @@ void AlgoTest_test_1_5(void)
 	HogeVector *x;
 	size_t i;
 	printf("***** test_1_5 *****\n");
-	x = HogeVector_new(COUNT);
+	x = HogeVector_new(SORT_COUNT);
 
 	srand(time(0));
 	/* stable_sort */
@@ -366,7 +367,7 @@ void AlgoTest_test_1_5(void)
 		prev = hoge;
 	}
 	printf("\n");
-	/* stable_sortÏ‚Ý‚ðstable_sort */
+	/* stable_sortæ¸ˆã¿ã‚’stable_sort */
 	HogeVector_stable_sort(x, 0, HogeVector_size(x), hoge_less);
 	prev.key = "000", prev.value = 0;
 	for (i = 0; i < NELEMS(hogetab); i++) {
@@ -377,7 +378,7 @@ void AlgoTest_test_1_5(void)
 		prev = hoge;
 	}
 	printf("\n");
-	/* ‹t‡‚Éstable_sort */
+	/* é€†é †ã«stable_sort */
 	HogeVector_clear(x);
 	for (i = 0; i < NELEMS(hogetab); i++) {
 		assert(HogeVector_push_back(x, hogetab[i]));
@@ -396,7 +397,7 @@ void AlgoTest_test_1_5(void)
 		prev = hoge;
 	}
 	printf("\n");
-	/* stable_sortÏ‚Ý‚ðstable_sort */
+	/* stable_sortæ¸ˆã¿ã‚’stable_sort */
 	HogeVector_stable_sort(x, 0, HogeVector_size(x), hoge_greater);
 	prev.key = "999", prev.value = 999;
 	for (i = 0; i < NELEMS(hogetab); i++) {
@@ -416,6 +417,175 @@ void AlgoTest_test_1_5(void)
 #endif
 }
 
+void AlgoTest_test_2_1(void)
+{
+	IntVector *x;
+	int i;
+	printf("***** test_2_1 *****\n");
+	x = IntVector_new(SEARCH_COUNT);
+	assert(x);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(IntVector_push_back(x, i));
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+	// binary_search
+	// idx:0ã‹ã‚‰size()å€‹
+	assert(0 == IntVector_binary_search(x, 0, IntVector_size(x), 0, int_less));
+	assert(SEARCH_COUNT - 1 == IntVector_binary_search(x, 0, IntVector_size(x), SEARCH_COUNT - 1, int_less));
+	assert(SEARCH_COUNT / 2 == IntVector_binary_search(x, 0, IntVector_size(x), SEARCH_COUNT / 2, int_less));
+	assert(SEARCH_COUNT / 3 == IntVector_binary_search(x, 0, IntVector_size(x), SEARCH_COUNT / 3, int_less));
+	assert(SEARCH_COUNT == IntVector_binary_search(x, 0, IntVector_size(x), SEARCH_COUNT, int_less));
+	assert(SEARCH_COUNT == IntVector_binary_search(x, 0, IntVector_size(x), SEARCH_COUNT + 1, int_less));
+	// idx:1ã‹ã‚‰size() - 1å€‹
+	assert(SEARCH_COUNT == IntVector_binary_search(x, 1, IntVector_size(x) - 1, 0, int_less));
+	assert(SEARCH_COUNT - 1 == IntVector_binary_search(x, 1, IntVector_size(x) - 1, SEARCH_COUNT - 1, int_less));
+	assert(SEARCH_COUNT / 2 == IntVector_binary_search(x, 1, IntVector_size(x) - 1, SEARCH_COUNT / 2, int_less));
+	assert(SEARCH_COUNT / 3 == IntVector_binary_search(x, 1, IntVector_size(x) - 1, SEARCH_COUNT / 3, int_less));
+	assert(SEARCH_COUNT == IntVector_binary_search(x, 1, IntVector_size(x) - 1, SEARCH_COUNT, int_less));
+	assert(SEARCH_COUNT == IntVector_binary_search(x, 1, IntVector_size(x) - 1, SEARCH_COUNT + 1, int_less));
+
+	// lower_bound
+	// idx:0ã‹ã‚‰size()å€‹
+	assert(0 == IntVector_lower_bound(x, 0, IntVector_size(x), 0, int_less));
+	assert(SEARCH_COUNT - 1 == IntVector_lower_bound(x, 0, IntVector_size(x), SEARCH_COUNT - 1, int_less));
+	assert(SEARCH_COUNT / 2 == IntVector_lower_bound(x, 0, IntVector_size(x), SEARCH_COUNT / 2, int_less));
+	assert(SEARCH_COUNT / 3 == IntVector_lower_bound(x, 0, IntVector_size(x), SEARCH_COUNT / 3, int_less));
+	assert(SEARCH_COUNT == IntVector_lower_bound(x, 0, IntVector_size(x), SEARCH_COUNT, int_less));
+	assert(SEARCH_COUNT == IntVector_lower_bound(x, 0, IntVector_size(x), SEARCH_COUNT + 1, int_less));
+	// idx:1ã‹ã‚‰size() - 1å€‹
+	assert(1 == IntVector_lower_bound(x, 1, IntVector_size(x) - 1, 0, int_less));
+	assert(SEARCH_COUNT - 1 == IntVector_lower_bound(x, 1, IntVector_size(x) - 1, SEARCH_COUNT - 1, int_less));
+	assert(SEARCH_COUNT / 2 == IntVector_lower_bound(x, 1, IntVector_size(x) - 1, SEARCH_COUNT / 2, int_less));
+	assert(SEARCH_COUNT / 3 == IntVector_lower_bound(x, 1, IntVector_size(x) - 1, SEARCH_COUNT / 3, int_less));
+	assert(SEARCH_COUNT == IntVector_lower_bound(x, 1, IntVector_size(x) - 1, SEARCH_COUNT, int_less));
+	assert(SEARCH_COUNT == IntVector_lower_bound(x, 1, IntVector_size(x) - 1, SEARCH_COUNT + 1, int_less));
+
+	// upper_bound
+	// idx:0ã‹ã‚‰size()å€‹
+	assert(1 == IntVector_upper_bound(x, 0, IntVector_size(x), 0, int_less));
+	assert(SEARCH_COUNT - 1 == IntVector_upper_bound(x, 0, IntVector_size(x), SEARCH_COUNT - 2, int_less));
+	assert(SEARCH_COUNT == IntVector_upper_bound(x, 0, IntVector_size(x), SEARCH_COUNT - 1, int_less));
+	assert(SEARCH_COUNT / 2 + 1 == IntVector_upper_bound(x, 0, IntVector_size(x), SEARCH_COUNT / 2, int_less));
+	assert(SEARCH_COUNT / 3 + 1 == IntVector_upper_bound(x, 0, IntVector_size(x), SEARCH_COUNT / 3, int_less));
+	assert(SEARCH_COUNT == IntVector_upper_bound(x, 0, IntVector_size(x), SEARCH_COUNT, int_less));
+	assert(SEARCH_COUNT == IntVector_upper_bound(x, 0, IntVector_size(x), SEARCH_COUNT + 1, int_less));
+	// idx:1ã‹ã‚‰size() - 1å€‹
+	assert(1 == IntVector_upper_bound(x, 1, IntVector_size(x) - 1, 0, int_less));
+	assert(SEARCH_COUNT - 1 == IntVector_upper_bound(x, 1, IntVector_size(x) - 1, SEARCH_COUNT - 2, int_less));
+	assert(SEARCH_COUNT == IntVector_upper_bound(x, 1, IntVector_size(x) - 1, SEARCH_COUNT - 1, int_less));
+	assert(SEARCH_COUNT / 2 + 1 == IntVector_upper_bound(x, 1, IntVector_size(x) - 1, SEARCH_COUNT / 2, int_less));
+	assert(SEARCH_COUNT / 3 + 1 == IntVector_upper_bound(x, 1, IntVector_size(x) - 1, SEARCH_COUNT / 3, int_less));
+	assert(SEARCH_COUNT == IntVector_upper_bound(x, 1, IntVector_size(x) - 1, SEARCH_COUNT, int_less));
+	assert(SEARCH_COUNT == IntVector_upper_bound(x, 1, IntVector_size(x) - 1, SEARCH_COUNT + 1, int_less));
+
+
+	*IntVector_at(x, SEARCH_COUNT / 2) = *IntVector_at(x, SEARCH_COUNT / 2 + 1);
+
+	// binary_search
+	assert(SEARCH_COUNT == IntVector_binary_search(x, 0, IntVector_size(x), SEARCH_COUNT / 2, int_less));
+	assert(SEARCH_COUNT / 2 == IntVector_binary_search(x, 0, IntVector_size(x), SEARCH_COUNT / 2 + 1, int_less));
+	// lower_bound
+	assert(SEARCH_COUNT / 2 == IntVector_lower_bound(x, 0, IntVector_size(x), SEARCH_COUNT / 2, int_less));
+	assert(SEARCH_COUNT / 2 == IntVector_lower_bound(x, 0, IntVector_size(x), SEARCH_COUNT / 2 + 1, int_less));
+	// upper_bound
+	assert(SEARCH_COUNT / 2 == IntVector_upper_bound(x, 0, IntVector_size(x), SEARCH_COUNT / 2, int_less));
+	assert(SEARCH_COUNT / 2 + 2 == IntVector_upper_bound(x, 0, IntVector_size(x), SEARCH_COUNT / 2 + 1, int_less));
+
+
+	IntVector_delete(x);
+}
+
+void AlgoTest_test_3_1(void)
+{
+	IntVector *x;
+	int i;
+	printf("***** test_3_1 *****\n");
+	x = IntVector_new(SEARCH_COUNT);
+	assert(x);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(IntVector_push_back(x, i));
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+	// reverse
+	IntVector_reverse(x, 0, IntVector_size(x));
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == SEARCH_COUNT - 1 - i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	// reverse
+	IntVector_reverse(x, 0, IntVector_size(x));
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	// é€”ä¸­ã‹ã‚‰reverse
+	IntVector_reverse(x, SEARCH_COUNT / 2, IntVector_size(x) - SEARCH_COUNT / 2);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+//        printf("i[%d], data[%d]\n", i,  *IntVector_at(x, i));
+		if (i < SEARCH_COUNT / 2) {
+			assert(*IntVector_at(x, i) == i);
+		} else {
+			assert(*IntVector_at(x, i) == SEARCH_COUNT - 1 - (i - SEARCH_COUNT / 2));
+		}
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_delete(x);
+}
+
+void AlgoTest_test_3_2(void)
+{
+	IntVector *x;
+	int i;
+	printf("***** test_3_2 *****\n");
+	x = IntVector_new(SEARCH_COUNT);
+	assert(x);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(IntVector_push_back(x, i));
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+	// rotate
+	IntVector_rotate(x, 0, 0, 0);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+	IntVector_rotate(x, SEARCH_COUNT / 2, SEARCH_COUNT / 2, SEARCH_COUNT / 2);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+	IntVector_rotate(x, SEARCH_COUNT, SEARCH_COUNT, SEARCH_COUNT);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+	IntVector_rotate(x, 0, SEARCH_COUNT, SEARCH_COUNT);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+	IntVector_rotate(x, 0, 0, SEARCH_COUNT);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_rotate(x, 0, SEARCH_COUNT / 2, SEARCH_COUNT);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		if (i < SEARCH_COUNT / 2) {
+			assert(*IntVector_at(x, i) == i + SEARCH_COUNT / 2);
+		} else {
+			assert(*IntVector_at(x, i) == i - SEARCH_COUNT / 2);
+		}
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_delete(x);
+}
+
 void AlgoTest_run(void)
 {
 	printf("\n===== algorithm test =====\n");
@@ -424,6 +594,9 @@ void AlgoTest_run(void)
 	AlgoTest_test_1_3();
 	AlgoTest_test_1_4();
 	AlgoTest_test_1_5();
+	AlgoTest_test_2_1();
+	AlgoTest_test_3_1();
+	AlgoTest_test_3_2();
 }
 
 
