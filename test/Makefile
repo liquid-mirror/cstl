@@ -87,4 +87,15 @@ else
 endif
 	./$@.exe
 
-test: vector ring deque list set map string
+algo: ../cstl/algorithm.h ../cstl/vector.h ../cstl/deque.h ../cstl/string.h algo_test.cpp heap.o
+ifneq ($(CODEGEN),)
+	sh codegen.sh vector IntVector "int" true false . $(HEAP)
+	sh codegen.sh vector HogeVector "Hoge" true hoge.h . $(HEAP)
+	g++ $(CFLAGS) -o $@.exe algo_test.cpp heap.o IntVector.c HogeVector.c $(CODEGEN)
+else
+	g++ $(CFLAGS) -o $@.exe algo_test.cpp heap.o
+endif
+	./$@.exe
+
+
+test: vector ring deque list set map string algo
