@@ -296,6 +296,16 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 #endif
 		return newptr;
 	}
+#ifdef HEAP_DEBUG
+	if (self->fail_count >= 0) {
+		if (self->fail_count > 0) {
+			self->fail_count--;
+		} else {
+			DEBUGLOG(("Heap_alloc: return NULL by fail_count: %s(%d)\n", file, line));
+			return 0;
+		}
+	}
+#endif
 	if (self->loop_p == p->next) {
 		self->loop_p = p->next->next;
 	}

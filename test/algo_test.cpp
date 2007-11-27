@@ -764,6 +764,276 @@ void AlgoTest_test_3_2(void)
 	IntVector_delete(x);
 }
 
+void AlgoTest_test_4_1(void)
+{
+	IntVector *x;
+	IntVector *y;
+	IntVector *z;
+	int i;
+	printf("***** test_4_1 *****\n");
+	x = IntVector_new(SEARCH_COUNT);
+	y = IntVector_new(SEARCH_COUNT);
+	z = IntVector_new(SEARCH_COUNT);
+	assert(x);
+	assert(y);
+	assert(z);
+	for (i = 0; i < SEARCH_COUNT / 2; i++) {
+		assert(IntVector_push_back(x, i * 2));
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT / 2);
+	for (i = 0; i < SEARCH_COUNT / 2; i++) {
+		assert(IntVector_push_back(y, i * 2 + 1));
+	}
+	assert(IntVector_size(y) == SEARCH_COUNT / 2);
+
+	// merge
+	assert(IntVector_merge(z, 0, x, 0, IntVector_size(x), y, 0, IntVector_size(y), int_less));
+	assert(IntVector_size(x) == SEARCH_COUNT / 2);
+	assert(IntVector_size(y) == SEARCH_COUNT / 2);
+	assert(IntVector_size(z) == SEARCH_COUNT);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(z, i) == i);
+	}
+
+	assert(IntVector_merge(z, IntVector_size(z), x, 0, IntVector_size(x), y, 0, IntVector_size(y), int_less));
+	assert(IntVector_size(z) == SEARCH_COUNT * 2);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(z, i) == i);
+	}
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(z, i + SEARCH_COUNT) == i);
+	}
+
+	for (i = 0; i < SEARCH_COUNT / 2; i++) {
+		*IntVector_at(x, i) = *IntVector_at(x, i) * 2;
+		*IntVector_at(y, i) = *IntVector_at(y, i) * 2;
+	}
+	assert(IntVector_merge(z, SEARCH_COUNT, x, 0, IntVector_size(x), y, 0, IntVector_size(y), int_less));
+	assert(IntVector_size(z) == SEARCH_COUNT * 3);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(z, i) == i);
+	}
+	for (i = 0; i < SEARCH_COUNT; i++) {
+//        printf("i[%d], idx[%d], at[%d]\n", i, i + SEARCH_COUNT, *IntVector_at(z, i + SEARCH_COUNT));
+		assert(*IntVector_at(z, i + SEARCH_COUNT) == i * 2);
+	}
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(z, i + SEARCH_COUNT * 2) == i);
+	}
+
+#ifdef MY_MALLOC
+	IntVector_shrink(z, 0);
+	HEAP_SET_FAIL_COUNT(&heap, 0);
+	assert(!IntVector_merge(z, SEARCH_COUNT, x, 0, IntVector_size(x), y, 0, IntVector_size(y), int_less));
+	assert(IntVector_size(z) == SEARCH_COUNT * 3);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(z, i) == i);
+	}
+	for (i = 0; i < SEARCH_COUNT; i++) {
+//        printf("i[%d], idx[%d], at[%d]\n", i, i + SEARCH_COUNT, *IntVector_at(z, i + SEARCH_COUNT));
+		assert(*IntVector_at(z, i + SEARCH_COUNT) == i * 2);
+	}
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(z, i + SEARCH_COUNT * 2) == i);
+	}
+
+
+	HEAP_RESET_FAIL_COUNT(&heap);
+#endif
+
+	IntVector_delete(x);
+	IntVector_delete(y);
+	IntVector_delete(z);
+}
+
+void AlgoTest_test_5_1(void)
+{
+	IntVector *x;
+	int i;
+	printf("***** test_5_1 *****\n");
+	x = IntVector_new(SEARCH_COUNT);
+	assert(x);
+	// inplace_merge
+	for (i = 0; i < SEARCH_COUNT / 2; i++) {
+		assert(IntVector_push_back(x, i * 2));
+	}
+	for (i = 0; i < SEARCH_COUNT / 2; i++) {
+		assert(IntVector_push_back(x, i * 2 + 1));
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_inplace_merge(x, 0, IntVector_size(x) / 2, IntVector_size(x), int_less);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_clear(x);
+	srand(time(0));
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		IntVector_push_back(x, rand() % SEARCH_COUNT);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_sort(x, 0, IntVector_size(x) / 2, int_less);
+	IntVector_sort(x, IntVector_size(x) / 2, IntVector_size(x) / 2, int_less);
+	int prev;
+
+	prev = 0;
+	for (i = 0; i < SEARCH_COUNT / 2; i++) {
+//        printf("%d ", *IntVector_at(x, i));
+		assert(*IntVector_at(x, i) >= prev);
+		prev = *IntVector_at(x, i);
+	}
+	printf("\n");
+	prev = 0;
+	for (i = 0; i < SEARCH_COUNT / 2; i++) {
+//        printf("%d ", *IntVector_at(x, i + SEARCH_COUNT / 2));
+		assert(*IntVector_at(x, i + SEARCH_COUNT / 2) >= prev);
+		prev = *IntVector_at(x, i + SEARCH_COUNT / 2);
+	}
+	printf("\n");
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_inplace_merge(x, 0, IntVector_size(x) / 2, IntVector_size(x), int_less);
+	prev = 0;
+	for (i = 0; i < SEARCH_COUNT; i++) {
+//        printf("%d ", *IntVector_at(x, i));
+		assert(*IntVector_at(x, i) >= prev);
+		prev = *IntVector_at(x, i);
+	}
+	printf("\n");
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+
+	IntVector_delete(x);
+}
+
+void AlgoTest_test_5_2(void)
+{
+#ifdef MY_MALLOC
+	IntVector *x;
+	int i;
+	printf("***** test_5_2 *****\n");
+	x = IntVector_new(SEARCH_COUNT);
+	assert(x);
+	// inplace_merge
+	// merge_without_buffer
+	for (i = 0; i < SEARCH_COUNT / 2; i++) {
+		assert(IntVector_push_back(x, i * 2));
+	}
+	for (i = 0; i < SEARCH_COUNT / 2; i++) {
+		assert(IntVector_push_back(x, i * 2 + 1));
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	HEAP_SET_FAIL_COUNT(&heap, 0);
+	IntVector_inplace_merge(x, 0, IntVector_size(x) / 2, IntVector_size(x), int_less);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_clear(x);
+	srand(time(0));
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		IntVector_push_back(x, rand() % SEARCH_COUNT);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_sort(x, 0, IntVector_size(x) / 2, int_less);
+	IntVector_sort(x, IntVector_size(x) / 2, IntVector_size(x) / 2, int_less);
+	int prev;
+
+	prev = 0;
+	for (i = 0; i < SEARCH_COUNT / 2; i++) {
+//        printf("%d ", *IntVector_at(x, i));
+		assert(*IntVector_at(x, i) >= prev);
+		prev = *IntVector_at(x, i);
+	}
+	printf("\n");
+	prev = 0;
+	for (i = 0; i < SEARCH_COUNT / 2; i++) {
+//        printf("%d ", *IntVector_at(x, i + SEARCH_COUNT / 2));
+		assert(*IntVector_at(x, i + SEARCH_COUNT / 2) >= prev);
+		prev = *IntVector_at(x, i + SEARCH_COUNT / 2);
+	}
+	printf("\n");
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_inplace_merge(x, 0, IntVector_size(x) / 2, IntVector_size(x), int_less);
+	prev = 0;
+	for (i = 0; i < SEARCH_COUNT; i++) {
+//        printf("%d ", *IntVector_at(x, i));
+		assert(*IntVector_at(x, i) >= prev);
+		prev = *IntVector_at(x, i);
+	}
+	printf("\n");
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	HEAP_RESET_FAIL_COUNT(&heap);
+
+	IntVector_delete(x);
+#endif
+}
+
+void AlgoTest_test_5_3(void)
+{
+	IntVector *x;
+	int i;
+	printf("***** test_5_3 *****\n");
+	x = IntVector_new(SEARCH_COUNT);
+	assert(x);
+	// inplace_merge
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(IntVector_push_back(x, i));
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_inplace_merge(x, 0, IntVector_size(x) / 2, IntVector_size(x), int_less);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_inplace_merge(x, 0, IntVector_size(x), IntVector_size(x), int_less);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_inplace_merge(x, 0, 0, IntVector_size(x), int_less);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_inplace_merge(x, 0, 0, 0, int_less);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_inplace_merge(x, IntVector_size(x), IntVector_size(x), IntVector_size(x), int_less);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+#ifdef MY_MALLOC
+	HEAP_SET_FAIL_COUNT(&heap, 0);
+	IntVector_inplace_merge(x, 0, IntVector_size(x) / 2, IntVector_size(x), int_less);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	HEAP_RESET_FAIL_COUNT(&heap);
+#endif
+
+	IntVector_delete(x);
+}
+
 void AlgoTest_run(void)
 {
 	printf("\n===== algorithm test =====\n");
@@ -778,6 +1048,10 @@ void AlgoTest_run(void)
 	AlgoTest_test_2_1();
 	AlgoTest_test_3_1();
 	AlgoTest_test_3_2();
+	AlgoTest_test_4_1();
+	AlgoTest_test_5_1();
+	AlgoTest_test_5_2();
+	AlgoTest_test_5_3();
 }
 
 
