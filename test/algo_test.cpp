@@ -1034,6 +1034,109 @@ void AlgoTest_test_5_3(void)
 	IntVector_delete(x);
 }
 
+int IntVector_is_heap(IntVector *x, size_t idx, size_t n, int (*comp)(const void *, const void *))
+{
+	size_t hi_i;
+	for (hi_i = n; hi_i > 1; hi_i--) {
+		if (comp(IntVector_at(x, hi_i + idx - 1), IntVector_at(x, hi_i / 2 + idx - 1)) > 0) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+void AlgoTest_test_6_1(void)
+{
+	IntVector *x;
+	int i;
+	printf("***** test_6_1 *****\n");
+	x = IntVector_new(SEARCH_COUNT);
+	assert(x);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(IntVector_push_back(x, i));
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+	assert(!IntVector_is_heap(x, 0, IntVector_size(x), int_less));
+	// make_heap
+	IntVector_make_heap(x, 0, IntVector_size(x), int_less);
+	assert(IntVector_is_heap(x, 0, IntVector_size(x), int_less));
+	// sort_heap
+	IntVector_sort_heap(x, 0, IntVector_size(x), int_less);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+
+	IntVector_sort(x, 0, IntVector_size(x), int_greater);
+	assert(!IntVector_is_heap(x, 0, IntVector_size(x), int_greater));
+	// make_heap
+	IntVector_make_heap(x, 0, IntVector_size(x), int_greater);
+	assert(IntVector_is_heap(x, 0, IntVector_size(x), int_greater));
+	// sort_heap
+	IntVector_sort_heap(x, 0, IntVector_size(x), int_greater);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == SEARCH_COUNT - 1 - i);
+	}
+
+	IntVector_sort(x, 0, IntVector_size(x), int_less);
+
+	// 途中から
+	size_t half_size = SEARCH_COUNT / 2;
+	assert(!IntVector_is_heap(x, half_size, IntVector_size(x) - half_size, int_less));
+	// make_heap
+	IntVector_make_heap(x, half_size, IntVector_size(x) - half_size, int_less);
+	assert(!IntVector_is_heap(x, 0, IntVector_size(x), int_less));
+	assert(IntVector_is_heap(x, half_size, IntVector_size(x) - half_size, int_less));
+	// sort_heap
+	IntVector_sort_heap(x, half_size, IntVector_size(x) - half_size, int_less);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(*IntVector_at(x, i) == i);
+	}
+
+	// ランダム
+	int prev;
+	IntVector_clear(x);
+	srand(time(0));
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		IntVector_push_back(x, rand() % SEARCH_COUNT);
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+	assert(!IntVector_is_heap(x, 0, IntVector_size(x), int_less));
+	// make_heap
+	IntVector_make_heap(x, 0, IntVector_size(x), int_less);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+//        printf("%d ", *IntVector_at(x, i));
+	}
+	printf("\n");
+	assert(IntVector_is_heap(x, 0, IntVector_size(x), int_less));
+	// sort_heap
+	IntVector_sort_heap(x, 0, IntVector_size(x), int_less);
+	prev = 0;
+	for (i = 0; i < SEARCH_COUNT; i++) {
+//        printf("%d ", *IntVector_at(x, i));
+		assert(*IntVector_at(x, i) >= prev);
+		prev = *IntVector_at(x, i);
+	}
+	printf("\n");
+
+	IntVector_delete(x);
+}
+
+void AlgoTest_test_6_2(void)
+{
+	IntVector *x;
+	int i;
+	printf("***** test_6_2 *****\n");
+	x = IntVector_new(SEARCH_COUNT);
+	assert(x);
+	for (i = 0; i < SEARCH_COUNT; i++) {
+		assert(IntVector_push_back(x, i));
+	}
+	assert(IntVector_size(x) == SEARCH_COUNT);
+
+	IntVector_delete(x);
+}
+
+
 void AlgoTest_run(void)
 {
 	printf("\n===== algorithm test =====\n");
@@ -1052,6 +1155,8 @@ void AlgoTest_run(void)
 	AlgoTest_test_5_1();
 	AlgoTest_test_5_2();
 	AlgoTest_test_5_3();
+	AlgoTest_test_6_1();
+	AlgoTest_test_6_2();
 }
 
 
