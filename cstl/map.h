@@ -57,7 +57,7 @@ struct Name##RBTreeNode_t {\
 	int color;\
 	KeyType key;\
 	ValueType value;\
-	CSTL_RBTREE_MAGIC(struct Name##RBTreeNode_t *magic);\
+	CSTL_RBTREE_MAGIC(struct Name##RBTreeNode_t *magic;)\
 };\
 \
 CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)\

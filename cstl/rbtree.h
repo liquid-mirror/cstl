@@ -756,7 +756,7 @@ typedef struct Name##RBTreeNode_t Name##RBTree;\
 struct Name##_t {\
 	Name##RBTree *tree;\
 	size_t nelems;\
-	CSTL_RBTREE_MAGIC(Name *magic);\
+	CSTL_RBTREE_MAGIC(Name *magic;)\
 };\
 \
 CSTL_RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare)\

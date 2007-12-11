@@ -115,7 +115,7 @@ struct Name##_t {\
 	size_t end;\
 	size_t nelems;\
 	Type *buf;\
-	CSTL_VECTOR_MAGIC(Name *magic);\
+	CSTL_VECTOR_MAGIC(Name *magic;)\
 };\
 \
 Name *Name##_new(size_t n)\

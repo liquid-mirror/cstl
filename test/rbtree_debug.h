@@ -77,11 +77,11 @@ static void Name##_p(Name##RBTreeNode *self, size_t depth)\
 	} else {\
 		if (map) {\
 			printf("n[%p], p[%p], l[%p], r[%p], k["#format1"], v["#format2"], c[%s], d[%d]",\
-				self, self->parent, self->left, self->right, self->key, self->value,\
+				(void *) self, (void *) self->parent, (void *) self->left, (void *) self->right, self->key, self->value,\
 				Name##_str_color(self->color), depth);\
 		} else {\
 			printf("n[%p], p[%p], l[%p], r[%p], v["#format1"], c[%s], d[%d]",\
-				self, self->parent, self->left, self->right, self->key,\
+				(void *) self, (void *) self->parent, (void *) self->left, (void *) self->right, self->key,\
 				Name##_str_color(self->color), depth);\
 		}\
 		if (CSTL_RBTREE_NODE_IS_ROOT(self)) {\

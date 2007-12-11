@@ -356,5 +356,6 @@ echo "$src" | cpp -I.. | grep "$name" | indent -kr -ut -ts4 \
 /' >> "$path"".c"
 
 # コンパイル確認
-gcc -Wall "$path"".c" -c
+gcc -Wall -ansi -pedantic-errors "$path"".c" -c -DNDEBUG
+gcc -Wall -ansi -pedantic-errors "$path"".c" -c
 rm "$path"".o"
