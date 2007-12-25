@@ -21,7 +21,7 @@ Heap heap;
 /*    int value;*/
 /*} Hoge;*/
 
-#ifdef CODEGEN
+#ifdef CSTLGEN
 #include "IntList.h"
 #include "HogeList.h"
 CSTL_LIST_DEBUG_INTERFACE(IntList)

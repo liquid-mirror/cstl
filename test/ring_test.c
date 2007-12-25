@@ -13,7 +13,7 @@ Heap heap;
 
 
 /* ring */
-#ifdef CODEGEN
+#ifdef CSTLGEN
 #include "UCharRing.h"
 #include "IntRing.h"
 #else

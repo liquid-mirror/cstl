@@ -19,7 +19,7 @@ Heap heap;
 
 #define NELEMS(array)	(sizeof(array) / sizeof(array[0]))
 
-#ifdef CODEGEN
+#ifdef CSTLGEN
 #include "IntVector.h"
 #include "HogeVector.h"
 #else

@@ -22,7 +22,7 @@ CSTL_RING_IMPLEMENT(IntRing, int)
 
 
 /* set */
-#ifdef CODEGEN
+#ifdef CSTLGEN
 #include "IntSetA.h"
 #include "IntSetD.h"
 #include "IntMSetA.h"

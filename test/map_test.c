@@ -20,7 +20,7 @@ CSTL_RING_IMPLEMENT(IntRing, int)
 
 
 /* map */
-#ifdef CODEGEN
+#ifdef CSTLGEN
 #include "IntIntMapA.h"
 #include "IntIntMMapA.h"
 #else

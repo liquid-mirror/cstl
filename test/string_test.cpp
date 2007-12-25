@@ -14,7 +14,7 @@ Heap heap;
 #define free(p)			Heap_free(&heap, p)
 #endif
 
-#ifdef CODEGEN
+#ifdef CSTLGEN
 #include "String.h"
 #else
 CSTL_STRING_INTERFACE(String, char)

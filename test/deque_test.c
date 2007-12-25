@@ -15,7 +15,7 @@ Heap heap;
 
 
 /* deque */
-#ifdef CODEGEN
+#ifdef CSTLGEN
 #include "UCharDeque.h"
 #include "IntDeque.h"
 #else

@@ -12,7 +12,7 @@ Heap heap;
 #endif
 
 /* vector */
-#ifdef CODEGEN
+#ifdef CSTLGEN
 #include "UCharVector.h"
 #include "IntVector.h"
 #else
