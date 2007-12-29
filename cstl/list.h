@@ -52,10 +52,10 @@
 #endif
 
 
-#define CSTL_LIST_BEGIN(self)	(self)->terminator->next
-#define CSTL_LIST_END(self)		(self)->terminator
-#define CSTL_LIST_RBEGIN(self)	(self)->terminator->prev
-#define CSTL_LIST_REND(self)	(self)->terminator
+#define CSTL_LIST_BEGIN(self)	(self)->next
+#define CSTL_LIST_END(self)		(self)
+#define CSTL_LIST_RBEGIN(self)	(self)->prev
+#define CSTL_LIST_REND(self)	(self)
 #define CSTL_LIST_NEXT(pos)		(pos)->next
 #define CSTL_LIST_PREV(pos)		(pos)->prev
 #define CSTL_LIST_AT(pos)		(pos)->elem
@@ -68,7 +68,7 @@
  * \param Type 要素の型
  */
 #define CSTL_LIST_INTERFACE(Name, Type)	\
-typedef struct Name##_t Name;\
+typedef struct Name##Node_t Name;\
 /*! 
  * \brief イテレータ
  */\
@@ -126,26 +126,12 @@ struct Name##Node_t {\
 	CSTL_LIST_MAGIC(Name##Node *magic;)\
 };\
 \
-/*! 
- * \brief list構造体
- */\
-struct Name##_t {\
-	Name##Node *terminator;\
-	CSTL_LIST_MAGIC(Name *magic;)\
-};\
-\
 Name *Name##_new(void)\
 {\
 	Name *self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->terminator = (Name##Node *) malloc(sizeof(Name##Node));\
-	if (!self->terminator) {\
-		free(self);\
-		return 0;\
-	}\
-	self->terminator->next = self->terminator;\
-	self->terminator->prev = self->terminator;\
-	CSTL_LIST_MAGIC(self->terminator->magic = self->terminator);\
+	self->next = self;\
+	self->prev = self;\
 	CSTL_LIST_MAGIC(self->magic = self);\
 	return self;\
 }\
@@ -155,9 +141,7 @@ void Name##_delete(Name *self)\
 	assert(self && "List_delete");\
 	assert(self->magic == self && "List_delete");\
 	Name##_clear(self);\
-	CSTL_LIST_MAGIC(self->terminator->magic = 0);\
 	CSTL_LIST_MAGIC(self->magic = 0);\
-	free(self->terminator);\
 	free(self);\
 }\
 \
@@ -175,7 +159,7 @@ int Name##_push_back(Name *self, Type elem)\
 	node->prev = pos->prev;\
 	pos->prev = node;\
 	node->prev->next = node;\
-	CSTL_LIST_MAGIC(node->magic = self->terminator);\
+	CSTL_LIST_MAGIC(node->magic = self);\
 	return 1;\
 }\
 \
@@ -193,7 +177,7 @@ int Name##_push_front(Name *self, Type elem)\
 	node->prev = pos->prev;\
 	pos->prev = node;\
 	node->prev->next = node;\
-	CSTL_LIST_MAGIC(node->magic = self->terminator);\
+	CSTL_LIST_MAGIC(node->magic = self);\
 	return 1;\
 }\
 \
@@ -223,7 +207,7 @@ int Name##_empty(Name *self)\
 {\
 	assert(self && "List_empty");\
 	assert(self->magic == self && "List_empty");\
-	return self->terminator->next == self->terminator;\
+	return self->next == self;\
 }\
 \
 size_t Name##_size(Name *self)\
@@ -257,7 +241,7 @@ Type Name##_front(Name *self)\
 	assert(self && "List_front");\
 	assert(self->magic == self && "List_front");\
 	assert(!Name##_empty(self) && "List_front");\
-	return self->terminator->next->elem;\
+	return self->next->elem;\
 }\
 \
 Type Name##_back(Name *self)\
@@ -265,7 +249,7 @@ Type Name##_back(Name *self)\
 	assert(self && "List_back");\
 	assert(self->magic == self && "List_back");\
 	assert(!Name##_empty(self) && "List_back");\
-	return self->terminator->prev->elem;\
+	return self->prev->elem;\
 }\
 \
 Name##Iterator Name##_begin(Name *self)\
@@ -316,7 +300,7 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
 	assert(self && "List_insert");\
 	assert(self->magic == self && "List_insert");\
 	assert(pos && "List_insert");\
-	assert(pos->magic == self->terminator && "List_insert");\
+	assert(pos->magic == self && "List_insert");\
 	node = (Name##Node *) malloc(sizeof(Name##Node));\
 	if (!node) return 0;\
 	node->elem = elem;\
@@ -324,24 +308,21 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
 	node->prev = pos->prev;\
 	pos->prev = node;\
 	node->prev->next = node;\
-	CSTL_LIST_MAGIC(node->magic = self->terminator);\
+	CSTL_LIST_MAGIC(node->magic = self);\
 	return node;\
 }\
 \
 int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type elem)\
 {\
 	Name x;\
-	Name##Node term;\
 	register size_t i;\
 	assert(self && "List_insert_n");\
 	assert(self->magic == self && "List_insert_n");\
 	assert(pos && "List_insert_n");\
-	assert(pos->magic == self->terminator && "List_insert_n");\
-	x.terminator = &term;\
-	x.terminator->next = x.terminator;\
-	x.terminator->prev = x.terminator;\
+	assert(pos->magic == self && "List_insert_n");\
+	x.next = &x;\
+	x.prev = &x;\
 	CSTL_LIST_MAGIC(x.magic = &x);\
-	CSTL_LIST_MAGIC(x.terminator->magic = x.terminator);\
 	for (i = 0; i < n; i++) {\
 		if (!Name##_push_back(&x, elem)) {\
 			Name##_clear(&x);\
@@ -355,18 +336,15 @@ int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type elem)\
 int Name##_insert_array(Name *self, Name##Iterator pos, const Type *elems, size_t n)\
 {\
 	Name x;\
-	Name##Node term;\
 	register size_t i;\
 	assert(self && "List_insert_array");\
 	assert(self->magic == self && "List_insert_array");\
 	assert(pos && "List_insert_array");\
-	assert(pos->magic == self->terminator && "List_insert_array");\
+	assert(pos->magic == self && "List_insert_array");\
 	assert(elems && "List_insert_array");\
-	x.terminator = &term;\
-	x.terminator->next = x.terminator;\
-	x.terminator->prev = x.terminator;\
+	x.next = &x;\
+	x.prev = &x;\
 	CSTL_LIST_MAGIC(x.magic = &x);\
-	CSTL_LIST_MAGIC(x.terminator->magic = x.terminator);\
 	for (i = 0; i < n; i++) {\
 		if (!Name##_push_back(&x, ((Type *) elems)[i])) {\
 			Name##_clear(&x);\
@@ -380,21 +358,18 @@ int Name##_insert_array(Name *self, Name##Iterator pos, const Type *elems, size_
 int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Name##Iterator last)\
 {\
 	Name x;\
-	Name##Node term;\
 	register Name##Iterator i;\
 	assert(self && "List_insert_range");\
 	assert(self->magic == self && "List_insert_range");\
 	assert(pos && "List_insert_range");\
-	assert(pos->magic == self->terminator && "List_insert_range");\
+	assert(pos->magic == self && "List_insert_range");\
 	assert(first && "List_insert_range");\
 	assert(last && "List_insert_range");\
 	assert(first->magic && "List_insert_range");\
 	assert(last->magic && "List_insert_range");\
-	x.terminator = &term;\
-	x.terminator->next = x.terminator;\
-	x.terminator->prev = x.terminator;\
+	x.next = &x;\
+	x.prev = &x;\
 	CSTL_LIST_MAGIC(x.magic = &x);\
-	CSTL_LIST_MAGIC(x.terminator->magic = x.terminator);\
 	for (i = first; i != last; i = CSTL_LIST_NEXT(i)) {\
 		assert(i->magic && "List_insert_range");\
 		if (!Name##_push_back(&x, CSTL_LIST_AT(i))) {\
@@ -412,8 +387,8 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	assert(self && "List_erase");\
 	assert(self->magic == self && "List_erase");\
 	assert(pos && "List_erase");\
-	assert(pos != self->terminator && "List_erase");\
-	assert(pos->magic == self->terminator && "List_erase");\
+	assert(pos != self && "List_erase");\
+	assert(pos->magic == self && "List_erase");\
 	assert(!Name##_empty(self) && "List_erase");\
 	node = pos->next;\
 	pos->prev->next = pos->next;\
@@ -430,8 +405,8 @@ Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterat
 	assert(self->magic == self && "List_erase_range");\
 	assert(first && "List_erase_range");\
 	assert(last && "List_erase_range");\
-	assert(first->magic == self->terminator && "List_erase_range");\
-	assert(last->magic == self->terminator && "List_erase_range");\
+	assert(first->magic == self && "List_erase_range");\
+	assert(last->magic == self && "List_erase_range");\
 	pos = first;\
 	while (pos != last) {\
 		assert(!Name##_empty(self) && "List_erase_range");\
@@ -453,12 +428,9 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 		}\
 	} else {\
 		Name x;\
-		Name##Node term;\
-		x.terminator = &term;\
-		x.terminator->next = x.terminator;\
-		x.terminator->prev = x.terminator;\
+		x.next = &x;\
+		x.prev = &x;\
 		CSTL_LIST_MAGIC(x.magic = &x);\
-		CSTL_LIST_MAGIC(x.terminator->magic = x.terminator);\
 		for (i = 0; i < n - size; i++) {\
 			if (!Name##_push_back(&x, elem)) {\
 				Name##_clear(&x);\
@@ -472,14 +444,33 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 \
 void Name##_swap(Name *self, Name *x)\
 {\
-	Name##Node *tmp_terminator;\
+	Name##Node *tmp_next;\
+	Name##Node *tmp_prev;\
+	CSTL_LIST_MAGIC(register Name##Iterator pos);\
 	assert(self && "List_swap");\
 	assert(x && "List_swap");\
 	assert(self->magic == self && "List_swap");\
 	assert(x->magic == x && "List_swap");\
-	tmp_terminator = self->terminator;\
-	self->terminator = x->terminator;\
-	x->terminator = tmp_terminator;\
+	CSTL_LIST_MAGIC(\
+		for (pos = CSTL_LIST_BEGIN(self); pos != CSTL_LIST_END(self); pos = CSTL_LIST_NEXT(pos)) {\
+			assert(pos->magic == self && "List_swap");\
+			pos->magic = x;\
+		}\
+		for (pos = CSTL_LIST_BEGIN(x); pos != CSTL_LIST_END(x); pos = CSTL_LIST_NEXT(pos)) {\
+			assert(pos->magic == x && "List_swap");\
+			pos->magic = self;\
+		}\
+	);\
+	self->next->prev = x;\
+	self->prev->next = x;\
+	x->next->prev = self;\
+	x->prev->next = self;\
+	tmp_next = self->next;\
+	tmp_prev = self->prev;\
+	self->next = x->next;\
+	self->prev = x->prev;\
+	x->next = tmp_next;\
+	x->prev = tmp_prev;\
 }\
 \
 void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last)\
@@ -489,19 +480,19 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 	assert(self && "List_splice");\
 	assert(self->magic == self && "List_splice");\
 	assert(pos && "List_splice");\
-	assert(pos->magic == self->terminator && "List_splice");\
+	assert(pos->magic == self && "List_splice");\
 	assert(x && "List_splice");\
 	assert(x->magic == x && "List_splice");\
 	assert(first && "List_splice");\
 	assert(last && "List_splice");\
-	assert(first->magic == x->terminator && "List_splice");\
-	assert(last->magic == x->terminator && "List_splice");\
+	assert(first->magic == x && "List_splice");\
+	assert(last->magic == x && "List_splice");\
 	if (first == last || pos == last) return;\
 	CSTL_LIST_MAGIC(\
 		for (i = first; i != last; i = CSTL_LIST_NEXT(i)) {\
 			assert(i != pos && "List_splice");\
-			assert(i->magic == x->terminator && "List_splice");\
-			i->magic = self->terminator;\
+			assert(i->magic == x && "List_splice");\
+			i->magic = self;\
 		}\
 	);\
 	pos->prev->next = first;\
@@ -605,13 +596,13 @@ void Name##_reverse(Name *self)\
 	register Name##Node *tmp;\
 	assert(self && "List_reverse");\
 	assert(self->magic == self && "List_reverse");\
-	p = self->terminator;\
+	p = self;\
 	do {\
 		tmp = p->next;\
 		p->next = p->prev;\
 		p->prev = tmp;\
 		p = tmp;\
-	} while (p != self->terminator);\
+	} while (p != self);\
 }\
 \
 
