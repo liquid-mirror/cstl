@@ -1,7 +1,7 @@
 #!/bin/sh
 usage()
 {
-	echo -e "Usage: cstlgen.sh {vector | deque | list | string} name type [algo] [include] [path]"
+	echo -e "Usage: cstlgen.sh {vector | deque | list | string} name type [algo] [include] [debug] [path]"
 	echo -e "   or: cstlgen.sh {set | multiset} name type comp [include] [debug1] [path]"
 	echo -e "   or: cstlgen.sh {map | multimap} name keytype valuetype comp [include] [debug1] [debug2] [path]"
 }
@@ -15,8 +15,9 @@ case $container in
 	type=$3
 	algo=$4
 	include_file=$5
-	path=$6
-	heap=$7
+	debug=$6
+	path=$7
+	heap=$8
 	;;
 "deque")
 	lower="deque"
@@ -25,8 +26,9 @@ case $container in
 	type=$3
 	algo=$4
 	include_file=$5
-	path=$6
-	heap=$7
+	debug=$6
+	path=$7
+	heap=$8
 	;;
 "ring")
 	lower="ring"
@@ -35,8 +37,9 @@ case $container in
 	type=$3
 	algo=$4
 	include_file=$5
-	path=$6
-	heap=$7
+	debug=$6
+	path=$7
+	heap=$8
 	;;
 "list")
 	lower="list"
@@ -45,8 +48,9 @@ case $container in
 	type=$3
 	algo=$4
 	include_file=$5
-	path=$6
-	heap=$7
+	debug=$6
+	path=$7
+	heap=$8
 	;;
 "string")
 	lower="string"
@@ -55,8 +59,9 @@ case $container in
 	type=$3
 	algo=$4
 	include_file=$5
-	path=$6
-	heap=$7
+	debug=$6
+	path=$7
+	heap=$8
 	;;
 "set")
 	lower="set"
@@ -128,10 +133,14 @@ fi
 if [ "$include_file" = "false" -o "$include_file" = "no" ]; then
 	include_file=""
 fi
+if [ "$debug" = "false" -o "$debug" = "no" ]; then
+	debug=""
+fi
 
 
 hdr="\
 #include \"../cstl/${lower}.h\"
+#include \"./list_debug.h\"
 #include \"./rbtree_debug.h\"
 #undef CSTL_VECTOR_MAGIC
 #define CSTL_VECTOR_MAGIC(x) CSTL_VECTOR_MAGIC(x)
@@ -160,9 +169,13 @@ if [ "$debug1" != "" ]; then
 		hdr=${hdr}"CSTL_${rbdebug}_DEBUG_INTERFACE($name)"
 	fi
 fi
+if [ "$debug" != "" ]; then
+	hdr=${hdr}"CSTL_${upper}_DEBUG_INTERFACE($name)"
+fi
 
 src="\
 #include \"../cstl/${lower}.h\"
+#include \"./list_debug.h\"
 #include \"./rbtree_debug.h\"
 #undef assert
 #define assert(x) assert(x)
@@ -197,6 +210,9 @@ if [ "$rbdebug" != "" ]; then
 	else
 		src=${src}"CSTL_${rbdebug}_DEBUG_IMPLEMENT($name, $type, $comp, $debug1, 1)"
 	fi
+fi
+if [ "$debug" != "" ]; then
+	src=${src}"CSTL_${upper}_DEBUG_IMPLEMENT($name)"
 fi
 
 rev=`grep '$Id' "../cstl/${lower}.h"`
@@ -289,7 +305,7 @@ echo -e "#include <stdlib.h>" >> "$path"".c"
 if [ "$comp" = "strcmp" ]; then
 	echo -e "#include <string.h>" >> "$path"".c"
 fi
-if [ "$rbdebug" != "" ]; then
+if [ "$rbdebug" != "" -o "$debug" != "" ]; then
 	echo -e "#include <stdio.h>" >> "$path"".c"
 fi
 echo -e "#include <assert.h>" >> "$path"".c"

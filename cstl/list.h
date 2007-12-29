@@ -233,6 +233,7 @@ Type *Name##_at(Name##Iterator pos)\
 {\
 	assert(pos && "List_at");\
 	assert(pos->magic && "List_at");\
+	assert(pos->magic != pos && "List_at");\
 	return &CSTL_LIST_AT(pos);\
 }\
 \
@@ -284,6 +285,7 @@ Name##Iterator Name##_next(Name##Iterator pos)\
 {\
 	assert(pos && "List_next");\
 	assert(pos->magic && "List_next");\
+	assert(pos->magic != pos && "List_next");\
 	return CSTL_LIST_NEXT(pos);\
 }\
 \
@@ -291,6 +293,7 @@ Name##Iterator Name##_prev(Name##Iterator pos)\
 {\
 	assert(pos && "List_prev");\
 	assert(pos->magic && "List_prev");\
+	assert(pos->magic != pos && "List_prev");\
 	return CSTL_LIST_PREV(pos);\
 }\
 \

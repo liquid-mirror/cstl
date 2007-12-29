@@ -15,8 +15,8 @@ heap.o: heap.c heap.h
 
 vector: ../cstl/vector.h vector_test.c heap.o
 ifneq ($(CSTLGEN),)
-	sh cstlgen.sh vector UCharVector "unsigned char" true false . $(HEAP)
-	sh cstlgen.sh vector IntVector "int" true false . $(HEAP)
+	sh cstlgen.sh vector UCharVector "unsigned char" true false false . $(HEAP)
+	sh cstlgen.sh vector IntVector "int" true false false . $(HEAP)
 	$(CC) $(CFLAGS) -o $@.exe vector_test.c heap.o UCharVector.c IntVector.c $(CSTLGEN)
 else
 	$(CC) $(CFLAGS) -o $@.exe vector_test.c heap.o
@@ -25,8 +25,8 @@ endif
 
 ring: ../cstl/ring.h ring_test.c heap.o
 ifneq ($(CSTLGEN),)
-	sh cstlgen.sh ring UCharRing "unsigned char" true false . $(HEAP)
-	sh cstlgen.sh ring IntRing "int" true false . $(HEAP)
+	sh cstlgen.sh ring UCharRing "unsigned char" true false false . $(HEAP)
+	sh cstlgen.sh ring IntRing "int" true false false . $(HEAP)
 	$(CC) $(CFLAGS) -o $@.exe ring_test.c heap.o UCharRing.c IntRing.c $(CSTLGEN)
 else
 	$(CC) $(CFLAGS) -o $@.exe ring_test.c heap.o
@@ -35,18 +35,18 @@ endif
 
 deque: ../cstl/deque.h ../cstl/vector.h ../cstl/ring.h deque_test.c heap.o
 ifneq ($(CSTLGEN),)
-	sh cstlgen.sh deque UCharDeque "unsigned char" true false . $(HEAP)
-	sh cstlgen.sh deque IntDeque "int" true false . $(HEAP)
+	sh cstlgen.sh deque UCharDeque "unsigned char" true false false . $(HEAP)
+	sh cstlgen.sh deque IntDeque "int" true false false . $(HEAP)
 	$(CC) $(CFLAGS) -o $@.exe deque_test.c heap.o UCharDeque.c IntDeque.c $(CSTLGEN)
 else
 	$(CC) $(CFLAGS) -o $@.exe deque_test.c heap.o
 endif
 	./$@.exe
 
-list: ../cstl/list.h list_test.c heap.o
+list: ../cstl/list.h list_test.c heap.o list_debug.h
 ifneq ($(CSTLGEN),)
-	sh cstlgen.sh list IntList "int" false false . $(HEAP)
-	sh cstlgen.sh list HogeList "Hoge" false hoge.h . $(HEAP)
+	sh cstlgen.sh list IntList "int" false false true . $(HEAP)
+	sh cstlgen.sh list HogeList "Hoge" false hoge.h true . $(HEAP)
 	$(CC) $(CFLAGS) -o $@.exe list_test.c heap.o IntList.c HogeList.c $(CSTLGEN)
 else
 	$(CC) $(CFLAGS) -o $@.exe list_test.c heap.o
@@ -80,7 +80,7 @@ endif
 
 string: ../cstl/string.h ../cstl/vector.h string_test.cpp heap.o
 ifneq ($(CSTLGEN),)
-	sh cstlgen.sh string String "char" true false . $(HEAP)
+	sh cstlgen.sh string String "char" true false false . $(HEAP)
 	g++ $(CFLAGS) -o $@.exe string_test.cpp heap.o String.c $(CSTLGEN)
 else
 	g++ $(CFLAGS) -o $@.exe string_test.cpp heap.o
@@ -89,8 +89,8 @@ endif
 
 algo: ../cstl/algorithm.h ../cstl/vector.h ../cstl/deque.h ../cstl/string.h algo_test.cpp heap.o
 ifneq ($(CSTLGEN),)
-	sh cstlgen.sh vector IntVector "int" true false . $(HEAP)
-	sh cstlgen.sh vector HogeVector "Hoge" true hoge.h . $(HEAP)
+	sh cstlgen.sh vector IntVector "int" true false false . $(HEAP)
+	sh cstlgen.sh vector HogeVector "Hoge" true hoge.h false . $(HEAP)
 	g++ $(CFLAGS) -o $@.exe algo_test.cpp heap.o IntVector.c HogeVector.c $(CSTLGEN)
 else
 	g++ $(CFLAGS) -o $@.exe algo_test.cpp heap.o

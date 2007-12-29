@@ -24,10 +24,6 @@ Heap heap;
 #ifdef CSTLGEN
 #include "IntList.h"
 #include "HogeList.h"
-CSTL_LIST_DEBUG_INTERFACE(IntList)
-CSTL_LIST_DEBUG_INTERFACE(HogeList)
-CSTL_LIST_DEBUG_IMPLEMENT(IntList)
-CSTL_LIST_DEBUG_IMPLEMENT(HogeList)
 #else
 
 CSTL_LIST_INTERFACE(IntList, int)
@@ -407,7 +403,7 @@ void ListTest_test_1_8(void)
 	}
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
-	printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
+	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
 	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
 		hoge = *HogeList_at(pos);
 		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
@@ -421,7 +417,7 @@ void ListTest_test_1_8(void)
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "000"; prev.value = 0;
-	printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
+	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
 	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
 		hoge = *HogeList_at(pos);
 		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
@@ -438,7 +434,7 @@ void ListTest_test_1_8(void)
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "000"; prev.value = 0;
-	printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
+	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
 	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
 		hoge = *HogeList_at(pos);
 		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
@@ -455,7 +451,7 @@ void ListTest_test_1_8(void)
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "999"; prev.value = 999;
-	printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
+	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
 	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
 		hoge = *HogeList_at(pos);
 		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
@@ -476,7 +472,7 @@ void ListTest_test_1_8(void)
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "999"; prev.value = 999;
-	printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
+	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
 	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
 		hoge = *HogeList_at(pos);
 		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
@@ -495,7 +491,7 @@ void ListTest_test_1_8(void)
 	printf("reverse\n");
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
-	printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
+	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
 	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
 		hoge = *HogeList_at(pos);
 		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
@@ -510,7 +506,7 @@ void ListTest_test_1_8(void)
 	HogeList_sort(hl, less);
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
-	printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
+	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
 	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
 		hoge = *HogeList_at(pos);
 		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
@@ -524,7 +520,7 @@ void ListTest_test_1_8(void)
 	HogeList_sort(x, less);
 	pos = HogeList_end(x);
 	hoge.key = "XXX"; hoge.value = 9999;
-	printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
+	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
 	for (pos = HogeList_begin(x); pos != HogeList_end(x); pos = HogeList_next(pos)) {
 		hoge = *HogeList_at(pos);
 		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
@@ -536,7 +532,7 @@ void ListTest_test_1_8(void)
 	assert(HogeList_verify(x));
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
-	printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
+	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
 	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
 		hoge = *HogeList_at(pos);
 		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
