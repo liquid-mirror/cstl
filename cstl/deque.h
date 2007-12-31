@@ -63,6 +63,7 @@
 
 #define CSTL_DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 512 ? 512 / sizeof(Type) : 1)
 #define CSTL_DEQUE_INITIAL_MAP_SIZE		(8)
+#define CSTL_DEQUE_SIZE(self)			(self)->nelems
 
 /*! 
  * \brief インターフェイスマクロ
@@ -447,7 +448,7 @@ size_t Name##_size(Name *self)\
 {\
 	assert(self && "Deque_size");\
 	assert(self->magic == self && "Deque_size");\
-	return self->nelems;\
+	return CSTL_DEQUE_SIZE(self);\
 }\
 \
 int Name##_empty(Name *self)\
@@ -507,7 +508,7 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 \
 static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
 {\
-	size_t size = Name##_size(self);\
+	size_t size = CSTL_DEQUE_SIZE(self);\
 	if (size / 2 < idx) {\
 		/* end側を移動 */\
 		if (!Name##_expand_end_side(self, n)) {\
@@ -607,7 +608,7 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 	assert(Name##_size(self) >= n && "Deque_erase");\
 	assert(Name##_size(self) > idx && "Deque_erase");\
 	if (!n) return;\
-	size = Name##_size(self);\
+	size = CSTL_DEQUE_SIZE(self);\
 	if (idx >= size - (idx + n)) {\
 		/* end側を移動 */\
 		Name##_move_backward(self, idx + n, size, n);\
@@ -646,7 +647,7 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 	size_t size;\
 	assert(self && "Deque_resize");\
 	assert(self->magic == self && "Deque_resize");\
-	size = Name##_size(self);\
+	size = CSTL_DEQUE_SIZE(self);\
 	if (size >= n) {\
 		Name##_erase(self, n, size - n);\
 	} else {\
