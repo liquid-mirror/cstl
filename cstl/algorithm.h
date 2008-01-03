@@ -257,19 +257,19 @@ static void Name##_merge_with_buffer(Name *self, size_t first, size_t middle, si
 {\
 	register size_t i, j, k;\
 	for (i = first; i < middle; i++) {\
-		buf[i] = DIRECT_ACCESS(self, i);\
+		buf[i - first] = DIRECT_ACCESS(self, i);\
 	}\
 	for (i = middle, j = last - 1; i < last; i++, j--) {\
-		buf[i] = DIRECT_ACCESS(self, j);\
+		buf[i - first] = DIRECT_ACCESS(self, j);\
 	}\
 	i = first;\
 	j = last - 1;\
 	for (k = first; k < last; k++) {\
-		if (i < middle && comp(&buf[i], &buf[j]) <= 0) {\
-			DIRECT_ACCESS(self, k) = buf[i];\
+		if (i < middle && comp(&buf[i - first], &buf[j - first]) <= 0) {\
+			DIRECT_ACCESS(self, k) = buf[i - first];\
 			i++;\
 		} else {\
-			DIRECT_ACCESS(self, k) = buf[j];\
+			DIRECT_ACCESS(self, k) = buf[j - first];\
 			j--;\
 		}\
 	}\
