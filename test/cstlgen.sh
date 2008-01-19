@@ -141,6 +141,7 @@ fi
 hdr="\
 #include \"../cstl/${lower}.h\"
 #include \"./list_debug.h\"
+#include \"./deque_debug.h\"
 #include \"./rbtree_debug.h\"
 #undef CSTL_VECTOR_MAGIC
 #define CSTL_VECTOR_MAGIC(x) CSTL_VECTOR_MAGIC(x)
@@ -170,12 +171,16 @@ if [ "$debug1" != "" ]; then
 	fi
 fi
 if [ "$debug" != "" ]; then
-	hdr=${hdr}"CSTL_${upper}_DEBUG_INTERFACE($name)"
+	format=`echo "$debug" | grep '%[#+-]*[0-9]*[dioxXucsfeEgGp]'`
+	if [ "$debug" == "$format" ]; then
+		hdr=${hdr}"CSTL_${upper}_DEBUG_INTERFACE($name, $type)"
+	fi
 fi
 
 src="\
 #include \"../cstl/${lower}.h\"
 #include \"./list_debug.h\"
+#include \"./deque_debug.h\"
 #include \"./rbtree_debug.h\"
 #undef assert
 #define assert(x) assert(x)
@@ -212,7 +217,10 @@ if [ "$rbdebug" != "" ]; then
 	fi
 fi
 if [ "$debug" != "" ]; then
-	src=${src}"CSTL_${upper}_DEBUG_IMPLEMENT($name)"
+	format=`echo "$debug" | grep '%[#+-]*[0-9]*[dioxXucsfeEgGp]'`
+	if [ "$debug" == "$format" ]; then
+		src=${src}"CSTL_${upper}_DEBUG_IMPLEMENT($name, $type, $debug)"
+	fi
 fi
 
 rev=`grep '$Id' "../cstl/${lower}.h"`

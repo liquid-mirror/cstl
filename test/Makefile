@@ -33,10 +33,10 @@ else
 endif
 	./$@.exe
 
-deque: ../cstl/deque.h ../cstl/vector.h ../cstl/ring.h deque_test.c heap.o
+deque: ../cstl/deque.h ../cstl/vector.h ../cstl/ring.h deque_test.c heap.o deque_debug.h
 ifneq ($(CSTLGEN),)
-	sh cstlgen.sh deque UCharDeque "unsigned char" true false false . $(HEAP)
-	sh cstlgen.sh deque IntDeque "int" true false false . $(HEAP)
+	sh cstlgen.sh deque UCharDeque "unsigned char" true false '%d' . $(HEAP)
+	sh cstlgen.sh deque IntDeque "int" true false '%d' . $(HEAP)
 	$(CC) $(CFLAGS) -o $@.exe deque_test.c heap.o UCharDeque.c IntDeque.c $(CSTLGEN)
 else
 	$(CC) $(CFLAGS) -o $@.exe deque_test.c heap.o
@@ -45,8 +45,8 @@ endif
 
 list: ../cstl/list.h list_test.c heap.o list_debug.h
 ifneq ($(CSTLGEN),)
-	sh cstlgen.sh list IntList "int" false false true . $(HEAP)
-	sh cstlgen.sh list HogeList "Hoge" false hoge.h true . $(HEAP)
+	sh cstlgen.sh list IntList "int" false false '%d' . $(HEAP)
+	sh cstlgen.sh list HogeList "Hoge" false hoge.h '%d' . $(HEAP)
 	$(CC) $(CFLAGS) -o $@.exe list_test.c heap.o IntList.c HogeList.c $(CSTLGEN)
 else
 	$(CC) $(CFLAGS) -o $@.exe list_test.c heap.o

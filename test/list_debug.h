@@ -4,11 +4,11 @@
 #include <stdio.h>
 
 
-#define CSTL_LIST_DEBUG_INTERFACE(Name)	\
+#define CSTL_LIST_DEBUG_INTERFACE(Name, Type)	\
 int Name##_verify(Name *self);\
 
 
-#define CSTL_LIST_DEBUG_IMPLEMENT(Name)	\
+#define CSTL_LIST_DEBUG_IMPLEMENT(Name, Type, format)	\
 int Name##_verify(Name *self)\
 {\
 	Name##Iterator pos;\
