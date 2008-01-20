@@ -178,7 +178,6 @@ src="\
 #include \"./deque_debug.h\"
 #include \"./rbtree_debug.h\"
 #undef assert
-#define assert(x) assert(x)
 #undef CSTL_VECTOR_MAGIC
 #undef CSTL_RING_MAGIC
 #undef CSTL_DEQUE_MAGIC
