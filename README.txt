@@ -25,7 +25,7 @@ SourceForge.jp CSTL
     CSTL.html     CSTL.rdをhtml化したもの(tarballのみに同梱)
     Makefile      CSTL.htmlを生成するためのMakefile
   test/           単体テスト
-  sample/         CSTLを使用したサンプル
+  sample/         CSTLを使用したサンプルやSTLと性能を比較したベンチマーク
   README.txt      このファイル
 
 
