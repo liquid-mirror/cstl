@@ -144,15 +144,10 @@ hdr="\
 #include \"./deque_debug.h\"
 #include \"./rbtree_debug.h\"
 #undef CSTL_VECTOR_MAGIC
-#define CSTL_VECTOR_MAGIC(x) CSTL_VECTOR_MAGIC(x)
 #undef CSTL_RING_MAGIC
-#define CSTL_RING_MAGIC(x) CSTL_RING_MAGIC(x)
 #undef CSTL_DEQUE_MAGIC
-#define CSTL_DEQUE_MAGIC(x) CSTL_DEQUE_MAGIC(x)
 #undef CSTL_LIST_MAGIC
-#define CSTL_LIST_MAGIC(x) CSTL_LIST_MAGIC(x)
 #undef CSTL_STRING_MAGIC
-#define CSTL_STRING_MAGIC(x) CSTL_STRING_MAGIC(x)
 "
 if [ "$algo" != "false" ]; then
 	hdr=${hdr}"#include \"../cstl/algorithm.h\"
@@ -185,17 +180,11 @@ src="\
 #undef assert
 #define assert(x) assert(x)
 #undef CSTL_VECTOR_MAGIC
-#define CSTL_VECTOR_MAGIC(x) CSTL_VECTOR_MAGIC(x)
 #undef CSTL_RING_MAGIC
-#define CSTL_RING_MAGIC(x) CSTL_RING_MAGIC(x)
 #undef CSTL_DEQUE_MAGIC
-#define CSTL_DEQUE_MAGIC(x) CSTL_DEQUE_MAGIC(x)
 #undef CSTL_LIST_MAGIC
-#define CSTL_LIST_MAGIC(x) CSTL_LIST_MAGIC(x)
 #undef CSTL_STRING_MAGIC
-#define CSTL_STRING_MAGIC(x) CSTL_STRING_MAGIC(x)
 #undef CSTL_RBTREE_MAGIC
-#define CSTL_RBTREE_MAGIC(x) CSTL_RBTREE_MAGIC(x)
 "
 if [ "$algo" != "false" ]; then
 	src=${src}"#include \"../cstl/algorithm.h\"
