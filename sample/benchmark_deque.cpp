@@ -319,6 +319,8 @@ int main(void)
 			printf("!!!NG!!!\n");
 		}
 	}
+	IntDeque_clear(x);
+	y.clear();
 	// stable_sort
 	for (i = 0; i < SORT_COUNT; i++) {
 		hoge = rand();

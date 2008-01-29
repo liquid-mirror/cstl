@@ -214,6 +214,8 @@ int main(void)
 			printf("!!!NG!!!\n");
 		}
 	}
+	IntVector_clear(x);
+	y.clear();
 	// stable_sort
 	for (i = 0; i < SORT_COUNT; i++) {
 		buf[i] = rand();
