@@ -8,6 +8,7 @@
 #endif
 #include <cstl/list.h>
 #include <list>
+#include <functional>
 
 //#define malloc(s) ::operator new(s)
 //#define free(p) ::operator delete(p)
@@ -45,6 +46,16 @@ int comp(const void *x, const void *y)
 	}
 }
 
+int greater_comp(const void *x, const void *y)
+{
+	if (*(int*)x < *(int*)y) {
+		return 1;
+	} else if (*(int*)x > *(int*)y) {
+		return -1;
+	} else {
+		return 0;
+	}
+}
 
 int main(void)
 {
@@ -209,6 +220,34 @@ int main(void)
 	t = get_msec();
 	y.sort();
 	printf("stl : sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntList_next(xpos), ++ypos) {
+		if (*ypos != *IntList_at(xpos)) {
+			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *IntList_at(xpos));
+		}
+	}
+	// sort 2
+	t = get_msec();
+	IntList_sort(x, comp);
+	printf("cstl: sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	y.sort();
+	printf("stl : sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntList_next(xpos), ++ypos) {
+		if (*ypos != *IntList_at(xpos)) {
+			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *IntList_at(xpos));
+		}
+	}
+	// sort 3
+	t = get_msec();
+	IntList_sort(x, greater_comp);
+	printf("cstl: sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	y.sort(std::greater<int>());
+	printf("stl : sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntList_next(xpos), ++ypos) {
 		if (*ypos != *IntList_at(xpos)) {

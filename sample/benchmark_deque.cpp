@@ -10,6 +10,7 @@
 #include <cstl/algorithm.h>
 #include <deque>
 #include <algorithm>
+#include <functional>
 
 
 CSTL_DEQUE_INTERFACE(IntDeque, int)
@@ -40,6 +41,17 @@ int comp(const void *x, const void *y)
 		return -1;
 	} else if (*(int*)x > *(int*)y) {
 		return 1;
+	} else {
+		return 0;
+	}
+}
+
+int greater_comp(const void *x, const void *y)
+{
+	if (*(int*)x < *(int*)y) {
+		return 1;
+	} else if (*(int*)x > *(int*)y) {
+		return -1;
 	} else {
 		return 0;
 	}
@@ -319,6 +331,35 @@ int main(void)
 			printf("!!!NG!!!\n");
 		}
 	}
+	// sort 2
+	t = get_msec();
+	IntDeque_sort(x, 0, IntDeque_size(x), comp);
+	printf("cstl: sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	sort(y.begin(), y.end());
+	printf("stl : sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntDeque_at(x, i)) {
+			printf("!!!NG!!!\n");
+		}
+	}
+	// sort 3
+	t = get_msec();
+	IntDeque_sort(x, 0, IntDeque_size(x), greater_comp);
+	printf("cstl: sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	sort(y.begin(), y.end(), std::greater<int>());
+	printf("stl : sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntDeque_at(x, i)) {
+			printf("!!!NG!!!\n");
+		}
+	}
+
 	IntDeque_clear(x);
 	y.clear();
 	// stable_sort
@@ -334,6 +375,32 @@ int main(void)
 	t = get_msec();
 	stable_sort(y.begin(), y.end());
 	printf("stl : stable_sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntDeque_at(x, i)) {
+			printf("!!!NG!!!\n");
+		}
+	}
+	// stable_sort 2
+	t = get_msec();
+	IntDeque_stable_sort(x, 0, IntDeque_size(x), comp);
+	printf("cstl: stable_sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	stable_sort(y.begin(), y.end());
+	printf("stl : stable_sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntDeque_at(x, i)) {
+			printf("!!!NG!!!\n");
+		}
+	}
+	// stable_sort 3
+	t = get_msec();
+	IntDeque_stable_sort(x, 0, IntDeque_size(x), greater_comp);
+	printf("cstl: stable_sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	stable_sort(y.begin(), y.end(), greater<int>());
+	printf("stl : stable_sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 	for (i = 0; i < SORT_COUNT; i++) {
 		if (y[i] != *IntDeque_at(x, i)) {
 			printf("!!!NG!!!\n");
