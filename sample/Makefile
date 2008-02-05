@@ -13,18 +13,18 @@ bm: bm_vector\
 	$(NULL)
 	
 
-bm_vector: benchmark_vector.cpp
+bm_vector: benchmark_vector.cpp ../cstl/vector.h ../cstl/algorithm.h
 	$(CXX) $(CFLAGS) $< -o $@.exe
 
-bm_deque: benchmark_deque.cpp
+bm_deque: benchmark_deque.cpp ../cstl/deque.h ../cstl/vector.h ../cstl/ring.h ../cstl/algorithm.h
 	$(CXX) $(CFLAGS) $< -o $@.exe
 
-bm_list: benchmark_list.cpp
+bm_list: benchmark_list.cpp ../cstl/list.h
 	$(CXX) $(CFLAGS) $< -o $@.exe
 
-bm_set: benchmark_set.cpp
+bm_set: benchmark_set.cpp ../cstl/set.h ../cstl/rbtree.h
 	$(CXX) $(CFLAGS) $< -o $@.exe
 
-bm_map: benchmark_map.cpp
+bm_map: benchmark_map.cpp ../cstl/map.h ../cstl/rbtree.h
 	$(CXX) $(CFLAGS) $< -o $@.exe
 
