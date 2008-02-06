@@ -507,13 +507,18 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 	last->prev = tmp;\
 }\
 \
-static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *last, int (*comp)(const void *, const void *))\
+static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, int (*comp)(const void *, const void *))\
 {\
 	register Name##Node *p;\
-	register Name##Node *q;\
-/*	assert(x->prev == y->prev && x->prev == last);*/\
-	p = last;\
-	while (x != last && y != last) {\
+	Name##Node *xlast;\
+	Name##Node *ylast;\
+	Name##Node head;\
+	xlast = x->prev;\
+	ylast = y->prev;\
+	p = &head;\
+	x->prev->next = &head;\
+	y->prev->next = &head;\
+	while (x != &head && y != &head) {\
 		if (comp(&CSTL_LIST_AT(x), &CSTL_LIST_AT(y)) <= 0) {\
 			p->next = x;\
 			x->prev = p;\
@@ -526,28 +531,26 @@ static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, Name##Node *l
 			y = y->next;\
 		}\
 	}\
-	if (x == last) {\
+	if (x == &head) {\
 		p->next = y;\
 		y->prev = p;\
-		p = y;\
+		ylast->next = head.next;\
+		head.next->prev = ylast;\
 	} else {\
 		p->next = x;\
 		x->prev = p;\
-		p = x;\
+		xlast->next = head.next;\
+		head.next->prev = xlast;\
 	}\
-	do {\
-		q = p;\
-		p = p->next;\
-	} while (p != last);\
-	last->prev = q;\
-	return last->next;\
+	return head.next;\
 }\
 \
-static Name##Node *Name##_merge_sort(Name##Node *first, Name##Node *last, int (*comp)(const void *, const void *))\
+static Name##Node *Name##_merge_sort(Name##Node *first, int (*comp)(const void *, const void *))\
 {\
 	register Name##Node *x;\
 	register Name##Node *y;\
-	if (first == last || first->next == last) {\
+	Name##Node *tmp;\
+	if (first->next == first) {\
 		return first;\
 	}\
 	x = first;\
@@ -555,27 +558,48 @@ static Name##Node *Name##_merge_sort(Name##Node *first, Name##Node *last, int (*
 	do {\
 		x = x->next;\
 		y = y->next;\
-		if (y != last) {\
+		if (y != first) {\
 			y = y->next;\
 		}\
-	} while (y != last);\
-	x->prev->next = last;\
+	} while (y != first);\
+	tmp = x->prev;\
+	x->prev->next = first;\
 	x->prev = first->prev;\
-	return Name##_merge_list(Name##_merge_sort(first, last, comp), Name##_merge_sort(x, last, comp), last, comp);\
+	x->prev->next = x;\
+	first->prev = tmp;\
+	return Name##_merge_list(Name##_merge_sort(first, comp), Name##_merge_sort(x, comp), comp);\
 }\
 \
 void Name##_sort(Name *self, int (*comp)(const void *, const void *))\
 {\
+	Name##Node *first;\
+	Name##Node *last;\
 	assert(self && "List_sort");\
 	assert(self->magic == self && "List_sort");\
 	assert(comp && "List_sort");\
-	Name##_merge_sort(CSTL_LIST_BEGIN(self), CSTL_LIST_END(self), comp);\
+	if (Name##_empty(self)) {\
+		return;\
+	}\
+	/* 一時的に循環リストにする */\
+	first = self->next;\
+	last = self->prev;\
+	first->prev = last;\
+	last->next = first;\
+	first = Name##_merge_sort(first, comp);\
+	last = first->prev;\
+	self->next = first;\
+	first->prev = self;\
+	last->next = self;\
+	self->prev = last;\
 }\
 \
 void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *))\
 {\
-	Name##Node *p;\
-	Name##Node *q;\
+	Name##Node *first1;\
+	Name##Node *last1;\
+	Name##Node *first2;\
+	Name##Node *last2;\
+	CSTL_LIST_MAGIC(register Name##Iterator pos);\
 	assert(self && "List_merge");\
 	assert(self->magic == self && "List_merge");\
 	assert(x && "List_merge");\
@@ -586,11 +610,29 @@ void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *))\
 		Name##_splice(self, CSTL_LIST_END(self), x, CSTL_LIST_BEGIN(x), CSTL_LIST_END(x));\
 		return;\
 	}\
-	p = CSTL_LIST_RBEGIN(self);\
-	q = CSTL_LIST_BEGIN(x);\
-	Name##_splice(self, CSTL_LIST_END(self), x, CSTL_LIST_BEGIN(x), CSTL_LIST_END(x));\
-	p->next = CSTL_LIST_END(self);\
-	Name##_merge_list(CSTL_LIST_BEGIN(self), q, CSTL_LIST_END(self), comp);\
+	CSTL_LIST_MAGIC(\
+		for (pos = CSTL_LIST_BEGIN(x); pos != CSTL_LIST_END(x); pos = CSTL_LIST_NEXT(pos)) {\
+			assert(pos->magic == x && "List_merge");\
+			pos->magic = self;\
+		}\
+	);\
+	/* 一時的に循環リストにする */\
+	first1 = self->next;\
+	last1 = self->prev;\
+	first1->prev = last1;\
+	last1->next = first1;\
+	first2 = x->next;\
+	last2 = x->prev;\
+	first2->prev = last2;\
+	last2->next = first2;\
+	first1 = Name##_merge_list(first1, first2, comp);\
+	last1 = first1->prev;\
+	self->next = first1;\
+	first1->prev = self;\
+	last1->next = self;\
+	self->prev = last1;\
+	x->next = x;\
+	x->prev = x;\
 }\
 \
 void Name##_reverse(Name *self)\
