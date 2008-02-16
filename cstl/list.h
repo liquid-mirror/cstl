@@ -68,11 +68,11 @@
  * \param Type 要素の型
  */
 #define CSTL_LIST_INTERFACE(Name, Type)	\
-typedef struct Name##Node_t Name;\
+typedef struct Name##_t Name;\
 /*! 
  * \brief イテレータ
  */\
-typedef struct Name##Node_t *Name##Iterator;\
+typedef struct Name##_t *Name##Iterator;\
 \
 CSTL_LIST_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
@@ -115,11 +115,11 @@ CSTL_LIST_END_EXTERN_C()\
  * \param Type 要素の型
  */
 #define CSTL_LIST_IMPLEMENT(Name, Type)	\
-typedef struct Name##Node_t Name##Node;\
+typedef struct Name##_t Name##Node;\
 /*! 
- * \brief listノード構造体
+ * \brief list構造体
  */\
-struct Name##Node_t {\
+struct Name##_t {\
 	Name##Node *prev;\
 	Name##Node *next;\
 	Type elem;\
@@ -128,7 +128,8 @@ struct Name##Node_t {\
 \
 Name *Name##_new(void)\
 {\
-	Name *self = (Name *) malloc(sizeof(Name));\
+	Name *self;\
+	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
 	self->next = self;\
 	self->prev = self;\
