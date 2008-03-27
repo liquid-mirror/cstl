@@ -95,7 +95,7 @@ static void Name##RBTreeNode_set_left(Name##RBTreeNode *self, Name##RBTreeNode *
 static void Name##RBTreeNode_set_right(Name##RBTreeNode *self, Name##RBTreeNode *t);\
 static Name##RBTreeNode *Name##RBTree_get_root(Name##RBTree *self);\
 static void Name##RBTree_set_root(Name##RBTree *self, Name##RBTreeNode *t);\
-static Name##RBTreeNode *Name##RBTreeNode_find(Name##RBTree *self, Name##RBTreeNode *t, KeyType key);\
+static Name##RBTreeNode *Name##RBTreeNode_find(Name##RBTreeNode *t, KeyType key);\
 static Name##RBTreeNode *Name##RBTreeNode_replace_subtree(Name##RBTreeNode *self, Name##RBTreeNode *t);\
 static void Name##RBTreeNode_swap_parent_child(Name##RBTreeNode *p, Name##RBTreeNode *c);\
 static void Name##RBTreeNode_swap(Name##RBTreeNode *s, Name##RBTreeNode *t);\
@@ -196,7 +196,7 @@ static int Name##RBTree_empty(Name##RBTree *self)\
 	return CSTL_RBTREE_NODE_IS_NIL(Name##RBTree_get_root(self), Name##RBTree);\
 }\
 \
-static Name##RBTreeNode *Name##RBTreeNode_find(Name##RBTree *self, Name##RBTreeNode *t, KeyType key)\
+static Name##RBTreeNode *Name##RBTreeNode_find(Name##RBTreeNode *t, KeyType key)\
 {\
 	register int cmp;\
 	while (!CSTL_RBTREE_NODE_IS_NIL(t, Name##RBTree)) {\
@@ -216,7 +216,7 @@ static Name##RBTreeIterator Name##RBTree_find(Name##RBTree *self, KeyType key)\
 {\
 	Name##RBTreeNode *t;\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_find");\
-	t = Name##RBTreeNode_find(self, Name##RBTree_get_root(self), key);\
+	t = Name##RBTreeNode_find(Name##RBTree_get_root(self), key);\
 	return CSTL_RBTREE_NODE_IS_NIL(t, Name##RBTree) ? Name##RBTree_end(self) : t;\
 }\
 \
