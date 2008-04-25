@@ -86,12 +86,14 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
 + 文字のアクセス
   CharT *String_at(String *self, size_t idx);
 * selfのidx番目の文字へのポインタを返す。
+* 戻り値はselfの変更により無効となる。
 * 事前条件
   * idxがselfの現在の文字数より小さい値であること。
 <<< br
 
   const CharT *String_c_str(String *self);
 * selfの文字列を'\0'で終端したCの文字列として返す。
+* 戻り値はselfの変更により無効となる。
 <<< br
 
 + 代入

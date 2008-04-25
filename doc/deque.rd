@@ -50,6 +50,7 @@ CSTL_DEQUE_INTERFACEの引数のNameにDeque, TypeにTを指定した場合、
 + 要素のアクセス
   T *Deque_at(Deque *self, size_t idx);
 * selfのidx番目の要素へのポインタを返す。
+* 戻り値はselfの変更により無効となる。
 * 事前条件
   * idxがselfの現在の要素数より小さい値であること。
 <<< br
