@@ -184,6 +184,40 @@ src="\
 #undef CSTL_LIST_MAGIC
 #undef CSTL_STRING_MAGIC
 #undef CSTL_RBTREE_MAGIC
+#undef CSTL_NPOS
+#undef CSTL_VECTOR_AT
+#undef CSTL_VECTOR_SIZE
+#undef CSTL_VECTOR_EMPTY
+#undef CSTL_VECTOR_CAPACITY
+#undef CSTL_VECTOR_FULL
+#undef CSTL_VECTOR_CLEAR
+#undef CSTL_RING_FORWARD
+#undef CSTL_RING_BACKWARD
+#undef CSTL_RING_NEXT
+#undef CSTL_RING_PREV
+#undef CSTL_RING_DISTANCE
+#undef CSTL_RING_AT
+#undef CSTL_RING_EMPTY
+#undef CSTL_RING_MAX_SIZE
+#undef CSTL_RING_FULL
+#undef CSTL_RING_SIZE
+#undef CSTL_RING_FRONT
+#undef CSTL_RING_BACK
+#undef CSTL_RING_CLEAR
+#undef CSTL_DEQUE_RINGBUF_SIZE
+#undef CSTL_DEQUE_INITIAL_MAP_SIZE
+#undef CSTL_DEQUE_SIZE
+#undef CSTL_LIST_BEGIN
+#undef CSTL_LIST_END
+#undef CSTL_LIST_RBEGIN
+#undef CSTL_LIST_REND
+#undef CSTL_LIST_NEXT
+#undef CSTL_LIST_PREV
+#undef CSTL_LIST_AT
+#undef CSTL_RBTREE_NODE_IS_HEAD
+#undef CSTL_RBTREE_NODE_IS_ROOT
+#undef CSTL_RBTREE_NODE_IS_NIL
+#undef CSTL_STRING_AT
 "
 if [ "$algo" != "false" ]; then
 	src=${src}"#include \"../cstl/algorithm.h\"
@@ -353,7 +387,77 @@ extern Heap $heap;
 #define free(p)        Heap_free(&$heap, p)
 " >> "$path"".c"
 fi
-if [ $lower = "set" -o $lower = "multiset" -o\
+if [ $lower = "vector" ]; then
+echo -e "\
+#define CSTL_VECTOR_AT(self, idx)	(self)->buf[(idx)]
+#define CSTL_VECTOR_SIZE(self)		(self)->end
+#define CSTL_VECTOR_EMPTY(self)		((self)->end == 0)
+#define CSTL_VECTOR_CAPACITY(self)	(self)->nelems
+#define CSTL_VECTOR_FULL(self)		(CSTL_VECTOR_SIZE((self)) == CSTL_VECTOR_CAPACITY((self)))
+#define CSTL_VECTOR_CLEAR(self)		(self)->end = 0
+" >> "$path"".c"
+elif [ $lower = "ring" ]; then
+echo -e "\
+#define CSTL_RING_FORWARD(self, idx, n)			((idx) + (n) >= (self)->nelems ? (idx) + (n) - (self)->nelems : (idx) + (n))
+#define CSTL_RING_BACKWARD(self, idx, n)		((idx) >= (n) ? (idx) - (n) : (self)->nelems + (idx) - (n))
+#define CSTL_RING_NEXT(self, idx)				CSTL_RING_FORWARD((self), (idx), 1)
+#define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD((self), (idx), 1)
+#define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->nelems - (first) + (last))
+#define CSTL_RING_AT(self, idx)					(self)->buf[CSTL_RING_FORWARD((self), (self)->begin, (idx))]
+#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end)
+#define CSTL_RING_MAX_SIZE(self)				((self)->nelems - 1)
+#define CSTL_RING_FULL(self)					(CSTL_RING_NEXT((self), (self)->end) == (self)->begin)
+#define CSTL_RING_SIZE(self)					CSTL_RING_DISTANCE((self), (self)->begin, (self)->end)
+#define CSTL_RING_FRONT(self)					(self)->buf[(self)->begin]
+#define CSTL_RING_BACK(self)					(self)->buf[CSTL_RING_PREV((self), (self)->end)]
+#define CSTL_RING_CLEAR(self)					(self)->end = (self)->begin
+" >> "$path"".c"
+elif [ $lower = "deque" ]; then
+echo -e "\
+#define CSTL_VECTOR_AT(self, idx)	(self)->buf[(idx)]
+#define CSTL_VECTOR_SIZE(self)		(self)->end
+#define CSTL_VECTOR_EMPTY(self)		((self)->end == 0)
+#define CSTL_VECTOR_CAPACITY(self)	(self)->nelems
+#define CSTL_VECTOR_FULL(self)		(CSTL_VECTOR_SIZE((self)) == CSTL_VECTOR_CAPACITY((self)))
+#define CSTL_VECTOR_CLEAR(self)		(self)->end = 0
+#define CSTL_RING_FORWARD(self, idx, n)			((idx) + (n) >= (self)->nelems ? (idx) + (n) - (self)->nelems : (idx) + (n))
+#define CSTL_RING_BACKWARD(self, idx, n)		((idx) >= (n) ? (idx) - (n) : (self)->nelems + (idx) - (n))
+#define CSTL_RING_NEXT(self, idx)				CSTL_RING_FORWARD((self), (idx), 1)
+#define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD((self), (idx), 1)
+#define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->nelems - (first) + (last))
+#define CSTL_RING_AT(self, idx)					(self)->buf[CSTL_RING_FORWARD((self), (self)->begin, (idx))]
+#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end)
+#define CSTL_RING_MAX_SIZE(self)				((self)->nelems - 1)
+#define CSTL_RING_FULL(self)					(CSTL_RING_NEXT((self), (self)->end) == (self)->begin)
+#define CSTL_RING_SIZE(self)					CSTL_RING_DISTANCE((self), (self)->begin, (self)->end)
+#define CSTL_RING_FRONT(self)					(self)->buf[(self)->begin]
+#define CSTL_RING_BACK(self)					(self)->buf[CSTL_RING_PREV((self), (self)->end)]
+#define CSTL_RING_CLEAR(self)					(self)->end = (self)->begin
+#define CSTL_DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 512 ? 512 / sizeof(Type) : 1)
+#define CSTL_DEQUE_INITIAL_MAP_SIZE		(8)
+#define CSTL_DEQUE_SIZE(self)			(self)->nelems
+" >> "$path"".c"
+elif [ $lower = "list" ]; then
+echo -e "\
+#define CSTL_LIST_BEGIN(self)	(self)->next
+#define CSTL_LIST_END(self)		(self)
+#define CSTL_LIST_RBEGIN(self)	(self)->prev
+#define CSTL_LIST_REND(self)	(self)
+#define CSTL_LIST_NEXT(pos)		(pos)->next
+#define CSTL_LIST_PREV(pos)		(pos)->prev
+#define CSTL_LIST_AT(pos)		(pos)->elem
+" >> "$path"".c"
+elif [ $lower = "string" ]; then
+echo -e "\
+#define CSTL_VECTOR_AT(self, idx)	(self)->buf[(idx)]
+#define CSTL_VECTOR_SIZE(self)		(self)->end
+#define CSTL_VECTOR_EMPTY(self)		((self)->end == 0)
+#define CSTL_VECTOR_CAPACITY(self)	(self)->nelems
+#define CSTL_VECTOR_FULL(self)		(CSTL_VECTOR_SIZE((self)) == CSTL_VECTOR_CAPACITY((self)))
+#define CSTL_VECTOR_CLEAR(self)		(self)->end = 0
+#define CSTL_STRING_AT(self, idx)	CSTL_VECTOR_AT((self)->data, (idx))
+" >> "$path"".c"
+elif [ $lower = "set" -o $lower = "multiset" -o\
 	 $lower = "map" -o $lower = "multimap" ]; then
 echo -e "\
 enum {
@@ -361,6 +465,11 @@ enum {
 	CSTL_RBTREE_BLACK,
 	CSTL_RBTREE_HEAD
 };\n" >> "$path"".c"
+echo -e "\
+#define CSTL_RBTREE_NODE_IS_HEAD(self)		((self)->color == CSTL_RBTREE_HEAD)
+#define CSTL_RBTREE_NODE_IS_ROOT(self)		CSTL_RBTREE_NODE_IS_HEAD((self)->parent)
+#define CSTL_RBTREE_NODE_IS_NIL(self, Name)	((self) == (Name##Node *) &Name##_nil)
+" >> "$path"".c"
 fi
 echo "$src" | cpp -I.. | grep "$name" | indent -kr -ut -ts4 \
 | sed -e "s/$name \* /$name */g" | sed -e 's/^} /}\
