@@ -91,22 +91,22 @@ int Name##_compare(Name *self, Name *x);\
 Type *Name##_at(Name *self, size_t idx);\
 const Type *Name##_c_str(Name *self);\
 const Type *Name##_data(Name *self);\
-void Name##_erase(Name *self, size_t idx, size_t len);\
+Name *Name##_erase(Name *self, size_t idx, size_t len);\
 int Name##_resize(Name *self, size_t n, Type c);\
 void Name##_swap(Name *self, Name *x);\
-int Name##_assign(Name *self, const Type *cstr);\
-int Name##_assign_len(Name *self, const Type *cstr, size_t cstr_len);\
-int Name##_assign_c(Name *self, size_t n, Type c);\
-int Name##_append(Name *self, const Type *cstr);\
-int Name##_append_len(Name *self, const Type *cstr, size_t cstr_len);\
-int Name##_append_c(Name *self, size_t n, Type c);\
-int Name##_push_back(Name *self, Type c);\
-int Name##_insert(Name *self, size_t idx, const Type *cstr);\
-int Name##_insert_len(Name *self, size_t idx, const Type *cstr, size_t cstr_len);\
-int Name##_insert_c(Name *self, size_t idx, size_t n, Type c);\
-int Name##_replace(Name *self, size_t idx, size_t len, const Type *cstr);\
-int Name##_replace_len(Name *self, size_t idx, size_t len, const Type *cstr, size_t cstr_len);\
-int Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c);\
+Name *Name##_assign(Name *self, const Type *cstr);\
+Name *Name##_assign_len(Name *self, const Type *cstr, size_t cstr_len);\
+Name *Name##_assign_c(Name *self, size_t n, Type c);\
+Name *Name##_append(Name *self, const Type *cstr);\
+Name *Name##_append_len(Name *self, const Type *cstr, size_t cstr_len);\
+Name *Name##_append_c(Name *self, size_t n, Type c);\
+Name *Name##_push_back(Name *self, Type c);\
+Name *Name##_insert(Name *self, size_t idx, const Type *cstr);\
+Name *Name##_insert_len(Name *self, size_t idx, const Type *cstr, size_t cstr_len);\
+Name *Name##_insert_c(Name *self, size_t idx, size_t n, Type c);\
+Name *Name##_replace(Name *self, size_t idx, size_t len, const Type *cstr);\
+Name *Name##_replace_len(Name *self, size_t idx, size_t len, const Type *cstr, size_t cstr_len);\
+Name *Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c);\
 size_t Name##_find(const Type *x, const Type *cstr, size_t idx);\
 size_t Name##_find_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len);\
 size_t Name##_find_c(const Type *x, Type c, size_t idx);\
@@ -296,7 +296,7 @@ const Type *Name##_data(Name *self)\
 	return &CSTL_VECTOR_AT(self->data, 0);\
 }\
 \
-void Name##_erase(Name *self, size_t idx, size_t len)\
+Name *Name##_erase(Name *self, size_t idx, size_t len)\
 {\
 	size_t size;\
 	assert(self && "String_erase");\
@@ -307,6 +307,7 @@ void Name##_erase(Name *self, size_t idx, size_t len)\
 		len = size - idx;\
 	}\
 	Name##__CharVector_erase(self->data, idx, len);\
+	return self;\
 }\
 \
 int Name##_resize(Name *self, size_t n, Type c)\
@@ -338,7 +339,7 @@ void Name##_swap(Name *self, Name *x)\
 	x->data = tmp_data;\
 }\
 \
-int Name##_assign(Name *self, const Type *cstr)\
+Name *Name##_assign(Name *self, const Type *cstr)\
 {\
 	assert(self && "String_assign");\
 	assert(self->magic == self && "String_assign");\
@@ -346,7 +347,7 @@ int Name##_assign(Name *self, const Type *cstr)\
 	return Name##_assign_len(self, cstr, CSTL_NPOS);\
 }\
 \
-int Name##_assign_len(Name *self, const Type *cstr, size_t cstr_len)\
+Name *Name##_assign_len(Name *self, const Type *cstr, size_t cstr_len)\
 {\
 	assert(self && "String_assign_len");\
 	assert(self->magic == self && "String_assign_len");\
@@ -360,10 +361,10 @@ int Name##_assign_len(Name *self, const Type *cstr, size_t cstr_len)\
 	CSTL_VECTOR_CLEAR(self->data);\
 	Name##__CharVector_insert_array(self->data, 0, cstr, cstr_len);\
 	Name##__CharVector_push_back(self->data, '\0');\
-	return 1;\
+	return self;\
 }\
 \
-int Name##_assign_c(Name *self, size_t n, Type c)\
+Name *Name##_assign_c(Name *self, size_t n, Type c)\
 {\
 	assert(self && "String_assign_c");\
 	assert(self->magic == self && "String_assign_c");\
@@ -371,11 +372,10 @@ int Name##_assign_c(Name *self, size_t n, Type c)\
 		return 0;\
 	}\
 	Name##_clear(self);\
-	Name##_insert_c(self, 0, n, c);\
-	return 1;\
+	return Name##_insert_c(self, 0, n, c);\
 }\
 \
-int Name##_append(Name *self, const Type *cstr)\
+Name *Name##_append(Name *self, const Type *cstr)\
 {\
 	assert(self && "String_append");\
 	assert(self->magic == self && "String_append");\
@@ -383,7 +383,7 @@ int Name##_append(Name *self, const Type *cstr)\
 	return Name##_append_len(self, cstr, CSTL_NPOS);\
 }\
 \
-int Name##_append_len(Name *self, const Type *cstr, size_t cstr_len)\
+Name *Name##_append_len(Name *self, const Type *cstr, size_t cstr_len)\
 {\
 	assert(self && "String_append_len");\
 	assert(self->magic == self && "String_append_len");\
@@ -394,18 +394,17 @@ int Name##_append_len(Name *self, const Type *cstr, size_t cstr_len)\
 	return Name##_insert_len(self, Name##_size(self), cstr, cstr_len);\
 }\
 \
-int Name##_append_c(Name *self, size_t n, Type c)\
+Name *Name##_append_c(Name *self, size_t n, Type c)\
 {\
 	assert(self && "String_append_c");\
 	assert(self->magic == self && "String_append_c");\
 	if (!Name##_expand(self, Name##_size(self) + n)) {\
 		return 0;\
 	}\
-	Name##_insert_c(self, Name##_size(self), n, c);\
-	return 1;\
+	return Name##_insert_c(self, Name##_size(self), n, c);\
 }\
 \
-int Name##_push_back(Name *self, Type c)\
+Name *Name##_push_back(Name *self, Type c)\
 {\
 	assert(self && "String_push_back");\
 	assert(self->magic == self && "String_push_back");\
@@ -417,7 +416,7 @@ static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
 	return Name##__CharVector_insert_n_no_elem(self->data, idx, n);\
 }\
 \
-int Name##_insert(Name *self, size_t idx, const Type *cstr)\
+Name *Name##_insert(Name *self, size_t idx, const Type *cstr)\
 {\
 	assert(self && "String_insert");\
 	assert(self->magic == self && "String_insert");\
@@ -426,7 +425,7 @@ int Name##_insert(Name *self, size_t idx, const Type *cstr)\
 	return Name##_insert_len(self, idx, cstr, CSTL_NPOS);\
 }\
 \
-int Name##_insert_len(Name *self, size_t idx, const Type *cstr, size_t cstr_len)\
+Name *Name##_insert_len(Name *self, size_t idx, const Type *cstr, size_t cstr_len)\
 {\
 	register size_t i;\
 	assert(self && "String_insert_len");\
@@ -463,10 +462,10 @@ int Name##_insert_len(Name *self, size_t idx, const Type *cstr, size_t cstr_len)
 			CSTL_STRING_AT(self, idx + i) = cstr[i];\
 		}\
 	}\
-	return 1;\
+	return self;\
 }\
 \
-int Name##_insert_c(Name *self, size_t idx, size_t n, Type c)\
+Name *Name##_insert_c(Name *self, size_t idx, size_t n, Type c)\
 {\
 	register size_t i;\
 	assert(self && "String_insert_c");\
@@ -478,10 +477,10 @@ int Name##_insert_c(Name *self, size_t idx, size_t n, Type c)\
 	for (i = 0; i < n; i++) {\
 		CSTL_STRING_AT(self, idx + i) = c;\
 	}\
-	return 1;\
+	return self;\
 }\
 \
-int Name##_replace(Name *self, size_t idx, size_t len, const Type *cstr)\
+Name *Name##_replace(Name *self, size_t idx, size_t len, const Type *cstr)\
 {\
 	assert(self && "String_replace");\
 	assert(self->magic == self && "String_replace");\
@@ -490,7 +489,7 @@ int Name##_replace(Name *self, size_t idx, size_t len, const Type *cstr)\
 	return Name##_replace_len(self, idx, len, cstr, CSTL_NPOS);\
 }\
 \
-int Name##_replace_len(Name *self, size_t idx, size_t len, const Type *cstr, size_t cstr_len)\
+Name *Name##_replace_len(Name *self, size_t idx, size_t len, const Type *cstr, size_t cstr_len)\
 {\
 	register size_t i;\
 	size_t size;\
@@ -558,10 +557,10 @@ int Name##_replace_len(Name *self, size_t idx, size_t len, const Type *cstr, siz
 			Name##_insert_len(self, idx + len, &cstr[len], cstr_len - len);\
 		}\
 	}\
-	return 1;\
+	return self;\
 }\
 \
-int Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c)\
+Name *Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c)\
 {\
 	register size_t i;\
 	size_t size;\
@@ -589,7 +588,7 @@ int Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c)\
 			CSTL_STRING_AT(self, idx + i) = c;\
 		}\
 	}\
-	return 1;\
+	return self;\
 }\
 \
 static size_t Name##_brute_force_search(const Type *str, size_t str_len, const Type *ptn, size_t ptn_len)\
