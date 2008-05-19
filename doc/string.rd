@@ -20,7 +20,6 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   #define CSTL_NPOS  ((size_t)-1)
 * size_t型の最大値。
 * 検索関数において、検索に失敗した時に返される。
-* const CharT *cstr, size_t cstr_lenという関数の引数において、cstr_lenにCSTL_NPOSを指定した場合、cstrはCの文字列として扱われる。
 
 ==== 型
 
@@ -96,89 +95,134 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
 * 戻り値はselfの変更により無効となる。
 <<< br
 
+  const CharT *String_data(String *self);
+* selfの文字列を文字の配列として返す。
+* 戻り値の配列が'\0'で終端していることは保証されない。
+* 戻り値はselfの変更により無効となる。
+<<< br
+
 + 代入
-  int String_assign(String *self, const CharT *cstr, size_t cstr_len);
-* selfにcstrという文字の配列からcstr_len個の文字を代入する。
-* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を代入する。ただしcstrは'\0'で終端していなければならない。
+  String *String_assign(String *self, const CharT *cstr);
+* selfにcstrというCの文字列を代入する。
 * cstrはself内の文字列でもよい。
-* 代入に成功した場合、0以外の値を返す。
+* 代入に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
   * cstrがNULLでないこと。
 <<< br
 
-  int String_assign_c(String *self, size_t n, CharT c);
+  String *String_assign_len(String *self, const CharT *cstr, size_t cstr_len);
+* selfにcstrという文字の配列からcstr_len個の文字を代入する。
+* cstr_lenがCSTL_NPOSと等しい場合、String_assign()と等価となる。ただしcstrは'\0'で終端していなければならない。
+* cstrはself内の文字列でもよい。
+* 代入に成功した場合、selfを返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * cstrがNULLでないこと。
+<<< br
+
+  String *String_assign_c(String *self, size_t n, CharT c);
 * selfにcという文字をn個代入する。
-* 代入に成功した場合、0以外の値を返す。
+* 代入に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
 + 追加
-  int String_append(String *self, const CharT *cstr, size_t cstr_len);
-* selfにcstrという文字の配列からcstr_len個の文字を追加する。
-* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を追加する。ただしcstrは'\0'で終端していなければならない。
+  String *String_append(String *self, const CharT *cstr);
+* selfにcstrというCの文字列を追加する。
 * cstrはself内の文字列でもよい。
-* 追加に成功した場合、0以外の値を返す。
+* 追加に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
   * cstrがNULLでないこと。
 <<< br
 
-  int String_append_c(String *self, size_t n, CharT c);
+  String *String_append_len(String *self, const CharT *cstr, size_t cstr_len);
+* selfにcstrという文字の配列からcstr_len個の文字を追加する。
+* cstr_lenがCSTL_NPOSと等しい場合、String_append()と等価となる。ただしcstrは'\0'で終端していなければならない。
+* cstrはself内の文字列でもよい。
+* 追加に成功した場合、selfを返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * cstrがNULLでないこと。
+<<< br
+
+  String *String_append_c(String *self, size_t n, CharT c);
 * selfにcという文字をn個追加する。
-* 追加に成功した場合、0以外の値を返す。
+* 追加に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
-  int String_push_back(String *self, CharT c);
+  String *String_push_back(String *self, CharT c);
 * selfにcという文字を追加する。
-* 追加に成功した場合、0以外の値を返す。
+* 追加に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 <<< br
 
 + 挿入
-  int String_insert(String *self, size_t idx, const CharT *cstr, size_t cstr_len);
-* selfのidx番目の位置にcstrという文字の配列からcstr_len個の文字を挿入する。
-* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を挿入する。ただしcstrは'\0'で終端していなければならない。
+  String *String_insert(String *self, size_t idx, const CharT *cstr);
+* selfのidx番目の位置にcstrというCの文字列を挿入する。
 * cstrはself内の文字列でもよい。
-* 挿入に成功した場合、0以外の値を返す。
+* 挿入に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
   * cstrがNULLでないこと。
   * idxがselfの文字数以下の値であること。
 <<< br
 
-  int String_insert_c(String *self, size_t idx, size_t n, CharT c);
+  String *String_insert_len(String *self, size_t idx, const CharT *cstr, size_t cstr_len);
+* selfのidx番目の位置にcstrという文字の配列からcstr_len個の文字を挿入する。
+* cstr_lenがCSTL_NPOSと等しい場合、String_insert()と等価となる。ただしcstrは'\0'で終端していなければならない。
+* cstrはself内の文字列でもよい。
+* 挿入に成功した場合、selfを返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * cstrがNULLでないこと。
+  * idxがselfの文字数以下の値であること。
+<<< br
+
+  String *String_insert_c(String *self, size_t idx, size_t n, CharT c);
 * selfのidx番目の位置にcという文字をn個挿入する。
-* 挿入に成功した場合、0以外の値を返す。
+* 挿入に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
   * idxがselfの文字数以下の値であること。
 <<< br
 
 + 置換
-  int String_replace(String *self, size_t idx, size_t len, const CharT *cstr, size_t cstr_len);
-* selfのidx番目から最大len個の文字を、cstrという文字の配列のcstr_len個の文字で置換する。
-* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列で置換する。ただしcstrは'\0'で終端していなければならない。
+  String *String_replace(String *self, size_t idx, size_t len, const CharT *cstr);
+* selfのidx番目から最大len個の文字を、cstrというCの文字列で置換する。
 * cstrはself内の文字列でもよい。
-* 置換に成功した場合、0以外の値を返す。
+* 置換に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
   * cstrがNULLでないこと。
   * idxがselfの文字数以下の値であること。
 <<< br
 
-  int String_replace_c(String *self, size_t idx, size_t len, size_t n, CharT c);
+  String *String_replace_len(String *self, size_t idx, size_t len, const CharT *cstr, size_t cstr_len);
+* selfのidx番目から最大len個の文字を、cstrという文字の配列のcstr_len個の文字で置換する。
+* cstr_lenがCSTL_NPOSと等しい場合、String_replace()と等価となる。ただしcstrは'\0'で終端していなければならない。
+* cstrはself内の文字列でもよい。
+* 置換に成功した場合、selfを返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+* 事前条件
+  * cstrがNULLでないこと。
+  * idxがselfの文字数以下の値であること。
+<<< br
+
+  String *String_replace_c(String *self, size_t idx, size_t len, size_t n, CharT c);
 * selfのidx番目から最大len個の文字を、cという文字n個で置換する。
-* 置換に成功した場合、0以外の値を返す。
+* 置換に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
   * idxがselfの文字数以下の値であること。
 <<< br
 
 + 削除
-  void String_erase(String *self, size_t idx, size_t len);
+  String *String_erase(String *self, size_t idx, size_t len);
 * selfのidx番目の文字から最大len個の文字を削除する。
+* selfを返す。
 * 事前条件
   * idxがselfの文字数以下の値であること。
 <<< br
@@ -204,9 +248,18 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
 <<< br
 
 + 検索
-  size_t String_find(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
+  size_t String_find(const CharT *x, const CharT *cstr, size_t idx);
+* xというCの文字列のidx番目から、cstrというCの文字列が現れる最初の位置を前進して検索する。
+* 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
+<<< br
+
+  size_t String_find_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字が現れる最初の位置を前進して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、String_find()と等価となる。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
@@ -222,9 +275,18 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * xがNULLでないこと。
 <<< br
 
-  size_t String_rfind(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
+  size_t String_rfind(const CharT *x, const CharT *cstr, size_t idx);
+* xというCの文字列のidx番目から、cstrというCの文字列が現れる最後の位置を後退して検索する。
+* 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
+<<< br
+
+  size_t String_rfind_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字が現れる最後の位置を後退して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、String_rfind()と等価となる。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
@@ -240,9 +302,18 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * xがNULLでないこと。
 <<< br
 
-  size_t String_find_first_of(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
+  size_t String_find_first_of(const CharT *x, const CharT *cstr, size_t idx);
+* xというCの文字列のidx番目から、cstrというCの文字列に含まれる最初の文字が現れる位置を前進して検索する。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
+<<< br
+
+  size_t String_find_first_of_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれる最初の文字が現れる位置を前進して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれる文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、String_find_first_of()と等価となる。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
@@ -258,9 +329,18 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * xがNULLでないこと。
 <<< br
 
-  size_t String_find_last_of(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
+  size_t String_find_last_of(const CharT *x, const CharT *cstr, size_t idx);
+* xというCの文字列のidx番目から、cstrというCの文字列に含まれる最後の文字が現れる位置を後退して検索する。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
+<<< br
+
+  size_t String_find_last_of_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれる最後の文字が現れる位置を後退して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれる文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、String_find_last_of()と等価となる。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
@@ -276,9 +356,18 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * xがNULLでないこと。
 <<< br
 
-  size_t String_find_first_not_of(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
+  size_t String_find_first_not_of(const CharT *x, const CharT *cstr, size_t idx);
+* xというCの文字列のidx番目から、cstrというCの文字列に含まれない最初の文字が現れる位置を前進して検索する。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
+<<< br
+
+  size_t String_find_first_not_of_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれない最初の文字が現れる位置を前進して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれない文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、String_find_first_not_of()と等価となる。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
@@ -294,9 +383,18 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * xがNULLでないこと。
 <<< br
 
-  size_t String_find_last_not_of(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
+  size_t String_find_last_not_of(const CharT *x, const CharT *cstr, size_t idx);
+* xというCの文字列のidx番目から、cstrというCの文字列に含まれない最後の文字が現れる位置を後退して検索する。
+* 検索に成功した場合、その文字のインデックスを返す。
+* 検索に失敗した場合、CSTL_NPOSを返す。
+* 事前条件
+  * xがNULLでないこと。
+  * cstrがNULLでないこと。
+<<< br
+
+  size_t String_find_last_not_of_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
 * xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれない最後の文字が現れる位置を後退して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、cstrというCの文字列に含まれない文字を検索する。ただしcstrは'\0'で終端していなければならない。
+* cstr_lenがCSTL_NPOSと等しい場合、String_find_last_not_of()と等価となる。ただしcstrは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
