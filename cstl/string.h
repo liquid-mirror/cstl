@@ -95,35 +95,35 @@ Name *Name##_erase(Name *self, size_t idx, size_t len);\
 int Name##_resize(Name *self, size_t n, Type c);\
 void Name##_swap(Name *self, Name *x);\
 Name *Name##_assign(Name *self, const Type *cstr);\
-Name *Name##_assign_len(Name *self, const Type *cstr, size_t cstr_len);\
+Name *Name##_assign_len(Name *self, const Type *chars, size_t chars_len);\
 Name *Name##_assign_c(Name *self, size_t n, Type c);\
 Name *Name##_append(Name *self, const Type *cstr);\
-Name *Name##_append_len(Name *self, const Type *cstr, size_t cstr_len);\
+Name *Name##_append_len(Name *self, const Type *chars, size_t chars_len);\
 Name *Name##_append_c(Name *self, size_t n, Type c);\
 Name *Name##_push_back(Name *self, Type c);\
 Name *Name##_insert(Name *self, size_t idx, const Type *cstr);\
-Name *Name##_insert_len(Name *self, size_t idx, const Type *cstr, size_t cstr_len);\
+Name *Name##_insert_len(Name *self, size_t idx, const Type *chars, size_t chars_len);\
 Name *Name##_insert_c(Name *self, size_t idx, size_t n, Type c);\
 Name *Name##_replace(Name *self, size_t idx, size_t len, const Type *cstr);\
-Name *Name##_replace_len(Name *self, size_t idx, size_t len, const Type *cstr, size_t cstr_len);\
+Name *Name##_replace_len(Name *self, size_t idx, size_t len, const Type *chars, size_t chars_len);\
 Name *Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c);\
 size_t Name##_find(const Type *x, const Type *cstr, size_t idx);\
-size_t Name##_find_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len);\
+size_t Name##_find_len(const Type *x, const Type *chars, size_t idx, size_t chars_len);\
 size_t Name##_find_c(const Type *x, Type c, size_t idx);\
 size_t Name##_rfind(const Type *x, const Type *cstr, size_t idx);\
-size_t Name##_rfind_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len);\
+size_t Name##_rfind_len(const Type *x, const Type *chars, size_t idx, size_t chars_len);\
 size_t Name##_rfind_c(const Type *x, Type c, size_t idx);\
 size_t Name##_find_first_of(const Type *x, const Type *cstr, size_t idx);\
-size_t Name##_find_first_of_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len);\
+size_t Name##_find_first_of_len(const Type *x, const Type *chars, size_t idx, size_t chars_len);\
 size_t Name##_find_first_of_c(const Type *x, Type c, size_t idx);\
 size_t Name##_find_last_of(const Type *x, const Type *cstr, size_t idx);\
-size_t Name##_find_last_of_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len);\
+size_t Name##_find_last_of_len(const Type *x, const Type *chars, size_t idx, size_t chars_len);\
 size_t Name##_find_last_of_c(const Type *x, Type c, size_t idx);\
 size_t Name##_find_first_not_of(const Type *x, const Type *cstr, size_t idx);\
-size_t Name##_find_first_not_of_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len);\
+size_t Name##_find_first_not_of_len(const Type *x, const Type *chars, size_t idx, size_t chars_len);\
 size_t Name##_find_first_not_of_c(const Type *x, Type c, size_t idx);\
 size_t Name##_find_last_not_of(const Type *x, const Type *cstr, size_t idx);\
-size_t Name##_find_last_not_of_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len);\
+size_t Name##_find_last_not_of_len(const Type *x, const Type *chars, size_t idx, size_t chars_len);\
 size_t Name##_find_last_not_of_c(const Type *x, Type c, size_t idx);\
 CSTL_ALGORITHM_INTERFACE(Name, Type)\
 CSTL_STRING_END_EXTERN_C()\
@@ -347,19 +347,19 @@ Name *Name##_assign(Name *self, const Type *cstr)\
 	return Name##_assign_len(self, cstr, CSTL_NPOS);\
 }\
 \
-Name *Name##_assign_len(Name *self, const Type *cstr, size_t cstr_len)\
+Name *Name##_assign_len(Name *self, const Type *chars, size_t chars_len)\
 {\
 	assert(self && "String_assign_len");\
 	assert(self->magic == self && "String_assign_len");\
-	assert(cstr && "String_assign");\
-	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##_mystrlen(cstr);\
+	assert(chars && "String_assign");\
+	if (chars_len == CSTL_NPOS) {\
+		chars_len = Name##_mystrlen(chars);\
 	}\
-	if (!Name##__CharVector_expand(self->data, cstr_len + 1)) {\
+	if (!Name##__CharVector_expand(self->data, chars_len + 1)) {\
 		return 0;\
 	}\
 	CSTL_VECTOR_CLEAR(self->data);\
-	Name##__CharVector_insert_array(self->data, 0, cstr, cstr_len);\
+	Name##__CharVector_insert_array(self->data, 0, chars, chars_len);\
 	Name##__CharVector_push_back(self->data, '\0');\
 	return self;\
 }\
@@ -383,15 +383,15 @@ Name *Name##_append(Name *self, const Type *cstr)\
 	return Name##_append_len(self, cstr, CSTL_NPOS);\
 }\
 \
-Name *Name##_append_len(Name *self, const Type *cstr, size_t cstr_len)\
+Name *Name##_append_len(Name *self, const Type *chars, size_t chars_len)\
 {\
 	assert(self && "String_append_len");\
 	assert(self->magic == self && "String_append_len");\
-	assert(cstr && "String_append_len");\
-	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##_mystrlen(cstr);\
+	assert(chars && "String_append_len");\
+	if (chars_len == CSTL_NPOS) {\
+		chars_len = Name##_mystrlen(chars);\
 	}\
-	return Name##_insert_len(self, Name##_size(self), cstr, cstr_len);\
+	return Name##_insert_len(self, Name##_size(self), chars, chars_len);\
 }\
 \
 Name *Name##_append_c(Name *self, size_t n, Type c)\
@@ -425,41 +425,41 @@ Name *Name##_insert(Name *self, size_t idx, const Type *cstr)\
 	return Name##_insert_len(self, idx, cstr, CSTL_NPOS);\
 }\
 \
-Name *Name##_insert_len(Name *self, size_t idx, const Type *cstr, size_t cstr_len)\
+Name *Name##_insert_len(Name *self, size_t idx, const Type *chars, size_t chars_len)\
 {\
 	register size_t i;\
 	assert(self && "String_insert_len");\
 	assert(self->magic == self && "String_insert_len");\
 	assert(Name##_size(self) >= idx && "String_insert_len");\
-	assert(cstr && "String_insert_len");\
-	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##_mystrlen(cstr);\
+	assert(chars && "String_insert_len");\
+	if (chars_len == CSTL_NPOS) {\
+		chars_len = Name##_mystrlen(chars);\
 	}\
-	if (!Name##_insert_n_no_elem(self, idx, cstr_len)) {\
+	if (!Name##_insert_n_no_elem(self, idx, chars_len)) {\
 		return 0;\
 	}\
-	if (Name##_c_str(self) <= cstr && cstr < Name##_c_str(self) + Name##_size(self)) {\
-		/* cstrがself内の文字列 */\
-		if (&CSTL_STRING_AT(self, idx) <= cstr) {\
-			for (i = 0; i < cstr_len; i++) {\
-				CSTL_STRING_AT(self, idx + i) = cstr[cstr_len + i];\
+	if (Name##_c_str(self) <= chars && chars < Name##_c_str(self) + Name##_size(self)) {\
+		/* charsがself内の文字列 */\
+		if (&CSTL_STRING_AT(self, idx) <= chars) {\
+			for (i = 0; i < chars_len; i++) {\
+				CSTL_STRING_AT(self, idx + i) = chars[chars_len + i];\
 			}\
-		} else if (cstr < &CSTL_STRING_AT(self, idx) && &CSTL_STRING_AT(self, idx) < cstr + cstr_len) {\
-			size_t k = &CSTL_STRING_AT(self, idx) - cstr;\
+		} else if (chars < &CSTL_STRING_AT(self, idx) && &CSTL_STRING_AT(self, idx) < chars + chars_len) {\
+			size_t k = &CSTL_STRING_AT(self, idx) - chars;\
 			for (i = 0; i < k; i++) {\
-				CSTL_STRING_AT(self, idx + i) = cstr[i];\
+				CSTL_STRING_AT(self, idx + i) = chars[i];\
 			}\
-			for (i = 0; i < cstr_len - k; i++) {\
-				CSTL_STRING_AT(self, idx + k + i) = CSTL_STRING_AT(self, idx + cstr_len + i);\
+			for (i = 0; i < chars_len - k; i++) {\
+				CSTL_STRING_AT(self, idx + k + i) = CSTL_STRING_AT(self, idx + chars_len + i);\
 			}\
 		} else {\
-			for (i = 0; i < cstr_len; i++) {\
-				CSTL_STRING_AT(self, idx + i) = cstr[i];\
+			for (i = 0; i < chars_len; i++) {\
+				CSTL_STRING_AT(self, idx + i) = chars[i];\
 			}\
 		}\
 	} else {\
-		for (i = 0; i < cstr_len; i++) {\
-			CSTL_STRING_AT(self, idx + i) = cstr[i];\
+		for (i = 0; i < chars_len; i++) {\
+			CSTL_STRING_AT(self, idx + i) = chars[i];\
 		}\
 	}\
 	return self;\
@@ -489,72 +489,72 @@ Name *Name##_replace(Name *self, size_t idx, size_t len, const Type *cstr)\
 	return Name##_replace_len(self, idx, len, cstr, CSTL_NPOS);\
 }\
 \
-Name *Name##_replace_len(Name *self, size_t idx, size_t len, const Type *cstr, size_t cstr_len)\
+Name *Name##_replace_len(Name *self, size_t idx, size_t len, const Type *chars, size_t chars_len)\
 {\
 	register size_t i;\
 	size_t size;\
 	assert(self && "String_replace_len");\
 	assert(self->magic == self && "String_replace_len");\
-	assert(cstr && "String_replace_len");\
+	assert(chars && "String_replace_len");\
 	size = Name##_size(self);\
 	assert(size >= idx && "String_replace_len");\
 	if (len > size - idx) {\
 		len = size - idx;\
 	}\
-	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##_mystrlen(cstr);\
+	if (chars_len == CSTL_NPOS) {\
+		chars_len = Name##_mystrlen(chars);\
 	}\
-	if (Name##_c_str(self) <= cstr && cstr < Name##_c_str(self) + Name##_size(self)) {\
-		/* cstrがself内の文字列 */\
-		if (cstr_len <= len) {\
+	if (Name##_c_str(self) <= chars && chars < Name##_c_str(self) + Name##_size(self)) {\
+		/* charsがself内の文字列 */\
+		if (chars_len <= len) {\
 			/* 拡張必要なし */\
-			if (&CSTL_STRING_AT(self, idx) <= cstr) {\
-				for (i = 0; i < cstr_len; i++) {\
-					CSTL_STRING_AT(self, idx + i) = cstr[i];\
+			if (&CSTL_STRING_AT(self, idx) <= chars) {\
+				for (i = 0; i < chars_len; i++) {\
+					CSTL_STRING_AT(self, idx + i) = chars[i];\
 				}\
 			} else {\
-				for (i = cstr_len; i > 0; i--) {\
-					CSTL_STRING_AT(self, idx + i - 1) = cstr[i - 1];\
+				for (i = chars_len; i > 0; i--) {\
+					CSTL_STRING_AT(self, idx + i - 1) = chars[i - 1];\
 				}\
 			}\
-			if (cstr_len != len) {\
-				Name##_erase(self, idx + cstr_len, len - cstr_len);\
+			if (chars_len != len) {\
+				Name##_erase(self, idx + chars_len, len - chars_len);\
 			}\
 		} else {\
 			/* 拡張必要あり */\
-			if (!Name##_expand(self, Name##_size(self) + (cstr_len - len))) {\
+			if (!Name##_expand(self, Name##_size(self) + (chars_len - len))) {\
 				return 0;\
 			}\
-			if (&CSTL_STRING_AT(self, idx) <= cstr) {\
+			if (&CSTL_STRING_AT(self, idx) <= chars) {\
 				for (i = 0; i < len; i++) {\
-					CSTL_STRING_AT(self, idx + i) = cstr[i];\
+					CSTL_STRING_AT(self, idx + i) = chars[i];\
 				}\
-				Name##_insert_len(self, idx + len, &cstr[len], cstr_len - len);\
+				Name##_insert_len(self, idx + len, &chars[len], chars_len - len);\
 			} else {\
-				Name##_insert_len(self, idx + len, &cstr[len], cstr_len - len);\
+				Name##_insert_len(self, idx + len, &chars[len], chars_len - len);\
 				for (i = len; i > 0; i--) {\
-					CSTL_STRING_AT(self, idx + i - 1) = cstr[i - 1];\
+					CSTL_STRING_AT(self, idx + i - 1) = chars[i - 1];\
 				}\
 			}\
 		}\
 	} else {\
-		if (cstr_len <= len) {\
+		if (chars_len <= len) {\
 			/* 拡張必要なし */\
-			for (i = 0; i < cstr_len; i++) {\
-				CSTL_STRING_AT(self, idx + i) = cstr[i];\
+			for (i = 0; i < chars_len; i++) {\
+				CSTL_STRING_AT(self, idx + i) = chars[i];\
 			}\
-			if (cstr_len != len) {\
-				Name##_erase(self, idx + cstr_len, len - cstr_len);\
+			if (chars_len != len) {\
+				Name##_erase(self, idx + chars_len, len - chars_len);\
 			}\
 		} else {\
 			/* 拡張必要あり */\
-			if (!Name##_expand(self, Name##_size(self) + (cstr_len - len))) {\
+			if (!Name##_expand(self, Name##_size(self) + (chars_len - len))) {\
 				return 0;\
 			}\
 			for (i = 0; i < len; i++) {\
-				CSTL_STRING_AT(self, idx + i) = cstr[i];\
+				CSTL_STRING_AT(self, idx + i) = chars[i];\
 			}\
-			Name##_insert_len(self, idx + len, &cstr[len], cstr_len - len);\
+			Name##_insert_len(self, idx + len, &chars[len], chars_len - len);\
 		}\
 	}\
 	return self;\
@@ -632,21 +632,21 @@ size_t Name##_find(const Type *x, const Type *cstr, size_t idx)\
 	return Name##_find_len(x, cstr, idx, CSTL_NPOS);\
 }\
 \
-size_t Name##_find_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len)\
+size_t Name##_find_len(const Type *x, const Type *chars, size_t idx, size_t chars_len)\
 {\
 	size_t i;\
 	size_t size;\
 	assert(x && "String_find_len");\
-	assert(cstr && "String_find_len");\
-	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##_mystrlen(cstr);\
+	assert(chars && "String_find_len");\
+	if (chars_len == CSTL_NPOS) {\
+		chars_len = Name##_mystrlen(chars);\
 	}\
-	if (cstr_len == 0) {\
+	if (chars_len == 0) {\
 		return idx;\
 	}\
 	size = Name##_mystrlen(x);\
 	if (size < idx) return CSTL_NPOS;\
-	i = Name##_brute_force_search(&x[idx], size - idx, cstr, cstr_len);\
+	i = Name##_brute_force_search(&x[idx], size - idx, chars, chars_len);\
 	if (i == CSTL_NPOS) return i;\
 	return i + idx;\
 }\
@@ -664,19 +664,19 @@ size_t Name##_rfind(const Type *x, const Type *cstr, size_t idx)\
 	return Name##_rfind_len(x, cstr, idx, CSTL_NPOS);\
 }\
 \
-size_t Name##_rfind_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len)\
+size_t Name##_rfind_len(const Type *x, const Type *chars, size_t idx, size_t chars_len)\
 {\
 	size_t size;\
 	assert(x && "String_rfind_len");\
-	assert(cstr && "String_rfind_len");\
-	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##_mystrlen(cstr);\
+	assert(chars && "String_rfind_len");\
+	if (chars_len == CSTL_NPOS) {\
+		chars_len = Name##_mystrlen(chars);\
 	}\
 	size = Name##_mystrlen(x);\
-	if (size - cstr_len < idx) {\
-		idx = size - cstr_len;\
+	if (size - chars_len < idx) {\
+		idx = size - chars_len;\
 	}\
-	return Name##_brute_force_search_r(&x[0], idx + cstr_len, cstr, cstr_len);\
+	return Name##_brute_force_search_r(&x[0], idx + chars_len, chars, chars_len);\
 }\
 \
 size_t Name##_rfind_c(const Type *x, Type c, size_t idx)\
@@ -692,20 +692,20 @@ size_t Name##_find_first_of(const Type *x, const Type *cstr, size_t idx)\
 	return Name##_find_first_of_len(x, cstr, idx, CSTL_NPOS);\
 }\
 \
-size_t Name##_find_first_of_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len)\
+size_t Name##_find_first_of_len(const Type *x, const Type *chars, size_t idx, size_t chars_len)\
 {\
 	register size_t i, j;\
 	size_t size;\
 	assert(x && "String_find_first_of_len");\
-	assert(cstr && "String_find_first_of_len");\
+	assert(chars && "String_find_first_of_len");\
 	size = Name##_mystrlen(x);\
 	if (size < idx) return CSTL_NPOS;\
-	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##_mystrlen(cstr);\
+	if (chars_len == CSTL_NPOS) {\
+		chars_len = Name##_mystrlen(chars);\
 	}\
 	for (i = idx; i < size; i++) {\
-		for (j = 0; j < cstr_len; j++) {\
-			if (x[i] == cstr[j]) {\
+		for (j = 0; j < chars_len; j++) {\
+			if (x[i] == chars[j]) {\
 				return i;\
 			}\
 		}\
@@ -726,22 +726,22 @@ size_t Name##_find_last_of(const Type *x, const Type *cstr, size_t idx)\
 	return Name##_find_last_of_len(x, cstr, idx, CSTL_NPOS);\
 }\
 \
-size_t Name##_find_last_of_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len)\
+size_t Name##_find_last_of_len(const Type *x, const Type *chars, size_t idx, size_t chars_len)\
 {\
 	register size_t i, j;\
 	size_t size;\
 	assert(x && "String_find_last_of_len");\
-	assert(cstr && "String_find_last_of_len");\
+	assert(chars && "String_find_last_of_len");\
 	size = Name##_mystrlen(x);\
 	if (size <= idx) {\
 		idx = size - 1;\
 	}\
-	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##_mystrlen(cstr);\
+	if (chars_len == CSTL_NPOS) {\
+		chars_len = Name##_mystrlen(chars);\
 	}\
 	for (i = idx + 1; i > 0; i--) {\
-		for (j = 0; j < cstr_len; j++) {\
-			if (x[i - 1] == cstr[j]) {\
+		for (j = 0; j < chars_len; j++) {\
+			if (x[i - 1] == chars[j]) {\
 				return i - 1;\
 			}\
 		}\
@@ -762,24 +762,24 @@ size_t Name##_find_first_not_of(const Type *x, const Type *cstr, size_t idx)\
 	return Name##_find_first_not_of_len(x, cstr, idx, CSTL_NPOS);\
 }\
 \
-size_t Name##_find_first_not_of_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len)\
+size_t Name##_find_first_not_of_len(const Type *x, const Type *chars, size_t idx, size_t chars_len)\
 {\
 	register size_t i, j;\
 	size_t size;\
 	assert(x && "String_find_first_not_of_len");\
-	assert(cstr && "String_find_first_not_of_len");\
+	assert(chars && "String_find_first_not_of_len");\
 	size = Name##_mystrlen(x);\
 	if (size < idx) return CSTL_NPOS;\
-	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##_mystrlen(cstr);\
+	if (chars_len == CSTL_NPOS) {\
+		chars_len = Name##_mystrlen(chars);\
 	}\
-	if (cstr_len == 0) {\
+	if (chars_len == 0) {\
 		return idx;\
 	}\
 	for (i = idx; i < size; i++) {\
-		for (j = 0; j < cstr_len; j++) {\
-			if (x[i] != cstr[j]) {\
-				if (j == cstr_len - 1) return i;\
+		for (j = 0; j < chars_len; j++) {\
+			if (x[i] != chars[j]) {\
+				if (j == chars_len - 1) return i;\
 			} else {\
 				break;\
 			}\
@@ -801,26 +801,26 @@ size_t Name##_find_last_not_of(const Type *x, const Type *cstr, size_t idx)\
 	return Name##_find_last_not_of_len(x, cstr, idx, CSTL_NPOS);\
 }\
 \
-size_t Name##_find_last_not_of_len(const Type *x, const Type *cstr, size_t idx, size_t cstr_len)\
+size_t Name##_find_last_not_of_len(const Type *x, const Type *chars, size_t idx, size_t chars_len)\
 {\
 	register size_t i, j;\
 	size_t size;\
 	assert(x && "String_find_last_not_of_len");\
-	assert(cstr && "String_find_last_not_of_len");\
+	assert(chars && "String_find_last_not_of_len");\
 	size = Name##_mystrlen(x);\
 	if (size <= idx) {\
 		idx = size - 1;\
 	}\
-	if (cstr_len == CSTL_NPOS) {\
-		cstr_len = Name##_mystrlen(cstr);\
+	if (chars_len == CSTL_NPOS) {\
+		chars_len = Name##_mystrlen(chars);\
 	}\
-	if (cstr_len == 0) {\
+	if (chars_len == 0) {\
 		return idx;\
 	}\
 	for (i = idx + 1; i > 0; i--) {\
-		for (j = 0; j < cstr_len; j++) {\
-			if (x[i - 1] != cstr[j]) {\
-				if (j == cstr_len - 1) return i - 1;\
+		for (j = 0; j < chars_len; j++) {\
+			if (x[i - 1] != chars[j]) {\
+				if (j == chars_len - 1) return i - 1;\
 			} else {\
 				break;\
 			}\

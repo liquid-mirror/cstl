@@ -111,14 +111,14 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * cstrがNULLでないこと。
 <<< br
 
-  String *String_assign_len(String *self, const CharT *cstr, size_t cstr_len);
-* selfにcstrという文字の配列からcstr_len個の文字を代入する。
-* cstr_lenがCSTL_NPOSと等しい場合、String_assign()と等価となる。ただしcstrは'\0'で終端していなければならない。
-* cstrはself内の文字列でもよい。
+  String *String_assign_len(String *self, const CharT *chars, size_t chars_len);
+* selfにcharsという文字の配列からchars_len個の文字を代入する。
+* chars_lenがCSTL_NPOSと等しい場合、String_assign()と等価となる。ただしcharsは'\0'で終端していなければならない。
+* charsはself内の文字列でもよい。
 * 代入に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
-  * cstrがNULLでないこと。
+  * charsがNULLでないこと。
 <<< br
 
   String *String_assign_c(String *self, size_t n, CharT c);
@@ -137,14 +137,14 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * cstrがNULLでないこと。
 <<< br
 
-  String *String_append_len(String *self, const CharT *cstr, size_t cstr_len);
-* selfにcstrという文字の配列からcstr_len個の文字を追加する。
-* cstr_lenがCSTL_NPOSと等しい場合、String_append()と等価となる。ただしcstrは'\0'で終端していなければならない。
-* cstrはself内の文字列でもよい。
+  String *String_append_len(String *self, const CharT *chars, size_t chars_len);
+* selfにcharsという文字の配列からchars_len個の文字を追加する。
+* chars_lenがCSTL_NPOSと等しい場合、String_append()と等価となる。ただしcharsは'\0'で終端していなければならない。
+* charsはself内の文字列でもよい。
 * 追加に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
-  * cstrがNULLでないこと。
+  * charsがNULLでないこと。
 <<< br
 
   String *String_append_c(String *self, size_t n, CharT c);
@@ -170,14 +170,14 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * idxがselfの文字数以下の値であること。
 <<< br
 
-  String *String_insert_len(String *self, size_t idx, const CharT *cstr, size_t cstr_len);
-* selfのidx番目の位置にcstrという文字の配列からcstr_len個の文字を挿入する。
-* cstr_lenがCSTL_NPOSと等しい場合、String_insert()と等価となる。ただしcstrは'\0'で終端していなければならない。
-* cstrはself内の文字列でもよい。
+  String *String_insert_len(String *self, size_t idx, const CharT *chars, size_t chars_len);
+* selfのidx番目の位置にcharsという文字の配列からchars_len個の文字を挿入する。
+* chars_lenがCSTL_NPOSと等しい場合、String_insert()と等価となる。ただしcharsは'\0'で終端していなければならない。
+* charsはself内の文字列でもよい。
 * 挿入に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
-  * cstrがNULLでないこと。
+  * charsがNULLでないこと。
   * idxがselfの文字数以下の値であること。
 <<< br
 
@@ -200,14 +200,14 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * idxがselfの文字数以下の値であること。
 <<< br
 
-  String *String_replace_len(String *self, size_t idx, size_t len, const CharT *cstr, size_t cstr_len);
-* selfのidx番目から最大len個の文字を、cstrという文字の配列のcstr_len個の文字で置換する。
-* cstr_lenがCSTL_NPOSと等しい場合、String_replace()と等価となる。ただしcstrは'\0'で終端していなければならない。
-* cstrはself内の文字列でもよい。
+  String *String_replace_len(String *self, size_t idx, size_t len, const CharT *chars, size_t chars_len);
+* selfのidx番目から最大len個の文字を、charsという文字の配列のchars_len個の文字で置換する。
+* chars_lenがCSTL_NPOSと等しい場合、String_replace()と等価となる。ただしcharsは'\0'で終端していなければならない。
+* charsはself内の文字列でもよい。
 * 置換に成功した場合、selfを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
-  * cstrがNULLでないこと。
+  * charsがNULLでないこと。
   * idxがselfの文字数以下の値であること。
 <<< br
 
@@ -257,14 +257,14 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * cstrがNULLでないこと。
 <<< br
 
-  size_t String_find_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字が現れる最初の位置を前進して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、String_find()と等価となる。ただしcstrは'\0'で終端していなければならない。
+  size_t String_find_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
+* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字が現れる最初の位置を前進して検索する。
+* chars_lenがCSTL_NPOSと等しい場合、String_find()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
   * xがNULLでないこと。
-  * cstrがNULLでないこと。
+  * charsがNULLでないこと。
 <<< br
 
   size_t String_find_c(const CharT *x, CharT c, size_t idx);
@@ -284,14 +284,14 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * cstrがNULLでないこと。
 <<< br
 
-  size_t String_rfind_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字が現れる最後の位置を後退して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、String_rfind()と等価となる。ただしcstrは'\0'で終端していなければならない。
+  size_t String_rfind_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
+* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字が現れる最後の位置を後退して検索する。
+* chars_lenがCSTL_NPOSと等しい場合、String_rfind()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
   * xがNULLでないこと。
-  * cstrがNULLでないこと。
+  * charsがNULLでないこと。
 <<< br
 
   size_t String_rfind_c(const CharT *x, CharT c, size_t idx);
@@ -311,14 +311,14 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * cstrがNULLでないこと。
 <<< br
 
-  size_t String_find_first_of_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれる最初の文字が現れる位置を前進して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、String_find_first_of()と等価となる。ただしcstrは'\0'で終端していなければならない。
+  size_t String_find_first_of_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
+* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字に含まれる最初の文字が現れる位置を前進して検索する。
+* chars_lenがCSTL_NPOSと等しい場合、String_find_first_of()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
   * xがNULLでないこと。
-  * cstrがNULLでないこと。
+  * charsがNULLでないこと。
 <<< br
 
   size_t String_find_first_of_c(const CharT *x, CharT c, size_t idx);
@@ -338,14 +338,14 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * cstrがNULLでないこと。
 <<< br
 
-  size_t String_find_last_of_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれる最後の文字が現れる位置を後退して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、String_find_last_of()と等価となる。ただしcstrは'\0'で終端していなければならない。
+  size_t String_find_last_of_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
+* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字に含まれる最後の文字が現れる位置を後退して検索する。
+* chars_lenがCSTL_NPOSと等しい場合、String_find_last_of()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
   * xがNULLでないこと。
-  * cstrがNULLでないこと。
+  * charsがNULLでないこと。
 <<< br
 
   size_t String_find_last_of_c(const CharT *x, CharT c, size_t idx);
@@ -365,14 +365,14 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * cstrがNULLでないこと。
 <<< br
 
-  size_t String_find_first_not_of_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれない最初の文字が現れる位置を前進して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、String_find_first_not_of()と等価となる。ただしcstrは'\0'で終端していなければならない。
+  size_t String_find_first_not_of_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
+* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字に含まれない最初の文字が現れる位置を前進して検索する。
+* chars_lenがCSTL_NPOSと等しい場合、String_find_first_not_of()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
   * xがNULLでないこと。
-  * cstrがNULLでないこと。
+  * charsがNULLでないこと。
 <<< br
 
   size_t String_find_first_not_of_c(const CharT *x, CharT c, size_t idx);
@@ -392,14 +392,14 @@ CSTL_STRING_INTERFACEの引数のNameにString, TypeにCharTを指定した場�
   * cstrがNULLでないこと。
 <<< br
 
-  size_t String_find_last_not_of_len(const CharT *x, const CharT *cstr, size_t idx, size_t cstr_len);
-* xというCの文字列のidx番目から、cstrという文字の配列のcstr_len個の文字に含まれない最後の文字が現れる位置を後退して検索する。
-* cstr_lenがCSTL_NPOSと等しい場合、String_find_last_not_of()と等価となる。ただしcstrは'\0'で終端していなければならない。
+  size_t String_find_last_not_of_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
+* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字に含まれない最後の文字が現れる位置を後退して検索する。
+* chars_lenがCSTL_NPOSと等しい場合、String_find_last_not_of()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
   * xがNULLでないこと。
-  * cstrがNULLでないこと。
+  * charsがNULLでないこと。
 <<< br
 
   size_t String_find_last_not_of_c(const CharT *x, CharT c, size_t idx);
