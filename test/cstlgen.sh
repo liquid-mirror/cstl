@@ -379,13 +379,22 @@ echo -e "\
 fi
 fi
 if [ "$heap" != "" ]; then
+if [ "$heap" = "gc" ]; then
+echo -e "\
+#include <gc.h>
+#define malloc   GC_MALLOC
+#define realloc  GC_REALLOC
+#define free(p)
+" >> "$path"".c"
+else
 echo -e "\
 #include \"heap.h\"
 extern Heap $heap;
-#define malloc(s)      Heap_alloc(&$heap, s)
+#define malloc(s)      Heap_malloc(&$heap, s)
 #define realloc(p, s)  Heap_realloc(&$heap, p, s)
 #define free(p)        Heap_free(&$heap, p)
 " >> "$path"".c"
+fi
 fi
 if [ $lower = "vector" ]; then
 echo -e "\

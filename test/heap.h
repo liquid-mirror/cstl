@@ -36,7 +36,7 @@
  * #include "heap.h"
  * Heap heap;
  * double buf[256];
- * #define malloc(s)        Heap_alloc(&heap, s)
+ * #define malloc(s)        Heap_malloc(&heap, s)
  * #define realloc(p, s)    Heap_realloc(&heap, p, s)
  * #define free(p)          Heap_free(&heap, p)
  *
@@ -45,7 +45,7 @@
  *     int i;
  *     char *hoge;
  *     Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
- *     hoge = Heap_alloc(&heap, 16);
+ *     hoge = Heap_malloc(&heap, 16);
  *     for (i = 0; i < 16; i++) {
  *         hoge[i] = i;
  *     }
@@ -126,7 +126,7 @@ extern "C" {
 #endif
 void Heap_init(Heap *self, void *buf, size_t size, size_t alignment);
 #ifdef HEAP_DEBUG
-void *Heap_alloc_debug(Heap *self, size_t size, char *file, size_t line);
+void *Heap_malloc_debug(Heap *self, size_t size, char *file, size_t line);
 void *Heap_realloc_debug(Heap *self, void *ptr, size_t newsize, char *file, size_t line);
 void Heap_free_debug(Heap *self, void *ptr, char *file, size_t line);
 void hex_dump(void *buf, size_t size);
@@ -135,7 +135,7 @@ void Heap_dump_block(Heap *self, void *ptr);
 void Heap_dump_list(Heap *self);
 int Heap_check_overflow(Heap *self, void *ptr);
 void Heap_dump_overflow(Heap *self);
-#define Heap_alloc(h, s)		Heap_alloc_debug(h, s, __FILE__, __LINE__)
+#define Heap_malloc(h, s)		Heap_malloc_debug(h, s, __FILE__, __LINE__)
 #define Heap_realloc(h, p, s)	Heap_realloc_debug(h, p, s, __FILE__, __LINE__)
 #define Heap_free(h, p)			Heap_free_debug(h, p, __FILE__, __LINE__)
 #define HEAP_DUMP_LEAK(h, d)	Heap_dump_leak(h, d)
@@ -145,7 +145,7 @@ void Heap_dump_overflow(Heap *self);
 #define HEAP_SET_FAIL_COUNT(h, c)	(h)->fail_count = (c)
 #define HEAP_RESET_FAIL_COUNT(h)	(h)->fail_count = -1
 #else
-void *Heap_alloc(Heap *self, size_t size);
+void *Heap_malloc(Heap *self, size_t size);
 void *Heap_realloc(Heap *self, void *ptr, size_t newsize);
 void Heap_free(Heap *self, void *ptr);
 #define HEAP_DUMP_LEAK(h, d)
