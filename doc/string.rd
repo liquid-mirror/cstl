@@ -51,6 +51,7 @@ NameにString, TypeにCharTを指定した場合、
     * ((<String_replace()>)) , ((<String_replace_len()>)) , ((<String_replace_c()>))
   * 削除
     * ((<String_erase()>))
+    * ((<String_pop_back()>))
     * ((<String_clear()>))
   * サイズの変更
     * ((<String_resize()>))
@@ -287,6 +288,13 @@ NameにString, TypeにCharTを指定した場合、
 * selfを返す。
 * 事前条件
   * idxがselfの文字数以下の値であること。
+<<< hr
+
+==== String_pop_back()
+  CharT String_pop_back(String *self);
+* selfの最後の文字を削除し、その文字を返す。
+* 事前条件
+  * selfが空でないこと。
 <<< hr
 
 ==== String_clear()

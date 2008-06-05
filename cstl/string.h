@@ -92,6 +92,7 @@ Type *Name##_at(Name *self, size_t idx);\
 const Type *Name##_c_str(Name *self);\
 const Type *Name##_data(Name *self);\
 Name *Name##_erase(Name *self, size_t idx, size_t len);\
+Type Name##_pop_back(Name *self);\
 int Name##_resize(Name *self, size_t n, Type c);\
 void Name##_swap(Name *self, Name *x);\
 Name *Name##_assign(Name *self, const Type *cstr);\
@@ -308,6 +309,19 @@ Name *Name##_erase(Name *self, size_t idx, size_t len)\
 	}\
 	Name##__CharVector_erase(self->data, idx, len);\
 	return self;\
+}\
+\
+Type Name##_pop_back(Name *self)\
+{\
+	Type elem;\
+	size_t size;\
+	assert(self && "String_pop_back");\
+	assert(self->magic == self && "String_pop_back");\
+	assert(!Name##_empty(self) && "String_pop_back");\
+	size = Name##_size(self);\
+	elem = CSTL_VECTOR_AT(self->data, size - 1);\
+	Name##__CharVector_erase(self->data, size - 1, 1);\
+	return elem;\
 }\
 \
 int Name##_resize(Name *self, size_t n, Type c)\

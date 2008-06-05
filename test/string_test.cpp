@@ -139,6 +139,31 @@ void StringTest_test_1_2(void)
 	assert(strcmp("abcdefgh", String_c_str(x)) == 0);
 	assert(String_size(y) == 7);
 	assert(String_size(x) == 8);
+	/* pop_back */
+	assert(String_pop_back(x) == 'h');
+	assert(strcmp("abcdefg", String_c_str(x)) == 0);
+	assert(String_size(x) == 7);
+	assert(String_pop_back(x) == 'g');
+	assert(strcmp("abcdef", String_c_str(x)) == 0);
+	assert(String_size(x) == 6);
+	assert(String_pop_back(x) == 'f');
+	assert(strcmp("abcde", String_c_str(x)) == 0);
+	assert(String_size(x) == 5);
+	assert(String_pop_back(x) == 'e');
+	assert(strcmp("abcd", String_c_str(x)) == 0);
+	assert(String_size(x) == 4);
+	assert(String_pop_back(x) == 'd');
+	assert(strcmp("abc", String_c_str(x)) == 0);
+	assert(String_size(x) == 3);
+	assert(String_pop_back(x) == 'c');
+	assert(strcmp("ab", String_c_str(x)) == 0);
+	assert(String_size(x) == 2);
+	assert(String_pop_back(x) == 'b');
+	assert(strcmp("a", String_c_str(x)) == 0);
+	assert(String_size(x) == 1);
+	assert(String_pop_back(x) == 'a');
+	assert(strcmp("", String_c_str(x)) == 0);
+	assert(String_size(x) == 0);
 
 	HEAP_DUMP_OVERFLOW(&heap);
 	String_delete(x);
