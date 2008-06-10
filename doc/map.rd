@@ -97,6 +97,7 @@ NameにMap, KeyTypeにKeyT, ValueTypeにValueTを指定した場合、
 ==== Map_delete()
   void Map_delete(Map *self);
 * selfのすべての要素を削除し、selfを破棄する。
+* selfがNULLの場合、何もしない。
 <<< hr
 
 ==== Map_size()

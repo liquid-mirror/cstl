@@ -778,7 +778,7 @@ Name *Name##_new(void)\
 \
 void Name##_delete(Name *self)\
 {\
-	assert(self && "RBTree_delete");\
+	if (!self) return;\
 	assert(self->magic == self && "RBTree_delete");\
 	Name##RBTree_delete(self->tree);\
 	CSTL_RBTREE_MAGIC(self->magic = 0);\

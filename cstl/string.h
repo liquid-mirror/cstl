@@ -204,7 +204,7 @@ Name *Name##_new(size_t n)\
 \
 void Name##_delete(Name *self)\
 {\
-	assert(self && "String_delete");\
+	if (!self) return;\
 	assert(self->magic == self && "String_delete");\
 	CSTL_STRING_MAGIC(self->magic = 0);\
 	Name##__CharVector_delete(self->data);\

@@ -64,6 +64,7 @@ NameにVector, TypeにTを指定した場合、
 ==== Vector_delete()
   void Vector_delete(Vector *self);
 * selfのすべての要素を削除し、selfを破棄する。
+* selfがNULLの場合、何もしない。
 <<< hr
 
 ==== Vector_size()

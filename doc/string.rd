@@ -87,6 +87,7 @@ NameにString, TypeにCharTを指定した場合、
 ==== String_delete()
   void String_delete(String *self);
 * selfのすべての文字を削除し、selfを破棄する。
+* selfがNULLの場合、何もしない。
 <<< hr
 
 ==== String_size()

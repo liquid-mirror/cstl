@@ -354,7 +354,7 @@ Name *Name##_new(void)\
 void Name##_delete(Name *self)\
 {\
 	register size_t i;\
-	assert(self && "Deque_delete");\
+	if (!self) return;\
 	assert(self->magic == self && "Deque_delete");\
 	for (i = 0; i < CSTL_VECTOR_SIZE(self->map); i++) {\
 		if (CSTL_VECTOR_AT(self->map, i)) {\

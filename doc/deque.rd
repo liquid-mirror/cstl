@@ -61,6 +61,7 @@ NameにDeque, TypeにTを指定した場合、
 ==== Deque_delete()
   void Deque_delete(Deque *self);
 * selfのすべての要素を削除し、selfを破棄する。
+* selfがNULLの場合、何もしない。
 <<< hr
 
 ==== Deque_size()

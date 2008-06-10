@@ -130,7 +130,7 @@ Name *Name##_new(size_t n)\
 \
 void Name##_delete(Name *self)\
 {\
-	assert(self && "Ring_delete");\
+	if (!self) return;\
 	assert(self->magic == self && "Ring_delete");\
 	CSTL_RING_MAGIC(self->magic = 0);\
 	free(self->buf);\

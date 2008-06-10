@@ -94,6 +94,7 @@ NameにSet, TypeにTを指定した場合、
 ==== Set_delete()
   void Set_delete(Set *self);
 * selfのすべての要素を削除し、selfを破棄する。
+* selfがNULLの場合、何もしない。
 <<< hr
 
 ==== Set_size()

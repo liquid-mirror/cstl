@@ -81,6 +81,7 @@ NameにList, TypeにTを指定した場合、
 ==== List_delete()
   void List_delete(List *self);
 * selfのすべての要素を削除し、selfを破棄する。
+* selfがNULLの場合、何もしない。
 <<< hr
 
 ==== List_size()
