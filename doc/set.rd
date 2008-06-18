@@ -1,24 +1,29 @@
 =begin
 == set/multiset
+setは要素が値によって自動的にソートされるコンテナである。
+同じ要素を2個以上挿入することはできない。
+挿入した要素は読み出し専用となる。
+要素の挿入・削除・検索の計算量はO(log N)である。
+
+multisetは要素の重複が許されることを除き、setと同じである。
+
 set/multisetを使うには、 以下のマクロを用いてコードを展開する必要がある。
 
-* setの場合
     #include <cstl/set.h>
 
-    /* インターフェイスを展開 */
     #define CSTL_SET_INTERFACE(Name, Type)
-
-    /* 実装を展開 */
     #define CSTL_SET_IMPLEMENT(Name, Type, Compare)
 
-* multisetの場合
-    #include <cstl/set.h>
-
-    /* インターフェイスを展開 */
     #define CSTL_MULTISET_INTERFACE(Name, Type)
-
-    /* 実装を展開 */
     #define CSTL_MULTISET_IMPLEMENT(Name, Type, Compare)
+
+((*CSTL_SET_INTERFACE()*))は任意の名前と要素の型のsetのインターフェイスを展開する。
+((*CSTL_SET_IMPLEMENT()*))はその実装を展開する。
+それぞれのマクロのCompare以外の引数は同じものを指定すること。
+
+((*CSTL_MULTISET_INTERFACE()*))は任意の名前と要素の型のmultisetのインターフェイスを展開する。
+((*CSTL_MULTISET_IMPLEMENT()*))はその実装を展開する。
+それぞれのマクロのCompare以外の引数は同じものを指定すること。
 
 : Name
   既存の型と重複しない任意の名前。コンテナの型名と関数のプレフィックスになる
@@ -27,17 +32,53 @@ set/multisetを使うには、 以下のマクロを用いてコードを展開�
 : Compare
   要素を比較する関数またはマクロ
   * Typeが整数型、小数型、ポインタ型など、2つの値を単純に比較できる型の場合、
-    要素のソートの順序を昇順にするならばCSTL_LESSマクロを、降順にするならばCSTL_GREATERマクロをCompareに指定する。
-    CSTL_LESS/CSTL_GREATERマクロはヘッダで以下のように定義されている。
+    要素のソートの順序を昇順にするならばCSTL_LESSを、降順にするならばCSTL_GREATERをCompareに指定する。
+    これらのマクロはヘッダで以下のように定義されている。
       #define CSTL_LESS(x, y)     ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
       #define CSTL_GREATER(x, y)  ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
   * Typeがその他の型の場合、以下の関数のような引数と戻り値を持ち、
     x == yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
     返す比較関数またはマクロをCompareに指定する。
-    尚、Typeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
+    尚、Typeが文字列型(const char *)ならば、C標準関数のstrcmpが指定可能である。
       int comp(Type x, Type y);
 
-<<< br
+=== 使用例
+  #include <stdio.h>
+  #include <cstl/set.h>
+  
+  CSTL_SET_INTERFACE(IntSet, int)            /* インターフェイスを展開 */
+  CSTL_SET_IMPLEMENT(IntSet, int, CSTL_LESS) /* 実装を展開 */
+  
+  int main(void)
+  {
+      int i;
+      /* イテレータ */
+      IntSetIterator pos;
+      /* intのsetを生成 */
+      IntSet *set = IntSet_new();
+  
+      /* 要素を挿入 */
+      for (i = 0; i < 64; i++) {
+          IntSet_insert(set, i, NULL);
+      }
+      /* サイズ */
+      printf("size: %d\n", IntSet_size(set));
+      for (pos = IntSet_begin(set); pos != IntSet_end(set); pos = IntSet_next(pos)) {
+          /* イテレータによる要素の読み出し */
+          printf("%d\n", IntSet_key(pos));
+      }
+      /* 3からend()までの要素を削除 */
+      IntSet_erase_range(set, IntSet_find(set, 3), IntSet_end(set));
+  
+      /* 使い終わったら破棄 */
+      IntSet_delete(set);
+      return 0;
+  }
+
+※複数のソースファイルから同じ型のコンテナを使用する場合は、
+マクロ展開用のヘッダファイルとソースファイルを用意し、適宜インクルードやリンクをすればよい。
+
+<<< hr
 
 NameにSet, TypeにTを指定した場合、
 以下のインターフェイスを提供する。

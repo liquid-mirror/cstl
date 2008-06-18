@@ -1,21 +1,66 @@
 =begin
 == string
+stringは可変長な文字列である。許容量を超えた文字の追加をした場合、自動的に拡張する。
+末尾での文字の挿入・削除の計算量がO(1)であり、それ以外の位置の文字の挿入・削除の計算量はO(N)である。
+インデックスによる文字のランダムアクセスが可能である。
+また、内部データの連続性は保証される。
+
 stringを使うには、以下のマクロを用いてコードを展開する必要がある。
 
   #include <cstl/string.h>
 
-  /* インターフェイスを展開 */
   #define CSTL_STRING_INTERFACE(Name, Type)
-
-  /* 実装を展開 */
   #define CSTL_STRING_IMPLEMENT(Name, Type)
+
+((*CSTL_STRING_INTERFACE()*))は任意の名前と要素の型のstringのインターフェイスを展開する。
+((*CSTL_STRING_IMPLEMENT()*))はその実装を展開する。
+それぞれのマクロの引数は同じものを指定すること。
 
 : Name
   既存の型と重複しない任意の名前。コンテナの型名と関数のプレフィックスになる
 : Type
   任意の文字の型
 
-<<< br
+=== 使用例
+  #include <stdio.h>
+  #include <ctype.h>
+  #include <cstl/string.h>
+  
+  CSTL_STRING_INTERFACE(String, char) /* インターフェイスを展開 */
+  CSTL_STRING_IMPLEMENT(String, char) /* 実装を展開 */
+  
+  int main(void)
+  {
+      size_t i;
+      /* 許容量が32のstringを生成 */
+      String *str = String_new(32);
+  
+      /* 代入 */
+      String_assign(str, "string");
+      /* 末尾に追加 */
+      String_append(str, " example");
+      /* 先頭に挿入 */
+      String_insert(str, 0, "a ");
+  
+      /* Cの文字列として出力 */
+      printf("%s\n", String_c_str(str));
+  
+      for (i = 0; i < String_length(str); i++) {
+          /* インデックスによる文字の読み書き */
+          printf("%c, ", *String_at(str, i));
+          *String_at(str, i) = toupper(*String_at(str, i));
+          printf("%c\n", *String_at(str, i));
+      }
+  
+      /* 使い終わったら破棄 */
+      String_delete(str);
+      return 0;
+  }
+
+※複数のソースファイルから同じ型のコンテナを使用する場合は、
+マクロ展開用のヘッダファイルとソースファイルを用意し、適宜インクルードやリンクをすればよい。
+
+<<< hr
 
 NameにString, TypeにCharTを指定した場合、
 以下のインターフェイスを提供する。

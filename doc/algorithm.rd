@@ -2,12 +2,12 @@
 == algorithm
 CSTLは、((<vector|URL:vector.html>)), ((<deque|URL:deque.html>)), ((<string|URL:string.html>))において、共通なアルゴリズムを提供する。
 
-アルゴリズムを使うには、CSTL_XXX_INTERFACE(Name, Type)((-XXXは、VECTOR, DEQUE, STRINGのいずれか-))を展開する前に、
+アルゴリズムを使うには、((*CSTL_XXX_INTERFACE(Name, Type)*))((-XXXは、VECTOR, DEQUE, STRINGのいずれか-))を展開する前に、
 algorithm.hというヘッダファイルをインクルードする必要がある。
 
   #include <cstl/algorithm.h>
 
-CSTL_XXX_INTERFACE(Name, Type)のNameにContainer, TypeにTを指定した場合、
+((*CSTL_XXX_INTERFACE(Name, Type)*))のNameにContainer, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 
 * 関数

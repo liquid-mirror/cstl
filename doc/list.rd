@@ -1,21 +1,65 @@
 =begin
 == list
+listは双方向リンクリストである。
+任意の位置での要素の挿入・削除の計算量がO(1)であるが、要素のランダムアクセスはできない。
+
 listを使うには、以下のマクロを用いてコードを展開する必要がある。
 
   #include <cstl/list.h>
 
-  /* インターフェイスを展開 */
   #define CSTL_LIST_INTERFACE(Name, Type)
-
-  /* 実装を展開 */
   #define CSTL_LIST_IMPLEMENT(Name, Type)
+
+((*CSTL_LIST_INTERFACE()*))は任意の名前と要素の型のlistのインターフェイスを展開する。
+((*CSTL_LIST_IMPLEMENT()*))はその実装を展開する。
+それぞれのマクロの引数は同じものを指定すること。
 
 : Name
   既存の型と重複しない任意の名前。コンテナの型名と関数のプレフィックスになる
 : Type
   任意の要素の型
 
-<<< br
+=== 使用例
+  #include <stdio.h>
+  #include <cstl/list.h>
+  
+  CSTL_LIST_INTERFACE(IntList, int) /* インターフェイスを展開 */
+  CSTL_LIST_IMPLEMENT(IntList, int) /* 実装を展開 */
+  
+  int main(void)
+  {
+      int i;
+      /* イテレータ */
+      IntListIterator pos;
+      /* intのlistを生成 */
+      IntList *lst = IntList_new();
+  
+      for (i = 0; i < 32; i++) {
+          /* 末尾から追加 */
+          IntList_push_back(lst, i);
+      }
+      for (i = 0; i < 32; i++) {
+          /* 先頭から追加 */
+          IntList_push_front(lst, i);
+      }
+      /* サイズ */
+      printf("size: %d\n", IntList_size(lst));
+      for (pos = IntList_begin(lst); pos != IntList_end(lst); pos = IntList_next(pos)) {
+          /* イテレータによる要素の読み書き */
+          printf("%d,", *IntList_at(pos));
+          *IntList_at(pos) += 1;
+          printf("%d\n", *IntList_at(pos));
+      }
+  
+      /* 使い終わったら破棄 */
+      IntList_delete(lst);
+      return 0;
+  }
+
+※複数のソースファイルから同じ型のコンテナを使用する場合は、
+マクロ展開用のヘッダファイルとソースファイルを用意し、適宜インクルードやリンクをすればよい。
+
+<<< hr
 
 NameにList, TypeにTを指定した場合、
 以下のインターフェイスを提供する。

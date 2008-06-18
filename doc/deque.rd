@@ -1,21 +1,63 @@
 =begin
 == deque
+dequeは可変長な両端キューである。
+先頭と末尾での要素の挿入・削除の計算量がO(1)であり、それ以外の位置の要素の挿入・削除の計算量はO(N)である。
+インデックスによる要素のランダムアクセスが可能である。
+
 dequeを使うには、以下のマクロを用いてコードを展開する必要がある。
 
   #include <cstl/deque.h>
 
-  /* インターフェイスを展開 */
   #define CSTL_DEQUE_INTERFACE(Name, Type)
-
-  /* 実装を展開 */
   #define CSTL_DEQUE_IMPLEMENT(Name, Type)
 
+((*CSTL_DEQUE_INTERFACE()*))は任意の名前と要素の型のdequeのインターフェイスを展開する。
+((*CSTL_DEQUE_IMPLEMENT()*))はその実装を展開する。
+それぞれのマクロの引数は同じものを指定すること。
 : Name
   既存の型と重複しない任意の名前。コンテナの型名と関数のプレフィックスになる
 : Type
   任意の要素の型
 
-<<< br
+=== 使用例
+  #include <stdio.h>
+  #include <cstl/deque.h>
+  
+  CSTL_DEQUE_INTERFACE(IntDeque, int) /* インターフェイスを展開 */
+  CSTL_DEQUE_IMPLEMENT(IntDeque, int) /* 実装を展開 */
+  
+  int main(void)
+  {
+      int i;
+      /* intのdequeを生成 */
+      IntDeque *deq = IntDeque_new();
+  
+      for (i = 0; i < 32; i++) {
+          /* 末尾から追加 */
+          IntDeque_push_back(deq, i);
+      }
+      for (i = 0; i < 32; i++) {
+          /* 先頭から追加 */
+          IntDeque_push_front(deq, i);
+      }
+      /* サイズ */
+      printf("size: %d\n", IntDeque_size(deq));
+      for (i = 0; i < 64; i++) {
+          /* インデックスによる要素の読み書き */
+          printf("%d,", *IntDeque_at(deq, i));
+          *IntDeque_at(deq, i) += 1;
+          printf("%d\n", *IntDeque_at(deq, i));
+      }
+  
+      /* 使い終わったら破棄 */
+      IntDeque_delete(deq);
+      return 0;
+  }
+
+※複数のソースファイルから同じ型のコンテナを使用する場合は、
+マクロ展開用のヘッダファイルとソースファイルを用意し、適宜インクルードやリンクをすればよい。
+
+<<< hr
 
 NameにDeque, TypeにTを指定した場合、
 以下のインターフェイスを提供する。

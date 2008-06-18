@@ -1,21 +1,61 @@
 =begin
 == vector
+vectorは可変長な配列である。許容量を超えた要素の追加をした場合、自動的に拡張する。
+末尾での要素の挿入・削除の計算量がO(1)であり、それ以外の位置の要素の挿入・削除の計算量はO(N)である。
+インデックスによる要素のランダムアクセスが可能である。
+また、内部データの連続性は保証される。
+
 vectorを使うには、以下のマクロを用いてコードを展開する必要がある。
 
   #include <cstl/vector.h>
 
-  /* インターフェイスを展開 */
   #define CSTL_VECTOR_INTERFACE(Name, Type)
-
-  /* 実装を展開 */
   #define CSTL_VECTOR_IMPLEMENT(Name, Type)
+
+((*CSTL_VECTOR_INTERFACE()*))は任意の名前と要素の型のvectorのインターフェイスを展開する。
+((*CSTL_VECTOR_IMPLEMENT()*))はその実装を展開する。
+それぞれのマクロの引数は同じものを指定すること。
 
 : Name
   既存の型と重複しない任意の名前。コンテナの型名と関数のプレフィックスになる
 : Type
   任意の要素の型
 
-<<< br
+=== 使用例
+  #include <stdio.h>
+  #include <cstl/vector.h>
+  
+  CSTL_VECTOR_INTERFACE(IntVector, int) /* インターフェイスを展開 */
+  CSTL_VECTOR_IMPLEMENT(IntVector, int) /* 実装を展開 */
+  
+  int main(void)
+  {
+      int i;
+      /* 許容量が32のintのvectorを生成 */
+      IntVector *vec = IntVector_new(32);
+  
+      for (i = 0; i < 64; i++) {
+          /* 末尾から要素を追加。許容量を超えても自動的に拡張する */
+          IntVector_push_back(vec, i);
+      }
+      /* サイズ */
+      printf("size: %d\n", IntVector_size(vec));
+      for (i = 0; i < 64; i++) {
+          /* インデックスによる要素の読み書き */
+          printf("%d,", *IntVector_at(vec, i));
+          *IntVector_at(vec, i) += 1;
+          printf("%d\n", *IntVector_at(vec, i));
+      }
+  
+      /* 使い終わったら破棄 */
+      IntVector_delete(vec);
+      return 0;
+  }
+
+※複数のソースファイルから同じ型のコンテナを使用する場合は、
+マクロ展開用のヘッダファイルとソースファイルを用意し、適宜インクルードやリンクをすればよい。
+
+<<< hr
 
 NameにVector, TypeにTを指定した場合、
 以下のインターフェイスを提供する。

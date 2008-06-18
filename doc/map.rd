@@ -1,24 +1,30 @@
 =begin
 == map/multimap
+mapはキーと値のペアを要素とするコンテナである。
+要素を挿入すると、キーによって自動的にソートされる。同じキーの要素を2個以上挿入することはできない。
+挿入した要素のキーは読み出し専用となる。
+キーによる要素のルックアップが可能である。
+要素の挿入・削除・キーの検索・ルックアップの計算量はO(log N)である。
+
+multimapはキーの重複が許されることと、ルックアップが不可能であることを除き、mapと同じである。
+
 map/multimapを使うには、以下のマクロを用いてコードを展開する必要がある。
 
-* mapの場合
     #include <cstl/map.h>
 
-    /* インターフェイスを展開 */
     #define CSTL_MAP_INTERFACE(Name, KeyType, ValueType)
-
-    /* 実装を展開 */
     #define CSTL_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
 
-* multimapの場合
-    #include <cstl/map.h>
-
-    /* インターフェイスを展開 */
     #define CSTL_MULTIMAP_INTERFACE(Name, KeyType, ValueType)
-
-    /* 実装を展開 */
     #define CSTL_MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
+
+((*CSTL_MAP_INTERFACE()*))は任意の名前と要素の型のmapのインターフェイスを展開する。
+((*CSTL_MAP_IMPLEMENT()*))はその実装を展開する。
+それぞれのマクロのCompare以外の引数は同じものを指定すること。
+
+((*CSTL_MULTIMAP_INTERFACE()*))は任意の名前と要素の型のmultimapのインターフェイスを展開する。
+((*CSTL_MULTIMAP_IMPLEMENT()*))はその実装を展開する。
+それぞれのマクロのCompare以外の引数は同じものを指定すること。
 
 : Name
   既存の型と重複しない任意の名前。コンテナの型名と関数のプレフィックスになる
@@ -29,17 +35,56 @@ map/multimapを使うには、以下のマクロを用いてコードを展開�
 : Compare
   要素を比較する関数またはマクロ
   * KeyTypeが整数型、小数型、ポインタ型など、2つの値を単純に比較できる型の場合、
-    要素のソートの順序を昇順にするならばCSTL_LESSマクロを、降順にするならばCSTL_GREATERマクロをCompareに指定する。
-    CSTL_LESS/CSTL_GREATERマクロはヘッダで以下のように定義されている。
+    要素のソートの順序を昇順にするならばCSTL_LESSを、降順にするならばCSTL_GREATERをCompareに指定する。
+    これらのマクロはヘッダで以下のように定義されている。
       #define CSTL_LESS(x, y)     ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
       #define CSTL_GREATER(x, y)  ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
   * KeyTypeがその他の型の場合、以下の関数のような引数と戻り値を持ち、
     x == yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
     返す比較関数またはマクロをCompareに指定する。
-    尚、KeyTypeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
+    尚、KeyTypeが文字列型(const char *)ならば、C標準関数のstrcmpが指定可能である。
       int comp(KeyType x, KeyType y);
 
-<<< br
+=== 使用例
+  #include <stdio.h>
+  #include <string.h>
+  #include <cstl/map.h>
+  
+  CSTL_MAP_INTERFACE(StrIntMap, const char *, int)         /* インターフェイスを展開 */
+  CSTL_MAP_IMPLEMENT(StrIntMap, const char *, int, strcmp) /* 実装を展開 */
+  
+  int main(void)
+  {
+      /* イテレータ */
+      StrIntMapIterator pos;
+      /* キーが文字列、値がintのmapを生成 */
+      StrIntMap *map = StrIntMap_new();
+  
+      /* 要素を挿入 */
+      StrIntMap_insert(map, "aaa", 1, NULL);
+      StrIntMap_insert(map, "bbb", 2, NULL);
+      /* ルックアップによる要素の読み書き */
+      printf("%d\n", *StrIntMap_lookup(map, "aaa"));
+      *StrIntMap_lookup(map, "bbb") = 3;
+      *StrIntMap_lookup(map, "ccc") = 4; /* 存在しないキーの要素は自動的に挿入 */
+      /* サイズ */
+      printf("size: %d\n", StrIntMap_size(map));
+      for (pos = StrIntMap_begin(map); pos != StrIntMap_end(map); pos = StrIntMap_next(pos)) {
+          /* イテレータによる要素の読み書き */
+          printf("%s: %d,", StrIntMap_key(pos), *StrIntMap_value(pos));
+          *StrIntMap_value(pos) += 1;
+          printf("%d\n", *StrIntMap_value(pos));
+      }
+  
+      /* 使い終わったら破棄 */
+      StrIntMap_delete(map);
+      return 0;
+  }
+
+※複数のソースファイルから同じ型のコンテナを使用する場合は、
+マクロ展開用のヘッダファイルとソースファイルを用意し、適宜インクルードやリンクをすればよい。
+
+<<< hr
 
 NameにMap, KeyTypeにKeyT, ValueTypeにValueTを指定した場合、
 以下のインターフェイスを提供する。
