@@ -86,6 +86,7 @@ map/multimapを使うには、以下のマクロを用いてコードを展開�
 
 <<< hr
 
+((*CSTL_MAP_INTERFACE(Name, KeyType, ValueType)*)) , ((*CSTL_MULTIMAP_INTERFACE(Name, KeyType, ValueType)*))の
 NameにMap, KeyTypeにKeyT, ValueTypeにValueTを指定した場合、
 以下のインターフェイスを提供する。
 

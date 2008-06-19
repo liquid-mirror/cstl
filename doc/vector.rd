@@ -59,7 +59,7 @@ vectorを使うには、以下のマクロを用いてコードを展開する�
 
 <<< hr
 
-NameにVector, TypeにTを指定した場合、
+((*CSTL_VECTOR_INTERFACE(Name, Type)*))のNameにVector, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 
 * 型

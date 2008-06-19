@@ -62,7 +62,7 @@ dequeを使うには、以下のマクロを用いてコードを展開する必
 
 <<< hr
 
-NameにDeque, TypeにTを指定した場合、
+((*CSTL_DEQUE_INTERFACE(Name, Type)*))のNameにDeque, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 
 * 型

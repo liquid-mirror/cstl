@@ -80,6 +80,7 @@ set/multisetを使うには、 以下のマクロを用いてコードを展開�
 
 <<< hr
 
+((*CSTL_SET_INTERFACE(Name, Type)*)) , ((*CSTL_MULTISET_INTERFACE(Name, Type)*))の
 NameにSet, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 

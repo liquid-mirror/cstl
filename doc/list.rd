@@ -61,7 +61,7 @@ listを使うには、以下のマクロを用いてコードを展開する必�
 
 <<< hr
 
-NameにList, TypeにTを指定した場合、
+((*CSTL_LIST_INTERFACE(Name, Type)*))のNameにList, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 
 * 型

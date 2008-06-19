@@ -64,7 +64,7 @@ stringを使うには、以下のマクロを用いてコードを展開する�
 
 <<< hr
 
-NameにString, TypeにCharTを指定した場合、
+((*CSTL_STRING_INTERFACE(Name, Type)*))のNameにString, TypeにCharTを指定した場合、
 以下のインターフェイスを提供する。
 
 * 定数
