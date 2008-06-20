@@ -299,8 +299,16 @@ echo -e "\
 #define CSTL_${upper}_MAGIC(x)
 #endif\n" >> "$path"".h"
 fi
+echo -e "\
+#ifdef __cplusplus
+extern \"C\" {
+#endif" >> "$path"".h"
 echo "$hdr" | cpp -I.. | grep "$name" | indent -kr -ut -ts4 \
 | sed -e "s/$name \* /$name */g" >> "$path"".h"
+echo -e "\
+#ifdef __cplusplus
+}
+#endif" >> "$path"".h"
 echo -e "\n#endif /* $included */" >> "$path"".h"
 
 # ソースファイル生成
