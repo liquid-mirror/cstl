@@ -90,6 +90,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
   void Container_sort(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素を比較関数compに従ってソートする。
 * このソートは安定でない。
+* 計算量は平均的にはO(N * log N)である。最悪な場合はO(N^2)となる。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
 <<< hr
@@ -98,6 +99,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
   void Container_stable_sort(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素を比較関数compに従ってソートする。
 * このソートは安定である。
+* 計算量はメモリに十分な空き領域がある場合はO(N * log N)である。空き領域がない場合はO(N * log N * log N)となる。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
 <<< hr
@@ -107,6 +109,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
 * selfのidx番目からn個の要素において、比較関数compに従ってvalueに一致する要素のインデックスを返す。
 * 一致する要素が複数ある場合、最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
+* 計算量はO(log N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn個の要素が比較関数compに従ってソートされていること。
@@ -116,6 +119,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
   size_t Container_lower_bound(Container *self, size_t idx, size_t n, T value, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素において、比較関数compに従ってvalue以上の最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
+* 計算量はO(log N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn個の要素が比較関数compに従ってソートされていること。
@@ -125,6 +129,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
   size_t Container_upper_bound(Container *self, size_t idx, size_t n, T value, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素において、比較関数compに従ってvalueより大きい最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
+* 計算量はO(log N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn個の要素が比較関数compに従ってソートされていること。
@@ -133,6 +138,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
 ==== Container_reverse()
   void Container_reverse(Container *self, size_t idx, size_t n);
 * selfのidx番目からn個の要素を逆順に並べ替える。
+* 計算量はO(N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
 <<< hr
@@ -141,6 +147,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
   void Container_rotate(Container *self, size_t first, size_t middle, size_t last);
 * selfのmiddle番目からlast - 1番目までの要素をfirst番目の位置に移動する。
 * first番目からmiddle - 1番目までにあった要素は後ろにずらされる。
+* 計算量はO(N)である。
 * 事前条件
   * first <= middle <= last <= selfの現在の要素数、であること。
 <<< hr
@@ -154,6 +161,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * selfのidx番目からxn + yn個の要素はソートされた状態になる。
+* 計算量はO(N)である。
 * 事前条件
   * idxがselfの現在の要素数以下の値であること。
   * xidx + xnがxの現在の要素数以下の値であること。
@@ -168,6 +176,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
                               int (*comp)(const void *p1, const void *p2));
 * selfの連続する2つの範囲first番目からmiddle - 1番目までとmiddle番目からlast - 1番目までの要素を比較関数compに従ってマージする。
 * selfのfirst番目からlast - 1番目までの要素はソートされた状態になる。
+* 計算量はメモリに十分な空き領域がある場合はO(N)である。空き領域がない場合はO(N * log N)となる。
 * 事前条件
   * first <= middle <= last <= selfの現在の要素数、であること。
   * selfのfirst番目からmiddle - 1番目までの要素は比較関数compに従ってソートされていること。
@@ -177,6 +186,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
 ==== Container_make_heap()
   void Container_make_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素を比較関数compに従ってヒープに変換する。
+* 計算量はO(N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
 <<< hr
@@ -185,6 +195,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
   void Container_sort_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素を比較関数compに従ってソートする。
 * このソートは安定でない。
+* 計算量はO(N * log N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn個の要素が比較関数compに従ってヒープになっていること。
@@ -193,6 +204,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
 ==== Container_push_heap()
   void Container_push_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx + n - 1番目の要素を、selfのidx番目からn - 1個の範囲のヒープに追加して、idx番目からn個の要素を一つのヒープとして再構成する。
+* 計算量はO(log N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn - 1個の要素が比較関数compに従ってヒープになっていること。
@@ -201,6 +213,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
 ==== Container_pop_heap()
   void Container_pop_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の範囲のヒープから、ヒープの最初の要素とヒープの最後の要素を交換し、selfのidx番目からn - 1個の要素を一つのヒープとして再構成する。
+* 計算量はO(log N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn個の要素が比較関数compに従ってヒープになっていること。
