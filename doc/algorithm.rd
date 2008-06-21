@@ -2,81 +2,166 @@
 == algorithm
 CSTLは、((<vector|URL:vector.html>)), ((<deque|URL:deque.html>)), ((<string|URL:string.html>))において、共通なアルゴリズムを提供する。
 
-アルゴリズムを使うには、CSTL_XXX_INTERFACE((-XXXは、VECTOR, DEQUE, STRINGのいずれか-))を展開する前に、
-algorithm.hというヘッダファイルをインクルードする。
+アルゴリズムを使うには、((*CSTL_XXX_INTERFACE(Name, Type)*))((-XXXは、VECTOR, DEQUE, STRINGのいずれか-))を展開する前に、
+algorithm.hというヘッダファイルをインクルードする必要がある。
 
   #include <cstl/algorithm.h>
 
-CSTL_XXX_INTERFACEの引数のNameにContainer, TypeにTを指定した場合、
+=== 使用例
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <time.h>
+  #include <cstl/vector.h>
+  #include <cstl/algorithm.h> /* CSTL_VECTOR_INTERFACE()の前にインクルード */
+  
+  CSTL_VECTOR_INTERFACE(IntVector, int) /* インターフェイスを展開 */
+  CSTL_VECTOR_IMPLEMENT(IntVector, int) /* 実装を展開 */
+  
+  /* intの比較関数 */
+  int int_less(const void *p1, const void *p2)
+  {
+      if (*(int*)p1 < *(int*)p2) {
+          return -1;
+      } else if (*(int*)p1 > *(int*)p2) {
+          return 1;
+      } else {
+          return 0;
+      }
+  }
+  
+  int main(void)
+  {
+      int i;
+      size_t idx;
+      /* 許容量が32のintのvectorを生成 */
+      IntVector *vec = IntVector_new(32);
+  
+      srand(time(0));
+      for (i = 0; i < 64; i++) {
+          /* 末尾から100未満のランダムな値の要素を追加 */
+          IntVector_push_back(vec, rand() % 100);
+      }
+      /* ソート */
+      IntVector_sort(vec, 0, IntVector_size(vec), int_less);
+      for (i = 0; i < IntVector_size(vec); i++) {
+          printf("%d\n", *IntVector_at(vec, i));
+      }
+      printf("\n");
+      /* 50以上の最初の要素のインデックス */
+      idx = IntVector_lower_bound(vec, 0, IntVector_size(vec), 50, int_less);
+      /* 先頭から50未満の要素までを逆順に並べ替え */
+      IntVector_reverse(vec, 0, idx);
+      for (i = 0; i < IntVector_size(vec); i++) {
+          printf("%d\n", *IntVector_at(vec, i));
+      }
+  
+      /* 使い終わったら破棄 */
+      IntVector_delete(vec);
+      return 0;
+  }
+
+<<< hr
+
+((*CSTL_XXX_INTERFACE(Name, Type)*))のNameにContainer, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 
-==== 関数
-以下の関数において、Container*型の引数はNULLでないことを事前条件に含める。
+* 関数
+  * ソート
+    * ((<Container_sort()>)) , ((<Container_stable_sort()>))
+  * 二分探索
+    * ((<Container_binary_search()>))
+    * ((<Container_lower_bound()>)) , ((<Container_upper_bound()>))
+  * 並べ替え
+    * ((<Container_reverse()>))
+    * ((<Container_rotate()>))
+  * マージ
+    * ((<Container_merge()>))
+    * ((<Container_inplace_merge()>))
+  * ヒープ
+    * ((<Container_make_heap()>)) , ((<Container_sort_heap()>))
+    * ((<Container_push_heap()>)) , ((<Container_pop_heap()>))
+<<< hr
 
-また、int (*comp)(const void *p1, const void *p2)という関数ポインタには、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+以下の関数において、 int (*comp)(const void *p1, const void *p2)という関数ポインタには、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+(C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+<<< hr
 
-+ ソート
+==== Container_sort()
   void Container_sort(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素を比較関数compに従ってソートする。
 * このソートは安定でない。
+* 計算量は平均的にはO(N * log N)である。最悪な場合はO(N^2)となる。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
-<<< br
+<<< hr
 
+==== Container_stable_sort()
   void Container_stable_sort(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素を比較関数compに従ってソートする。
 * このソートは安定である。
+* 計算量はメモリに十分な空き領域がある場合はO(N * log N)である。空き領域がない場合はO(N * log N * log N)となる。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
-<<< br
+<<< hr
 
-+ 二分探索
+==== Container_binary_search()
   size_t Container_binary_search(Container *self, size_t idx, size_t n, T value, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素において、比較関数compに従ってvalueに一致する要素のインデックスを返す。
 * 一致する要素が複数ある場合、最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
+* 計算量はO(log N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn個の要素が比較関数compに従ってソートされていること。
-<<< br
+<<< hr
 
+==== Container_lower_bound()
   size_t Container_lower_bound(Container *self, size_t idx, size_t n, T value, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素において、比較関数compに従ってvalue以上の最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
+* 計算量はO(log N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn個の要素が比較関数compに従ってソートされていること。
-<<< br
+<<< hr
 
+==== Container_upper_bound()
   size_t Container_upper_bound(Container *self, size_t idx, size_t n, T value, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素において、比較関数compに従ってvalueより大きい最初の要素のインデックスを返す。
 * 見つからない場合、idx + nを返す。
+* 計算量はO(log N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn個の要素が比較関数compに従ってソートされていること。
-<<< br
+<<< hr
 
-+ 並べ替え
+==== Container_reverse()
   void Container_reverse(Container *self, size_t idx, size_t n);
 * selfのidx番目からn個の要素を逆順に並べ替える。
+* 計算量はO(N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
-<<< br
+<<< hr
 
+==== Container_rotate()
   void Container_rotate(Container *self, size_t first, size_t middle, size_t last);
 * selfのmiddle番目からlast - 1番目までの要素をfirst番目の位置に移動する。
 * first番目からmiddle - 1番目までにあった要素は後ろにずらされる。
+* 計算量はO(N)である。
 * 事前条件
   * first <= middle <= last <= selfの現在の要素数、であること。
-<<< br
+<<< hr
 
-+ マージ
-  int Container_merge(Container *self, size_t idx, Container *x, size_t xidx, size_t xn, 
-                    Container *y, size_t yidx, size_t yn, int (*comp)(const void *p1, const void *p2));
+==== Container_merge()
+  int Container_merge(Container *self, size_t idx, 
+                      Container *x, size_t xidx, size_t xn, 
+                      Container *y, size_t yidx, size_t yn, 
+                      int (*comp)(const void *p1, const void *p2));
 * xのxidx番目からxn個の要素とyのyidx番目からyn個の要素のコピーを比較関数compに従ってマージし、selfのidx番目の位置に挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * selfのidx番目からxn + yn個の要素はソートされた状態になる。
+* 計算量はO(N)である。
 * 事前条件
   * idxがselfの現在の要素数以下の値であること。
   * xidx + xnがxの現在の要素数以下の値であること。
@@ -84,46 +169,54 @@ CSTL_XXX_INTERFACEの引数のNameにContainer, TypeにTを指定した場合、
   * selfとx、selfとyは同じオブジェクトでないこと。
   * xのxidx番目からxn個の要素が比較関数compに従ってソートされていること。
   * yのyidx番目からyn個の要素が比較関数compに従ってソートされていること。
-<<< br
+<<< hr
 
+==== Container_inplace_merge()
   void Container_inplace_merge(Container *self, size_t first, size_t middle, size_t last, 
                               int (*comp)(const void *p1, const void *p2));
 * selfの連続する2つの範囲first番目からmiddle - 1番目までとmiddle番目からlast - 1番目までの要素を比較関数compに従ってマージする。
 * selfのfirst番目からlast - 1番目までの要素はソートされた状態になる。
+* 計算量はメモリに十分な空き領域がある場合はO(N)である。空き領域がない場合はO(N * log N)となる。
 * 事前条件
   * first <= middle <= last <= selfの現在の要素数、であること。
   * selfのfirst番目からmiddle - 1番目までの要素は比較関数compに従ってソートされていること。
   * selfのmiddle番目からlast - 1番目までの要素は比較関数compに従ってソートされていること。
-<<< br
+<<< hr
 
-+ ヒープ
+==== Container_make_heap()
   void Container_make_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の要素を比較関数compに従ってヒープに変換する。
+* 計算量はO(N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
-<<< br
+<<< hr
 
+==== Container_sort_heap()
+  void Container_sort_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
+* selfのidx番目からn個の要素を比較関数compに従ってソートする。
+* このソートは安定でない。
+* 計算量はO(N * log N)である。
+* 事前条件
+  * idx + nがselfの現在の要素数以下の値であること。
+  * selfのidx番目からn個の要素が比較関数compに従ってヒープになっていること。
+<<< hr
+
+==== Container_push_heap()
   void Container_push_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx + n - 1番目の要素を、selfのidx番目からn - 1個の範囲のヒープに追加して、idx番目からn個の要素を一つのヒープとして再構成する。
+* 計算量はO(log N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn - 1個の要素が比較関数compに従ってヒープになっていること。
-<<< br
+<<< hr
 
+==== Container_pop_heap()
   void Container_pop_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
 * selfのidx番目からn個の範囲のヒープから、ヒープの最初の要素とヒープの最後の要素を交換し、selfのidx番目からn - 1個の要素を一つのヒープとして再構成する。
+* 計算量はO(log N)である。
 * 事前条件
   * idx + nがselfの現在の要素数以下の値であること。
   * selfのidx番目からn個の要素が比較関数compに従ってヒープになっていること。
   * nが1以上であること。
-<<< br
-
-  void Container_sort_heap(Container *self, size_t idx, size_t n, int (*comp)(const void *p1, const void *p2));
-* selfのidx番目からn個の要素を比較関数compに従ってソートする。
-* このソートは安定でない。
-* 事前条件
-  * idx + nがselfの現在の要素数以下の値であること。
-  * selfのidx番目からn個の要素が比較関数compに従ってヒープになっていること。
-<<< br
 
 =end

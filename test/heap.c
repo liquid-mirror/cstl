@@ -110,9 +110,9 @@ void Heap_init(Heap *self, void *buf, size_t size, size_t alignment)
  * \return 割り当てたメモリへのポインタ。失敗すると0が返る。
  */
 #ifdef HEAP_DEBUG
-void *Heap_alloc_debug(Heap *self, size_t size, char *file, size_t line)
+void *Heap_malloc_debug(Heap *self, size_t size, char *file, size_t line)
 #else
-void *Heap_alloc(Heap *self, size_t size)
+void *Heap_malloc(Heap *self, size_t size)
 #endif
 {
 	BlockHeader *p;
@@ -125,19 +125,19 @@ void *Heap_alloc(Heap *self, size_t size)
 #endif
 
 	if (self->init_flag != self) {
-		DEBUGLOG(("Heap_alloc: heap is not initialized: %s(%d)\n", file, line));
+		DEBUGLOG(("Heap_malloc: heap is not initialized: %s(%d)\n", file, line));
 		assert(0);
 		return 0;
 	}
 #ifdef HEAP_DEBUG
 	if (!size) {
-		DEBUGLOG(("Heap_alloc: alloc 0 bytes: %s(%d)\n", file, line));
+		DEBUGLOG(("Heap_malloc: alloc 0 bytes: %s(%d)\n", file, line));
 	}
 	if (self->fail_count >= 0) {
 		if (self->fail_count > 0) {
 			self->fail_count--;
 		} else {
-			DEBUGLOG(("Heap_alloc: return NULL by fail_count: %s(%d)\n", file, line));
+			DEBUGLOG(("Heap_malloc: return NULL by fail_count: %s(%d)\n", file, line));
 			return 0;
 		}
 	}
@@ -175,7 +175,7 @@ void *Heap_alloc(Heap *self, size_t size)
 #endif
 		}
 	}
-	DEBUGLOG(("Heap_alloc: return NULL: %s(%d)\n", file, line));
+	DEBUGLOG(("Heap_malloc: return NULL: %s(%d)\n", file, line));
 	return 0;
 }
 
@@ -205,9 +205,9 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 	}
 	if (!ptr) {
 #ifdef HEAP_DEBUG
-		return Heap_alloc_debug(self, newsize, file, line);
+		return Heap_malloc_debug(self, newsize, file, line);
 #else
-		return Heap_alloc(self, newsize);
+		return Heap_malloc(self, newsize);
 #endif
 	}
 	if (!newsize) {
@@ -272,9 +272,9 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 	/* 以下、拡張 */
 	if (p->next->occupied || p->size + p->next->size < new_alloc_block_size) {
 #ifdef HEAP_DEBUG
-		void *newptr = Heap_alloc_debug(self, newsize, file, line);
+		void *newptr = Heap_malloc_debug(self, newsize, file, line);
 #else
-		void *newptr = Heap_alloc(self, newsize);
+		void *newptr = Heap_malloc(self, newsize);
 #endif
 		if (!newptr) {
 			DEBUGLOG(("Heap_realloc: return NULL: %s(%d)\n", file, line));
@@ -301,7 +301,7 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 		if (self->fail_count > 0) {
 			self->fail_count--;
 		} else {
-			DEBUGLOG(("Heap_alloc: return NULL by fail_count: %s(%d)\n", file, line));
+			DEBUGLOG(("Heap_malloc: return NULL by fail_count: %s(%d)\n", file, line));
 			return 0;
 		}
 	}
@@ -546,7 +546,7 @@ static void clear_wall(Heap *self, BlockHeader *p)
 /*! 
  * \brief ヒープオーバーフローをチェックする
  * \param self ヒープへのポインタ
- * \param ptr Heap_alloc()で取得したポインタ
+ * \param ptr Heap_malloc()で取得したポインタ
  * \return 確保したメモリサイズを超えて書き込みをしていなければ真を返す
  */
 int Heap_check_overflow(Heap *self, void *ptr)
@@ -636,7 +636,7 @@ size_t Heap_dump_leak(Heap *self, int dump)
 /*! 
  * \brief メモリブロックをダンプする
  * \param self ヒープへのポインタ
- * \param ptr Heap_alloc()で取得したポインタ
+ * \param ptr Heap_malloc()で取得したポインタ
  */
 void Heap_dump_block(Heap *self, void *ptr)
 {

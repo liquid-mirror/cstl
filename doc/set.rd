@@ -1,118 +1,200 @@
 =begin
 == set/multiset
-set/multisetを使うには、set.hというヘッダファイルをインクルードする。
-  #include <cstl/set.h>
+setは要素が値によって自動的にソートされるコンテナである。
+同じ要素を2個以上挿入することはできない。
+挿入した要素は読み出し専用となる。
+要素の挿入・削除・検索の計算量はO(log N)である。
 
-以下のマクロを用いてコードを展開する必要がある。
+multisetは要素の重複が許されることを除き、setと同じである。
 
-* setの場合
-    /* インターフェイスを展開 */
+set/multisetを使うには、 以下のマクロを用いてコードを展開する必要がある。
+
+    #include <cstl/set.h>
+
     #define CSTL_SET_INTERFACE(Name, Type)
-
-    /* 実装を展開 */
     #define CSTL_SET_IMPLEMENT(Name, Type, Compare)
 
-* multisetの場合
-    /* インターフェイスを展開 */
     #define CSTL_MULTISET_INTERFACE(Name, Type)
-
-    /* 実装を展開 */
     #define CSTL_MULTISET_IMPLEMENT(Name, Type, Compare)
 
-Nameに既存の型と重複しない任意の名前を、Typeに任意の要素の型を指定する。
+((*CSTL_SET_INTERFACE()*))は任意の名前と要素の型のsetのインターフェイスを展開する。
+((*CSTL_SET_IMPLEMENT()*))はその実装を展開する。
+それぞれのマクロのCompare以外の引数は同じものを指定すること。
 
-Compareに要素の比較ルーチンを指定する。
+((*CSTL_MULTISET_INTERFACE()*))は任意の名前と要素の型のmultisetのインターフェイスを展開する。
+((*CSTL_MULTISET_IMPLEMENT()*))はその実装を展開する。
+それぞれのマクロのCompare以外の引数は同じものを指定すること。
+
+: Name
+  既存の型と重複しない任意の名前。コンテナの型名と関数のプレフィックスになる
+: Type
+  任意の要素の型
+: Compare
+  要素を比較する関数またはマクロ
   * Typeが整数型、小数型、ポインタ型など、2つの値を単純に比較できる型の場合、
-    要素のソートの順序を昇順にするならばCSTL_LESSマクロを、降順にするならばCSTL_GREATERマクロを指定する。
-    CSTL_LESS/CSTL_GREATERマクロはヘッダで以下のように定義されている。
+    要素のソートの順序を昇順にするならばCSTL_LESSを、降順にするならばCSTL_GREATERをCompareに指定する。
+    これらのマクロはヘッダで以下のように定義されている。
       #define CSTL_LESS(x, y)     ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
       #define CSTL_GREATER(x, y)  ((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
-  * Typeがその他の型の場合、以下のプロトタイプのような引数と戻り値を持ち、
+  * Typeがその他の型の場合、以下の関数のような引数と戻り値を持ち、
     x == yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
-    返す比較ルーチンを指定する。
-    尚、Typeが文字列型(char*)ならば、C標準関数のstrcmpが指定可能である。
-      int Compare(Type x, Type y);
+    返す比較関数またはマクロをCompareに指定する。
+    尚、Typeが文字列型(const char *)ならば、C標準関数のstrcmpが指定可能である。
+      int comp(Type x, Type y);
 
-<<< br
+=== 使用例
+  #include <stdio.h>
+  #include <cstl/set.h>
+  
+  CSTL_SET_INTERFACE(IntSet, int)            /* インターフェイスを展開 */
+  CSTL_SET_IMPLEMENT(IntSet, int, CSTL_LESS) /* 実装を展開 */
+  
+  int main(void)
+  {
+      int i;
+      /* イテレータ */
+      IntSetIterator pos;
+      /* intのsetを生成 */
+      IntSet *set = IntSet_new();
+  
+      /* 要素を挿入 */
+      for (i = 0; i < 64; i++) {
+          IntSet_insert(set, i, NULL);
+      }
+      /* サイズ */
+      printf("size: %d\n", IntSet_size(set));
+      for (pos = IntSet_begin(set); pos != IntSet_end(set); pos = IntSet_next(pos)) {
+          /* イテレータによる要素の読み出し */
+          printf("%d\n", IntSet_key(pos));
+      }
+      /* 3以上の要素を削除 */
+      IntSet_erase_range(set, IntSet_find(set, 3), IntSet_end(set));
+  
+      /* 使い終わったら破棄 */
+      IntSet_delete(set);
+      return 0;
+  }
 
-CSTL_SET_INTERFACE/CSTL_MULTISET_INTERFACEの引数のNameにSet, TypeにTを指定した場合、
+※複数のソースファイルから同じ型のコンテナを使用する場合は、
+マクロ展開用のヘッダファイルとソースファイルを用意し、適宜インクルードやリンクをすればよい。
+
+<<< hr
+
+((*CSTL_SET_INTERFACE(Name, Type)*)) , ((*CSTL_MULTISET_INTERFACE(Name, Type)*))の
+NameにSet, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 
-==== 型
+* 型
+  * ((<Set>))
+  * ((<SetIterator>))
+* 関数
+  * 生成
+    * ((<Set_new()>))
+  * 破棄
+    * ((<Set_delete()>))
+  * サイズ
+    * ((<Set_size()>))
+    * ((<Set_empty()>))
+  * イテレータ
+    * ((<Set_begin()>)) , ((<Set_end()>))
+    * ((<Set_rbegin()>)) , ((<Set_rend()>))
+    * ((<Set_next()>)) , ((<Set_prev()>))
+  * 要素のアクセス
+    * ((<Set_key()>))
+  * 挿入
+    * ((<Set_insert() set用>)) , ((<Set_insert() multiset用>)) , ((<Set_insert_range()>))
+  * 削除
+    * ((<Set_erase()>)) , ((<Set_erase_range()>)) , ((<Set_erase_key()>))
+    * ((<Set_clear()>))
+  * 交換
+    * ((<Set_swap()>))
+  * 検索
+    * ((<Set_count()>))
+    * ((<Set_find()>))
+    * ((<Set_lower_bound()>)) , ((<Set_upper_bound()>))
+<<< hr
 
+==== Set
   Set
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
+<<< hr
 
+==== SetIterator
   SetIterator
 イテレータの型。要素の位置を示す。
 関数から返されたイテレータを有効なイテレータという。
 宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
+<<< hr
 
-==== 関数
-以下の関数において、Set*型の引数はNULLでないことを事前条件に含める。
-
-+ 生成
+==== Set_new()
   Set *Set_new(void);
 * set/multisetを生成する。
 * 生成に成功した場合、そのオブジェクトへのポインタを返す。
 * メモリ不足の場合、NULLを返す。
-<<< br
+<<< hr
 
-+ 破棄
+==== Set_delete()
   void Set_delete(Set *self);
 * selfのすべての要素を削除し、selfを破棄する。
-<<< br
+* selfがNULLの場合、何もしない。
+<<< hr
 
-+ サイズ
+==== Set_size()
   size_t Set_size(Set *self);
 * selfの現在の要素数を返す。
-<<< br
+<<< hr
 
+==== Set_empty()
   int Set_empty(Set *self);
 * selfが空の場合、0以外の値を返す。
 * selfが空でない場合、0を返す。
-<<< br
+<<< hr
 
-+ イテレータ
+==== Set_begin()
   SetIterator Set_begin(Set *self);
 * selfの最初の要素のイテレータを返す。
-<<< br
+<<< hr
 
+==== Set_end()
   SetIterator Set_end(Set *self);
 * selfの最後の要素の次のイテレータを返す。
-<<< br
+<<< hr
 
+==== Set_rbegin()
   SetIterator Set_rbegin(Set *self);
 * selfの最後の要素のイテレータを返す。
-<<< br
+<<< hr
 
+==== Set_rend()
   SetIterator Set_rend(Set *self);
 * selfの最初の要素の前のイテレータを返す。
-<<< br
+<<< hr
 
+==== Set_next()
   SetIterator Set_next(SetIterator pos);
 * posが示す位置の要素の次のイテレータを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがSet_end()またはSet_rend()でないこと。
-<<< br
+<<< hr
 
+==== Set_prev()
   SetIterator Set_prev(SetIterator pos);
 * posが示す位置の要素の前のイテレータを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがSet_end()またはSet_rend()でないこと。
-<<< br
+<<< hr
 
-+ 要素のアクセス
+==== Set_key()
   T Set_key(SetIterator pos);
 * posが示す位置の要素を返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがSet_end()またはSet_rend()でないこと。
-<<< br
+<<< hr
 
-+ 挿入
+==== Set_insert() set用
   SetIterator Set_insert(Set *self, T elem, int *success);
 * elemのコピーをselfに挿入する。
 * 挿入に成功した場合、*successに0以外の値を格納し、新しい要素のイテレータを返す。
@@ -120,16 +202,18 @@ CSTL_SET_INTERFACE/CSTL_MULTISET_INTERFACEの引数のNameにSet, TypeにTを指
 * メモリ不足の場合、*successに0を格納し、selfの変更を行わず0を返す。
 * successにNULLを指定した場合、*successにアクセスしない。
 * この関数はsetのみで提供される。
-<<< br
+<<< hr
 
+==== Set_insert() multiset用
   SetIterator Set_insert(Set *self, T elem);
 * elemのコピーをselfに挿入する。
 * 挿入に成功した場合、新しい要素のイテレータを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * selfが既にelemという要素を持っている場合、その値の一番最後の位置に挿入される。
 * この関数はmultisetのみで提供される。
-<<< br
+<<< hr
 
+==== Set_insert_range()
   int Set_insert_range(Set *self, SetIterator first, SetIterator last);
 * [first, last)の範囲の要素のコピーをselfに挿入する。
 * multisetの場合、[first, last)の要素はselfが持つ要素でもよい。
@@ -137,53 +221,59 @@ CSTL_SET_INTERFACE/CSTL_MULTISET_INTERFACEの引数のNameにSet, TypeにTを指
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
   * [first, last)が有効なイテレータであること。
-<<< br
+<<< hr
 
-+ 削除
+==== Set_erase()
   SetIterator Set_erase(Set *self, SetIterator pos);
 * selfのposが示す位置の要素を削除し、その次のイテレータを返す。
 * 事前条件
   * posがselfの有効なイテレータであること。
   * posがSet_end()またはSet_rend()でないこと。
-<<< br
+<<< hr
 
+==== Set_erase_range()
   SetIterator Set_erase_range(Set *self, SetIterator first, SetIterator last);
 * selfの[first, last)の範囲の要素を削除し、削除した要素の次のイテレータを返す。
 * 事前条件
   * [first, last)がselfの有効なイテレータであること。
-<<< br
+<<< hr
 
+==== Set_erase_key()
   size_t Set_erase_key(Set *self, T elem);
 * selfのelemという要素をすべて削除し、削除した数を返す。
-<<< br
+<<< hr
 
+==== Set_clear()
   void Set_clear(Set *self);
 * selfのすべての要素を削除する。
-<<< br
+<<< hr
 
-+ 交換
+==== Set_swap()
   void Set_swap(Set *self, Set *x);
 * selfとxの内容を交換する。
-<<< br
+<<< hr
 
-+ 検索
+==== Set_count()
   size_t Set_count(Set *self, T elem);
 * selfのelemという要素の数を返す。
-<<< br
+<<< hr
 
+==== Set_find()
   SetIterator Set_find(Set *self, T elem);
 * selfのelemという要素を検索し、最初に見つかった要素のイテレータを返す。
 * 見つからなければSet_end(self)を返す。
-<<< br
+<<< hr
 
+==== Set_lower_bound()
   SetIterator Set_lower_bound(Set *self, T elem);
 * ソートの基準に従い、selfのelem以上の最初の要素のイテレータを返す。
 * 見つからなければSet_end(self)を返す。
-<<< br
+<<< hr
 
+==== Set_upper_bound()
   SetIterator Set_upper_bound(Set *self, T elem);
 * ソートの基準に従い、selfのelemより大きい最初の要素のイテレータを返す。
 * 見つからなければSet_end(self)を返す。
-<<< br
+<<< hr
 
 =end

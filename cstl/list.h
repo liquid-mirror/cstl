@@ -139,7 +139,7 @@ Name *Name##_new(void)\
 \
 void Name##_delete(Name *self)\
 {\
-	assert(self && "List_delete");\
+	if (!self) return;\
 	assert(self->magic == self && "List_delete");\
 	Name##_clear(self);\
 	CSTL_LIST_MAGIC(self->magic = 0);\

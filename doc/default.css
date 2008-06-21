@@ -293,7 +293,7 @@ H3 {
       padding-top  : 0.1em;
       padding-left : 0.2em;
       border-width : 0em 0em 0.1em 0em;
-      border-style : none none solid none;
+      border-style : none none none none;
       border-color : #6495ED;
 }
 H4 {
@@ -302,7 +302,7 @@ H4 {
       padding-top  : 0.1em;
       padding-left : 0.2em;
       border-width : 0em 0em 0.1em 0em;
-      border-style : none none solid none;
+      border-style : none none none none;
       border-color : #6495ED;
 }
 H5 {
@@ -311,7 +311,7 @@ H5 {
       padding-top  : 0.1em;
       padding-left : 0.2em;
       border-width : 0em 0em 0.1em 0em;
-      border-style : none none solid none;
+      border-style : none none none none;
       border-color : #6495ED;
 }
 H6 {
@@ -320,7 +320,7 @@ H6 {
       padding-top  : 0.1em;
       padding-left : 0.2em;
       border-width : 0em 0em 0.1em 0em;
-      border-style : none none solid none;
+      border-style : none none none none;
       border-color : #6495ED;
 }
 
@@ -403,3 +403,9 @@ LI
 
     LINE-HEIGHT: 1.6em
 }
+
+DT
+{
+    FONT-WEIGHT: bold
+}
+

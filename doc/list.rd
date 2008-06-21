@@ -1,125 +1,221 @@
 =begin
 == list
-listを使うには、list.hというヘッダファイルをインクルードする。
+listは双方向リンクリストである。
+任意の位置での要素の挿入・削除の計算量がO(1)であるが、要素のランダムアクセスはできない。
+
+listを使うには、以下のマクロを用いてコードを展開する必要がある。
+
   #include <cstl/list.h>
 
-以下のマクロを用いてコードを展開する必要がある。
-
-  /* インターフェイスを展開 */
   #define CSTL_LIST_INTERFACE(Name, Type)
-
-  /* 実装を展開 */
   #define CSTL_LIST_IMPLEMENT(Name, Type)
 
-Nameに既存の型と重複しない任意の名前を、Typeに任意の要素の型を指定する。
-<<< br
+((*CSTL_LIST_INTERFACE()*))は任意の名前と要素の型のlistのインターフェイスを展開する。
+((*CSTL_LIST_IMPLEMENT()*))はその実装を展開する。
+それぞれのマクロの引数は同じものを指定すること。
 
-CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
+: Name
+  既存の型と重複しない任意の名前。コンテナの型名と関数のプレフィックスになる
+: Type
+  任意の要素の型
+
+=== 使用例
+  #include <stdio.h>
+  #include <cstl/list.h>
+  
+  CSTL_LIST_INTERFACE(IntList, int) /* インターフェイスを展開 */
+  CSTL_LIST_IMPLEMENT(IntList, int) /* 実装を展開 */
+  
+  int main(void)
+  {
+      int i;
+      /* イテレータ */
+      IntListIterator pos;
+      /* intのlistを生成 */
+      IntList *lst = IntList_new();
+  
+      for (i = 0; i < 32; i++) {
+          /* 末尾から追加 */
+          IntList_push_back(lst, i);
+      }
+      for (i = 0; i < 32; i++) {
+          /* 先頭から追加 */
+          IntList_push_front(lst, i);
+      }
+      /* サイズ */
+      printf("size: %d\n", IntList_size(lst));
+      for (pos = IntList_begin(lst); pos != IntList_end(lst); pos = IntList_next(pos)) {
+          /* イテレータによる要素の読み書き */
+          printf("%d,", *IntList_at(pos));
+          *IntList_at(pos) += 1;
+          printf("%d\n", *IntList_at(pos));
+      }
+  
+      /* 使い終わったら破棄 */
+      IntList_delete(lst);
+      return 0;
+  }
+
+※複数のソースファイルから同じ型のコンテナを使用する場合は、
+マクロ展開用のヘッダファイルとソースファイルを用意し、適宜インクルードやリンクをすればよい。
+
+<<< hr
+
+((*CSTL_LIST_INTERFACE(Name, Type)*))のNameにList, TypeにTを指定した場合、
 以下のインターフェイスを提供する。
 
-==== 型
+* 型
+  * ((<List>))
+  * ((<ListIterator>))
+* 関数
+  * 生成
+    * ((<List_new()>))
+  * 破棄
+    * ((<List_delete()>))
+  * サイズ
+    * ((<List_size()>))
+    * ((<List_empty()>))
+  * イテレータ
+    * ((<List_begin()>)) , ((<List_end()>))
+    * ((<List_rbegin()>)) , ((<List_rend()>))
+    * ((<List_next()>)) , ((<List_prev()>))
+  * 要素のアクセス
+    * ((<List_at()>))
+    * ((<List_front()>)) , ((<List_back()>))
+  * 挿入
+    * ((<List_insert()>)) , ((<List_insert_n()>)) , ((<List_insert_array()>)) , ((<List_insert_range()>))
+    * ((<List_push_front()>)) , ((<List_push_back()>))
+  * 削除
+    * ((<List_erase()>)) , ((<List_erase_range()>))
+    * ((<List_pop_front()>)) , ((<List_pop_back()>))
+    * ((<List_clear()>))
+  * サイズの変更
+    * ((<List_resize()>))
+  * 交換
+    * ((<List_swap()>))
+  * つなぎ替え
+    * ((<List_splice()>))
+  * ソート
+    * ((<List_sort()>))
+  * 並べ替え
+    * ((<List_reverse()>))
+  * マージ
+    * ((<List_merge()>))
+<<< hr
 
+==== List
   List
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
+<<< hr
 
+==== ListIterator
   ListIterator
 イテレータの型。要素の位置を示す。
 関数から返されたイテレータを有効なイテレータという。
 宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
+<<< hr
 
-==== 関数
-以下の関数において、List*型の引数はNULLでないことを事前条件に含める。
-
-+ 生成
+==== List_new()
   List *List_new(void);
 * listを生成する。
 * 生成に成功した場合、そのオブジェクトへのポインタを返す。
 * メモリ不足の場合、NULLを返す。
-<<< br
+<<< hr
 
-+ 破棄
+==== List_delete()
   void List_delete(List *self);
 * selfのすべての要素を削除し、selfを破棄する。
-<<< br
+* selfがNULLの場合、何もしない。
+<<< hr
 
-+ サイズ
+==== List_size()
   size_t List_size(List *self);
 * selfの現在の要素数を返す。
-<<< br
+<<< hr
 
+==== List_empty()
   int List_empty(List *self);
 * selfが空の場合、0以外の値を返す。
 * selfが空でない場合、0を返す。
-<<< br
+<<< hr
 
-+ イテレータ
+==== List_begin()
   ListIterator List_begin(List *self);
 * selfの最初の要素のイテレータを返す。
-<<< br
+<<< hr
 
+==== List_end()
   ListIterator List_end(List *self);
 * selfの最後の要素の次のイテレータを返す。
-<<< br
+<<< hr
 
+==== List_rbegin()
   ListIterator List_rbegin(List *self);
 * selfの最後の要素のイテレータを返す。
-<<< br
+<<< hr
 
+==== List_rend()
   ListIterator List_rend(List *self);
 * selfの最初の要素の前のイテレータを返す。
-<<< br
+<<< hr
 
+==== List_next()
   ListIterator List_next(ListIterator pos);
 * posが示す位置の要素の次のイテレータを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがList_end()またはList_rend()でないこと。
-<<< br
+<<< hr
 
+==== List_prev()
   ListIterator List_prev(ListIterator pos);
 * posが示す位置の要素の前のイテレータを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがList_end()またはList_rend()でないこと。
-<<< br
+<<< hr
 
-+ 要素のアクセス
+==== List_at()
   T *List_at(ListIterator pos);
 * posが示す位置の要素へのポインタを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがList_end()またはList_rend()でないこと。
-<<< br
+<<< hr
 
+==== List_front()
   T List_front(List *self);
 * selfの最初の要素を返す。
 * 事前条件
   * selfが空でないこと。
-<<< br
+<<< hr
 
+==== List_back()
   T List_back(List *self);
 * selfの最後の要素を返す。
 * 事前条件
   * selfが空でないこと。
-<<< br
+<<< hr
 
-+ 挿入
+==== List_insert()
   ListIterator List_insert(List *self, ListIterator pos, T elem);
 * selfのposが示す位置にelemのコピーを挿入する。
 * 挿入に成功した場合、新しい要素のイテレータを返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
   * posがselfの有効なイテレータであること。
-<<< br
+<<< hr
 
+==== List_insert_n()
   int List_insert_n(List *self, ListIterator pos, size_t n, T elem);
 * selfのposが示す位置にelemのコピーをn個挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
 * 事前条件
   * posがselfの有効なイテレータであること。
-<<< br
+<<< hr
 
+==== List_insert_array()
   int List_insert_array(List *self, ListIterator pos, const T *elems, size_t n);
 * selfのposが示す位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
@@ -127,8 +223,9 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 * 事前条件
   * elemsがNULLでないこと。
   * posがselfの有効なイテレータであること。
-<<< br
+<<< hr
 
+==== List_insert_range()
   int List_insert_range(List *self, ListIterator pos, ListIterator first, ListIterator last);
 * selfのposが示す位置に[first, last)の範囲の要素のコピーを挿入する。
 * [first, last)の要素はselfが持つ要素でもよい。
@@ -137,65 +234,71 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
 * 事前条件
   * posがselfの有効なイテレータであること。
   * [first, last)が有効なイテレータであること。
-<<< br
+<<< hr
 
-  int List_push_back(List *self, T elem);
-* elemのコピーをselfの最後の要素として追加する。
-* 追加に成功した場合、0以外の値を返す。
-* メモリ不足の場合、selfの変更を行わず0を返す。
-<<< br
-
+==== List_push_front()
   int List_push_front(List *self, T elem);
 * elemのコピーをselfの最初の要素として追加する。
 * 追加に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
-<<< br
+<<< hr
 
-+ 削除
+==== List_push_back()
+  int List_push_back(List *self, T elem);
+* elemのコピーをselfの最後の要素として追加する。
+* 追加に成功した場合、0以外の値を返す。
+* メモリ不足の場合、selfの変更を行わず0を返す。
+<<< hr
+
+==== List_erase()
   ListIterator List_erase(List *self, ListIterator pos);
 * selfのposが示す位置の要素を削除し、その次のイテレータを返す。
 * 事前条件
   * posがselfの有効なイテレータであること。
   * posがList_end()またはList_rend()でないこと。
-<<< br
+<<< hr
 
+==== List_erase_range()
   ListIterator List_erase_range(List *self, ListIterator first, ListIterator last);
 * selfの[first, last)の範囲の要素を削除し、削除した要素の次のイテレータを返す。
 * 事前条件
   * [first, last)がselfの有効なイテレータであること。
-<<< br
+<<< hr
 
+==== List_pop_front()
   T List_pop_front(List *self);
 * selfの最初の要素を削除し、その要素を返す。
 * 事前条件
   * selfが空でないこと。
-<<< br
+<<< hr
 
+==== List_pop_back()
   T List_pop_back(List *self);
 * selfの最後の要素を削除し、その要素を返す。
 * 事前条件
   * selfが空でないこと。
-<<< br
+<<< hr
 
+==== List_clear()
   void List_clear(List *self);
 * selfのすべての要素を削除する。
-<<< br
+<<< hr
 
-+ サイズの変更
+==== List_resize()
   int List_resize(List *self, size_t n, T elem);
 * selfの要素数をn個に変更する。
 * nがselfの現在の要素数以下の場合、要素数がn個になるまで末尾から要素が削除される。
 * nがselfの現在の要素数より大きい場合、要素数がn個になるまでelemのコピーが末尾から追加される。
 * 要素数の変更に成功した場合、0以外の値を返す。
 * メモリ不足の場合、0を返す。
-<<< br
+<<< hr
 
-+ 交換
+==== List_swap()
   void List_swap(List *self, List *x);
 * selfとxの内容を交換する。
-<<< br
+<<< hr
 
-+ つなぎ替え
+==== List_splice()
   void List_splice(List *self, ListIterator pos, List *x, ListIterator first, ListIterator last);
 * selfのposが示す位置にxの[first, last)の範囲の要素を移動する。
 * [first, last)の要素の数だけselfの要素数が増加し、xの要素数が減少する。
@@ -203,27 +306,27 @@ CSTL_LIST_INTERFACEの引数のNameにList, TypeにTを指定した場合、
   * posがselfの有効なイテレータであること。
   * [first, last)がxの有効なイテレータであること。
   * selfとxが同一ならばposは[first, last)の範囲外であること。
-<<< br
+<<< hr
 
-+ ソート
+==== List_sort()
   void List_sort(List *self, int (*comp)(const void *p1, const void *p2));
 * selfのすべての要素を比較関数compに従ってソートする。
 * compには、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定する。
 * このソートは安定である。
-<<< br
+<<< hr
 
-+ 並べ替え
+==== List_reverse()
   void List_reverse(List *self);
 * selfのすべての要素を逆順に並べ替える。
-<<< br
+<<< hr
 
-+ マージ
+==== List_merge()
   void List_merge(List *self, List *x, int (*comp)(const void *p1, const void *p2));
 * ソートされた状態であるselfとxにおいて、xのすべての要素を比較関数compに従ってselfにマージする。
 * selfはソートされた状態になり、xは空になる。
 * compには、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定する。
 * 事前条件
   * selfとxがcompに従ってソートされていること。
-<<< br
+<<< hr
 
 =end

@@ -139,7 +139,7 @@ Name *Name##_new(size_t n)\
 \
 void Name##_delete(Name *self)\
 {\
-	assert(self && "Vector_delete");\
+	if (!self) return;\
 	assert(self->magic == self && "Vector_delete");\
 	CSTL_VECTOR_MAGIC(self->magic = 0);\
 	free(self->buf);\
