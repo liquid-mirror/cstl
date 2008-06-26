@@ -35,7 +35,6 @@
 #ifndef CSTL_RBTREE_H_INCLUDED
 #define CSTL_RBTREE_H_INCLUDED
 
-#include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
 

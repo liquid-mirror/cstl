@@ -33,7 +33,6 @@
 #ifndef CSTL_RING_H_INCLUDED
 #define CSTL_RING_H_INCLUDED
 
-#include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
 

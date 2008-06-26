@@ -33,7 +33,6 @@
 #ifndef CSTL_STRING_H_INCLUDED
 #define CSTL_STRING_H_INCLUDED
 
-#include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "vector.h"
