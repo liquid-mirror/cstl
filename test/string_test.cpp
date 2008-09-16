@@ -125,6 +125,10 @@ void StringTest_test_1_2(void)
 	assert(String_compare(x, y) > 0);
 	String_erase(x, String_size(x)-1, 1);
 	assert(String_compare(x, y) == 0);
+	*String_at(x, String_size(x)-1) = 'z';
+	assert(String_compare(x, y) > 0);
+	*String_at(x, String_size(x)-1) = 'a';
+	assert(String_compare(x, y) < 0);
 	/* swap */
 	String_assign(x, "abcdefg");
 	String_assign(y, "abcdefgh");
