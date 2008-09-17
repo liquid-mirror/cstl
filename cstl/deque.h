@@ -71,7 +71,7 @@
  * \param Type 要素の型
  */
 #define CSTL_DEQUE_INTERFACE(Name, Type)	\
-typedef struct Name##_t Name;\
+typedef struct Name Name;\
 \
 CSTL_DEQUE_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
@@ -120,7 +120,7 @@ CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##__RingVector, Name##__Ring*)\
 /*! 
  * \brief deque構造体
  */\
-struct Name##_t {\
+struct Name {\
 	size_t begin;\
 	size_t end;\
 	size_t nelems;\

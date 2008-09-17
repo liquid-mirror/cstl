@@ -50,14 +50,14 @@
 /*! 
  * \brief mapノード構造体
  */\
-struct Name##RBTreeNode_t {\
-	struct Name##RBTreeNode_t *parent;\
-	struct Name##RBTreeNode_t *left;\
-	struct Name##RBTreeNode_t *right;\
+struct Name##RBTreeNode {\
+	struct Name##RBTreeNode *parent;\
+	struct Name##RBTreeNode *left;\
+	struct Name##RBTreeNode *right;\
 	int color;\
 	KeyType key;\
 	ValueType value;\
-	CSTL_RBTREE_MAGIC(struct Name##RBTreeNode_t *magic;)\
+	CSTL_RBTREE_MAGIC(struct Name##RBTreeNode *magic;)\
 };\
 \
 CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)\

@@ -64,8 +64,8 @@ enum {
 
 #define CSTL_RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
-typedef struct Name##RBTreeNode_t Name##RBTreeNode;\
-typedef struct Name##RBTreeNode_t *Name##RBTreeIterator;\
+typedef struct Name##RBTreeNode Name##RBTreeNode;\
+typedef struct Name##RBTreeNode *Name##RBTreeIterator;\
 static const Name##RBTreeNode Name##RBTree_nil = {\
 	(Name##RBTreeNode *) &Name##RBTree_nil, \
 	(Name##RBTreeNode *) &Name##RBTree_nil, \
@@ -720,8 +720,8 @@ static Name##RBTreeIterator Name##RBTree_prev(Name##RBTreeIterator pos)\
 
 #define CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)	\
 \
-typedef struct Name##_t Name;\
-typedef struct Name##RBTreeNode_t *Name##Iterator;\
+typedef struct Name Name;\
+typedef struct Name##RBTreeNode *Name##Iterator;\
 \
 Name *Name##_new(void);\
 void Name##_delete(Name *self);\
@@ -748,11 +748,11 @@ void Name##_swap(Name *self, Name *x);\
 
 #define CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
-typedef struct Name##RBTreeNode_t Name##RBTree;\
+typedef struct Name##RBTreeNode Name##RBTree;\
 /*! 
  * \brief set/map構造体
  */\
-struct Name##_t {\
+struct Name {\
 	Name##RBTree *tree;\
 	size_t nelems;\
 	CSTL_RBTREE_MAGIC(Name *magic;)\

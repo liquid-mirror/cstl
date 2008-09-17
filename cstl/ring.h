@@ -74,11 +74,11 @@
  */
 #define CSTL_RING_INTERFACE(Name, Type)	\
 \
-typedef struct Name##_t Name;\
+typedef struct Name Name;\
 /*! 
  * \brief リングバッファ構造体
  */\
-struct Name##_t {\
+struct Name {\
 	size_t begin;\
 	size_t end;\
 	size_t nelems;\

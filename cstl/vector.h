@@ -74,7 +74,7 @@
  * \param Type 要素の型
  */
 #define CSTL_VECTOR_INTERFACE(Name, Type)	\
-typedef struct Name##_t Name;\
+typedef struct Name Name;\
 \
 CSTL_VECTOR_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
@@ -110,7 +110,7 @@ static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n);\
 /*! 
  * \brief vector構造体
  */\
-struct Name##_t {\
+struct Name {\
 	size_t end;\
 	size_t nelems;\
 	Type *buf;\

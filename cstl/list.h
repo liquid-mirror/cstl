@@ -67,11 +67,11 @@
  * \param Type 要素の型
  */
 #define CSTL_LIST_INTERFACE(Name, Type)	\
-typedef struct Name##_t Name;\
+typedef struct Name Name;\
 /*! 
  * \brief イテレータ
  */\
-typedef struct Name##_t *Name##Iterator;\
+typedef struct Name *Name##Iterator;\
 \
 CSTL_LIST_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
@@ -114,11 +114,11 @@ CSTL_LIST_END_EXTERN_C()\
  * \param Type 要素の型
  */
 #define CSTL_LIST_IMPLEMENT(Name, Type)	\
-typedef struct Name##_t Name##Node;\
+typedef struct Name Name##Node;\
 /*! 
  * \brief list構造体
  */\
-struct Name##_t {\
+struct Name {\
 	Name##Node *prev;\
 	Name##Node *next;\
 	Type elem;\

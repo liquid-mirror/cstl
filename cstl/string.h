@@ -74,7 +74,7 @@
  * \param Type 要素の型
  */
 #define CSTL_STRING_INTERFACE(Name, Type)	\
-typedef struct Name##_t Name;\
+typedef struct Name Name;\
 \
 CSTL_STRING_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
@@ -176,7 +176,7 @@ CSTL_VECTOR_IMPLEMENT_ERASE(Name##__CharVector, Type)\
 /*! 
  * \brief string構造体
  */\
-struct Name##_t {\
+struct Name {\
 	Name##__CharVector *data;\
 	CSTL_STRING_MAGIC(Name *magic;)\
 };\
