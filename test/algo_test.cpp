@@ -10,7 +10,7 @@
 #ifdef MY_MALLOC
 double buf[10*1024*1024/sizeof(double)];
 Heap heap;
-#define malloc(s)		Heap_alloc(&heap, s)
+#define malloc(s)		Heap_malloc(&heap, s)
 #define realloc(p, s)	Heap_realloc(&heap, p, s)
 #define free(p)			Heap_free(&heap, p)
 #endif
