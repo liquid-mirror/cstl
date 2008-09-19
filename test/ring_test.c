@@ -2,13 +2,13 @@
 #include <string.h>
 #include <assert.h>
 #include "../cstl/ring.h"
-#include "heap.h"
+#include "Pool.h"
 #ifdef MY_MALLOC
 double buf[1024*1024/sizeof(double)];
-Heap heap;
-#define malloc(s)		Heap_malloc(&heap, s)
-#define realloc(p, s)	Heap_realloc(&heap, p, s)
-#define free(p)			Heap_free(&heap, p)
+Pool pool;
+#define malloc(s)		Pool_malloc(&pool, s)
+#define realloc(p, s)	Pool_realloc(&pool, p, s)
+#define free(p)			Pool_free(&pool, p)
 #endif
 
 
@@ -113,7 +113,7 @@ void RingTest_test_1_1(void)
 		assert(UCharRing_size(ur) == 0);
 	}
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharRing_delete(ur);
 }
 
@@ -174,7 +174,7 @@ void RingTest_test_1_2(void)
 		assert(!UCharRing_full(ur));
 	}
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharRing_delete(ur);
 }
 
@@ -236,7 +236,7 @@ void RingTest_test_1_3(void)
 		assert(!UCharRing_full(ur));
 	}
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharRing_delete(ur);
 }
 
@@ -323,7 +323,7 @@ void RingTest_test_1_4(void)
 
 	}
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharRing_delete(ur);
 }
 
@@ -458,7 +458,7 @@ void RingTest_test_1_5(void)
 		assert(UCharRing_size(ur) == 0);
 	}
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharRing_delete(ur);
 }
 
@@ -515,7 +515,7 @@ void RingTest_test_1_6(void)
 	assert(UCharRing_size(x) == MAX);
 
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharRing_delete(ur);
 	UCharRing_delete(x);
 }
@@ -565,7 +565,7 @@ void RingTest_test_2_1(void)
 		assert(IntRing_size(ir) == 0);
 	}
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntRing_delete(ir);
 }
 
@@ -626,7 +626,7 @@ void RingTest_test_2_2(void)
 		assert(!IntRing_full(ir));
 	}
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntRing_delete(ir);
 }
 
@@ -688,7 +688,7 @@ void RingTest_test_2_3(void)
 		assert(!IntRing_full(ir));
 	}
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntRing_delete(ir);
 }
 
@@ -775,7 +775,7 @@ void RingTest_test_2_4(void)
 
 	}
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntRing_delete(ir);
 }
 
@@ -910,7 +910,7 @@ void RingTest_test_2_5(void)
 		assert(IntRing_size(ir) == 0);
 	}
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntRing_delete(ir);
 }
 
@@ -943,11 +943,11 @@ void RingTest_run(void)
 int main(void)
 {
 #ifdef MY_MALLOC
-	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+	Pool_init(&pool, buf, sizeof buf, sizeof buf[0]);
 #endif
 	RingTest_run();
 #ifdef MY_MALLOC
-	HEAP_DUMP_LEAK(&heap, 0);
+	POOL_DUMP_LEAK(&pool, 0);
 #endif
 	return 0;
 }

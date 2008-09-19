@@ -3,13 +3,13 @@
 #include <assert.h>
 #include "../cstl/list.h"
 #include "list_debug.h"
-#include "heap.h"
+#include "Pool.h"
 #ifdef MY_MALLOC
 double buf[1024*1024/sizeof(double)];
-Heap heap;
-#define malloc(s)		Heap_malloc(&heap, s)
-#define realloc(p, s)	Heap_realloc(&heap, p, s)
-#define free(p)			Heap_free(&heap, p)
+Pool pool;
+#define malloc(s)		Pool_malloc(&pool, s)
+#define realloc(p, s)	Pool_realloc(&pool, p, s)
+#define free(p)			Pool_free(&pool, p)
 #endif
 
 
@@ -650,7 +650,7 @@ void ListTest_test_2_1(void)
 	assert(IntList_verify(x));
 	printf("\n");
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntList_delete(il);
 	IntList_delete(x);
 }
@@ -674,7 +674,7 @@ void ListTest_run(void)
 	ListTest_test_1_8();
 	ListTest_test_2_1();
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	HogeList_delete(hl);
 }
 
@@ -683,11 +683,11 @@ void ListTest_run(void)
 int main(void)
 {
 #ifdef MY_MALLOC
-	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+	Pool_init(&pool, buf, sizeof buf, sizeof buf[0]);
 #endif
 	ListTest_run();
 #ifdef MY_MALLOC
-	HEAP_DUMP_LEAK(&heap, 0);
+	POOL_DUMP_LEAK(&pool, 0);
 #endif
 	return 0;
 }

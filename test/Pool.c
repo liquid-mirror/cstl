@@ -23,15 +23,17 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /*! 
- * \file heap.c
- * \brief 動的メモリの確保と解放
+ * \file Pool.c
+ * \brief 固定長メモリプールからの動的メモリの確保と解放
  * \author KATO Noriaki <katono@users.sourceforge.jp>
  * \date 2006-03-22
  */
 
 #include <assert.h>
-#include "heap.h"
+#include "Pool.h"
 
+
+typedef struct BlockHeader BlockHeader;
 
 /* ヘッダサイズ */
 #define HEADER_SIZE		(self->header_size)
@@ -45,14 +47,14 @@
 #define SPLIT_MIN		(ALIGN_SIZE*4)	/* 分割された空きブロックのヘッダサイズ分を除いた最小サイズ */
 #define MAGIC_NO		0x17			/* マジックナンバー */
 
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 #include <stdio.h>
 #include <stdarg.h>
 #include <ctype.h>
-/* ヒープオーバーフローのチェック用の壁のサイズ */
+/* バッファオーバーフローのチェック用の壁のサイズ */
 #define WALL_SIZE		(self->wall_size)
 #define WALL_CHAR		0xCC
-static void clear_wall(Heap *self, BlockHeader *p);
+static void clear_wall(Pool *self, BlockHeader *p);
 static void debug_log(char *fmt, ...);
 #define DEBUGLOG(x)		debug_log x
 #else
@@ -61,8 +63,8 @@ static void debug_log(char *fmt, ...);
 
 
 /*! 
- * \brief ヒープの初期化
- * \param self ヒープへのポインタ
+ * \brief メモリプールの初期化
+ * \param self メモリプールへのポインタ
  * \param buf バッファへのポインタ
  * \param size バッファのサイズ
  * \param alignment アラインメント
@@ -70,12 +72,12 @@ static void debug_log(char *fmt, ...);
  * \pre bufはalignmentでアラインメントされていなければならない。
  * \pre alignmentは2のべき乗でなければならない。
  */
-void Heap_init(Heap *self, void *buf, size_t size, size_t alignment)
+void Pool_init(Pool *self, void *buf, size_t size, size_t alignment)
 {
 	BlockHeader *p;
 	self->align_size = alignment;
 	self->header_size = ALIGN_UP(sizeof(BlockHeader));
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 	self->wall_size = (alignment > 32) ? alignment : 32;
 	self->fail_count = -1;
 #endif
@@ -85,7 +87,7 @@ void Heap_init(Heap *self, void *buf, size_t size, size_t alignment)
 	self->list_term.occupied = 1;
 	self->list_term.magic = ~MAGIC_NO & 0xFF;
 	self->list_term.next = p;
-#ifndef SLIST_BLOCK
+#ifndef POOL_SLIST
 	self->list_term.prev = p;
 #endif
 
@@ -93,7 +95,7 @@ void Heap_init(Heap *self, void *buf, size_t size, size_t alignment)
 	p->occupied = 0;
 	p->magic = MAGIC_NO;
 	p->next = &self->list_term;
-#ifndef SLIST_BLOCK
+#ifndef POOL_SLIST
 	p->prev = &self->list_term;
 #endif
 	self->loop_p = &self->list_term;
@@ -103,21 +105,21 @@ void Heap_init(Heap *self, void *buf, size_t size, size_t alignment)
 
 /*! 
  * \brief メモリ確保
- * \param self ヒープへのポインタ
+ * \param self メモリプールへのポインタ
  * \param size サイズ
- * \param file 呼び出し側のファイル名
- * \param line 呼び出し側のファイルの行
  * \return 割り当てたメモリへのポインタ。失敗すると0が返る。
+ *
+ * mallocと同じ仕様
  */
-#ifdef HEAP_DEBUG
-void *Heap_malloc_debug(Heap *self, size_t size, char *file, size_t line)
+#ifdef POOL_DEBUG
+void *Pool_malloc_debug(Pool *self, size_t size, char *file, size_t line)
 #else
-void *Heap_malloc(Heap *self, size_t size)
+void *Pool_malloc(Pool *self, size_t size)
 #endif
 {
 	BlockHeader *p;
 	BlockHeader *s;
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 	size_t i;
 	size_t alloc_block_size = ALIGN_UP(HEADER_SIZE + size + WALL_SIZE * 2);
 #else
@@ -125,19 +127,19 @@ void *Heap_malloc(Heap *self, size_t size)
 #endif
 
 	if (self->init_flag != self) {
-		DEBUGLOG(("Heap_malloc: heap is not initialized: %s(%d)\n", file, line));
+		DEBUGLOG(("Pool_malloc: pool is not initialized: %s(%d)\n", file, line));
 		assert(0);
 		return 0;
 	}
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 	if (!size) {
-		DEBUGLOG(("Heap_malloc: alloc 0 bytes: %s(%d)\n", file, line));
+		DEBUGLOG(("Pool_malloc: alloc 0 bytes: %s(%d)\n", file, line));
 	}
 	if (self->fail_count >= 0) {
 		if (self->fail_count > 0) {
 			self->fail_count--;
 		} else {
-			DEBUGLOG(("Heap_malloc: return NULL by fail_count: %s(%d)\n", file, line));
+			DEBUGLOG(("Pool_malloc: return NULL by fail_count: %s(%d)\n", file, line));
 			return 0;
 		}
 	}
@@ -151,14 +153,14 @@ void *Heap_malloc(Heap *self, size_t size)
 				s->magic = MAGIC_NO;
 				p->size = alloc_block_size;
 				s->next = p->next;
-#ifndef SLIST_BLOCK
+#ifndef POOL_SLIST
 				s->prev = p;
 				p->next->prev = s;
 #endif
 				p->next = s;
 			}
 			p->occupied = 1;
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 			p->file = file;
 			p->line = line;
 			p->alloc_size = size;
@@ -168,30 +170,30 @@ void *Heap_malloc(Heap *self, size_t size)
 			}
 #endif
 			self->loop_p = p;
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 			return (char *) p + HEADER_SIZE + WALL_SIZE;
 #else
 			return (char *) p + HEADER_SIZE;
 #endif
 		}
 	}
-	DEBUGLOG(("Heap_malloc: return NULL: %s(%d)\n", file, line));
+	DEBUGLOG(("Pool_malloc: return NULL: %s(%d)\n", file, line));
 	return 0;
 }
 
 /*! 
  * \brief 既に確保したメモリのサイズ変更
- * \param self ヒープへのポインタ
+ * \param self メモリプールへのポインタ
  * \param ptr 既に確保したメモリへのポインタ
  * \param newsize 新しいサイズ
- * \param file 呼び出し側のファイル名
- * \param line 呼び出し側のファイルの行
  * \return 新たに割り当てたメモリへのポインタ。失敗すると0が返る。
+ *
+ * reallocと同じ仕様
  */
-#ifdef HEAP_DEBUG
-void *Heap_realloc_debug(Heap *self, void *ptr, size_t newsize, char *file, size_t line)
+#ifdef POOL_DEBUG
+void *Pool_realloc_debug(Pool *self, void *ptr, size_t newsize, char *file, size_t line)
 #else
-void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
+void *Pool_realloc(Pool *self, void *ptr, size_t newsize)
 #endif
 {
 	size_t i;
@@ -199,36 +201,36 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 	BlockHeader *s;
 	size_t new_alloc_block_size;
 	if (self->init_flag != self) {
-		DEBUGLOG(("Heap_realloc: heap is not initialized: %s(%d)\n", file, line));
+		DEBUGLOG(("Pool_realloc: pool is not initialized: %s(%d)\n", file, line));
 		assert(0);
 		return 0;
 	}
 	if (!ptr) {
-#ifdef HEAP_DEBUG
-		return Heap_malloc_debug(self, newsize, file, line);
+#ifdef POOL_DEBUG
+		return Pool_malloc_debug(self, newsize, file, line);
 #else
-		return Heap_malloc(self, newsize);
+		return Pool_malloc(self, newsize);
 #endif
 	}
 	if (!newsize) {
-#ifdef HEAP_DEBUG
-		Heap_free_debug(self, ptr, file, line);
+#ifdef POOL_DEBUG
+		Pool_free_debug(self, ptr, file, line);
 #else
-		Heap_free(self, ptr);
+		Pool_free(self, ptr);
 #endif
 		return 0;
 	}
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 	p = (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE));
 #else
 	p = (BlockHeader *) ((char *) ptr - HEADER_SIZE);
 #endif
 	if (p->magic != MAGIC_NO || !p->occupied) {
-		DEBUGLOG(("Heap_realloc: NG pointer: %s(%d)\n", file, line));
+		DEBUGLOG(("Pool_realloc: NG pointer: %s(%d)\n", file, line));
 		assert(0);
 		return 0;
 	}
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 	new_alloc_block_size = ALIGN_UP(HEADER_SIZE + newsize + WALL_SIZE * 2);
 #else
 	new_alloc_block_size = ALIGN_UP(HEADER_SIZE + newsize);
@@ -239,13 +241,13 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 			s = (BlockHeader *) ((char *) p + new_alloc_block_size);
 			s->occupied = 0;
 			s->magic = MAGIC_NO;
-#ifndef SLIST_BLOCK
+#ifndef POOL_SLIST
 			s->prev = p;
 #endif
 			if (p->next->occupied) {
 				s->size = p->size - new_alloc_block_size;
 				s->next = p->next;
-#ifndef SLIST_BLOCK
+#ifndef POOL_SLIST
 				p->next->prev = s;
 #endif
 			} else {
@@ -254,14 +256,14 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 				}
 				s->size = p->size - new_alloc_block_size + p->next->size;
 				s->next = p->next->next;
-#ifndef SLIST_BLOCK
+#ifndef POOL_SLIST
 				p->next->next->prev = s;
 #endif
 			}
 			p->size = new_alloc_block_size;
 			p->next = s;
 		}
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 		p->alloc_size = newsize;
 		for (i = 0; i < WALL_SIZE; i++) {
 			((char *) ptr)[newsize + i] = WALL_CHAR;
@@ -271,17 +273,17 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 	}
 	/* 以下、拡張 */
 	if (p->next->occupied || p->size + p->next->size < new_alloc_block_size) {
-#ifdef HEAP_DEBUG
-		void *newptr = Heap_malloc_debug(self, newsize, file, line);
+#ifdef POOL_DEBUG
+		void *newptr = Pool_malloc_debug(self, newsize, file, line);
 #else
-		void *newptr = Heap_malloc(self, newsize);
+		void *newptr = Pool_malloc(self, newsize);
 #endif
 		if (!newptr) {
-			DEBUGLOG(("Heap_realloc: return NULL: %s(%d)\n", file, line));
+			DEBUGLOG(("Pool_realloc: return NULL: %s(%d)\n", file, line));
 			return 0;
 		}
 		for (i = 0;
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 				i < p->alloc_size;
 #else
 				i < p->size - HEADER_SIZE;
@@ -289,19 +291,19 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 				i++) {
 			((char *) newptr)[i] = ((char *) ptr)[i];
 		}
-#ifdef HEAP_DEBUG
-		Heap_free_debug(self, ptr, file, line);
+#ifdef POOL_DEBUG
+		Pool_free_debug(self, ptr, file, line);
 #else
-		Heap_free(self, ptr);
+		Pool_free(self, ptr);
 #endif
 		return newptr;
 	}
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 	if (self->fail_count >= 0) {
 		if (self->fail_count > 0) {
 			self->fail_count--;
 		} else {
-			DEBUGLOG(("Heap_malloc: return NULL by fail_count: %s(%d)\n", file, line));
+			DEBUGLOG(("Pool_malloc: return NULL by fail_count: %s(%d)\n", file, line));
 			return 0;
 		}
 	}
@@ -315,23 +317,23 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 		s->size = p->size + p->next->size - new_alloc_block_size;
 		s->occupied = 0;
 		s->magic = MAGIC_NO;
-#ifndef SLIST_BLOCK
+#ifndef POOL_SLIST
 		s->prev = p;
 #endif
 		s->next = tmp.next;
 		p->size = new_alloc_block_size;
-#ifndef SLIST_BLOCK
+#ifndef POOL_SLIST
 		tmp.next->prev = s;
 #endif
 		p->next = s;
 	} else {
 		p->size = p->size + p->next->size;
-#ifndef SLIST_BLOCK
+#ifndef POOL_SLIST
 		p->next->next->prev = p;
 #endif
 		p->next = p->next->next;
 	}
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 	p->file = file;
 	p->line = line;
 	p->alloc_size = newsize;
@@ -344,16 +346,16 @@ void *Heap_realloc(Heap *self, void *ptr, size_t newsize)
 
 /*! 
  * \brief メモリ解放
- * \param self ヒープへのポインタ
+ * \param self メモリプールへのポインタ
  * \param ptr 解放されるメモリへのポインタ
- * \param file 呼び出し側のファイル名
- * \param line 呼び出し側のファイルの行
+ *
+ * freeと同じ仕様
  */
-#ifdef SLIST_BLOCK
-#ifdef HEAP_DEBUG
-void Heap_free_debug(Heap *self, void *ptr, char *file, size_t line)
+#ifdef POOL_SLIST
+#ifdef POOL_DEBUG
+void Pool_free_debug(Pool *self, void *ptr, char *file, size_t line)
 #else
-void Heap_free(Heap *self, void *ptr)
+void Pool_free(Pool *self, void *ptr)
 #endif
 {
 	BlockHeader *p;
@@ -361,7 +363,7 @@ void Heap_free(Heap *self, void *ptr)
 	BlockHeader *pprev;
 
 	if (self->init_flag != self) {
-		DEBUGLOG(("Heap_free: heap is not initialized: %s(%d)\n", file, line));
+		DEBUGLOG(("Pool_free: pool is not initialized: %s(%d)\n", file, line));
 		assert(0);
 		return;
 	}
@@ -372,20 +374,20 @@ void Heap_free(Heap *self, void *ptr)
 	pprev = &self->list_term;
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
 		if (p == (BlockHeader *) ((char *) ptr - 
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 										(HEADER_SIZE + WALL_SIZE)
 #else
 										HEADER_SIZE
 #endif
 									)) {
 			if (p->magic != MAGIC_NO || !p->occupied) {
-				DEBUGLOG(("Heap_free: NG pointer: %s(%d)\n", file, line));
+				DEBUGLOG(("Pool_free: NG pointer: %s(%d)\n", file, line));
 				assert(0);
 				return;
 			}
-#ifdef HEAP_DEBUG
-			if (!Heap_check_overflow(self, ptr)) {
-				DEBUGLOG(("Heap_free: heap overflow: %s(%d), %s(%d)\n", p->file, p->line, file, line));
+#ifdef POOL_DEBUG
+			if (!Pool_check_overflow(self, ptr)) {
+				DEBUGLOG(("Pool_free: overflow: %s(%d), %s(%d)\n", p->file, p->line, file, line));
 				assert(0);
 			}
 			clear_wall(self, p);
@@ -411,40 +413,40 @@ void Heap_free(Heap *self, void *ptr)
 		pprev = prev;
 		prev = p;
 	}
-	DEBUGLOG(("Heap_free: NG pointer: %s(%d)\n", file, line));
+	DEBUGLOG(("Pool_free: NG pointer: %s(%d)\n", file, line));
 	assert(0);
 }
 #else
-#ifdef HEAP_DEBUG
-void Heap_free_debug(Heap *self, void *ptr, char *file, size_t line)
+#ifdef POOL_DEBUG
+void Pool_free_debug(Pool *self, void *ptr, char *file, size_t line)
 #else
-void Heap_free(Heap *self, void *ptr)
+void Pool_free(Pool *self, void *ptr)
 #endif
 {
 	BlockHeader *p;
 	BlockHeader *tmp;
 
 	if (self->init_flag != self) {
-		DEBUGLOG(("Heap_free: heap is not initialized: %s(%d)\n", file, line));
+		DEBUGLOG(("Pool_free: pool is not initialized: %s(%d)\n", file, line));
 		assert(0);
 		return;
 	}
 	if (!ptr) {
 		return;
 	}
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 	p = (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE));
 #else
 	p = (BlockHeader *) ((char *) ptr - HEADER_SIZE);
 #endif
 	if (p->magic != MAGIC_NO || !p->occupied) {
-		DEBUGLOG(("Heap_free: NG pointer: %s(%d)\n", file, line));
+		DEBUGLOG(("Pool_free: NG pointer: %s(%d)\n", file, line));
 		assert(0);
 		return;
 	}
-#ifdef HEAP_DEBUG
-	if (!Heap_check_overflow(self, ptr)) {
-		DEBUGLOG(("Heap_free: heap overflow: %s(%d), %s(%d)\n", p->file, p->line, file, line));
+#ifdef POOL_DEBUG
+	if (!Pool_check_overflow(self, ptr)) {
+		DEBUGLOG(("Pool_free: overflow: %s(%d), %s(%d)\n", p->file, p->line, file, line));
 		assert(0);
 	}
 	clear_wall(self, p);
@@ -474,7 +476,7 @@ void Heap_free(Heap *self, void *ptr)
 
 
 /* 以下、デバッグ用 */
-#ifdef HEAP_DEBUG
+#ifdef POOL_DEBUG
 /*! 
  * \brief デバッグログ出力
  *
@@ -531,10 +533,10 @@ void hex_dump(void *buf, size_t size)
 
 /*! 
  * \brief 壁をクリアする
- * \param self ヒープへのポインタ
+ * \param self メモリプールへのポインタ
  * \param p メモリブロック
  */
-static void clear_wall(Heap *self, BlockHeader *p)
+static void clear_wall(Pool *self, BlockHeader *p)
 {
 	size_t i;
 	for (i = 0; i < WALL_SIZE; i++) {
@@ -544,12 +546,12 @@ static void clear_wall(Heap *self, BlockHeader *p)
 }
 
 /*! 
- * \brief ヒープオーバーフローをチェックする
- * \param self ヒープへのポインタ
- * \param ptr Heap_malloc()で取得したポインタ
+ * \brief バッファオーバーフローをチェックする
+ * \param self メモリプールへのポインタ
+ * \param ptr Pool_malloc()で取得したポインタ
  * \return 確保したメモリサイズを超えて書き込みをしていなければ真を返す
  */
-int Heap_check_overflow(Heap *self, void *ptr)
+int Pool_check_overflow(Pool *self, void *ptr)
 {
 	size_t i;
 	BlockHeader *p = (BlockHeader *) ((char *) ptr - (HEADER_SIZE + WALL_SIZE));
@@ -566,24 +568,24 @@ int Heap_check_overflow(Heap *self, void *ptr)
 }
 
 /*! 
- * \brief ヒープオーバーフローを検出する
- * \param self ヒープへのポインタ
+ * \brief バッファオーバーフローを検出する
+ * \param self メモリプールへのポインタ
  */
-void Heap_dump_overflow(Heap *self)
+void Pool_dump_overflow(Pool *self)
 {
 	BlockHeader *p;
 	void *ptr;
 	int flag = 0;
 	if (self->init_flag != self) {
-		debug_log("heap is not initialized\n");
+		debug_log("pool is not initialized\n");
 		assert(0);
 		return;
 	}
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
 		ptr = (char *) p + HEADER_SIZE + WALL_SIZE;
-		if (p->occupied && !Heap_check_overflow(self, ptr)) {
+		if (p->occupied && !Pool_check_overflow(self, ptr)) {
 			if (!flag) {
-				debug_log("\ndetected heap overflow!\n");
+				debug_log("\ndetected overflow!\n");
 				flag = 1;
 			}
 			debug_log("%s(%d): ", p->file, p->line);
@@ -595,18 +597,18 @@ void Heap_dump_overflow(Heap *self)
 
 /*! 
  * \brief メモリリークを検出する
- * \param self ヒープへのポインタ
+ * \param self メモリプールへのポインタ
  * \param dump 真ならばリークをダンプする
  * \return メモリリークの検出個数
  */
-size_t Heap_dump_leak(Heap *self, int dump)
+size_t Pool_dump_leak(Pool *self, int dump)
 {
 	BlockHeader *p;
 	size_t n = 0;
 	size_t total = 0;
 	int flag = 0;
 	if (self->init_flag != self) {
-		debug_log("heap is not initialized\n");
+		debug_log("pool is not initialized\n");
 		assert(0);
 		return 0;
 	}
@@ -635,10 +637,10 @@ size_t Heap_dump_leak(Heap *self, int dump)
 
 /*! 
  * \brief メモリブロックをダンプする
- * \param self ヒープへのポインタ
- * \param ptr Heap_malloc()で取得したポインタ
+ * \param self メモリプールへのポインタ
+ * \param ptr Pool_malloc()で取得したポインタ
  */
-void Heap_dump_block(Heap *self, void *ptr)
+void Pool_dump_block(Pool *self, void *ptr)
 {
 	BlockHeader *p;
 	if (!ptr) goto NG_block;
@@ -652,7 +654,7 @@ void Heap_dump_block(Heap *self, void *ptr)
 		debug_log("*** free ***: ");
 		debug_log("block(%d bytes)\n", p->size);
 	}
-#ifdef SLIST_BLOCK
+#ifdef POOL_SLIST
 	debug_log("next(%p)\n", p->next);
 #else
 	debug_log("prev(%p): next(%p)\n", p->prev, p->next);
@@ -667,20 +669,20 @@ NG_block:
 
 /*! 
  * \brief 全メモリブロックのリストをダンプする
- * \param self ヒープへのポインタ
+ * \param self メモリプールへのポインタ
  */
-void Heap_dump_list(Heap *self)
+void Pool_dump_list(Pool *self)
 {
 	BlockHeader *p;
 	if (self->init_flag != self) {
-		debug_log("heap is not initialized\n");
+		debug_log("pool is not initialized\n");
 		assert(0);
 		return;
 	}
-	debug_log("\nHeap_dump_list\n");
+	debug_log("\nPool_dump_list\n");
 	debug_log("block header size: %d bytes\n", HEADER_SIZE);
 	debug_log("block list terminator\n");
-#ifdef SLIST_BLOCK
+#ifdef POOL_SLIST
 	debug_log("next(%p)\n", self->list_term.next);
 #else
 	debug_log("prev(%p): next(%p)\n", self->list_term.prev, self->list_term.next);
@@ -688,7 +690,7 @@ void Heap_dump_list(Heap *self)
 	hex_dump((char *) (&self->list_term), HEADER_SIZE);
 	debug_log("\n");
 	for (p = self->list_term.next; p != &self->list_term; p = p->next) {
-		Heap_dump_block(self, (char *) p + (HEADER_SIZE + WALL_SIZE));
+		Pool_dump_block(self, (char *) p + (HEADER_SIZE + WALL_SIZE));
 	}
 }
 

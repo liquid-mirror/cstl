@@ -5,13 +5,13 @@
 #include <string.h>
 #include <string>
 
-#include "heap.h"
+#include "Pool.h"
 #ifdef MY_MALLOC
 double buf[1024*1024/sizeof(double)];
-Heap heap;
-#define malloc(s)		Heap_malloc(&heap, s)
-#define realloc(p, s)	Heap_realloc(&heap, p, s)
-#define free(p)			Heap_free(&heap, p)
+Pool pool;
+#define malloc(s)		Pool_malloc(&pool, s)
+#define realloc(p, s)	Pool_realloc(&pool, p, s)
+#define free(p)			Pool_free(&pool, p)
 #endif
 
 #ifdef CSTLGEN
@@ -51,7 +51,7 @@ void StringTest_test_1_1(void)
 	assert(String_empty(x));
 	assert(String_size(x) == 0);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	String_delete(x);
 }
 
@@ -169,7 +169,7 @@ void StringTest_test_1_2(void)
 	assert(strcmp("", String_c_str(x)) == 0);
 	assert(String_size(x) == 0);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	String_delete(x);
 	String_delete(y);
 }
@@ -462,7 +462,7 @@ void StringTest_test_1_4(void)
 	printf("%s\n", s.c_str());
 #endif
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	String_delete(x);
 }
 
@@ -623,11 +623,11 @@ void StringTest_run(void)
 int main(void)
 {
 #ifdef MY_MALLOC
-	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+	Pool_init(&pool, buf, sizeof buf, sizeof buf[0]);
 #endif
 	StringTest_run();
 #ifdef MY_MALLOC
-	HEAP_DUMP_LEAK(&heap, 0);
+	POOL_DUMP_LEAK(&pool, 0);
 #endif
 	return 0;
 }

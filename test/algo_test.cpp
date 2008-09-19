@@ -6,13 +6,13 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
-#include "heap.h"
+#include "Pool.h"
 #ifdef MY_MALLOC
 double buf[10*1024*1024/sizeof(double)];
-Heap heap;
-#define malloc(s)		Heap_malloc(&heap, s)
-#define realloc(p, s)	Heap_realloc(&heap, p, s)
-#define free(p)			Heap_free(&heap, p)
+Pool pool;
+#define malloc(s)		Pool_malloc(&pool, s)
+#define realloc(p, s)	Pool_realloc(&pool, p, s)
+#define free(p)			Pool_free(&pool, p)
 #endif
 
 #include "hoge.h"
@@ -197,7 +197,7 @@ void AlgoTest_test_1_3(void)
 		IntVector_push_back(x, buf[i]);
 		y.push_back(buf[i]);
 	}
-	HEAP_SET_FAIL_COUNT(&heap, 0);
+	POOL_SET_FAIL_COUNT(&pool, 0);
 	IntVector_stable_sort(x, 0, IntVector_size(x), int_less);
 	stable_sort(y.begin(), y.end(), less<int>());
 	for (i = 0; i < SORT_COUNT; i++) {
@@ -234,7 +234,7 @@ void AlgoTest_test_1_3(void)
 		}
 	}
 
-	HEAP_RESET_FAIL_COUNT(&heap);
+	POOL_RESET_FAIL_COUNT(&pool);
 	IntVector_delete(x);
 #endif
 }
@@ -356,7 +356,7 @@ void AlgoTest_test_1_5(void)
 	for (i = 0; i < NELEMS(hogetab); i++) {
 		assert(HogeVector_push_back(x, hogetab[i]));
 	}
-	HEAP_SET_FAIL_COUNT(&heap, 0);
+	POOL_SET_FAIL_COUNT(&pool, 0);
 	HogeVector_stable_sort(x, 0, HogeVector_size(x), hoge_less);
 	prev.key = "000", prev.value = 0;
 	for (i = 0; i < NELEMS(hogetab); i++) {
@@ -412,7 +412,7 @@ void AlgoTest_test_1_5(void)
 		prev = hoge;
 	}
 
-	HEAP_RESET_FAIL_COUNT(&heap);
+	POOL_RESET_FAIL_COUNT(&pool);
 	HogeVector_delete(x);
 #endif
 }
@@ -552,7 +552,7 @@ void AlgoTest_test_1_8(void)
 		IntVector_push_back(x, buf[i]);
 		y.push_back(buf[i]);
 	}
-	HEAP_SET_FAIL_COUNT(&heap, 0);
+	POOL_SET_FAIL_COUNT(&pool, 0);
 	size_t half_size = IntVector_size(x) / 2;
 	IntVector_stable_sort(x, half_size, IntVector_size(x) - half_size - 1000, int_less);
 	stable_sort(y.begin() + half_size, y.end() - 1000, less<int>());
@@ -589,7 +589,7 @@ void AlgoTest_test_1_8(void)
 			assert(0);
 		}
 	}
-	HEAP_RESET_FAIL_COUNT(&heap);
+	POOL_RESET_FAIL_COUNT(&pool);
 
 	IntVector_delete(x);
 #endif
@@ -823,7 +823,7 @@ void AlgoTest_test_4_1(void)
 
 #ifdef MY_MALLOC
 	IntVector_shrink(z, 0);
-	HEAP_SET_FAIL_COUNT(&heap, 0);
+	POOL_SET_FAIL_COUNT(&pool, 0);
 	assert(!IntVector_merge(z, COUNT, x, 0, IntVector_size(x), y, 0, IntVector_size(y), int_less));
 	assert(IntVector_size(z) == COUNT * 3);
 	for (i = 0; i < COUNT; i++) {
@@ -838,7 +838,7 @@ void AlgoTest_test_4_1(void)
 	}
 
 
-	HEAP_RESET_FAIL_COUNT(&heap);
+	POOL_RESET_FAIL_COUNT(&pool);
 #endif
 
 	IntVector_delete(x);
@@ -927,7 +927,7 @@ void AlgoTest_test_5_2(void)
 	}
 	assert(IntVector_size(x) == COUNT);
 
-	HEAP_SET_FAIL_COUNT(&heap, 0);
+	POOL_SET_FAIL_COUNT(&pool, 0);
 	IntVector_inplace_merge(x, 0, IntVector_size(x) / 2, IntVector_size(x), int_less);
 	for (i = 0; i < COUNT; i++) {
 		assert(*IntVector_at(x, i) == i);
@@ -971,7 +971,7 @@ void AlgoTest_test_5_2(void)
 	printf("\n");
 	assert(IntVector_size(x) == COUNT);
 
-	HEAP_RESET_FAIL_COUNT(&heap);
+	POOL_RESET_FAIL_COUNT(&pool);
 
 	IntVector_delete(x);
 #endif
@@ -1021,14 +1021,14 @@ void AlgoTest_test_5_3(void)
 	assert(IntVector_size(x) == COUNT);
 
 #ifdef MY_MALLOC
-	HEAP_SET_FAIL_COUNT(&heap, 0);
+	POOL_SET_FAIL_COUNT(&pool, 0);
 	IntVector_inplace_merge(x, 0, IntVector_size(x) / 2, IntVector_size(x), int_less);
 	for (i = 0; i < COUNT; i++) {
 		assert(*IntVector_at(x, i) == i);
 	}
 	assert(IntVector_size(x) == COUNT);
 
-	HEAP_RESET_FAIL_COUNT(&heap);
+	POOL_RESET_FAIL_COUNT(&pool);
 #endif
 
 	IntVector_delete(x);
@@ -1267,11 +1267,11 @@ void AlgoTest_run(void)
 int main(void)
 {
 #ifdef MY_MALLOC
-	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+	Pool_init(&pool, buf, sizeof buf, sizeof buf[0]);
 #endif
 	AlgoTest_run();
 #ifdef MY_MALLOC
-	HEAP_DUMP_LEAK(&heap, 0);
+	POOL_DUMP_LEAK(&pool, 0);
 #endif
 	return 0;
 }

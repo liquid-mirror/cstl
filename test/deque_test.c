@@ -3,13 +3,13 @@
 #include <assert.h>
 #include <limits.h>
 #include "../cstl/deque.h"
-#include "heap.h"
+#include "Pool.h"
 #ifdef MY_MALLOC
 double buf[1024*1024/sizeof(double)];
-Heap heap;
-#define malloc(s)		Heap_malloc(&heap, s)
-#define realloc(p, s)	Heap_realloc(&heap, p, s)
-#define free(p)			Heap_free(&heap, p)
+Pool pool;
+#define malloc(s)		Pool_malloc(&pool, s)
+#define realloc(p, s)	Pool_realloc(&pool, p, s)
+#define free(p)			Pool_free(&pool, p)
 #endif
 
 
@@ -124,7 +124,7 @@ void DequeTest_test_1_1(void)
 	UCharDeque_clear(ud);
 	assert(UCharDeque_size(ud) == 0);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharDeque_delete(ud);
 }
 
@@ -194,7 +194,7 @@ void DequeTest_test_1_2(void)
 	UCharDeque_clear(ud);
 /*    UCharDeque_print(ud);*/
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharDeque_delete(ud);
 }
 
@@ -260,7 +260,7 @@ void DequeTest_test_1_3(void)
 	assert(!UCharDeque_empty(ud));
 	assert(UCharDeque_verify(ud));
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharDeque_delete(ud);
 }
 
@@ -360,7 +360,7 @@ void DequeTest_test_1_4(void)
 	assert(UCharDeque_size(ud) == 0);
 	assert(UCharDeque_verify(ud));
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharDeque_delete(ud);
 }
 
@@ -506,7 +506,7 @@ void DequeTest_test_1_5(void)
 	assert(UCharDeque_size(ud) == 0);
 	assert(UCharDeque_verify(ud));
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharDeque_delete(ud);
 }
 
@@ -636,7 +636,7 @@ void DequeTest_test_1_6(void)
 
 
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharDeque_delete(ud);
 	UCharDeque_delete(x);
 }
@@ -680,7 +680,7 @@ void DequeTest_test_2_1(void)
 	IntDeque_clear(id);
 	assert(IntDeque_size(id) == 0);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntDeque_delete(id);
 }
 
@@ -738,7 +738,7 @@ void DequeTest_test_2_2(void)
 	assert(IntDeque_size(id) == c);
 	assert(!IntDeque_empty(id));
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntDeque_delete(id);
 }
 
@@ -797,7 +797,7 @@ void DequeTest_test_2_3(void)
 	assert(IntDeque_size(id) == c);
 	assert(!IntDeque_empty(id));
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntDeque_delete(id);
 }
 
@@ -880,7 +880,7 @@ void DequeTest_test_2_4(void)
 	}
 	assert(IntDeque_size(id) == 0);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntDeque_delete(id);
 }
 
@@ -1006,7 +1006,7 @@ void DequeTest_test_2_5(void)
 	IntDeque_erase(id, 0, IntDeque_size(id));
 	assert(IntDeque_size(id) == 0);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntDeque_delete(id);
 }
 
@@ -1039,11 +1039,11 @@ void DequeTest_run(void)
 int main(void)
 {
 #ifdef MY_MALLOC
-	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+	Pool_init(&pool, buf, sizeof buf, sizeof buf[0]);
 #endif
 	DequeTest_run();
 #ifdef MY_MALLOC
-	HEAP_DUMP_LEAK(&heap, 0);
+	POOL_DUMP_LEAK(&pool, 0);
 #endif
 	return 0;
 }

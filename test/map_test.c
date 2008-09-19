@@ -5,13 +5,13 @@
 #include "../cstl/ring.h"
 #include "../cstl/map.h"
 #include "rbtree_debug.h"
-#include "heap.h"
+#include "Pool.h"
 #ifdef MY_MALLOC
 double buf[1024*1024/sizeof(double)];
-Heap heap;
-#define malloc(s)		Heap_malloc(&heap, s)
-#define realloc(p, s)	Heap_realloc(&heap, p, s)
-#define free(p)			Heap_free(&heap, p)
+Pool pool;
+#define malloc(s)		Pool_malloc(&pool, s)
+#define realloc(p, s)	Pool_realloc(&pool, p, s)
+#define free(p)			Pool_free(&pool, p)
 #endif
 
 /* ring */
@@ -76,7 +76,7 @@ void map_init_hoge(void)
 /*        printf("%4d: int[%3d], double[%5g], ptr[%p], str[%s]\n",*/
 /*                i, hoge_int[i], hoge_double[i], hoge_ptr[i], hoge_str[i]);*/
 	}
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntRing_delete(q);
 }
 
@@ -240,7 +240,7 @@ void MapTest_test_1_1(void)
 
 
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntIntMapA_delete(ia);
 	IntIntMapA_delete(x);
 }
@@ -364,7 +364,7 @@ void MapTest_test_1_2(void)
 	assert(IntIntMMapA_size(ima) == count);
 	printf("count: %d\n", count);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntIntMMapA_delete(ima);
 }
 
@@ -391,11 +391,11 @@ void MapTest_run(void)
 int main(void)
 {
 #ifdef MY_MALLOC
-	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+	Pool_init(&pool, buf, sizeof buf, sizeof buf[0]);
 #endif
 	MapTest_run();
 #ifdef MY_MALLOC
-	HEAP_DUMP_LEAK(&heap, 0);
+	POOL_DUMP_LEAK(&pool, 0);
 #endif
 	return 0;
 }

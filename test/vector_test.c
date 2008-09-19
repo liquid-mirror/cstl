@@ -2,13 +2,13 @@
 #include <string.h>
 #include <assert.h>
 #include "../cstl/vector.h"
-#include "heap.h"
+#include "Pool.h"
 #ifdef MY_MALLOC
 double buf[1024*1024/sizeof(double)];
-Heap heap;
-#define malloc(s)		Heap_malloc(&heap, s)
-#define realloc(p, s)	Heap_realloc(&heap, p, s)
-#define free(p)			Heap_free(&heap, p)
+Pool pool;
+#define malloc(s)		Pool_malloc(&pool, s)
+#define realloc(p, s)	Pool_realloc(&pool, p, s)
+#define free(p)			Pool_free(&pool, p)
 #endif
 
 /* vector */
@@ -105,7 +105,7 @@ void VectorTest_test_1_1(void)
 	assert(UCharVector_size(uv) == 0);
 	assert(UCharVector_empty(uv));
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharVector_delete(uv);
 }
 
@@ -152,7 +152,7 @@ void VectorTest_test_1_2(void)
 	assert(UCharVector_empty(uv));
 	assert(UCharVector_capacity(uv) == a);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharVector_delete(uv);
 }
 
@@ -179,7 +179,7 @@ void VectorTest_test_1_3(void)
 	assert(UCharVector_size(uv) == SIZE);
 	assert(!UCharVector_empty(uv));
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharVector_delete(uv);
 }
 
@@ -226,7 +226,7 @@ void VectorTest_test_1_4(void)
 	}
 	assert(UCharVector_size(uv) == 0);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharVector_delete(uv);
 }
 
@@ -279,7 +279,7 @@ void VectorTest_test_1_5(void)
 	UCharVector_erase(uv, 0, SIZE);
 	assert(UCharVector_size(uv) == 0);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharVector_delete(uv);
 }
 
@@ -421,7 +421,7 @@ void VectorTest_test_1_6(void)
 
 
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	UCharVector_delete(uv);
 	UCharVector_delete(x);
 }
@@ -482,7 +482,7 @@ void VectorTest_test_2_1(void)
 	assert(IntVector_size(iv) == 0);
 	assert(IntVector_empty(iv));
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntVector_delete(iv);
 }
 
@@ -529,7 +529,7 @@ void VectorTest_test_2_2(void)
 	assert(IntVector_empty(iv));
 	assert(IntVector_capacity(iv) == a);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntVector_delete(iv);
 }
 
@@ -556,7 +556,7 @@ void VectorTest_test_2_3(void)
 	assert(IntVector_size(iv) == SIZE);
 	assert(!IntVector_empty(iv));
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntVector_delete(iv);
 }
 
@@ -603,7 +603,7 @@ void VectorTest_test_2_4(void)
 	}
 	assert(IntVector_size(iv) == 0);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntVector_delete(iv);
 }
 
@@ -650,7 +650,7 @@ void VectorTest_test_2_5(void)
 	IntVector_erase(iv, 0, SIZE);
 	assert(IntVector_size(iv) == 0);
 
-	HEAP_DUMP_OVERFLOW(&heap);
+	POOL_DUMP_OVERFLOW(&pool);
 	IntVector_delete(iv);
 }
 
@@ -677,11 +677,11 @@ void VectorTest_run(void)
 int main(void)
 {
 #ifdef MY_MALLOC
-	Heap_init(&heap, buf, sizeof buf, sizeof buf[0]);
+	Pool_init(&pool, buf, sizeof buf, sizeof buf[0]);
 #endif
 	VectorTest_run();
 #ifdef MY_MALLOC
-	HEAP_DUMP_LEAK(&heap, 0);
+	POOL_DUMP_LEAK(&pool, 0);
 #endif
 	return 0;
 }

@@ -17,7 +17,7 @@ case $container in
 	include_file=$5
 	debug=$6
 	path=$7
-	heap=$8
+	alloc=$8
 	;;
 "deque")
 	lower="deque"
@@ -28,7 +28,7 @@ case $container in
 	include_file=$5
 	debug=$6
 	path=$7
-	heap=$8
+	alloc=$8
 	;;
 "ring")
 	lower="ring"
@@ -39,7 +39,7 @@ case $container in
 	include_file=$5
 	debug=$6
 	path=$7
-	heap=$8
+	alloc=$8
 	;;
 "list")
 	lower="list"
@@ -50,7 +50,7 @@ case $container in
 	include_file=$5
 	debug=$6
 	path=$7
-	heap=$8
+	alloc=$8
 	;;
 "string")
 	lower="string"
@@ -61,7 +61,7 @@ case $container in
 	include_file=$5
 	debug=$6
 	path=$7
-	heap=$8
+	alloc=$8
 	;;
 "set")
 	lower="set"
@@ -72,7 +72,7 @@ case $container in
 	include_file=$5
 	debug1=$6
 	path=$7
-	heap=$8
+	alloc=$8
 	;;
 "multiset")
 	lower="set"
@@ -83,7 +83,7 @@ case $container in
 	include_file=$5
 	debug1=$6
 	path=$7
-	heap=$8
+	alloc=$8
 	;;
 "map")
 	lower="map"
@@ -97,7 +97,7 @@ case $container in
 	debug2=$8
 	path=$9
 	shift
-	heap=$9
+	alloc=$9
 	;;
 "multimap")
 	lower="map"
@@ -111,7 +111,7 @@ case $container in
 	debug2=$8
 	path=$9
 	shift
-	heap=$9
+	alloc=$9
 	;;
 *)
 	usage
@@ -386,8 +386,8 @@ echo -e "\
 #endif\n" >> "$path"".c"
 fi
 fi
-if [ "$heap" != "" ]; then
-if [ "$heap" = "gc" ]; then
+if [ "$alloc" != "" ]; then
+if [ "$alloc" = "gc" ]; then
 echo -e "\
 #include <gc.h>
 #define malloc   GC_MALLOC
@@ -396,11 +396,11 @@ echo -e "\
 " >> "$path"".c"
 else
 echo -e "\
-#include \"heap.h\"
-extern Heap $heap;
-#define malloc(s)      Heap_malloc(&$heap, s)
-#define realloc(p, s)  Heap_realloc(&$heap, p, s)
-#define free(p)        Heap_free(&$heap, p)
+#include \"Pool.h\"
+extern Pool $alloc;
+#define malloc(s)      Pool_malloc(&$alloc, s)
+#define realloc(p, s)  Pool_realloc(&$alloc, p, s)
+#define free(p)        Pool_free(&$alloc, p)
 " >> "$path"".c"
 fi
 fi
