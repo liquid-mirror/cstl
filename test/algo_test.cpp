@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <time.h>
 #include "../cstl/vector.h"
 #include "../cstl/algorithm.h"
 #include <vector>
