@@ -327,7 +327,7 @@ int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n)\
 		pos = CSTL_RING_BACKWARD(self, pos, n);\
 	}\
 	for (i = pos, j = 0; j < n; i = CSTL_RING_NEXT(self, i), j++) {\
-		self->buf[i] = ((Type *) elems)[j];\
+		self->buf[i] = elems[j];\
 	}\
 	return 1;\
 }\

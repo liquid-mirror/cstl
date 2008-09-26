@@ -349,7 +349,7 @@ int Name##_insert_array(Name *self, Name##Iterator pos, const Type *elems, size_
 	x.prev = &x;\
 	CSTL_LIST_MAGIC(x.magic = &x);\
 	for (i = 0; i < n; i++) {\
-		if (!Name##_push_back(&x, ((Type *) elems)[i])) {\
+		if (!Name##_push_back(&x, elems[i])) {\
 			Name##_clear(&x);\
 			return 0;\
 		}\

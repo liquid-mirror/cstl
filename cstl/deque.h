@@ -552,7 +552,7 @@ int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n)\
 		return 0;\
 	}\
 	for (i = 0; i < n; i++) {\
-		*Name##_at(self, idx + i) = ((Type *) elems)[i];\
+		*Name##_at(self, idx + i) = elems[i];\
 	}\
 	return 1;\
 }\

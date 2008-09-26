@@ -367,7 +367,7 @@ int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n)\
 		return 0;\
 	}\
 	for (i = 0; i < n; i++) {\
-		self->buf[idx + i] = ((Type *) elems)[i];\
+		self->buf[idx + i] = elems[i];\
 	}\
 	return 1;\
 }\
