@@ -271,7 +271,15 @@ int Name##_compare(Name *self, Name *x)\
 	len = Name##_size(self);\
 	xlen = Name##_size(x);\
 	ret = Name##_mymemcmp(Name##_c_str(self), Name##_c_str(x), (len > xlen) ? xlen : len);\
-	return ret ? ret : len - xlen;\
+	if (ret) {\
+		return ret;\
+	} else if (len == xlen) {\
+		return 0;\
+	} else if (len > xlen) {\
+		return 1;\
+	} else {\
+		return -1;\
+	}\
 }\
 \
 Type *Name##_at(Name *self, size_t idx)\
