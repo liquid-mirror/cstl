@@ -64,7 +64,7 @@ int main(void)
 		printf("!!!NG!!!\n");
 	}
 	for (xpos = IntSet_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntSet_next(xpos), ++ypos) {
-		if (*ypos != IntSet_key(xpos)) {
+		if (*ypos != *IntSet_key(xpos)) {
 			printf("!!!NG!!!\n");
 		}
 	}

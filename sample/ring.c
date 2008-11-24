@@ -24,7 +24,8 @@ int main(void)
 		printf("%02x\n", *UCharRing_at(x, i));
 	}
 	while (!UCharRing_empty(x)) {
-		printf("%02x\n", UCharRing_pop_front(x));
+		printf("%02x\n", *UCharRing_front(x));
+		UCharRing_pop_front(x);
 	}
 	UCharRing_delete(x);
 
@@ -33,7 +34,8 @@ int main(void)
 	UCharRing_push_back(&y, 0x01);
 	UCharRing_push_back(&y, 0x02);
 	while (!UCharRing_empty(&y)) {
-		printf("%02x\n", UCharRing_pop_front(&y));
+		printf("%02x\n", *UCharRing_front(&y));
+		UCharRing_pop_front(&y);
 	}
 	/* UCharRing_delete(&y)を呼び出してはいけない */
 	return 0;

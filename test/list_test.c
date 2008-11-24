@@ -102,17 +102,15 @@ void ListTest_test_1_2(void)
 	/* pop_front */
 	for (i = 0; i < NELEMS(hogetab); i++) {
 		/* front */
-		hoge = HogeList_front(hl);
+		hoge = *HogeList_front(hl);
 		assert(!strcmp(hoge.key, hogetab[i].key));
 		assert(hoge.value == hogetab[i].value);
 		/* back */
-		hoge = HogeList_back(hl);
+		hoge = *HogeList_back(hl);
 		assert(!strcmp(hoge.key, hogetab[NELEMS(hogetab)-1].key));
 		assert(hoge.value == hogetab[NELEMS(hogetab)-1].value);
 		/* pop_front */
-		hoge = HogeList_pop_front(hl);
-		assert(!strcmp(hoge.key, hogetab[i].key));
-		assert(hoge.value == hogetab[i].value);
+		HogeList_pop_front(hl);
 		assert(HogeList_verify(hl));
 	}
 	assert(HogeList_size(hl) == 0);
@@ -127,17 +125,15 @@ void ListTest_test_1_2(void)
 	/* pop_back */
 	for (i = 0; i < NELEMS(hogetab); i++) {
 		/* front */
-		hoge = HogeList_front(hl);
+		hoge = *HogeList_front(hl);
 		assert(!strcmp(hoge.key, hogetab[NELEMS(hogetab)-1].key));
 		assert(hoge.value == hogetab[NELEMS(hogetab)-1].value);
 		/* back */
-		hoge = HogeList_back(hl);
+		hoge = *HogeList_back(hl);
 		assert(!strcmp(hoge.key, hogetab[i].key));
 		assert(hoge.value == hogetab[i].value);
 		/* pop_back */
-		hoge = HogeList_pop_back(hl);
-		assert(!strcmp(hoge.key, hogetab[i].key));
-		assert(hoge.value == hogetab[i].value);
+		HogeList_pop_back(hl);
 		assert(HogeList_verify(hl));
 	}
 	assert(HogeList_size(hl) == 0);

@@ -78,14 +78,14 @@ Name *Name##_new(void);\
 void Name##_delete(Name *self);\
 int Name##_push_back(Name *self, Type elem);\
 int Name##_push_front(Name *self, Type elem);\
-Type Name##_pop_front(Name *self);\
-Type Name##_pop_back(Name *self);\
+void Name##_pop_front(Name *self);\
+void Name##_pop_back(Name *self);\
 int Name##_empty(Name *self);\
 size_t Name##_size(Name *self);\
 void Name##_clear(Name *self);\
 Type *Name##_at(Name##Iterator pos);\
-Type Name##_front(Name *self);\
-Type Name##_back(Name *self);\
+Type *Name##_front(Name *self);\
+Type *Name##_back(Name *self);\
 Name##Iterator Name##_begin(Name *self);\
 Name##Iterator Name##_end(Name *self);\
 Name##Iterator Name##_rbegin(Name *self);\
@@ -94,7 +94,7 @@ Name##Iterator Name##_next(Name##Iterator pos);\
 Name##Iterator Name##_prev(Name##Iterator pos);\
 Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem);\
 int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type elem);\
-int Name##_insert_array(Name *self, Name##Iterator pos, const Type *elems, size_t n);\
+int Name##_insert_array(Name *self, Name##Iterator pos, Type const *elems, size_t n);\
 int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Name##Iterator last);\
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last);\
@@ -181,26 +181,20 @@ int Name##_push_front(Name *self, Type elem)\
 	return 1;\
 }\
 \
-Type Name##_pop_front(Name *self)\
+void Name##_pop_front(Name *self)\
 {\
-	Type elem;\
 	assert(self && "List_pop_front");\
 	assert(self->magic == self && "List_pop_front");\
 	assert(!Name##_empty(self) && "List_pop_front");\
-	elem = CSTL_LIST_AT(CSTL_LIST_BEGIN(self));\
 	Name##_erase(self, CSTL_LIST_BEGIN(self));\
-	return elem;\
 }\
 \
-Type Name##_pop_back(Name *self)\
+void Name##_pop_back(Name *self)\
 {\
-	Type elem;\
 	assert(self && "List_pop_back");\
 	assert(self->magic == self && "List_pop_back");\
 	assert(!Name##_empty(self) && "List_pop_back");\
-	elem = CSTL_LIST_AT(CSTL_LIST_RBEGIN(self));\
 	Name##_erase(self, CSTL_LIST_RBEGIN(self));\
-	return elem;\
 }\
 \
 int Name##_empty(Name *self)\
@@ -237,20 +231,20 @@ Type *Name##_at(Name##Iterator pos)\
 	return &CSTL_LIST_AT(pos);\
 }\
 \
-Type Name##_front(Name *self)\
+Type *Name##_front(Name *self)\
 {\
 	assert(self && "List_front");\
 	assert(self->magic == self && "List_front");\
 	assert(!Name##_empty(self) && "List_front");\
-	return self->next->elem;\
+	return &CSTL_LIST_AT(CSTL_LIST_BEGIN(self));\
 }\
 \
-Type Name##_back(Name *self)\
+Type *Name##_back(Name *self)\
 {\
 	assert(self && "List_back");\
 	assert(self->magic == self && "List_back");\
 	assert(!Name##_empty(self) && "List_back");\
-	return self->prev->elem;\
+	return &CSTL_LIST_AT(CSTL_LIST_RBEGIN(self));\
 }\
 \
 Name##Iterator Name##_begin(Name *self)\
@@ -336,7 +330,7 @@ int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type elem)\
 	return 1;\
 }\
 \
-int Name##_insert_array(Name *self, Name##Iterator pos, const Type *elems, size_t n)\
+int Name##_insert_array(Name *self, Name##Iterator pos, Type const *elems, size_t n)\
 {\
 	Name x;\
 	register size_t i;\

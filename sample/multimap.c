@@ -1,6 +1,3 @@
-/* C++標準ライブラリ チュートリアル&リファレンス
- * Nicolai M. Josuttis著, 吉川邦夫訳, アスキー, 2001
- * p.212の例を移植 */
 #include <stdio.h>
 #include <string.h>
 #include <cstl/map.h>
@@ -29,7 +26,7 @@ int main(void)
 	printf("english\t\tgerman\n");
 	printf("-------------------------------\n");
 	for (pos = StrStrMMap_begin(dict); pos != StrStrMMap_end(dict); pos = StrStrMMap_next(pos)) {
-		printf("%s\t\t%s\n", StrStrMMap_key(pos), *StrStrMMap_value(pos));
+		printf("%s\t\t%s\n", *StrStrMMap_key(pos), *StrStrMMap_value(pos));
 	}
 	printf("\n");
 
@@ -46,7 +43,7 @@ int main(void)
 	printf("%s: \n", word);
 	for (pos = StrStrMMap_begin(dict); pos != StrStrMMap_end(dict); pos = StrStrMMap_next(pos)) {
 		if (strcmp(word, *StrStrMMap_value(pos)) == 0) {
-			printf("\t%s\n", StrStrMMap_key(pos));
+			printf("\t%s\n", *StrStrMMap_key(pos));
 		}
 	}
 

@@ -1,6 +1,3 @@
-/* C++標準ライブラリ チュートリアル&リファレンス
- * Nicolai M. Josuttis著, 吉川邦夫訳, アスキー, 2001
- * p.211の例を移植 */
 #include <stdio.h>
 #include <string.h>
 #include <cstl/map.h>
@@ -23,7 +20,7 @@ int main(void)
 
 	/* すべての要素を出力する */
 	for (pos = StrFltMap_begin(stocks); pos != StrFltMap_end(stocks); pos = StrFltMap_next(pos)) {
-		printf("stock: %s\tprice: %g\n", StrFltMap_key(pos), *StrFltMap_value(pos));
+		printf("stock: %s\tprice: %g\n", *StrFltMap_key(pos), *StrFltMap_value(pos));
 	}
 	printf("\n");
 
@@ -33,7 +30,7 @@ int main(void)
 	}
 	/* すべての要素を出力する */
 	for (pos = StrFltMap_begin(stocks); pos != StrFltMap_end(stocks); pos = StrFltMap_next(pos)) {
-		printf("stock: %s\tprice: %g\n", StrFltMap_key(pos), *StrFltMap_value(pos));
+		printf("stock: %s\tprice: %g\n", *StrFltMap_key(pos), *StrFltMap_value(pos));
 	}
 	printf("\n");
 
@@ -44,7 +41,7 @@ int main(void)
 
 	/* すべての要素を出力する */
 	for (pos = StrFltMap_begin(stocks); pos != StrFltMap_end(stocks); pos = StrFltMap_next(pos)) {
-		printf("stock: %s\tprice: %g\n", StrFltMap_key(pos), *StrFltMap_value(pos));
+		printf("stock: %s\tprice: %g\n", *StrFltMap_key(pos), *StrFltMap_value(pos));
 	}
 	printf("\n");
 

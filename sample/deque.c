@@ -21,7 +21,8 @@ int main(void)
 		printf("%02x\n", *UCharDeque_at(x, i));
 	}
 	while (!UCharDeque_empty(x)) {
-		printf("%02x\n", UCharDeque_pop_front(x));
+		printf("%02x\n", *UCharDeque_front(x));
+		UCharDeque_pop_front(x);
 	}
 	UCharDeque_delete(x);
 	return 0;

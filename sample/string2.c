@@ -1,6 +1,3 @@
-/* C++標準ライブラリ チュートリアル&リファレンス
- * Nicolai M. Josuttis著, 吉川邦夫訳, アスキー, 2001
- * p.454の例を移植 */
 #include <stdio.h>
 #include <cstl/string.h>
 
@@ -19,7 +16,7 @@ int main(int argc, char *argv[])
 	while (fgets(buf, 1024, stdin)) {
 		size_t begIdx, endIdx;
 		String_assign(line, buf);
-		String_erase(line, String_length(line)-1, CSTL_NPOS); /* '\n'を取り除く */
+		String_pop_back(line); /* '\n'を取り除く */
 		/* 最初の単語の先頭を検索する */
 		begIdx = String_find_first_not_of(String_c_str(line), String_c_str(delims), 0);
 		/* 単語の先頭が見つかるまで繰り返す */

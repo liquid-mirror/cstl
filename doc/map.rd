@@ -71,7 +71,7 @@ map/multimapを使うには、以下のマクロを用いてコードを展開�
       printf("size: %d\n", StrIntMap_size(map));
       for (pos = StrIntMap_begin(map); pos != StrIntMap_end(map); pos = StrIntMap_next(pos)) {
           /* イテレータによる要素の読み書き */
-          printf("%s: %d,", StrIntMap_key(pos), *StrIntMap_value(pos));
+          printf("%s: %d,", *StrIntMap_key(pos), *StrIntMap_value(pos));
           *StrIntMap_value(pos) += 1;
           printf("%d\n", *StrIntMap_value(pos));
       }
@@ -194,8 +194,8 @@ NameにMap, KeyTypeにKeyT, ValueTypeにValueTを指定した場合、
 <<< hr
 
 ==== Map_key()
-  KeyT Map_key(MapIterator pos);
-* posが示す位置の要素のキーを返す。
+  KeyT const *Map_key(MapIterator pos);
+* posが示す位置の要素のキーへのポインタを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがMap_end()またはMap_rend()でないこと。

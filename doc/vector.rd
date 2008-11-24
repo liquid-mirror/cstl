@@ -150,15 +150,15 @@ vectorを使うには、以下のマクロを用いてコードを展開する�
 <<< hr
 
 ==== Vector_front()
-  T Vector_front(Vector *self);
-* selfの最初の要素を返す。
+  T *Vector_front(Vector *self);
+* selfの最初の要素へのポインタを返す。
 * 事前条件
   * selfが空でないこと。
 <<< hr
 
 ==== Vector_back()
-  T Vector_back(Vector *self);
-* selfの最後の要素を返す。
+  T *Vector_back(Vector *self);
+* selfの最後の要素へのポインタを返す。
 * 事前条件
   * selfが空でないこと。
 <<< hr
@@ -182,7 +182,7 @@ vectorを使うには、以下のマクロを用いてコードを展開する�
 <<< hr
 
 ==== Vector_insert_array()
-  int Vector_insert_array(Vector *self, size_t idx, const T *elems, size_t n);
+  int Vector_insert_array(Vector *self, size_t idx, T const *elems, size_t n);
 * selfのidx番目の位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -217,8 +217,8 @@ vectorを使うには、以下のマクロを用いてコードを展開する�
 <<< hr
 
 ==== Vector_pop_back()
-  T Vector_pop_back(Vector *self);
-* selfの最後の要素を削除し、その要素を返す。
+  void Vector_pop_back(Vector *self);
+* selfの最後の要素を削除する。
 * 事前条件
   * selfが空でないこと。
 <<< hr

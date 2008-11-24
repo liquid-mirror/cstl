@@ -61,7 +61,7 @@ int main(void)
 	}
 	printf("stl : lookup[%d]: %g ms\n", COUNT, get_msec() - t);
 	for (xpos = IntIntMap_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntIntMap_next(xpos), ++ypos) {
-		if (ypos->first != IntIntMap_key(xpos)) {
+		if (ypos->first != *IntIntMap_key(xpos)) {
 			printf("!!!NG!!!\n");
 		}
 		if (ypos->second != *IntIntMap_value(xpos)) {
@@ -101,7 +101,7 @@ int main(void)
 		printf("!!!NG!!!\n");
 	}
 	for (xpos = IntIntMap_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntIntMap_next(xpos), ++ypos) {
-		if (ypos->first != IntIntMap_key(xpos)) {
+		if (ypos->first != *IntIntMap_key(xpos)) {
 			printf("!!!NG!!!\n");
 		}
 		if (ypos->second != *IntIntMap_value(xpos)) {

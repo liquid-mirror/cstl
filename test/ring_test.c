@@ -143,12 +143,12 @@ void RingTest_test_1_2(void)
 		assert(!UCharRing_empty(ur));
 		assert(UCharRing_full(ur));
 		/* front */
-		assert(UCharRing_front(ur) == hoge[0]);
+		assert(*UCharRing_front(ur) == hoge[0]);
 		/* back */
-		assert(UCharRing_back(ur) == hoge[MAX-1]);
+		assert(*UCharRing_back(ur) == hoge[MAX-1]);
 		/* pop_front */
 		size = UCharRing_size(ur);
-		assert(UCharRing_pop_front(ur) == hoge[0]);
+		UCharRing_pop_front(ur);
 		assert(UCharRing_size(ur) == size - 1);
 		/* push_back */
 		size = UCharRing_size(ur);
@@ -163,9 +163,11 @@ void RingTest_test_1_2(void)
 		for (i = 0; i < MAX; i++) {
 			size = UCharRing_size(ur);
 			if (i < MAX-1) {
-				assert(UCharRing_pop_front(ur) == hoge[i+1]);
+				assert(*UCharRing_front(ur) == hoge[i+1]);
+				UCharRing_pop_front(ur);
 			} else {
-				assert(UCharRing_pop_front(ur) == hoge[0]);
+				assert(*UCharRing_front(ur) == hoge[0]);
+				UCharRing_pop_front(ur);
 			}
 			assert(UCharRing_size(ur) == size - 1);
 		}
@@ -204,13 +206,15 @@ void RingTest_test_1_3(void)
 		assert(!UCharRing_empty(ur));
 		assert(UCharRing_full(ur));
 		/* front */
-		assert(UCharRing_front(ur) == hoge[0]);
+		assert(*UCharRing_front(ur) == hoge[0]);
 		/* back */
-		assert(UCharRing_back(ur) == hoge[MAX-1]);
+		assert(*UCharRing_back(ur) == hoge[MAX-1]);
 		/* pop_back */
 		size = UCharRing_size(ur);
-		assert(UCharRing_pop_back(ur) == hoge[MAX-1]);
-		assert(UCharRing_pop_back(ur) == hoge[MAX-2]);
+		assert(*UCharRing_back(ur) == hoge[MAX-1]);
+		UCharRing_pop_back(ur);
+		assert(*UCharRing_back(ur) == hoge[MAX-2]);
+		UCharRing_pop_back(ur);
 		assert(UCharRing_size(ur) == size - 2);
 		/* push_front */
 		size = UCharRing_size(ur);
@@ -225,11 +229,14 @@ void RingTest_test_1_3(void)
 		/* pop_back */
 		for (i = MAX-3; i >= 0; i--) {
 			size = UCharRing_size(ur);
-			assert(UCharRing_pop_back(ur) == hoge[i]);
+			assert(*UCharRing_back(ur) == hoge[i]);
+			UCharRing_pop_back(ur);
 			assert(UCharRing_size(ur) == size - 1);
 		}
-		assert(UCharRing_pop_back(ur) == hoge[MAX-1]);
-		assert(UCharRing_pop_back(ur) == hoge[MAX-2]);
+		assert(*UCharRing_back(ur) == hoge[MAX-1]);
+		UCharRing_pop_back(ur);
+		assert(*UCharRing_back(ur) == hoge[MAX-2]);
+		UCharRing_pop_back(ur);
 
 		assert(UCharRing_size(ur) == 0);
 		assert(UCharRing_empty(ur));
@@ -595,12 +602,12 @@ void RingTest_test_2_2(void)
 		assert(!IntRing_empty(ir));
 		assert(IntRing_full(ir));
 		/* front */
-		assert(IntRing_front(ir) == piyo[0]);
+		assert(*IntRing_front(ir) == piyo[0]);
 		/* back */
-		assert(IntRing_back(ir) == piyo[MAX-1]);
+		assert(*IntRing_back(ir) == piyo[MAX-1]);
 		/* pop_front */
 		size = IntRing_size(ir);
-		assert(IntRing_pop_front(ir) == piyo[0]);
+		IntRing_pop_front(ir);
 		assert(IntRing_size(ir) == size - 1);
 		/* push_back */
 		size = IntRing_size(ir);
@@ -615,9 +622,11 @@ void RingTest_test_2_2(void)
 		for (i = 0; i < MAX; i++) {
 			size = IntRing_size(ir);
 			if (i < MAX-1) {
-				assert(IntRing_pop_front(ir) == piyo[i+1]);
+				assert(*IntRing_front(ir) == piyo[i+1]);
+				IntRing_pop_front(ir);
 			} else {
-				assert(IntRing_pop_front(ir) == piyo[0]);
+				assert(*IntRing_front(ir) == piyo[0]);
+				IntRing_pop_front(ir);
 			}
 			assert(IntRing_size(ir) == size - 1);
 		}
@@ -656,13 +665,15 @@ void RingTest_test_2_3(void)
 		assert(!IntRing_empty(ir));
 		assert(IntRing_full(ir));
 		/* front */
-		assert(IntRing_front(ir) == piyo[0]);
+		assert(*IntRing_front(ir) == piyo[0]);
 		/* back */
-		assert(IntRing_back(ir) == piyo[MAX-1]);
+		assert(*IntRing_back(ir) == piyo[MAX-1]);
 		/* pop_back */
 		size = IntRing_size(ir);
-		assert(IntRing_pop_back(ir) == piyo[MAX-1]);
-		assert(IntRing_pop_back(ir) == piyo[MAX-2]);
+		assert(*IntRing_back(ir) == piyo[MAX-1]);
+		IntRing_pop_back(ir);
+		assert(*IntRing_back(ir) == piyo[MAX-2]);
+		IntRing_pop_back(ir);
 		assert(IntRing_size(ir) == size - 2);
 		/* push_front */
 		size = IntRing_size(ir);
@@ -677,11 +688,13 @@ void RingTest_test_2_3(void)
 		/* pop_back */
 		for (i = MAX-3; i >= 0; i--) {
 			size = IntRing_size(ir);
-			assert(IntRing_pop_back(ir) == piyo[i]);
+			IntRing_pop_back(ir);
 			assert(IntRing_size(ir) == size - 1);
 		}
-		assert(IntRing_pop_back(ir) == piyo[MAX-1]);
-		assert(IntRing_pop_back(ir) == piyo[MAX-2]);
+		assert(*IntRing_back(ir) == piyo[MAX-1]);
+		IntRing_pop_back(ir);
+		assert(*IntRing_back(ir) == piyo[MAX-2]);
+		IntRing_pop_back(ir);
 
 		assert(IntRing_size(ir) == 0);
 		assert(IntRing_empty(ir));

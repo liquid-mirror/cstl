@@ -184,15 +184,15 @@ listを使うには、以下のマクロを用いてコードを展開する必�
 <<< hr
 
 ==== List_front()
-  T List_front(List *self);
-* selfの最初の要素を返す。
+  T *List_front(List *self);
+* selfの最初の要素へのポインタを返す。
 * 事前条件
   * selfが空でないこと。
 <<< hr
 
 ==== List_back()
-  T List_back(List *self);
-* selfの最後の要素を返す。
+  T *List_back(List *self);
+* selfの最後の要素へのポインタを返す。
 * 事前条件
   * selfが空でないこと。
 <<< hr
@@ -216,7 +216,7 @@ listを使うには、以下のマクロを用いてコードを展開する必�
 <<< hr
 
 ==== List_insert_array()
-  int List_insert_array(List *self, ListIterator pos, const T *elems, size_t n);
+  int List_insert_array(List *self, ListIterator pos, T const *elems, size_t n);
 * selfのposが示す位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -266,15 +266,15 @@ listを使うには、以下のマクロを用いてコードを展開する必�
 <<< hr
 
 ==== List_pop_front()
-  T List_pop_front(List *self);
-* selfの最初の要素を削除し、その要素を返す。
+  void List_pop_front(List *self);
+* selfの最初の要素を削除する。
 * 事前条件
   * selfが空でないこと。
 <<< hr
 
 ==== List_pop_back()
-  T List_pop_back(List *self);
-* selfの最後の要素を削除し、その要素を返す。
+  void List_pop_back(List *self);
+* selfの最後の要素を削除する。
 * 事前条件
   * selfが空でないこと。
 <<< hr

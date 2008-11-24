@@ -129,15 +129,15 @@ dequeを使うには、以下のマクロを用いてコードを展開する必
 <<< hr
 
 ==== Deque_front()
-  T Deque_front(Deque *self);
-* selfの最初の要素を返す。
+  T *Deque_front(Deque *self);
+* selfの最初の要素へのポインタを返す。
 * 事前条件
   * selfが空でないこと。
 <<< hr
 
 ==== Deque_back()
-  T Deque_back(Deque *self);
-* selfの最後の要素を返す。
+  T *Deque_back(Deque *self);
+* selfの最後の要素へのポインタを返す。
 * 事前条件
   * selfが空でないこと。
 <<< hr
@@ -161,7 +161,7 @@ dequeを使うには、以下のマクロを用いてコードを展開する必
 <<< hr
 
 ==== Deque_insert_array()
-  int Deque_insert_array(Deque *self, size_t idx, const T *elems, size_t n);
+  int Deque_insert_array(Deque *self, size_t idx, T const *elems, size_t n);
 * selfのidx番目の位置にelemsという配列からn個の要素のコピーを挿入する。
 * 挿入に成功した場合、0以外の値を返す。
 * メモリ不足の場合、selfの変更を行わず0を返す。
@@ -203,15 +203,15 @@ dequeを使うには、以下のマクロを用いてコードを展開する必
 <<< hr
 
 ==== Deque_pop_front()
-  T Deque_pop_front(Deque *self);
-* selfの最初の要素を削除し、その要素を返す。
+  void Deque_pop_front(Deque *self);
+* selfの最初の要素を削除する。
 * 事前条件
   * selfが空でないこと。
 <<< hr
 
 ==== Deque_pop_back()
-  T Deque_pop_back(Deque *self);
-* selfの最後の要素を削除し、その要素を返す。
+  void Deque_pop_back(Deque *self);
+* selfの最後の要素を削除する。
 * 事前条件
   * selfが空でないこと。
 <<< hr

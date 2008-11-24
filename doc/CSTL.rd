@@ -72,7 +72,6 @@ CSTLは以下のコンテナを提供する。
 * オブジェクトの生成/破棄は、必ずnew/deleteに相当する関数でしなければならない。
 * 要素の挿入/削除時、自動的にコンストラクタ/デストラクタに相当する関数が呼ばれることはない。
 * vector, deque, stringはインデックスで要素にアクセスするため、イテレータをサポートしない。
-* vector, deque, listのpop_back(), pop_front()は削除した値を返す。
 * vector, stringのshrink()は許容量の縮小ができる。
 * stringのreserve()は許容量の縮小ができない。
 * set, mapのinsert()は重複による成否を引数で返す。

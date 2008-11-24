@@ -339,8 +339,8 @@ stringを使うには、以下のマクロを用いてコードを展開する�
 <<< hr
 
 ==== String_pop_back()
-  CharT String_pop_back(String *self);
-* selfの最後の文字を削除し、その文字を返す。
+  void String_pop_back(String *self);
+* selfの最後の文字を削除する。
 * 事前条件
   * selfが空でないこと。
 <<< hr

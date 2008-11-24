@@ -1,9 +1,15 @@
 #ifndef HOGE_H
 #define HOGE_H
 
-typedef struct Hoge_t {
+#include <string.h>
+
+typedef struct Hoge {
 	char *key;
 	int value;
 } Hoge;
+
+#define HOGE_COMP(x, y)	 	strcmp((x).key, (y).key)
+#define HOGEP_COMP(x, y)	strcmp((x)->key, (y)->key)
+
 
 #endif

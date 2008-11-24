@@ -80,7 +80,7 @@ CSTL_VECTOR_BEGIN_EXTERN_C()\
 Name *Name##_new(size_t n);\
 void Name##_delete(Name *self);\
 int Name##_push_back(Name *self, Type elem);\
-Type Name##_pop_back(Name *self);\
+void Name##_pop_back(Name *self);\
 size_t Name##_size(Name *self);\
 size_t Name##_capacity(Name *self);\
 int Name##_empty(Name *self);\
@@ -89,11 +89,11 @@ int Name##_reserve(Name *self, size_t n);\
 void Name##_shrink(Name *self, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
 Type *Name##_at(Name *self, size_t idx);\
-Type Name##_front(Name *self);\
-Type Name##_back(Name *self);\
+Type *Name##_front(Name *self);\
+Type *Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem);\
-int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n);\
+int Name##_insert_array(Name *self, size_t idx, Type const *elems, size_t n);\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 void Name##_swap(Name *self, Name *x);\
@@ -160,13 +160,12 @@ int Name##_push_back(Name *self, Type elem)\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_POP_BACK(Name, Type)	\
-Type Name##_pop_back(Name *self)\
+void Name##_pop_back(Name *self)\
 {\
 	assert(self && "Vector_pop_back");\
 	assert(self->magic == self && "Vector_pop_back");\
 	assert(!CSTL_VECTOR_EMPTY(self) && "Vector_pop_back");\
 	self->end--;\
-	return self->buf[self->end];\
 }\
 \
 
@@ -281,22 +280,22 @@ Type *Name##_at(Name *self, size_t idx)\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_FRONT(Name, Type)	\
-Type Name##_front(Name *self)\
+Type *Name##_front(Name *self)\
 {\
 	assert(self && "Vector_front");\
 	assert(self->magic == self && "Vector_front");\
 	assert(!CSTL_VECTOR_EMPTY(self) && "Vector_front");\
-	return self->buf[0];\
+	return &self->buf[0];\
 }\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_BACK(Name, Type)	\
-Type Name##_back(Name *self)\
+Type *Name##_back(Name *self)\
 {\
 	assert(self && "Vector_back");\
 	assert(self->magic == self && "Vector_back");\
 	assert(!CSTL_VECTOR_EMPTY(self) && "Vector_back");\
-	return self->buf[self->end - 1];\
+	return &self->buf[self->end - 1];\
 }\
 \
 
@@ -338,7 +337,7 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 	assert(self && "Vector_insert");\
 	assert(self->magic == self && "Vector_insert");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert");\
-	return Name##_insert_array(self, idx, (const Type *) &elem, 1);\
+	return Name##_insert_array(self, idx, &elem, 1);\
 }\
 \
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
@@ -356,7 +355,7 @@ int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
 	return 1;\
 }\
 \
-int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n)\
+int Name##_insert_array(Name *self, size_t idx, Type const *elems, size_t n)\
 {\
 	register size_t i;\
 	assert(self && "Vector_insert_array");\

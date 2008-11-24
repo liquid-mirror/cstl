@@ -150,12 +150,12 @@ void DequeTest_test_1_2(void)
 	assert(!UCharDeque_empty(ud));
 /*    UCharDeque_print(ud);*/
 	/* front */
-	assert(UCharDeque_front(ud) == hoge[0]);
+	assert(*UCharDeque_front(ud) == hoge[0]);
 	/* back */
-	assert(UCharDeque_back(ud) == hoge[MAX-1]);
+	assert(*UCharDeque_back(ud) == hoge[MAX-1]);
 	/* pop_front */
 	size = UCharDeque_size(ud);
-	assert(UCharDeque_pop_front(ud) == hoge[0]);
+	UCharDeque_pop_front(ud);
 	assert(UCharDeque_size(ud) == size - 1);
 	assert(UCharDeque_verify(ud));
 	/* push_back */
@@ -171,9 +171,11 @@ void DequeTest_test_1_2(void)
 	for (i = 0; i < MAX; i++) {
 		size = UCharDeque_size(ud);
 		if (i < MAX-1) {
-			assert(UCharDeque_pop_front(ud) == hoge[i+1]);
+			assert(*UCharDeque_front(ud) == hoge[i+1]);
+			UCharDeque_pop_front(ud);
 		} else {
-			assert(UCharDeque_pop_front(ud) == hoge[0]);
+			assert(*UCharDeque_front(ud) == hoge[0]);
+			UCharDeque_pop_front(ud);
 		}
 		assert(UCharDeque_size(ud) == size - 1);
 		assert(UCharDeque_verify(ud));
@@ -219,13 +221,15 @@ void DequeTest_test_1_3(void)
 	assert(UCharDeque_size(ud) == MAX);
 	assert(!UCharDeque_empty(ud));
 	/* front */
-	assert(UCharDeque_front(ud) == hoge[0]);
+	assert(*UCharDeque_front(ud) == hoge[0]);
 	/* back */
-	assert(UCharDeque_back(ud) == hoge[MAX-1]);
+	assert(*UCharDeque_back(ud) == hoge[MAX-1]);
 	/* pop_back */
 	size = UCharDeque_size(ud);
-	assert(UCharDeque_pop_back(ud) == hoge[MAX-1]);
-	assert(UCharDeque_pop_back(ud) == hoge[MAX-2]);
+	assert(*UCharDeque_back(ud) == hoge[MAX-1]);
+	UCharDeque_pop_back(ud);
+	assert(*UCharDeque_back(ud) == hoge[MAX-2]);
+	UCharDeque_pop_back(ud);
 	assert(UCharDeque_size(ud) == size - 2);
 	assert(UCharDeque_verify(ud));
 	/* push_front */
@@ -241,12 +245,15 @@ void DequeTest_test_1_3(void)
 	/* pop_back */
 	for (i = MAX-3; i >= 0; i--) {
 		size = UCharDeque_size(ud);
-		assert(UCharDeque_pop_back(ud) == hoge[i]);
+		assert(*UCharDeque_back(ud) == hoge[i]);
+		UCharDeque_pop_back(ud);
 		assert(UCharDeque_size(ud) == size - 1);
 		assert(UCharDeque_verify(ud));
 	}
-	assert(UCharDeque_pop_back(ud) == hoge[MAX-1]);
-	assert(UCharDeque_pop_back(ud) == hoge[MAX-2]);
+	assert(*UCharDeque_back(ud) == hoge[MAX-1]);
+	UCharDeque_pop_back(ud);
+	assert(*UCharDeque_back(ud) == hoge[MAX-2]);
+	UCharDeque_pop_back(ud);
 
 	assert(UCharDeque_size(ud) == 0);
 	assert(UCharDeque_empty(ud));
@@ -703,12 +710,12 @@ void DequeTest_test_2_2(void)
 	assert(IntDeque_size(id) == MAX);
 	assert(!IntDeque_empty(id));
 	/* front */
-	assert(IntDeque_front(id) == piyo[0]);
+	assert(*IntDeque_front(id) == piyo[0]);
 	/* back */
-	assert(IntDeque_back(id) == piyo[MAX-1]);
+	assert(*IntDeque_back(id) == piyo[MAX-1]);
 	/* pop_front */
 	size = IntDeque_size(id);
-	assert(IntDeque_pop_front(id) == piyo[0]);
+	IntDeque_pop_front(id);
 	assert(IntDeque_size(id) == size - 1);
 	/* push_back */
 	size = IntDeque_size(id);
@@ -722,9 +729,11 @@ void DequeTest_test_2_2(void)
 	for (i = 0; i < MAX; i++) {
 		size = IntDeque_size(id);
 		if (i < MAX-1) {
-			assert(IntDeque_pop_front(id) == piyo[i+1]);
+			assert(*IntDeque_front(id) == piyo[i+1]);
+			IntDeque_pop_front(id);
 		} else {
-			assert(IntDeque_pop_front(id) == piyo[0]);
+			assert(*IntDeque_front(id) == piyo[0]);
+			IntDeque_pop_front(id);
 		}
 		assert(IntDeque_size(id) == size - 1);
 	}
@@ -761,13 +770,15 @@ void DequeTest_test_2_3(void)
 	assert(IntDeque_size(id) == MAX);
 	assert(!IntDeque_empty(id));
 	/* front */
-	assert(IntDeque_front(id) == piyo[0]);
+	assert(*IntDeque_front(id) == piyo[0]);
 	/* back */
-	assert(IntDeque_back(id) == piyo[MAX-1]);
+	assert(*IntDeque_back(id) == piyo[MAX-1]);
 	/* pop_back */
 	size = IntDeque_size(id);
-	assert(IntDeque_pop_back(id) == piyo[MAX-1]);
-	assert(IntDeque_pop_back(id) == piyo[MAX-2]);
+	assert(*IntDeque_back(id) == piyo[MAX-1]);
+	IntDeque_pop_back(id);
+	assert(*IntDeque_back(id) == piyo[MAX-2]);
+	IntDeque_pop_back(id);
 	assert(IntDeque_size(id) == size - 2);
 	/* push_front */
 	size = IntDeque_size(id);
@@ -781,11 +792,14 @@ void DequeTest_test_2_3(void)
 	/* pop_back */
 	for (i = MAX-3; i >= 0; i--) {
 		size = IntDeque_size(id);
-		assert(IntDeque_pop_back(id) == piyo[i]);
+		assert(*IntDeque_back(id) == piyo[i]);
+		IntDeque_pop_back(id);
 		assert(IntDeque_size(id) == size - 1);
 	}
-	assert(IntDeque_pop_back(id) == piyo[MAX-1]);
-	assert(IntDeque_pop_back(id) == piyo[MAX-2]);
+	assert(*IntDeque_back(id) == piyo[MAX-1]);
+	IntDeque_pop_back(id);
+	assert(*IntDeque_back(id) == piyo[MAX-2]);
+	IntDeque_pop_back(id);
 
 	assert(IntDeque_size(id) == 0);
 	assert(IntDeque_empty(id));

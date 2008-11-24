@@ -742,7 +742,7 @@ Name##Iterator Name##_rbegin(Name *self);\
 Name##Iterator Name##_rend(Name *self);\
 Name##Iterator Name##_next(Name##Iterator pos);\
 Name##Iterator Name##_prev(Name##Iterator pos);\
-KeyType Name##_key(Name##Iterator pos);\
+KeyType const *Name##_key(Name##Iterator pos);\
 void Name##_swap(Name *self, Name *x);\
 
 
@@ -924,12 +924,12 @@ Name##Iterator Name##_prev(Name##Iterator pos)\
 	return Name##RBTree_prev(pos);\
 }\
 \
-KeyType Name##_key(Name##Iterator pos)\
+KeyType const *Name##_key(Name##Iterator pos)\
 {\
 	assert(pos && "RBTree_key");\
 	assert(pos->magic && "RBTree_key");\
 	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "RBTree_key");\
-	return pos->key;\
+	return &pos->key;\
 }\
 \
 void Name##_swap(Name *self, Name *x)\

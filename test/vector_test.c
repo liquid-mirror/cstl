@@ -120,8 +120,8 @@ void VectorTest_test_1_2(void)
 	for (i = 0; i < SIZE; i++) {
 		assert(UCharVector_push_back(uv, hoge[i]));
 		assert(UCharVector_size(uv) == i+1);
-		assert(UCharVector_front(uv) == hoge[0]);
-		assert(UCharVector_back(uv) == hoge[i]);
+		assert(*UCharVector_front(uv) == hoge[0]);
+		assert(*UCharVector_back(uv) == hoge[i]);
 	}
 	assert(memcmp(UCharVector_at(uv, 0), hoge, SIZE) == 0);
 	assert(UCharVector_capacity(uv) == SIZE);
@@ -130,8 +130,8 @@ void VectorTest_test_1_2(void)
 	for (i = i; i < 256; i++) {
 		assert(UCharVector_push_back(uv, hoge[i]));
 		assert(UCharVector_size(uv) == i+1);
-		assert(UCharVector_front(uv) == hoge[0]);
-		assert(UCharVector_back(uv) == hoge[i]);
+		assert(*UCharVector_front(uv) == hoge[0]);
+		assert(*UCharVector_back(uv) == hoge[i]);
 	}
 	assert(memcmp(UCharVector_at(uv, 0), hoge, 256) == 0);
 	a = UCharVector_capacity(uv);
@@ -139,13 +139,13 @@ void VectorTest_test_1_2(void)
 	assert(UCharVector_size(uv) == 256);
 	assert(!UCharVector_empty(uv));
 	/* front, back */
-	assert(UCharVector_front(uv) == hoge[0]);
-	assert(UCharVector_back(uv) == hoge[255]);
+	assert(*UCharVector_front(uv) == hoge[0]);
+	assert(*UCharVector_back(uv) == hoge[255]);
 	/* pop_back */
 	for (i = 255; i >= 0; i--) {
-		assert(UCharVector_front(uv) == hoge[0]);
-		assert(UCharVector_back(uv) == hoge[i]);
-		assert(UCharVector_pop_back(uv) == hoge[i]);
+		assert(*UCharVector_front(uv) == hoge[0]);
+		assert(*UCharVector_back(uv) == hoge[i]);
+		UCharVector_pop_back(uv);
 		assert(UCharVector_size(uv) == i);
 	}
 	assert(UCharVector_size(uv) == 0);
@@ -497,8 +497,8 @@ void VectorTest_test_2_2(void)
 	for (i = 0; i < SIZE; i++) {
 		assert(IntVector_push_back(iv, piyo[i]));
 		assert(IntVector_size(iv) == i+1);
-		assert(IntVector_front(iv) == piyo[0]);
-		assert(IntVector_back(iv) == piyo[i]);
+		assert(*IntVector_front(iv) == piyo[0]);
+		assert(*IntVector_back(iv) == piyo[i]);
 	}
 	assert(memcmp(IntVector_at(iv, 0), piyo, SIZE) == 0);
 	assert(IntVector_capacity(iv) == SIZE);
@@ -507,8 +507,8 @@ void VectorTest_test_2_2(void)
 	for (i = i; i < 256; i++) {
 		assert(IntVector_push_back(iv, piyo[i]));
 		assert(IntVector_size(iv) == i+1);
-		assert(IntVector_front(iv) == piyo[0]);
-		assert(IntVector_back(iv) == piyo[i]);
+		assert(*IntVector_front(iv) == piyo[0]);
+		assert(*IntVector_back(iv) == piyo[i]);
 	}
 	assert(memcmp(IntVector_at(iv, 0), piyo, 256) == 0);
 	a = IntVector_capacity(iv);
@@ -516,13 +516,13 @@ void VectorTest_test_2_2(void)
 	assert(IntVector_size(iv) == 256);
 	assert(!IntVector_empty(iv));
 	/* front, back */
-	assert(IntVector_front(iv) == piyo[0]);
-	assert(IntVector_back(iv) == piyo[255]);
+	assert(*IntVector_front(iv) == piyo[0]);
+	assert(*IntVector_back(iv) == piyo[255]);
 	/* pop_back */
 	for (i = 255; i >= 0; i--) {
-		assert(IntVector_front(iv) == piyo[0]);
-		assert(IntVector_back(iv) == piyo[i]);
-		assert(IntVector_pop_back(iv) == piyo[i]);
+		assert(*IntVector_front(iv) == piyo[0]);
+		assert(*IntVector_back(iv) == piyo[i]);
+		IntVector_pop_back(iv);
 		assert(IntVector_size(iv) == i);
 	}
 	assert(IntVector_size(iv) == 0);

@@ -1,6 +1,3 @@
-/* C++標準ライブラリ チュートリアル&リファレンス
- * Nicolai M. Josuttis著, 吉川邦夫訳, アスキー, 2001
- * p.450の例を移植 */
 #include <stdio.h>
 #include <cstl/string.h>
 

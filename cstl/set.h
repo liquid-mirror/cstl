@@ -135,8 +135,8 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	head.right = (Name##RBTreeNode *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (Name##RBTree_find(self->tree, Name##_key(pos)) == Name##RBTree_end(self->tree)) {\
-			tmp->right = Name##RBTreeNode_new(Name##_key(pos), CSTL_RBTREE_RED);\
+		if (Name##RBTree_find(self->tree, *Name##_key(pos)) == Name##RBTree_end(self->tree)) {\
+			tmp->right = Name##RBTreeNode_new(*Name##_key(pos), CSTL_RBTREE_RED);\
 			if (!tmp->right) {\
 				for (pos = head.right; pos != 0; pos = tmp) {\
 					tmp = pos->right;\
@@ -210,7 +210,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	head.right = (Name##RBTreeNode *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		tmp->right = Name##RBTreeNode_new(Name##_key(pos), CSTL_RBTREE_RED);\
+		tmp->right = Name##RBTreeNode_new(*Name##_key(pos), CSTL_RBTREE_RED);\
 		if (!tmp->right) {\
 			for (pos = head.right; pos != 0; pos = tmp) {\
 				tmp = pos->right;\

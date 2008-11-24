@@ -65,7 +65,7 @@ set/multisetを使うには、 以下のマクロを用いてコードを展開�
       printf("size: %d\n", IntSet_size(set));
       for (pos = IntSet_begin(set); pos != IntSet_end(set); pos = IntSet_next(pos)) {
           /* イテレータによる要素の読み出し */
-          printf("%d\n", IntSet_key(pos));
+          printf("%d\n", *IntSet_key(pos));
       }
       /* 3以上の要素を削除 */
       IntSet_erase_range(set, IntSet_find(set, 3), IntSet_end(set));
@@ -187,8 +187,8 @@ NameにSet, TypeにTを指定した場合、
 <<< hr
 
 ==== Set_key()
-  T Set_key(SetIterator pos);
-* posが示す位置の要素を返す。
+  T const *Set_key(SetIterator pos);
+* posが示す位置の要素へのポインタを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがSet_end()またはSet_rend()でないこと。

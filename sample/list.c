@@ -63,7 +63,8 @@ int main(void)
 		}
 	}
 	while (!HogeList_empty(x)) {
-		Hoge *h = HogeList_pop_front(x);
+		Hoge *h = *HogeList_front(x);
+		HogeList_pop_front(x);
 		Hoge_print(h);
 		Hoge_delete(h);
 	}

@@ -144,28 +144,28 @@ void StringTest_test_1_2(void)
 	assert(String_size(y) == 7);
 	assert(String_size(x) == 8);
 	/* pop_back */
-	assert(String_pop_back(x) == 'h');
+	String_pop_back(x);
 	assert(strcmp("abcdefg", String_c_str(x)) == 0);
 	assert(String_size(x) == 7);
-	assert(String_pop_back(x) == 'g');
+	String_pop_back(x);
 	assert(strcmp("abcdef", String_c_str(x)) == 0);
 	assert(String_size(x) == 6);
-	assert(String_pop_back(x) == 'f');
+	String_pop_back(x);
 	assert(strcmp("abcde", String_c_str(x)) == 0);
 	assert(String_size(x) == 5);
-	assert(String_pop_back(x) == 'e');
+	String_pop_back(x);
 	assert(strcmp("abcd", String_c_str(x)) == 0);
 	assert(String_size(x) == 4);
-	assert(String_pop_back(x) == 'd');
+	String_pop_back(x);
 	assert(strcmp("abc", String_c_str(x)) == 0);
 	assert(String_size(x) == 3);
-	assert(String_pop_back(x) == 'c');
+	String_pop_back(x);
 	assert(strcmp("ab", String_c_str(x)) == 0);
 	assert(String_size(x) == 2);
-	assert(String_pop_back(x) == 'b');
+	String_pop_back(x);
 	assert(strcmp("a", String_c_str(x)) == 0);
 	assert(String_size(x) == 1);
-	assert(String_pop_back(x) == 'a');
+	String_pop_back(x);
 	assert(strcmp("", String_c_str(x)) == 0);
 	assert(String_size(x) == 0);
 

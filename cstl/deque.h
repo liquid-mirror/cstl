@@ -78,17 +78,17 @@ Name *Name##_new(void);\
 void Name##_delete(Name *self);\
 int Name##_push_back(Name *self, Type elem);\
 int Name##_push_front(Name *self, Type elem);\
-Type Name##_pop_front(Name *self);\
-Type Name##_pop_back(Name *self);\
+void Name##_pop_front(Name *self);\
+void Name##_pop_back(Name *self);\
 size_t Name##_size(Name *self);\
 int Name##_empty(Name *self);\
 void Name##_clear(Name *self);\
 Type *Name##_at(Name *self, size_t idx);\
-Type Name##_front(Name *self);\
-Type Name##_back(Name *self);\
+Type *Name##_front(Name *self);\
+Type *Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type elem);\
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem);\
-int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n);\
+int Name##_insert_array(Name *self, size_t idx, Type const *elems, size_t n);\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type elem);\
@@ -112,6 +112,7 @@ CSTL_VECTOR_IMPLEMENT_BASE(Name##__RingVector, Name##__Ring*)\
 CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name##__RingVector, Name##__Ring*)\
 CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name##__RingVector, Name##__Ring*)\
 CSTL_VECTOR_IMPLEMENT_POP_BACK(Name##__RingVector, Name##__Ring*)\
+CSTL_VECTOR_IMPLEMENT_BACK(Name##__RingVector, Name##__Ring*)\
 CSTL_VECTOR_IMPLEMENT_RESERVE(Name##__RingVector, Name##__Ring*)\
 CSTL_VECTOR_IMPLEMENT_RESIZE(Name##__RingVector, Name##__Ring*)\
 CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##__RingVector, Name##__Ring*)\
@@ -147,7 +148,9 @@ static Name##__Ring *Name##_pop_ring(Name *self)\
 	if (CSTL_VECTOR_EMPTY(self->pool)) {\
 		return Name##__Ring_new(CSTL_DEQUE_RINGBUF_SIZE(Type));\
 	} else {\
-		return Name##__RingVector_pop_back(self->pool);\
+		Name##__Ring *ret = *Name##__RingVector_back(self->pool);\
+		Name##__RingVector_pop_back(self->pool);\
+		return ret;\
 	}\
 }\
 \
@@ -267,16 +270,6 @@ static int Name##__Ring_push_front_no_elem(Name##__Ring *self)\
 	return 1;\
 }\
 \
-static void Name##__Ring_pop_back_no_elem(Name##__Ring *self)\
-{\
-	self->end = CSTL_RING_PREV(self, self->end);\
-}\
-\
-static void Name##__Ring_pop_front_no_elem(Name##__Ring *self)\
-{\
-	self->begin = CSTL_RING_NEXT(self, self->begin);\
-}\
-\
 static void Name##_push_front_n_no_elem(Name *self, size_t n)\
 {\
 	register size_t i;\
@@ -361,7 +354,8 @@ void Name##_delete(Name *self)\
 		}\
 	}\
 	while (!CSTL_VECTOR_EMPTY(self->pool)) {\
-		Name##__Ring_delete(Name##__RingVector_pop_back(self->pool));\
+		Name##__Ring_delete(*Name##__RingVector_back(self->pool));\
+		Name##__RingVector_pop_back(self->pool);\
 	}\
 	Name##__RingVector_delete(self->map);\
 	Name##__RingVector_delete(self->pool);\
@@ -407,14 +401,12 @@ int Name##_push_front(Name *self, Type elem)\
 	return 1;\
 }\
 \
-Type Name##_pop_front(Name *self)\
+void Name##_pop_front(Name *self)\
 {\
-	Type elem;\
 	assert(self && "Deque_pop_front");\
 	assert(self->magic == self && "Deque_pop_front");\
 	assert(!Name##_empty(self) && "Deque_pop_front");\
-	elem = CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin));\
-	Name##__Ring_pop_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin));\
+	Name##__Ring_pop_front(CSTL_VECTOR_AT(self->map, self->begin));\
 	self->nelems--;\
 	if (CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->begin)) && self->nelems > 0) {\
 		Name##_push_ring(self, CSTL_VECTOR_AT(self->map, self->begin));\
@@ -422,17 +414,14 @@ Type Name##_pop_front(Name *self)\
 		self->begin++;\
 		assert(self->begin < self->end && "Deque_pop_front");\
 	}\
-	return elem;\
 }\
 \
-Type Name##_pop_back(Name *self)\
+void Name##_pop_back(Name *self)\
 {\
-	Type elem;\
 	assert(self && "Deque_pop_back");\
 	assert(self->magic == self && "Deque_pop_back");\
 	assert(!Name##_empty(self) && "Deque_pop_back");\
-	elem = CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end - 1));\
-	Name##__Ring_pop_back_no_elem(CSTL_VECTOR_AT(self->map, self->end - 1));\
+	Name##__Ring_pop_back(CSTL_VECTOR_AT(self->map, self->end - 1));\
 	self->nelems--;\
 	if (CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->end - 1)) && self->nelems > 0) {\
 		Name##_push_ring(self, CSTL_VECTOR_AT(self->map, self->end - 1));\
@@ -440,7 +429,6 @@ Type Name##_pop_back(Name *self)\
 		self->end--;\
 		assert(self->begin < self->end && "Deque_pop_back");\
 	}\
-	return elem;\
 }\
 \
 size_t Name##_size(Name *self)\
@@ -481,20 +469,20 @@ Type *Name##_at(Name *self, size_t idx)\
 	return &CSTL_RING_AT(CSTL_VECTOR_AT(self->map, m), n);\
 }\
 \
-Type Name##_front(Name *self)\
+Type *Name##_front(Name *self)\
 {\
 	assert(self && "Deque_front");\
 	assert(self->magic == self && "Deque_front");\
 	assert(!Name##_empty(self) && "Deque_front");\
-	return CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin));\
+	return &CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin));\
 }\
 \
-Type Name##_back(Name *self)\
+Type *Name##_back(Name *self)\
 {\
 	assert(self && "Deque_back");\
 	assert(self->magic == self && "Deque_back");\
 	assert(!Name##_empty(self) && "Deque_back");\
-	return CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end - 1));\
+	return &CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end - 1));\
 }\
 \
 int Name##_insert(Name *self, size_t idx, Type elem)\
@@ -502,7 +490,7 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 	assert(self && "Deque_insert");\
 	assert(self->magic == self && "Deque_insert");\
 	assert(Name##_size(self) >= idx && "Deque_insert");\
-	return Name##_insert_array(self, idx, (const Type *) &elem, 1);\
+	return Name##_insert_array(self, idx, &elem, 1);\
 }\
 \
 static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
@@ -541,7 +529,7 @@ int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
 	return 1;\
 }\
 \
-int Name##_insert_array(Name *self, size_t idx, const Type *elems, size_t n)\
+int Name##_insert_array(Name *self, size_t idx, Type const *elems, size_t n)\
 {\
 	register size_t i;\
 	assert(self && "Deque_insert_array");\
