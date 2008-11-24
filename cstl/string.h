@@ -162,28 +162,28 @@ static size_t Name##_mystrlen(const Type *cstr)\
 	return i;\
 }\
 \
-CSTL_VECTOR_INTERFACE(Name##__CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_BASE(Name##__CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name##__CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_RESERVE(Name##__CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_SHRINK(Name##__CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_RESIZE(Name##__CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##__CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##__CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_INSERT(Name##__CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_ERASE(Name##__CharVector, Type)\
+CSTL_VECTOR_INTERFACE(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_BASE(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_RESERVE(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_SHRINK(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_RESIZE(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_ERASE(Name##_CharVector, Type)\
 \
 /*! 
  * \brief string構造体
  */\
 struct Name {\
-	Name##__CharVector *data;\
+	Name##_CharVector *data;\
 	CSTL_STRING_MAGIC(Name *magic;)\
 };\
 \
 static int Name##_expand(Name *self, size_t n)\
 {\
-	return Name##__CharVector_expand(self->data, n + 1);\
+	return Name##_CharVector_expand(self->data, n + 1);\
 }\
 \
 Name *Name##_new(size_t n)\
@@ -191,12 +191,12 @@ Name *Name##_new(size_t n)\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->data = Name##__CharVector_new(n + 1);\
+	self->data = Name##_CharVector_new(n + 1);\
 	if (!self->data) {\
 		free(self);\
 		return 0;\
 	}\
-	Name##__CharVector_push_back(self->data, '\0');\
+	Name##_CharVector_push_back(self->data, '\0');\
 	CSTL_STRING_MAGIC(self->magic = self);\
 	return self;\
 }\
@@ -206,7 +206,7 @@ void Name##_delete(Name *self)\
 	if (!self) return;\
 	assert(self->magic == self && "String_delete");\
 	CSTL_STRING_MAGIC(self->magic = 0);\
-	Name##__CharVector_delete(self->data);\
+	Name##_CharVector_delete(self->data);\
 	free(self);\
 }\
 \
@@ -215,7 +215,7 @@ void Name##_clear(Name *self)\
 	assert(self && "String_clear");\
 	assert(self->magic == self && "String_clear");\
 	CSTL_VECTOR_CLEAR(self->data);\
-	Name##__CharVector_push_back(self->data, '\0');\
+	Name##_CharVector_push_back(self->data, '\0');\
 }\
 \
 size_t Name##_size(Name *self)\
@@ -243,14 +243,14 @@ int Name##_reserve(Name *self, size_t n)\
 {\
 	assert(self && "String_reserve");\
 	assert(self->magic == self && "String_reserve");\
-	return Name##__CharVector_reserve(self->data, n + 1);\
+	return Name##_CharVector_reserve(self->data, n + 1);\
 }\
 \
 void Name##_shrink(Name *self, size_t n)\
 {\
 	assert(self && "String_shrink");\
 	assert(self->magic == self && "String_shrink");\
-	Name##__CharVector_shrink(self->data, n + 1);\
+	Name##_CharVector_shrink(self->data, n + 1);\
 }\
 \
 int Name##_empty(Name *self)\
@@ -314,7 +314,7 @@ Name *Name##_erase(Name *self, size_t idx, size_t len)\
 	if (len > size - idx) {\
 		len = size - idx;\
 	}\
-	Name##__CharVector_erase(self->data, idx, len);\
+	Name##_CharVector_erase(self->data, idx, len);\
 	return self;\
 }\
 \
@@ -325,7 +325,7 @@ void Name##_pop_back(Name *self)\
 	assert(self->magic == self && "String_pop_back");\
 	assert(!Name##_empty(self) && "String_pop_back");\
 	size = Name##_size(self);\
-	Name##__CharVector_erase(self->data, size - 1, 1);\
+	Name##_CharVector_erase(self->data, size - 1, 1);\
 }\
 \
 int Name##_resize(Name *self, size_t n, Type c)\
@@ -334,7 +334,7 @@ int Name##_resize(Name *self, size_t n, Type c)\
 	assert(self && "String_resize");\
 	assert(self->magic == self && "String_resize");\
 	num = CSTL_VECTOR_SIZE(self->data) - 1;\
-	if (!Name##__CharVector_resize(self->data, n + 1, c)) {\
+	if (!Name##_CharVector_resize(self->data, n + 1, c)) {\
 		return 0;\
 	}\
 	if (num < CSTL_VECTOR_SIZE(self->data)) {\
@@ -347,7 +347,7 @@ int Name##_resize(Name *self, size_t n, Type c)\
 \
 void Name##_swap(Name *self, Name *x)\
 {\
-	Name##__CharVector *tmp_data;\
+	Name##_CharVector *tmp_data;\
 	assert(self && "String_swap");\
 	assert(x && "String_swap");\
 	assert(self->magic == self && "String_swap");\
@@ -373,12 +373,12 @@ Name *Name##_assign_len(Name *self, const Type *chars, size_t chars_len)\
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\
-	if (!Name##__CharVector_expand(self->data, chars_len + 1)) {\
+	if (!Name##_CharVector_expand(self->data, chars_len + 1)) {\
 		return 0;\
 	}\
 	CSTL_VECTOR_CLEAR(self->data);\
-	Name##__CharVector_insert_array(self->data, 0, chars, chars_len);\
-	Name##__CharVector_push_back(self->data, '\0');\
+	Name##_CharVector_insert_array(self->data, 0, chars, chars_len);\
+	Name##_CharVector_push_back(self->data, '\0');\
 	return self;\
 }\
 \
@@ -431,7 +431,7 @@ Name *Name##_push_back(Name *self, Type c)\
 \
 static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
 {\
-	return Name##__CharVector_insert_n_no_elem(self->data, idx, n);\
+	return Name##_CharVector_insert_n_no_elem(self->data, idx, n);\
 }\
 \
 Name *Name##_insert(Name *self, size_t idx, const Type *cstr)\

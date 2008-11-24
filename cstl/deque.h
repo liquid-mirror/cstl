@@ -105,18 +105,18 @@ CSTL_DEQUE_END_EXTERN_C()\
  */
 #define CSTL_DEQUE_IMPLEMENT(Name, Type)	\
 \
-CSTL_RING_INTERFACE(Name##__Ring, Type)\
-CSTL_RING_IMPLEMENT_FOR_DEQUE(Name##__Ring, Type)\
-CSTL_VECTOR_INTERFACE(Name##__RingVector, Name##__Ring*)\
-CSTL_VECTOR_IMPLEMENT_BASE(Name##__RingVector, Name##__Ring*)\
-CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name##__RingVector, Name##__Ring*)\
-CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name##__RingVector, Name##__Ring*)\
-CSTL_VECTOR_IMPLEMENT_POP_BACK(Name##__RingVector, Name##__Ring*)\
-CSTL_VECTOR_IMPLEMENT_BACK(Name##__RingVector, Name##__Ring*)\
-CSTL_VECTOR_IMPLEMENT_RESERVE(Name##__RingVector, Name##__Ring*)\
-CSTL_VECTOR_IMPLEMENT_RESIZE(Name##__RingVector, Name##__Ring*)\
-CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##__RingVector, Name##__Ring*)\
-CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##__RingVector, Name##__Ring*)\
+CSTL_RING_INTERFACE(Name##_Ring, Type)\
+CSTL_RING_IMPLEMENT_FOR_DEQUE(Name##_Ring, Type)\
+CSTL_VECTOR_INTERFACE(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_BASE(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_POP_BACK(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_BACK(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_RESERVE(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_RESIZE(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##_RingVector, Name##_Ring*)\
 \
 /*! 
  * \brief deque構造体
@@ -125,8 +125,8 @@ struct Name {\
 	size_t begin;\
 	size_t end;\
 	size_t nelems;\
-	Name##__RingVector *map;\
-	Name##__RingVector *pool;\
+	Name##_RingVector *map;\
+	Name##_RingVector *pool;\
 	CSTL_DEQUE_MAGIC(Name *magic;)\
 };\
 \
@@ -143,25 +143,25 @@ static void Name##_coordinate(Name *self, size_t idx, size_t *map_idx, size_t *r
 	}\
 }\
 \
-static Name##__Ring *Name##_pop_ring(Name *self)\
+static Name##_Ring *Name##_pop_ring(Name *self)\
 {\
 	if (CSTL_VECTOR_EMPTY(self->pool)) {\
-		return Name##__Ring_new(CSTL_DEQUE_RINGBUF_SIZE(Type));\
+		return Name##_Ring_new(CSTL_DEQUE_RINGBUF_SIZE(Type));\
 	} else {\
-		Name##__Ring *ret = *Name##__RingVector_back(self->pool);\
-		Name##__RingVector_pop_back(self->pool);\
+		Name##_Ring *ret = *Name##_RingVector_back(self->pool);\
+		Name##_RingVector_pop_back(self->pool);\
 		return ret;\
 	}\
 }\
 \
-static void Name##_push_ring(Name *self, Name##__Ring *ring)\
+static void Name##_push_ring(Name *self, Name##_Ring *ring)\
 {\
 	if (CSTL_VECTOR_FULL(self->pool)) {\
 		/* poolの拡張はしない */\
-		Name##__Ring_delete(ring);\
+		Name##_Ring_delete(ring);\
 	} else {\
 		CSTL_RING_CLEAR(ring);\
-		Name##__RingVector_push_back(self->pool, ring);\
+		Name##_RingVector_push_back(self->pool, ring);\
 	}\
 }\
 \
@@ -183,7 +183,7 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 		if (CSTL_VECTOR_SIZE(self->map) - e + self->begin < expand) {\
 			size_t j = (CSTL_VECTOR_SIZE(self->map) > expand) ? CSTL_VECTOR_SIZE(self->map) : expand;\
 			/* mapを拡張する */\
-			if (!Name##__RingVector_insert_n_no_elem(self->map, 0, j)) {\
+			if (!Name##_RingVector_insert_n_no_elem(self->map, 0, j)) {\
 				return 0;\
 			}\
 			for (i = 0; i < j; i++) {\
@@ -195,7 +195,7 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 			/* mapをずらす */\
 			size_t slide = ((expand - self->begin) + (CSTL_VECTOR_SIZE(self->map) - e)) / 2;\
 			assert(e + slide <= CSTL_VECTOR_SIZE(self->map) && "Deque_expand_begin_side");\
-			Name##__RingVector_move_forward(self->map, b, e, slide);\
+			Name##_RingVector_move_forward(self->map, b, e, slide);\
 			for (i = b; i < b + slide; i++) {\
 				CSTL_VECTOR_AT(self->map, i) = 0;\
 			}\
@@ -231,14 +231,14 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 		if (CSTL_VECTOR_SIZE(self->map) - self->end + b < expand) {\
 			size_t j = (CSTL_VECTOR_SIZE(self->map) > expand) ? CSTL_VECTOR_SIZE(self->map) : expand;\
 			/* mapを拡張する */\
-			if (!Name##__RingVector_resize(self->map, self->end + j, 0)) {\
+			if (!Name##_RingVector_resize(self->map, self->end + j, 0)) {\
 				return 0;\
 			}\
 		} else {\
 			/* mapをずらす */\
 			size_t slide = ((expand - (CSTL_VECTOR_SIZE(self->map) - self->end)) + b) / 2;\
 			assert(b >= slide && "Deque_expand_end_side");\
-			Name##__RingVector_move_backward(self->map, b, e, slide);\
+			Name##_RingVector_move_backward(self->map, b, e, slide);\
 			for (i = e - slide; i < e; i++) {\
 				CSTL_VECTOR_AT(self->map, i) = 0;\
 			}\
@@ -256,14 +256,14 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 	return 1;\
 }\
 \
-static int Name##__Ring_push_back_no_elem(Name##__Ring *self)\
+static int Name##_Ring_push_back_no_elem(Name##_Ring *self)\
 {\
 	if (CSTL_RING_FULL(self)) return 0;\
 	self->end = CSTL_RING_NEXT(self, self->end);\
 	return 1;\
 }\
 \
-static int Name##__Ring_push_front_no_elem(Name##__Ring *self)\
+static int Name##_Ring_push_front_no_elem(Name##_Ring *self)\
 {\
 	if (CSTL_RING_FULL(self)) return 0;\
 	self->begin = CSTL_RING_PREV(self, self->begin);\
@@ -274,10 +274,10 @@ static void Name##_push_front_n_no_elem(Name *self, size_t n)\
 {\
 	register size_t i;\
 	for (i = 0; i < n; i++) {\
-		if (!Name##__Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin))) {\
+		if (!Name##_Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin))) {\
 			self->begin--;\
 			assert(CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->begin)) && "Deque_push_front_n_no_elem");\
-			Name##__Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin));\
+			Name##_Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin));\
 		}\
 	}\
 	self->nelems += n;\
@@ -287,10 +287,10 @@ static void Name##_push_back_n_no_elem(Name *self, size_t n)\
 {\
 	register size_t i;\
 	for (i = 0; i < n; i++) {\
-		if (!Name##__Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end - 1))) {\
+		if (!Name##_Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end - 1))) {\
 			self->end++;\
 			assert(CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->end - 1)) && "Deque_push_back_n_no_elem");\
-			Name##__Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end - 1));\
+			Name##_Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end - 1));\
 		}\
 	}\
 	self->nelems += n;\
@@ -317,25 +317,25 @@ Name *Name##_new(void)\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->map = Name##__RingVector_new(CSTL_DEQUE_INITIAL_MAP_SIZE);\
+	self->map = Name##_RingVector_new(CSTL_DEQUE_INITIAL_MAP_SIZE);\
 	if (!self->map) {\
 		free(self);\
 		return 0;\
 	}\
-	Name##__RingVector_resize(self->map, CSTL_DEQUE_INITIAL_MAP_SIZE, 0);\
-	self->pool = Name##__RingVector_new(CSTL_DEQUE_INITIAL_MAP_SIZE);\
+	Name##_RingVector_resize(self->map, CSTL_DEQUE_INITIAL_MAP_SIZE, 0);\
+	self->pool = Name##_RingVector_new(CSTL_DEQUE_INITIAL_MAP_SIZE);\
 	if (!self->pool) {\
-		Name##__RingVector_delete(self->map);\
+		Name##_RingVector_delete(self->map);\
 		free(self);\
 		return 0;\
 	}\
 	self->begin = CSTL_VECTOR_SIZE(self->map) / 2;\
 	self->end = self->begin + 1;\
 	self->nelems = 0;\
-	CSTL_VECTOR_AT(self->map, self->begin) = Name##__Ring_new(CSTL_DEQUE_RINGBUF_SIZE(Type));\
+	CSTL_VECTOR_AT(self->map, self->begin) = Name##_Ring_new(CSTL_DEQUE_RINGBUF_SIZE(Type));\
 	if (!CSTL_VECTOR_AT(self->map, self->begin)) {\
-		Name##__RingVector_delete(self->map);\
-		Name##__RingVector_delete(self->pool);\
+		Name##_RingVector_delete(self->map);\
+		Name##_RingVector_delete(self->pool);\
 		free(self);\
 		return 0;\
 	}\
@@ -350,15 +350,15 @@ void Name##_delete(Name *self)\
 	assert(self->magic == self && "Deque_delete");\
 	for (i = 0; i < CSTL_VECTOR_SIZE(self->map); i++) {\
 		if (CSTL_VECTOR_AT(self->map, i)) {\
-			Name##__Ring_delete(CSTL_VECTOR_AT(self->map, i));\
+			Name##_Ring_delete(CSTL_VECTOR_AT(self->map, i));\
 		}\
 	}\
 	while (!CSTL_VECTOR_EMPTY(self->pool)) {\
-		Name##__Ring_delete(*Name##__RingVector_back(self->pool));\
-		Name##__RingVector_pop_back(self->pool);\
+		Name##_Ring_delete(*Name##_RingVector_back(self->pool));\
+		Name##_RingVector_pop_back(self->pool);\
 	}\
-	Name##__RingVector_delete(self->map);\
-	Name##__RingVector_delete(self->pool);\
+	Name##_RingVector_delete(self->map);\
+	Name##_RingVector_delete(self->pool);\
 	CSTL_DEQUE_MAGIC(self->magic = 0);\
 	free(self);\
 }\
@@ -371,11 +371,11 @@ int Name##_push_back(Name *self, Type elem)\
 		if (!Name##_expand_end_side(self, 1)) {\
 			return 0;\
 		}\
-		Name##__Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end));\
+		Name##_Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end));\
 		CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end)) = elem;\
 		self->end++;\
 	} else {\
-		Name##__Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end - 1));\
+		Name##_Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end - 1));\
 		CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end - 1)) = elem;\
 	}\
 	self->nelems++;\
@@ -390,11 +390,11 @@ int Name##_push_front(Name *self, Type elem)\
 		if (!Name##_expand_begin_side(self, 1)) {\
 			return 0;\
 		}\
-		Name##__Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin - 1));\
+		Name##_Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin - 1));\
 		CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin - 1)) = elem;\
 		self->begin--;\
 	} else {\
-		Name##__Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin));\
+		Name##_Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin));\
 		CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin)) = elem;\
 	}\
 	self->nelems++;\
@@ -406,7 +406,7 @@ void Name##_pop_front(Name *self)\
 	assert(self && "Deque_pop_front");\
 	assert(self->magic == self && "Deque_pop_front");\
 	assert(!Name##_empty(self) && "Deque_pop_front");\
-	Name##__Ring_pop_front(CSTL_VECTOR_AT(self->map, self->begin));\
+	Name##_Ring_pop_front(CSTL_VECTOR_AT(self->map, self->begin));\
 	self->nelems--;\
 	if (CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->begin)) && self->nelems > 0) {\
 		Name##_push_ring(self, CSTL_VECTOR_AT(self->map, self->begin));\
@@ -421,7 +421,7 @@ void Name##_pop_back(Name *self)\
 	assert(self && "Deque_pop_back");\
 	assert(self->magic == self && "Deque_pop_back");\
 	assert(!Name##_empty(self) && "Deque_pop_back");\
-	Name##__Ring_pop_back(CSTL_VECTOR_AT(self->map, self->end - 1));\
+	Name##_Ring_pop_back(CSTL_VECTOR_AT(self->map, self->end - 1));\
 	self->nelems--;\
 	if (CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->end - 1)) && self->nelems > 0) {\
 		Name##_push_ring(self, CSTL_VECTOR_AT(self->map, self->end - 1));\
@@ -602,7 +602,7 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 		Name##_coordinate(self, size - n, &i, &j);\
 		assert(i >= self->begin && "Deque_erase");\
 		if (i == self->begin || j != 0) {\
-			Name##__Ring_erase(CSTL_VECTOR_AT(self->map, i), j, \
+			Name##_Ring_erase(CSTL_VECTOR_AT(self->map, i), j, \
 					CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, i)) - j);\
 			self->end = i + 1;\
 		} else {\
@@ -618,7 +618,7 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 		Name##_move_forward(self, 0, idx, n);\
 		Name##_coordinate(self, n, &i, &j);\
 		self->begin = i;\
-		Name##__Ring_erase(CSTL_VECTOR_AT(self->map, i), 0, j);\
+		Name##_Ring_erase(CSTL_VECTOR_AT(self->map, i), 0, j);\
 		assert(self->begin < self->end && "Deque_erase2");\
 		for (k = self->begin; k > 0 && CSTL_VECTOR_AT(self->map, k - 1); k--) {\
 			Name##_push_ring(self, CSTL_VECTOR_AT(self->map, k - 1));\
@@ -653,8 +653,8 @@ void Name##_swap(Name *self, Name *x)\
 	size_t tmp_begin;\
 	size_t tmp_end;\
 	size_t tmp_nelems;\
-	Name##__RingVector *tmp_map;\
-	Name##__RingVector *tmp_pool;\
+	Name##_RingVector *tmp_map;\
+	Name##_RingVector *tmp_pool;\
 	assert(self && "Deque_swap");\
 	assert(x && "Deque_swap");\
 	assert(self->magic == self && "Deque_swap");\
