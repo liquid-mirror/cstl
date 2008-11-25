@@ -260,6 +260,7 @@ static int Name##_Ring_push_back_no_elem(Name##_Ring *self)\
 {\
 	if (CSTL_RING_FULL(self)) return 0;\
 	self->end = CSTL_RING_NEXT(self, self->end);\
+	self->size++;\
 	return 1;\
 }\
 \
@@ -267,6 +268,7 @@ static int Name##_Ring_push_front_no_elem(Name##_Ring *self)\
 {\
 	if (CSTL_RING_FULL(self)) return 0;\
 	self->begin = CSTL_RING_PREV(self, self->begin);\
+	self->size++;\
 	return 1;\
 }\
 \

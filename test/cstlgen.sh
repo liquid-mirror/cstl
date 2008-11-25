@@ -421,13 +421,13 @@ echo -e "\
 #define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD((self), (idx), 1)
 #define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->nelems - (first) + (last))
 #define CSTL_RING_AT(self, idx)					(self)->buf[CSTL_RING_FORWARD((self), (self)->begin, (idx))]
-#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end)
-#define CSTL_RING_MAX_SIZE(self)				((self)->nelems - 1)
-#define CSTL_RING_FULL(self)					(CSTL_RING_NEXT((self), (self)->end) == (self)->begin)
-#define CSTL_RING_SIZE(self)					CSTL_RING_DISTANCE((self), (self)->begin, (self)->end)
+#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end && (self)->size != CSTL_RING_MAX_SIZE((self)))
+#define CSTL_RING_MAX_SIZE(self)				(self)->nelems
+#define CSTL_RING_FULL(self)					((self)->size == CSTL_RING_MAX_SIZE((self)))
+#define CSTL_RING_SIZE(self)					(self)->size
 #define CSTL_RING_FRONT(self)					(self)->buf[(self)->begin]
 #define CSTL_RING_BACK(self)					(self)->buf[CSTL_RING_PREV((self), (self)->end)]
-#define CSTL_RING_CLEAR(self)					(self)->end = (self)->begin
+#define CSTL_RING_CLEAR(self)					do { (self)->size = 0; (self)->end = (self)->begin; } while (0)
 " >> "$path"".c"
 elif [ $lower = "deque" ]; then
 echo -e "\
@@ -443,13 +443,13 @@ echo -e "\
 #define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD((self), (idx), 1)
 #define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->nelems - (first) + (last))
 #define CSTL_RING_AT(self, idx)					(self)->buf[CSTL_RING_FORWARD((self), (self)->begin, (idx))]
-#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end)
-#define CSTL_RING_MAX_SIZE(self)				((self)->nelems - 1)
-#define CSTL_RING_FULL(self)					(CSTL_RING_NEXT((self), (self)->end) == (self)->begin)
-#define CSTL_RING_SIZE(self)					CSTL_RING_DISTANCE((self), (self)->begin, (self)->end)
+#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end && (self)->size != CSTL_RING_MAX_SIZE((self)))
+#define CSTL_RING_MAX_SIZE(self)				(self)->nelems
+#define CSTL_RING_FULL(self)					((self)->size == CSTL_RING_MAX_SIZE((self)))
+#define CSTL_RING_SIZE(self)					(self)->size
 #define CSTL_RING_FRONT(self)					(self)->buf[(self)->begin]
 #define CSTL_RING_BACK(self)					(self)->buf[CSTL_RING_PREV((self), (self)->end)]
-#define CSTL_RING_CLEAR(self)					(self)->end = (self)->begin
+#define CSTL_RING_CLEAR(self)					do { (self)->size = 0; (self)->end = (self)->begin; } while (0)
 #define CSTL_DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 512 ? 512 / sizeof(Type) : 1)
 #define CSTL_DEQUE_INITIAL_MAP_SIZE		(8)
 #define CSTL_DEQUE_SIZE(self)			(self)->nelems

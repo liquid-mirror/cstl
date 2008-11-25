@@ -80,7 +80,7 @@ void RingTest_test_1_1(void)
 	assert(UCharRing_size(ur) == 0);
 	assert(UCharRing_empty(ur));
 	assert(!UCharRing_full(ur));
-	for (j = 0; j < MAX+1; j++) {
+	for (j = 0; j < MAX; j++) {
 		ur->begin = ur->end = j;
 		assert(UCharRing_size(ur) == 0);
 		/* insert_array */
@@ -123,7 +123,7 @@ void RingTest_test_1_2(void)
 	size_t size;
 	printf("***** test_1_2 *****\n");
 	ur = UCharRing_new(MAX);
-	for (j = 0; j < MAX+1; j++) {
+	for (j = 0; j < MAX; j++) {
 		ur->begin = ur->end = j;
 		assert(UCharRing_size(ur) == 0);
 		/* push_back */
@@ -186,7 +186,7 @@ void RingTest_test_1_3(void)
 	size_t size;
 	printf("***** test_1_3 *****\n");
 	ur = UCharRing_new(MAX);
-	for (j = 0; j < MAX+1; j++) {
+	for (j = 0; j < MAX; j++) {
 		ur->begin = ur->end = j;
 		assert(UCharRing_size(ur) == 0);
 		/* push_front */
@@ -252,7 +252,7 @@ void RingTest_test_1_4(void)
 	int i, j;
 	printf("***** test_1_4 *****\n");
 	ur = UCharRing_new(MAX);
-	for (j = 0; j < MAX+1; j++) {
+	for (j = 0; j < MAX; j++) {
 		ur->begin = ur->end = j;
 		assert(UCharRing_size(ur) == 0);
 		/* insert */
@@ -339,7 +339,7 @@ void RingTest_test_1_5(void)
 	int i;
 	printf("***** test_1_5 *****\n");
 	ur = UCharRing_new(MAX);
-	for (i = 0; i < MAX+1; i++) {
+	for (i = 0; i < MAX; i++) {
 		ur->begin = ur->end = i;
 		assert(UCharRing_size(ur) == 0);
 		/* insert_array */
@@ -525,6 +525,25 @@ void RingTest_test_1_6(void)
 	POOL_DUMP_OVERFLOW(&pool);
 	UCharRing_delete(ur);
 	UCharRing_delete(x);
+
+
+	ur = UCharRing_new(1);
+	assert(UCharRing_size(ur) == 0);
+	assert(UCharRing_max_size(ur) == 1);
+	assert(UCharRing_empty(ur));
+	assert(ur->begin == 0);
+	assert(ur->end == 0);
+
+	assert(UCharRing_push_back(ur, 1));
+	assert(UCharRing_size(ur) == 1);
+	assert(UCharRing_full(ur));
+	assert(ur->begin == 0);
+	assert(ur->end == 0);
+
+	assert(!UCharRing_push_back(ur, 1));
+
+	POOL_DUMP_OVERFLOW(&pool);
+	UCharRing_delete(ur);
 }
 
 
@@ -539,7 +558,7 @@ void RingTest_test_2_1(void)
 	assert(IntRing_size(ir) == 0);
 	assert(IntRing_empty(ir));
 	assert(!IntRing_full(ir));
-	for (j = 0; j < MAX+1; j++) {
+	for (j = 0; j < MAX; j++) {
 		ir->begin = ir->end = j;
 		assert(IntRing_size(ir) == 0);
 		/* insert_array */
@@ -582,7 +601,7 @@ void RingTest_test_2_2(void)
 	size_t size;
 	printf("***** test_2_2 *****\n");
 	ir = IntRing_new(MAX);
-	for (j = 0; j < MAX+1; j++) {
+	for (j = 0; j < MAX; j++) {
 		ir->begin = ir->end = j;
 		assert(IntRing_size(ir) == 0);
 		/* push_back */
@@ -645,7 +664,7 @@ void RingTest_test_2_3(void)
 	size_t size;
 	printf("***** test_2_3 *****\n");
 	ir = IntRing_new(MAX);
-	for (j = 0; j < MAX+1; j++) {
+	for (j = 0; j < MAX; j++) {
 		ir->begin = ir->end = j;
 		assert(IntRing_size(ir) == 0);
 		/* push_front */
@@ -710,7 +729,7 @@ void RingTest_test_2_4(void)
 	int i, j;
 	printf("***** test_2_4 *****\n");
 	ir = IntRing_new(MAX);
-	for (j = 0; j < MAX+1; j++) {
+	for (j = 0; j < MAX; j++) {
 		ir->begin = ir->end = j;
 		assert(IntRing_size(ir) == 0);
 		/* insert */
@@ -797,7 +816,7 @@ void RingTest_test_2_5(void)
 	int i;
 	printf("***** test_2_5 *****\n");
 	ir = IntRing_new(MAX);
-	for (i = 0; i < MAX+1; i++) {
+	for (i = 0; i < MAX; i++) {
 		ir->begin = ir->end = i;
 		assert(IntRing_size(ir) == 0);
 		/* insert_array */

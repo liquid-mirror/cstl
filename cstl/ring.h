@@ -57,13 +57,13 @@
 #define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD((self), (idx), 1)
 #define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->nelems - (first) + (last))
 #define CSTL_RING_AT(self, idx)					(self)->buf[CSTL_RING_FORWARD((self), (self)->begin, (idx))]
-#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end)
-#define CSTL_RING_MAX_SIZE(self)				((self)->nelems - 1)
-#define CSTL_RING_FULL(self)					(CSTL_RING_NEXT((self), (self)->end) == (self)->begin)
-#define CSTL_RING_SIZE(self)					CSTL_RING_DISTANCE((self), (self)->begin, (self)->end)
+#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end && (self)->size != CSTL_RING_MAX_SIZE((self)))
+#define CSTL_RING_MAX_SIZE(self)				(self)->nelems
+#define CSTL_RING_FULL(self)					((self)->size == CSTL_RING_MAX_SIZE((self)))
+#define CSTL_RING_SIZE(self)					(self)->size
 #define CSTL_RING_FRONT(self)					(self)->buf[(self)->begin]
 #define CSTL_RING_BACK(self)					(self)->buf[CSTL_RING_PREV((self), (self)->end)]
-#define CSTL_RING_CLEAR(self)					(self)->end = (self)->begin
+#define CSTL_RING_CLEAR(self)					do { (self)->size = 0; (self)->end = (self)->begin; } while (0)
 
 
 /*! 
@@ -82,6 +82,7 @@ struct Name {\
 	size_t begin;\
 	size_t end;\
 	size_t nelems;\
+	size_t size;\
 	Type *buf;\
 	CSTL_RING_MAGIC(Name *magic;)\
 };\
@@ -118,12 +119,12 @@ Name *Name##_new(size_t n)\
 	Type *buf;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	buf = (Type *) malloc(sizeof(Type) * (n + 1));\
+	buf = (Type *) malloc(sizeof(Type) * n);\
 	if (!buf) {\
 		free(self);\
 		return 0;\
 	}\
-	Name##_init(self, buf, (n + 1));\
+	Name##_init(self, buf, n);\
 	return self;\
 }\
 \
@@ -144,6 +145,7 @@ void Name##_init(Name *self, Type *buf, size_t n)\
 	self->end = 0;\
 	self->buf = buf;\
 	self->nelems = n;\
+	self->size = 0;\
 	CSTL_RING_MAGIC(self->magic = self);\
 }\
 \
@@ -170,6 +172,7 @@ void Name##_pop_front(Name *self)\
 	assert(self->magic == self && "Ring_pop_front");\
 	assert(!CSTL_RING_EMPTY(self) && "Ring_pop_front");\
 	self->begin = CSTL_RING_NEXT(self, self->begin);\
+	self->size--;\
 }\
 \
 void Name##_pop_back(Name *self)\
@@ -178,6 +181,7 @@ void Name##_pop_back(Name *self)\
 	assert(self->magic == self && "Ring_pop_back");\
 	assert(!CSTL_RING_EMPTY(self) && "Ring_pop_back");\
 	self->end = CSTL_RING_PREV(self, self->end);\
+	self->size--;\
 }\
 \
 void Name##_erase(Name *self, size_t idx, size_t n)\
@@ -201,6 +205,7 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 		Name##_move_forward(self, self->begin, pos1, n);\
 		self->begin = CSTL_RING_FORWARD(self, self->begin, n);\
 	}\
+	self->size -= n;\
 }\
 \
 
@@ -222,6 +227,7 @@ int Name##_push_back(Name *self, Type elem)\
 	if (CSTL_RING_FULL(self)) return 0;\
 	self->buf[self->end] = elem;\
 	self->end = CSTL_RING_NEXT(self, self->end);\
+	self->size++;\
 	return 1;\
 }\
 \
@@ -232,6 +238,7 @@ int Name##_push_front(Name *self, Type elem)\
 	if (CSTL_RING_FULL(self)) return 0;\
 	self->begin = CSTL_RING_PREV(self, self->begin);\
 	self->buf[self->begin] = elem;\
+	self->size++;\
 	return 1;\
 }\
 \
@@ -325,6 +332,7 @@ int Name##_insert_array(Name *self, size_t idx, Type const *elems, size_t n)\
 	for (i = pos, j = 0; j < n; i = CSTL_RING_NEXT(self, i), j++) {\
 		self->buf[i] = elems[j];\
 	}\
+	self->size += n;\
 	return 1;\
 }\
 \
@@ -345,6 +353,7 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 			Name##_push_back(self, elem);\
 		}\
 	}\
+	self->size = n;\
 	return 1;\
 }\
 \
@@ -353,6 +362,7 @@ void Name##_swap(Name *self, Name *x)\
 	size_t tmp_begin;\
 	size_t tmp_end;\
 	size_t tmp_nelems;\
+	size_t tmp_size;\
 	Type *tmp_buf;\
 	assert(self && "Ring_swap");\
 	assert(x && "Ring_swap");\
@@ -361,14 +371,17 @@ void Name##_swap(Name *self, Name *x)\
 	tmp_begin = self->begin;\
 	tmp_end = self->end;\
 	tmp_nelems = self->nelems;\
+	tmp_size = self->size;\
 	tmp_buf = self->buf;\
 	self->begin = x->begin;\
 	self->end = x->end;\
 	self->nelems = x->nelems;\
+	self->size = x->size;\
 	self->buf = x->buf;\
 	x->begin = tmp_begin;\
 	x->end = tmp_end;\
 	x->nelems = tmp_nelems;\
+	x->size = tmp_size;\
 	x->buf = tmp_buf;\
 }\
 \
