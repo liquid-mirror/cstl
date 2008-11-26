@@ -245,12 +245,12 @@ if [ "$debug" != "" ]; then
 	fi
 fi
 
-rev=`grep '$Id' "../cstl/${lower}.h"`
-vectorrev=`grep '$Id' "../cstl/vector.h"`
-ringrev=`grep '$Id' "../cstl/ring.h"`
-algorev=`grep '$Id' "../cstl/algorithm.h"`
-rbtreerev=`grep '$Id' "../cstl/rbtree.h"`
-rbdebugrev=`grep '$Id' "./rbtree_debug.h"`
+rev=`grep '$Id' "../cstl/${lower}.h" | sed -e "s/\r//"`
+vectorrev=`grep '$Id' "../cstl/vector.h" | sed -e "s/\r//"`
+ringrev=`grep '$Id' "../cstl/ring.h" | sed -e "s/\r//"`
+algorev=`grep '$Id' "../cstl/algorithm.h" | sed -e "s/\r//"`
+rbtreerev=`grep '$Id' "../cstl/rbtree.h" | sed -e "s/\r//"`
+rbdebugrev=`grep '$Id' "./rbtree_debug.h" | sed -e "s/\r//"`
 
 # ヘッダファイル生成
 included=`echo "$name""_H_INCLUDED" | tr "[:lower:]" "[:upper:]"`
@@ -289,7 +289,8 @@ else
 	echo -e "" >> "$path"".h"
 fi
 if [ $lower = "string" ]; then
-	echo -e "#define CSTL_NPOS	((size_t)-1)\n" >> "$path"".h"
+	grep '#define CSTL_NPOS' "../cstl/string.h" | sed -e "s/\r//" >> "$path"".h"
+	echo -e "" >> "$path"".h"
 fi
 if [ $lower = "ring" ]; then
 echo -e "\
@@ -405,75 +406,18 @@ extern Pool $alloc;
 fi
 fi
 if [ $lower = "vector" ]; then
-echo -e "\
-#define CSTL_VECTOR_AT(self, idx)	(self)->buf[(idx)]
-#define CSTL_VECTOR_SIZE(self)		(self)->end
-#define CSTL_VECTOR_EMPTY(self)		((self)->end == 0)
-#define CSTL_VECTOR_CAPACITY(self)	(self)->nelems
-#define CSTL_VECTOR_FULL(self)		(CSTL_VECTOR_SIZE((self)) == CSTL_VECTOR_CAPACITY((self)))
-#define CSTL_VECTOR_CLEAR(self)		(self)->end = 0
-" >> "$path"".c"
+	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "ring" ]; then
-echo -e "\
-#define CSTL_RING_FORWARD(self, idx, n)			((idx) + (n) >= (self)->nelems ? (idx) + (n) - (self)->nelems : (idx) + (n))
-#define CSTL_RING_BACKWARD(self, idx, n)		((idx) >= (n) ? (idx) - (n) : (self)->nelems + (idx) - (n))
-#define CSTL_RING_NEXT(self, idx)				CSTL_RING_FORWARD((self), (idx), 1)
-#define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD((self), (idx), 1)
-#define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->nelems - (first) + (last))
-#define CSTL_RING_AT(self, idx)					(self)->buf[CSTL_RING_FORWARD((self), (self)->begin, (idx))]
-#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end && (self)->size != CSTL_RING_MAX_SIZE((self)))
-#define CSTL_RING_MAX_SIZE(self)				(self)->nelems
-#define CSTL_RING_FULL(self)					((self)->size == CSTL_RING_MAX_SIZE((self)))
-#define CSTL_RING_SIZE(self)					(self)->size
-#define CSTL_RING_FRONT(self)					(self)->buf[(self)->begin]
-#define CSTL_RING_BACK(self)					(self)->buf[CSTL_RING_PREV((self), (self)->end)]
-#define CSTL_RING_CLEAR(self)					do { (self)->size = 0; (self)->end = (self)->begin; } while (0)
-" >> "$path"".c"
+	grep '#define CSTL_RING_.*self' "../cstl/ring.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "deque" ]; then
-echo -e "\
-#define CSTL_VECTOR_AT(self, idx)	(self)->buf[(idx)]
-#define CSTL_VECTOR_SIZE(self)		(self)->end
-#define CSTL_VECTOR_EMPTY(self)		((self)->end == 0)
-#define CSTL_VECTOR_CAPACITY(self)	(self)->nelems
-#define CSTL_VECTOR_FULL(self)		(CSTL_VECTOR_SIZE((self)) == CSTL_VECTOR_CAPACITY((self)))
-#define CSTL_VECTOR_CLEAR(self)		(self)->end = 0
-#define CSTL_RING_FORWARD(self, idx, n)			((idx) + (n) >= (self)->nelems ? (idx) + (n) - (self)->nelems : (idx) + (n))
-#define CSTL_RING_BACKWARD(self, idx, n)		((idx) >= (n) ? (idx) - (n) : (self)->nelems + (idx) - (n))
-#define CSTL_RING_NEXT(self, idx)				CSTL_RING_FORWARD((self), (idx), 1)
-#define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD((self), (idx), 1)
-#define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->nelems - (first) + (last))
-#define CSTL_RING_AT(self, idx)					(self)->buf[CSTL_RING_FORWARD((self), (self)->begin, (idx))]
-#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end && (self)->size != CSTL_RING_MAX_SIZE((self)))
-#define CSTL_RING_MAX_SIZE(self)				(self)->nelems
-#define CSTL_RING_FULL(self)					((self)->size == CSTL_RING_MAX_SIZE((self)))
-#define CSTL_RING_SIZE(self)					(self)->size
-#define CSTL_RING_FRONT(self)					(self)->buf[(self)->begin]
-#define CSTL_RING_BACK(self)					(self)->buf[CSTL_RING_PREV((self), (self)->end)]
-#define CSTL_RING_CLEAR(self)					do { (self)->size = 0; (self)->end = (self)->begin; } while (0)
-#define CSTL_DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 512 ? 512 / sizeof(Type) : 1)
-#define CSTL_DEQUE_INITIAL_MAP_SIZE		(8)
-#define CSTL_DEQUE_SIZE(self)			(self)->nelems
-" >> "$path"".c"
+	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
+	grep '#define CSTL_RING_.*self' "../cstl/ring.h" | sed -e "s/\r//" >> "$path"".c"
+	grep '#define CSTL_DEQUE_\(.*self\|RINGBUF_SIZE\|INITIAL_MAP_SIZE\)' "../cstl/deque.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "list" ]; then
-echo -e "\
-#define CSTL_LIST_BEGIN(self)	(self)->next
-#define CSTL_LIST_END(self)		(self)
-#define CSTL_LIST_RBEGIN(self)	(self)->prev
-#define CSTL_LIST_REND(self)	(self)
-#define CSTL_LIST_NEXT(pos)		(pos)->next
-#define CSTL_LIST_PREV(pos)		(pos)->prev
-#define CSTL_LIST_AT(pos)		(pos)->elem
-" >> "$path"".c"
+	grep '#define CSTL_LIST_.*\(self\|pos\)' "../cstl/list.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "string" ]; then
-echo -e "\
-#define CSTL_VECTOR_AT(self, idx)	(self)->buf[(idx)]
-#define CSTL_VECTOR_SIZE(self)		(self)->end
-#define CSTL_VECTOR_EMPTY(self)		((self)->end == 0)
-#define CSTL_VECTOR_CAPACITY(self)	(self)->nelems
-#define CSTL_VECTOR_FULL(self)		(CSTL_VECTOR_SIZE((self)) == CSTL_VECTOR_CAPACITY((self)))
-#define CSTL_VECTOR_CLEAR(self)		(self)->end = 0
-#define CSTL_STRING_AT(self, idx)	CSTL_VECTOR_AT((self)->data, (idx))
-" >> "$path"".c"
+	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
+	grep '#define CSTL_STRING_.*self' "../cstl/string.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "set" -o $lower = "multiset" -o\
 	 $lower = "map" -o $lower = "multimap" ]; then
 echo -e "\
@@ -482,12 +426,9 @@ enum {
 	CSTL_RBTREE_BLACK,
 	CSTL_RBTREE_HEAD
 };\n" >> "$path"".c"
-echo -e "\
-#define CSTL_RBTREE_NODE_IS_HEAD(self)		((self)->color == CSTL_RBTREE_HEAD)
-#define CSTL_RBTREE_NODE_IS_ROOT(self)		CSTL_RBTREE_NODE_IS_HEAD((self)->parent)
-#define CSTL_RBTREE_NODE_IS_NIL(self, Name)	((self) == (Name##Node *) &Name##_nil)
-" >> "$path"".c"
+	grep '#define CSTL_RBTREE_.*self' "../cstl/rbtree.h" | sed -e "s/\r//" >> "$path"".c"
 fi
+echo -e "" >> "$path"".c"
 echo "$src" | cpp -I.. | grep "$name" | indent -kr -ut -ts4 \
 | sed -e "s/$name \* /$name */g" | sed -e 's/^} /}\
 \
