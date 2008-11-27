@@ -61,7 +61,7 @@ int Name##_verify(Name *self)\
 		}\
 		count += CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, i));\
 	}\
-	if (count != self->nelems) {\
+	if (count != self->size) {\
 		return 0;\
 	}\
 \
@@ -71,7 +71,7 @@ int Name##_verify(Name *self)\
 void Name##_print(Name *self)\
 {\
 	size_t i, j;\
-	printf("begin[%d], end[%d], map_size[%d], nelems[%d]\n", self->begin, self->end, CSTL_VECTOR_SIZE(self->map), self->nelems);\
+	printf("begin[%d], end[%d], map_size[%d], size[%d]\n", self->begin, self->end, CSTL_VECTOR_SIZE(self->map), self->size);\
 	printf("     ");\
 	for (i = 0; i < CSTL_VECTOR_SIZE(self->map); i++) {\
 		printf("%8d ", i);\

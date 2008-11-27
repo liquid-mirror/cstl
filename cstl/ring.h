@@ -51,14 +51,14 @@
 #endif
 
 
-#define CSTL_RING_FORWARD(self, idx, n)			((idx) + (n) >= (self)->nelems ? (idx) + (n) - (self)->nelems : (idx) + (n))
-#define CSTL_RING_BACKWARD(self, idx, n)		((idx) >= (n) ? (idx) - (n) : (self)->nelems + (idx) - (n))
+#define CSTL_RING_FORWARD(self, idx, n)			((idx) + (n) >= (self)->max_size ? (idx) + (n) - (self)->max_size : (idx) + (n))
+#define CSTL_RING_BACKWARD(self, idx, n)		((idx) >= (n) ? (idx) - (n) : (self)->max_size + (idx) - (n))
 #define CSTL_RING_NEXT(self, idx)				CSTL_RING_FORWARD((self), (idx), 1)
 #define CSTL_RING_PREV(self, idx)				CSTL_RING_BACKWARD((self), (idx), 1)
-#define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->nelems - (first) + (last))
+#define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->max_size - (first) + (last))
 #define CSTL_RING_AT(self, idx)					(self)->buf[CSTL_RING_FORWARD((self), (self)->begin, (idx))]
 #define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end && (self)->size != CSTL_RING_MAX_SIZE((self)))
-#define CSTL_RING_MAX_SIZE(self)				(self)->nelems
+#define CSTL_RING_MAX_SIZE(self)				(self)->max_size
 #define CSTL_RING_FULL(self)					((self)->size == CSTL_RING_MAX_SIZE((self)))
 #define CSTL_RING_SIZE(self)					(self)->size
 #define CSTL_RING_FRONT(self)					(self)->buf[(self)->begin]
@@ -81,7 +81,7 @@ typedef struct Name Name;\
 struct Name {\
 	size_t begin;\
 	size_t end;\
-	size_t nelems;\
+	size_t max_size;\
 	size_t size;\
 	Type *buf;\
 	CSTL_RING_MAGIC(Name *magic;)\
@@ -144,7 +144,7 @@ void Name##_init(Name *self, Type *buf, size_t n)\
 	self->begin = 0;\
 	self->end = 0;\
 	self->buf = buf;\
-	self->nelems = n;\
+	self->max_size = n;\
 	self->size = 0;\
 	CSTL_RING_MAGIC(self->magic = self);\
 }\
@@ -361,7 +361,7 @@ void Name##_swap(Name *self, Name *x)\
 {\
 	size_t tmp_begin;\
 	size_t tmp_end;\
-	size_t tmp_nelems;\
+	size_t tmp_max_size;\
 	size_t tmp_size;\
 	Type *tmp_buf;\
 	assert(self && "Ring_swap");\
@@ -370,17 +370,17 @@ void Name##_swap(Name *self, Name *x)\
 	assert(x->magic == x && "Ring_swap");\
 	tmp_begin = self->begin;\
 	tmp_end = self->end;\
-	tmp_nelems = self->nelems;\
+	tmp_max_size = self->max_size;\
 	tmp_size = self->size;\
 	tmp_buf = self->buf;\
 	self->begin = x->begin;\
 	self->end = x->end;\
-	self->nelems = x->nelems;\
+	self->max_size = x->max_size;\
 	self->size = x->size;\
 	self->buf = x->buf;\
 	x->begin = tmp_begin;\
 	x->end = tmp_end;\
-	x->nelems = tmp_nelems;\
+	x->max_size = tmp_max_size;\
 	x->size = tmp_size;\
 	x->buf = tmp_buf;\
 }\

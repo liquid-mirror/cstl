@@ -124,7 +124,7 @@ Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *succ
 		if (pos) {\
 			Name##RBTree_insert(self->tree, pos);\
 			if (success) *success = 1;\
-			self->nelems++;\
+			self->size++;\
 		} else {\
 			if (success) *success = 0;\
 		}\
@@ -167,7 +167,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 		pos->right = (Name##RBTreeNode *) &Name##RBTree_nil;\
 		Name##RBTree_insert(self->tree, pos);\
 	}\
-	self->nelems += count;\
+	self->size += count;\
 	return 1;\
 }\
 \
@@ -182,7 +182,7 @@ ValueType *Name##_lookup(Name *self, KeyType key)\
 		pos = Name##RBTreeNode_new(key, value, CSTL_RBTREE_RED);\
 		if (pos) {\
 			Name##RBTree_insert(self->tree, pos);\
-			self->nelems++;\
+			self->size++;\
 		} else {\
 			/* メモリ不足 */\
 			assert(0 && "Map_lookup");\
@@ -228,7 +228,7 @@ Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 	pos = Name##RBTreeNode_new(key, value, CSTL_RBTREE_RED);\
 	if (pos) {\
 		Name##RBTree_insert(self->tree, pos);\
-		self->nelems++;\
+		self->size++;\
 	}\
 	return pos;\
 }\
@@ -264,7 +264,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 		pos->right = (Name##RBTreeNode *) &Name##RBTree_nil;\
 		Name##RBTree_insert(self->tree, pos);\
 	}\
-	self->nelems += count;\
+	self->size += count;\
 	return 1;\
 }\
 \

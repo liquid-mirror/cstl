@@ -60,11 +60,11 @@
 
 
 #define CSTL_VECTOR_AT(self, idx)	(self)->buf[(idx)]
-#define CSTL_VECTOR_SIZE(self)		(self)->end
-#define CSTL_VECTOR_EMPTY(self)		((self)->end == 0)
-#define CSTL_VECTOR_CAPACITY(self)	(self)->nelems
+#define CSTL_VECTOR_SIZE(self)		(self)->size
+#define CSTL_VECTOR_EMPTY(self)		((self)->size == 0)
+#define CSTL_VECTOR_CAPACITY(self)	(self)->capacity
 #define CSTL_VECTOR_FULL(self)		(CSTL_VECTOR_SIZE((self)) == CSTL_VECTOR_CAPACITY((self)))
-#define CSTL_VECTOR_CLEAR(self)		(self)->end = 0
+#define CSTL_VECTOR_CLEAR(self)		do { (self)->size = 0; } while (0)
 
 
 /*! 
@@ -111,8 +111,8 @@ static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n);\
  * \brief vector構造体
  */\
 struct Name {\
-	size_t end;\
-	size_t nelems;\
+	size_t size;\
+	size_t capacity;\
 	Type *buf;\
 	CSTL_VECTOR_MAGIC(Name *magic;)\
 };\
@@ -123,14 +123,14 @@ Name *Name##_new(size_t n)\
 	Type *buf;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->nelems = n;\
+	self->capacity = n;\
 	if (!n) n = 1;\
 	buf = (Type *) malloc(sizeof(Type) * n);\
 	if (!buf) {\
 		free(self);\
 		return 0;\
 	}\
-	self->end = 0;\
+	self->size = 0;\
 	self->buf = buf;\
 	CSTL_VECTOR_MAGIC(self->magic = self);\
 	return self;\
@@ -153,8 +153,8 @@ int Name##_push_back(Name *self, Type elem)\
 	assert(self && "Vector_push_back");\
 	assert(self->magic == self && "Vector_push_back");\
 	if (!Name##_expand(self, CSTL_VECTOR_SIZE(self) + 1)) return 0;\
-	self->buf[self->end] = elem;\
-	self->end++;\
+	self->buf[self->size] = elem;\
+	self->size++;\
 	return 1;\
 }\
 \
@@ -165,7 +165,7 @@ void Name##_pop_back(Name *self)\
 	assert(self && "Vector_pop_back");\
 	assert(self->magic == self && "Vector_pop_back");\
 	assert(!CSTL_VECTOR_EMPTY(self) && "Vector_pop_back");\
-	self->end--;\
+	self->size--;\
 }\
 \
 
@@ -223,7 +223,7 @@ int Name##_reserve(Name *self, size_t n)\
 	newbuf = (Type *) realloc(self->buf, sizeof(Type) * n);\
 	if (!newbuf) return 0;\
 	self->buf = newbuf;\
-	self->nelems = n;\
+	self->capacity = n;\
 	return 1;\
 }\
 \
@@ -238,7 +238,7 @@ void Name##_shrink(Name *self, size_t n)\
 	if (n < CSTL_VECTOR_SIZE(self)) {\
 		n = CSTL_VECTOR_SIZE(self);\
 	}\
-	self->nelems = n;\
+	self->capacity = n;\
 	if (!n) n = 1;\
 	newbuf = (Type *) realloc(self->buf, sizeof(Type) * n);\
 	if (newbuf) {\
@@ -255,7 +255,7 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 	assert(self->magic == self && "Vector_resize");\
 	size = CSTL_VECTOR_SIZE(self);\
 	if (size >= n) {\
-		self->end = n;\
+		self->size = n;\
 	} else {\
 		register size_t i;\
 		if (!Name##_insert_n_no_elem(self, size, n - size)) {\
@@ -295,7 +295,7 @@ Type *Name##_back(Name *self)\
 	assert(self && "Vector_back");\
 	assert(self->magic == self && "Vector_back");\
 	assert(!CSTL_VECTOR_EMPTY(self) && "Vector_back");\
-	return &self->buf[self->end - 1];\
+	return &self->buf[self->size - 1];\
 }\
 \
 
@@ -323,8 +323,8 @@ static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n
 static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
 {\
 	if (!Name##_expand(self, CSTL_VECTOR_SIZE(self) + n)) return 0;\
-	Name##_move_forward(self, idx, self->end, n);\
-	self->end += n;\
+	Name##_move_forward(self, idx, self->size, n);\
+	self->size += n;\
 	return 1;\
 }\
 \
@@ -421,29 +421,29 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 	assert(CSTL_VECTOR_SIZE(self) >= idx + n && "Vector_erase");\
 	assert(CSTL_VECTOR_SIZE(self) >= n && "Vector_erase");\
 	assert(CSTL_VECTOR_SIZE(self) > idx && "Vector_erase");\
-	Name##_move_backward(self, idx + n, self->end, n);\
-	self->end -= n;\
+	Name##_move_backward(self, idx + n, self->size, n);\
+	self->size -= n;\
 }\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_SWAP(Name, Type)	\
 void Name##_swap(Name *self, Name *x)\
 {\
-	size_t tmp_end;\
-	size_t tmp_nelems;\
+	size_t tmp_size;\
+	size_t tmp_capacity;\
 	Type *tmp_buf;\
 	assert(self && "Vector_swap");\
 	assert(x && "Vector_swap");\
 	assert(self->magic == self && "Vector_swap");\
 	assert(x->magic == x && "Vector_swap");\
-	tmp_end = self->end;\
-	tmp_nelems = self->nelems;\
+	tmp_size = self->size;\
+	tmp_capacity = self->capacity;\
 	tmp_buf = self->buf;\
-	self->end = x->end;\
-	self->nelems = x->nelems;\
+	self->size = x->size;\
+	self->capacity = x->capacity;\
 	self->buf = x->buf;\
-	x->end = tmp_end;\
-	x->nelems = tmp_nelems;\
+	x->size = tmp_size;\
+	x->capacity = tmp_capacity;\
 	x->buf = tmp_buf;\
 }\
 \

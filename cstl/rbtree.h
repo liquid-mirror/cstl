@@ -754,7 +754,7 @@ typedef struct Name##RBTreeNode Name##RBTree;\
  */\
 struct Name {\
 	Name##RBTree *tree;\
-	size_t nelems;\
+	size_t size;\
 	CSTL_RBTREE_MAGIC(Name *magic;)\
 };\
 \
@@ -770,7 +770,7 @@ Name *Name##_new(void)\
 		free(self);\
 		return 0;\
 	}\
-	self->nelems = 0;\
+	self->size = 0;\
 	CSTL_RBTREE_MAGIC(self->magic = self);\
 	return self;\
 }\
@@ -789,7 +789,7 @@ void Name##_clear(Name *self)\
 	assert(self && "RBTree_clear");\
 	assert(self->magic == self && "RBTree_clear");\
 	Name##RBTree_clear(self->tree);\
-	self->nelems = 0;\
+	self->size = 0;\
 }\
 \
 int Name##_empty(Name *self)\
@@ -803,7 +803,7 @@ size_t Name##_size(Name *self)\
 {\
 	assert(self && "RBTree_size");\
 	assert(self->magic == self && "RBTree_size");\
-	return self->nelems;\
+	return self->size;\
 }\
 \
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
@@ -816,7 +816,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	assert(pos->magic == self->tree && "RBTree_erase");\
 	tmp = Name##_next(pos);\
 	Name##RBTree_erase(self->tree, pos);\
-	self->nelems--;\
+	self->size--;\
 	return tmp;\
 }\
 \
@@ -935,17 +935,17 @@ KeyType const *Name##_key(Name##Iterator pos)\
 void Name##_swap(Name *self, Name *x)\
 {\
 	Name##RBTree *tmp_tree;\
-	size_t tmp_nelems;\
+	size_t tmp_size;\
 	assert(self && "RBTree_swap");\
 	assert(x && "RBTree_swap");\
 	assert(self->magic == self && "RBTree_swap");\
 	assert(x->magic == x && "RBTree_swap");\
 	tmp_tree = self->tree;\
-	tmp_nelems = self->nelems;\
+	tmp_size = self->size;\
 	self->tree = x->tree;\
-	self->nelems = x->nelems;\
+	self->size = x->size;\
 	x->tree = tmp_tree;\
-	x->nelems = tmp_nelems;\
+	x->size = tmp_size;\
 }\
 \
 

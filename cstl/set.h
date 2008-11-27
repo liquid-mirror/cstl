@@ -110,7 +110,7 @@ Name##Iterator Name##_insert(Name *self, Type elem, int *success)\
 		if (pos) {\
 			Name##RBTree_insert(self->tree, pos);\
 			if (success) *success = 1;\
-			self->nelems++;\
+			self->size++;\
 		} else {\
 			if (success) *success = 0;\
 		}\
@@ -153,7 +153,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 		pos->right = (Name##RBTreeNode *) &Name##RBTree_nil;\
 		Name##RBTree_insert(self->tree, pos);\
 	}\
-	self->nelems += count;\
+	self->size += count;\
 	return 1;\
 }\
 \
@@ -190,7 +190,7 @@ Name##Iterator Name##_insert(Name *self, Type elem)\
 	pos = Name##RBTreeNode_new(elem, CSTL_RBTREE_RED);\
 	if (pos) {\
 		Name##RBTree_insert(self->tree, pos);\
-		self->nelems++;\
+		self->size++;\
 	}\
 	return pos;\
 }\
@@ -226,7 +226,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 		pos->right = (Name##RBTreeNode *) &Name##RBTree_nil;\
 		Name##RBTree_insert(self->tree, pos);\
 	}\
-	self->nelems += count;\
+	self->size += count;\
 	return 1;\
 }\
 \

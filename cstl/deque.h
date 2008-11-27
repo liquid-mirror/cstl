@@ -62,7 +62,7 @@
 
 #define CSTL_DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 512 ? 512 / sizeof(Type) : 1)
 #define CSTL_DEQUE_INITIAL_MAP_SIZE		(8)
-#define CSTL_DEQUE_SIZE(self)			(self)->nelems
+#define CSTL_DEQUE_SIZE(self)			(self)->size
 
 /*! 
  * \brief インターフェイスマクロ
@@ -124,7 +124,7 @@ CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##_RingVector, Name##_Ring*)\
 struct Name {\
 	size_t begin;\
 	size_t end;\
-	size_t nelems;\
+	size_t size;\
 	Name##_RingVector *map;\
 	Name##_RingVector *pool;\
 	CSTL_DEQUE_MAGIC(Name *magic;)\
@@ -282,7 +282,7 @@ static void Name##_push_front_n_no_elem(Name *self, size_t n)\
 			Name##_Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin));\
 		}\
 	}\
-	self->nelems += n;\
+	self->size += n;\
 }\
 \
 static void Name##_push_back_n_no_elem(Name *self, size_t n)\
@@ -295,7 +295,7 @@ static void Name##_push_back_n_no_elem(Name *self, size_t n)\
 			Name##_Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end - 1));\
 		}\
 	}\
-	self->nelems += n;\
+	self->size += n;\
 }\
 \
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
@@ -333,7 +333,7 @@ Name *Name##_new(void)\
 	}\
 	self->begin = CSTL_VECTOR_SIZE(self->map) / 2;\
 	self->end = self->begin + 1;\
-	self->nelems = 0;\
+	self->size = 0;\
 	CSTL_VECTOR_AT(self->map, self->begin) = Name##_Ring_new(CSTL_DEQUE_RINGBUF_SIZE(Type));\
 	if (!CSTL_VECTOR_AT(self->map, self->begin)) {\
 		Name##_RingVector_delete(self->map);\
@@ -380,7 +380,7 @@ int Name##_push_back(Name *self, Type elem)\
 		Name##_Ring_push_back_no_elem(CSTL_VECTOR_AT(self->map, self->end - 1));\
 		CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end - 1)) = elem;\
 	}\
-	self->nelems++;\
+	self->size++;\
 	return 1;\
 }\
 \
@@ -399,7 +399,7 @@ int Name##_push_front(Name *self, Type elem)\
 		Name##_Ring_push_front_no_elem(CSTL_VECTOR_AT(self->map, self->begin));\
 		CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin)) = elem;\
 	}\
-	self->nelems++;\
+	self->size++;\
 	return 1;\
 }\
 \
@@ -409,8 +409,8 @@ void Name##_pop_front(Name *self)\
 	assert(self->magic == self && "Deque_pop_front");\
 	assert(!Name##_empty(self) && "Deque_pop_front");\
 	Name##_Ring_pop_front(CSTL_VECTOR_AT(self->map, self->begin));\
-	self->nelems--;\
-	if (CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->begin)) && self->nelems > 0) {\
+	self->size--;\
+	if (CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->begin)) && self->size > 0) {\
 		Name##_push_ring(self, CSTL_VECTOR_AT(self->map, self->begin));\
 		CSTL_VECTOR_AT(self->map, self->begin) = 0;\
 		self->begin++;\
@@ -424,8 +424,8 @@ void Name##_pop_back(Name *self)\
 	assert(self->magic == self && "Deque_pop_back");\
 	assert(!Name##_empty(self) && "Deque_pop_back");\
 	Name##_Ring_pop_back(CSTL_VECTOR_AT(self->map, self->end - 1));\
-	self->nelems--;\
-	if (CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->end - 1)) && self->nelems > 0) {\
+	self->size--;\
+	if (CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->end - 1)) && self->size > 0) {\
 		Name##_push_ring(self, CSTL_VECTOR_AT(self->map, self->end - 1));\
 		CSTL_VECTOR_AT(self->map, self->end - 1) = 0;\
 		self->end--;\
@@ -444,7 +444,7 @@ int Name##_empty(Name *self)\
 {\
 	assert(self && "Deque_empty");\
 	assert(self->magic == self && "Deque_empty");\
-	return (self->nelems == 0);\
+	return (self->size == 0);\
 }\
 \
 void Name##_clear(Name *self)\
@@ -453,7 +453,7 @@ void Name##_clear(Name *self)\
 	assert(self && "Deque_clear");\
 	assert(self->magic == self && "Deque_clear");\
 	self->end = self->begin + 1;\
-	self->nelems = 0;\
+	self->size = 0;\
 	CSTL_RING_CLEAR(CSTL_VECTOR_AT(self->map, self->begin));\
 	for (i = self->end; i < CSTL_VECTOR_SIZE(self->map) && CSTL_VECTOR_AT(self->map, i); i++) {\
 		Name##_push_ring(self, CSTL_VECTOR_AT(self->map, i));\
@@ -627,7 +627,7 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 			CSTL_VECTOR_AT(self->map, k - 1) = 0;\
 		}\
 	}\
-	self->nelems -= n;\
+	self->size -= n;\
 }\
 \
 int Name##_resize(Name *self, size_t n, Type elem)\
@@ -654,7 +654,7 @@ void Name##_swap(Name *self, Name *x)\
 {\
 	size_t tmp_begin;\
 	size_t tmp_end;\
-	size_t tmp_nelems;\
+	size_t tmp_size;\
 	Name##_RingVector *tmp_map;\
 	Name##_RingVector *tmp_pool;\
 	assert(self && "Deque_swap");\
@@ -663,17 +663,17 @@ void Name##_swap(Name *self, Name *x)\
 	assert(x->magic == x && "Deque_swap");\
 	tmp_begin = self->begin;\
 	tmp_end = self->end;\
-	tmp_nelems = self->nelems;\
+	tmp_size = self->size;\
 	tmp_map = self->map;\
 	tmp_pool = self->pool;\
 	self->begin = x->begin;\
 	self->end = x->end;\
-	self->nelems = x->nelems;\
+	self->size = x->size;\
 	self->map = x->map;\
 	self->pool = x->pool;\
 	x->begin = tmp_begin;\
 	x->end = tmp_end;\
-	x->nelems = tmp_nelems;\
+	x->size = tmp_size;\
 	x->map = tmp_map;\
 	x->pool = tmp_pool;\
 }\
