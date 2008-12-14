@@ -178,47 +178,16 @@ src="\
 #include \"./deque_debug.h\"
 #include \"./rbtree_debug.h\"
 #undef assert
-#undef CSTL_VECTOR_MAGIC
-#undef CSTL_RING_MAGIC
-#undef CSTL_DEQUE_MAGIC
-#undef CSTL_LIST_MAGIC
-#undef CSTL_STRING_MAGIC
-#undef CSTL_RBTREE_MAGIC
-#undef CSTL_NPOS
-#undef CSTL_VECTOR_AT
-#undef CSTL_VECTOR_SIZE
-#undef CSTL_VECTOR_EMPTY
-#undef CSTL_VECTOR_CAPACITY
-#undef CSTL_VECTOR_FULL
-#undef CSTL_VECTOR_CLEAR
-#undef CSTL_RING_FORWARD
-#undef CSTL_RING_BACKWARD
-#undef CSTL_RING_NEXT
-#undef CSTL_RING_PREV
-#undef CSTL_RING_DISTANCE
-#undef CSTL_RING_AT
-#undef CSTL_RING_EMPTY
-#undef CSTL_RING_MAX_SIZE
-#undef CSTL_RING_FULL
-#undef CSTL_RING_SIZE
-#undef CSTL_RING_FRONT
-#undef CSTL_RING_BACK
-#undef CSTL_RING_CLEAR
-#undef CSTL_DEQUE_RINGBUF_SIZE
-#undef CSTL_DEQUE_INITIAL_MAP_SIZE
-#undef CSTL_DEQUE_SIZE
-#undef CSTL_LIST_BEGIN
-#undef CSTL_LIST_END
-#undef CSTL_LIST_RBEGIN
-#undef CSTL_LIST_REND
-#undef CSTL_LIST_NEXT
-#undef CSTL_LIST_PREV
-#undef CSTL_LIST_AT
-#undef CSTL_RBTREE_NODE_IS_HEAD
-#undef CSTL_RBTREE_NODE_IS_ROOT
-#undef CSTL_RBTREE_NODE_IS_NIL
-#undef CSTL_STRING_AT
 "
+
+tmp=`grep -h '#define CSTL_' ../cstl/*.h | \
+	grep -v 'CSTL_.*\(INCLUDED\|EXTERN_C\|INTERFACE\|IMPLEMENT.*\|LESS\|GREATER\)' | \
+	sort | sed -e "s/#define \(CSTL_[^ \t(]*\).*/\1/" | uniq`
+for i in ${tmp}; do
+	src=${src}"#undef ${i}
+	"
+done
+
 if [ "$algo" != "false" ]; then
 	src=${src}"#include \"../cstl/algorithm.h\"
 	"
