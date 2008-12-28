@@ -31,7 +31,7 @@ set/multisetを使うには、 以下のマクロを用いてコードを展開�
   任意の要素の型
 : Compare
   要素を比較する関数またはマクロ
-  * Typeが整数型、小数型、ポインタ型など、2つの値を単純に比較できる型の場合、
+  * Typeが整数型、小数型、ポインタ型など、2つの値を演算子で比較できる型の場合、
     要素のソートの順序を昇順にするならばCSTL_LESSを、降順にするならばCSTL_GREATERをCompareに指定する。
     これらのマクロはヘッダで以下のように定義されている。
       #define CSTL_LESS(x, y)     ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
@@ -63,9 +63,9 @@ set/multisetを使うには、 以下のマクロを用いてコードを展開�
       }
       /* サイズ */
       printf("size: %d\n", IntSet_size(set));
-      for (pos = IntSet_begin(set); pos != IntSet_end(set); pos = IntSet_next(pos)) {
-          /* イテレータによる要素の読み出し */
-          printf("%d\n", *IntSet_key(pos));
+      for (pos = IntSet_begin(set); pos != IntSet_end(set); pos = IntSetIterator_next(pos)) {
+          /* イテレータによる要素の読み出し(書き換えはできない) */
+          printf("%d\n", *IntSetIterator_ref(pos));
       }
       /* 3以上の要素を削除 */
       IntSet_erase_range(set, IntSet_find(set, 3), IntSet_end(set));
@@ -98,9 +98,8 @@ NameにSet, TypeにTを指定した場合、
   * イテレータ
     * ((<Set_begin()>)) , ((<Set_end()>))
     * ((<Set_rbegin()>)) , ((<Set_rend()>))
-    * ((<Set_next()>)) , ((<Set_prev()>))
-  * 要素のアクセス
-    * ((<Set_key()>))
+    * ((<SetIterator_next()>)) , ((<SetIterator_prev()>))
+    * ((<SetIterator_ref()>))
   * 挿入
     * ((<Set_insert() set用>)) , ((<Set_insert() multiset用>)) , ((<Set_insert_range()>))
   * 削除
@@ -170,25 +169,26 @@ NameにSet, TypeにTを指定した場合、
 * selfの最初の要素の前のイテレータを返す。
 <<< hr
 
-==== Set_next()
-  SetIterator Set_next(SetIterator pos);
+==== SetIterator_next()
+  SetIterator SetIterator_next(SetIterator pos);
 * posが示す位置の要素の次のイテレータを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがSet_end()またはSet_rend()でないこと。
 <<< hr
 
-==== Set_prev()
-  SetIterator Set_prev(SetIterator pos);
+==== SetIterator_prev()
+  SetIterator SetIterator_prev(SetIterator pos);
 * posが示す位置の要素の前のイテレータを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがSet_end()またはSet_rend()でないこと。
 <<< hr
 
-==== Set_key()
-  T const *Set_key(SetIterator pos);
+==== SetIterator_ref()
+  T const *SetIterator_ref(SetIterator pos);
 * posが示す位置の要素へのポインタを返す。
+* 戻り値のポインタの参照先はconstである。
 * 事前条件
   * posが有効なイテレータであること。
   * posがSet_end()またはSet_rend()でないこと。

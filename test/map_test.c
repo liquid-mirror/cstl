@@ -118,35 +118,35 @@ void MapTest_test_1_1(void)
 		assert(pos[i] == IntIntMapA_upper_bound(ia, hoge_int[i]-1));
 		assert(IntIntMapA_lower_bound(ia, hoge_int[i]+1) == IntIntMapA_upper_bound(ia, hoge_int[i]));
 	}
-	assert(IntIntMapA_find(ia, *IntIntMapA_key(IntIntMapA_begin(ia)) -1) == IntIntMapA_end(ia));
-	assert(IntIntMapA_lower_bound(ia, *IntIntMapA_key(IntIntMapA_rbegin(ia)) +1) == IntIntMapA_end(ia));
-	assert(IntIntMapA_upper_bound(ia, *IntIntMapA_key(IntIntMapA_rbegin(ia))) == IntIntMapA_end(ia));
-	/* begin, end, next, key, value, lookup */
-	for (p = IntIntMapA_begin(ia), i = 0; p != IntIntMapA_end(ia); p = IntIntMapA_next(p), i++) {
-		assert(*IntIntMapA_key(p) == i);
-		assert(*IntIntMapA_value(p) == i);
-		assert(*IntIntMapA_lookup(ia, *IntIntMapA_key(p)) == i);
-		*IntIntMapA_value(p) = ~i;
-		assert(*IntIntMapA_lookup(ia, *IntIntMapA_key(p)) == ~i);
-		*IntIntMapA_lookup(ia, *IntIntMapA_key(p)) = i;
+	assert(IntIntMapA_find(ia, *IntIntMapAIterator_key(IntIntMapA_begin(ia)) -1) == IntIntMapA_end(ia));
+	assert(IntIntMapA_lower_bound(ia, *IntIntMapAIterator_key(IntIntMapA_rbegin(ia)) +1) == IntIntMapA_end(ia));
+	assert(IntIntMapA_upper_bound(ia, *IntIntMapAIterator_key(IntIntMapA_rbegin(ia))) == IntIntMapA_end(ia));
+	/* begin, end, next, key, value, at */
+	for (p = IntIntMapA_begin(ia), i = 0; p != IntIntMapA_end(ia); p = IntIntMapAIterator_next(p), i++) {
+		assert(*IntIntMapAIterator_key(p) == i);
+		assert(*IntIntMapAIterator_value(p) == i);
+		assert(*IntIntMapA_at(ia, *IntIntMapAIterator_key(p)) == i);
+		*IntIntMapAIterator_value(p) = ~i;
+		assert(*IntIntMapA_at(ia, *IntIntMapAIterator_key(p)) == ~i);
+		*IntIntMapA_at(ia, *IntIntMapAIterator_key(p)) = i;
 	}
 	assert(i == SIZE/2);
-	assert(IntIntMapA_next(IntIntMapA_rbegin(ia)) == IntIntMapA_end(ia));
-	/* rbegin, rend, prev, key, value, lookup */
-	for (p = IntIntMapA_rbegin(ia), i = SIZE/2 -1; p != IntIntMapA_rend(ia); p = IntIntMapA_prev(p), i--) {
-		assert(*IntIntMapA_key(p) == i);
-		assert(*IntIntMapA_value(p) == i);
-		assert(*IntIntMapA_lookup(ia, *IntIntMapA_key(p)) == i);
-		*IntIntMapA_value(p) = ~i;
-		assert(*IntIntMapA_lookup(ia, *IntIntMapA_key(p)) == ~i);
-		*IntIntMapA_lookup(ia, *IntIntMapA_key(p)) = i;
+	assert(IntIntMapAIterator_next(IntIntMapA_rbegin(ia)) == IntIntMapA_end(ia));
+	/* rbegin, rend, prev, key, value, at */
+	for (p = IntIntMapA_rbegin(ia), i = SIZE/2 -1; p != IntIntMapA_rend(ia); p = IntIntMapAIterator_prev(p), i--) {
+		assert(*IntIntMapAIterator_key(p) == i);
+		assert(*IntIntMapAIterator_value(p) == i);
+		assert(*IntIntMapA_at(ia, *IntIntMapAIterator_key(p)) == i);
+		*IntIntMapAIterator_value(p) = ~i;
+		assert(*IntIntMapA_at(ia, *IntIntMapAIterator_key(p)) == ~i);
+		*IntIntMapA_at(ia, *IntIntMapAIterator_key(p)) = i;
 	}
 	assert(i == -1);
-	assert(IntIntMapA_prev(IntIntMapA_begin(ia)) == IntIntMapA_rend(ia));
+	assert(IntIntMapAIterator_prev(IntIntMapA_begin(ia)) == IntIntMapA_rend(ia));
 	/* erase */
 	for (i = 0; i < SIZE; i++) {
 		if (pos[i] && success[i]) {
-			IntIntMapAIterator itr = IntIntMapA_next(pos[i]);
+			IntIntMapAIterator itr = IntIntMapAIterator_next(pos[i]);
 			assert(itr == IntIntMapA_erase(ia, pos[i]));
 			count--;
 		}
@@ -166,7 +166,7 @@ void MapTest_test_1_1(void)
 	assert(IntIntMapA_size(ia) == 0);
 	assert(IntIntMapA_insert(ia, hoge_int[0], hoge_int[0], NULL));
 	assert(IntIntMapA_size(ia) == 1);
-	assert(IntIntMapA_next(IntIntMapA_begin(ia)) == IntIntMapA_erase_range(ia, IntIntMapA_begin(ia), IntIntMapA_next(IntIntMapA_begin(ia))));
+	assert(IntIntMapAIterator_next(IntIntMapA_begin(ia)) == IntIntMapA_erase_range(ia, IntIntMapA_begin(ia), IntIntMapAIterator_next(IntIntMapA_begin(ia))));
 	assert(IntIntMapA_size(ia) == 0);
 	assert(IntIntMapA_insert(ia, 100, 101, NULL));
 	assert(IntIntMapA_insert(ia, 110, 111, NULL));
@@ -202,23 +202,23 @@ void MapTest_test_1_1(void)
 	IntIntMapA_clear(ia);
 	assert(IntIntMapA_size(ia) == 0);
 
-	/* lookup */
+	/* at */
 	/* 挿入 */
-	*IntIntMapA_lookup(ia, 1) = 482;
-	*IntIntMapA_lookup(ia, 2) = 4;
-	*IntIntMapA_lookup(ia, 3) = 554;
-	*IntIntMapA_lookup(ia, 4) = 44;
-	*IntIntMapA_lookup(ia, 5) = 89;
+	*IntIntMapA_at(ia, 1) = 482;
+	*IntIntMapA_at(ia, 2) = 4;
+	*IntIntMapA_at(ia, 3) = 554;
+	*IntIntMapA_at(ia, 4) = 44;
+	*IntIntMapA_at(ia, 5) = 89;
 /*    IntIntMapA_print(ia);*/
 	/* 書換え */
-	*IntIntMapA_lookup(ia, 1) = 82;
+	*IntIntMapA_at(ia, 1) = 82;
 /*    IntIntMapA_print(ia);*/
 
 	/* swap */
 	x = IntIntMapA_new();
-	*IntIntMapA_lookup(x, 10) = 2;
-	*IntIntMapA_lookup(x, 20) = 442;
-	*IntIntMapA_lookup(x, 30) = 694;
+	*IntIntMapA_at(x, 10) = 2;
+	*IntIntMapA_at(x, 20) = 442;
+	*IntIntMapA_at(x, 30) = 694;
 /*    IntIntMapA_print(ia);*/
 /*    IntIntMapA_print(x);*/
 	IntIntMapA_swap(ia, x);
@@ -296,24 +296,24 @@ void MapTest_test_1_2(void)
 		}
 		assert(IntIntMMapA_lower_bound(ima, hoge_int[i]+1) == IntIntMMapA_upper_bound(ima, hoge_int[i]));
 	}
-	assert(IntIntMMapA_find(ima, *IntIntMMapA_key(IntIntMMapA_begin(ima)) -1) == IntIntMMapA_end(ima));
-	assert(IntIntMMapA_lower_bound(ima, *IntIntMMapA_key(IntIntMMapA_rbegin(ima)) +1) == IntIntMMapA_end(ima));
-	assert(IntIntMMapA_upper_bound(ima, *IntIntMMapA_key(IntIntMMapA_rbegin(ima))) == IntIntMMapA_end(ima));
+	assert(IntIntMMapA_find(ima, *IntIntMMapAIterator_key(IntIntMMapA_begin(ima)) -1) == IntIntMMapA_end(ima));
+	assert(IntIntMMapA_lower_bound(ima, *IntIntMMapAIterator_key(IntIntMMapA_rbegin(ima)) +1) == IntIntMMapA_end(ima));
+	assert(IntIntMMapA_upper_bound(ima, *IntIntMMapAIterator_key(IntIntMMapA_rbegin(ima))) == IntIntMMapA_end(ima));
 	/* begin, end, next, key, value */
-	for (p = IntIntMMapA_begin(ima), i = 0; p != IntIntMMapA_end(ima); p = IntIntMMapA_next(p), i++) {
-/*        printf("%d, %d, %d\n", i, *IntIntMMapA_key(p), *IntIntMMapA_value(p));*/
+	for (p = IntIntMMapA_begin(ima), i = 0; p != IntIntMMapA_end(ima); p = IntIntMMapAIterator_next(p), i++) {
+/*        printf("%d, %d, %d\n", i, *IntIntMMapAIterator_key(p), *IntIntMMapAIterator_value(p));*/
 	}
 	assert(i == SIZE);
-	assert(IntIntMMapA_next(IntIntMMapA_rbegin(ima)) == IntIntMMapA_end(ima));
+	assert(IntIntMMapAIterator_next(IntIntMMapA_rbegin(ima)) == IntIntMMapA_end(ima));
 	/* rbegin, rend, prev, key, value */
-	for (p = IntIntMMapA_rbegin(ima), i = SIZE -1; p != IntIntMMapA_rend(ima); p = IntIntMMapA_prev(p), i--) {
-/*        printf("%d, %d, %d\n", i, *IntIntMMapA_key(p), *IntIntMMapA_value(ima, p));*/
+	for (p = IntIntMMapA_rbegin(ima), i = SIZE -1; p != IntIntMMapA_rend(ima); p = IntIntMMapAIterator_prev(p), i--) {
+/*        printf("%d, %d, %d\n", i, *IntIntMMapAIterator_key(p), *IntIntMMapAIterator_value(ima, p));*/
 	}
 	assert(i == -1);
-	assert(IntIntMMapA_prev(IntIntMMapA_begin(ima)) == IntIntMMapA_rend(ima));
+	assert(IntIntMMapAIterator_prev(IntIntMMapA_begin(ima)) == IntIntMMapA_rend(ima));
 	/* erase */
 	for (i = 0; i < SIZE; i++) {
-		IntIntMMapAIterator itr = IntIntMMapA_next(pos[i]);
+		IntIntMMapAIterator itr = IntIntMMapAIterator_next(pos[i]);
 		assert(itr == IntIntMMapA_erase(ima, pos[i]));
 		count--;
 	}
@@ -326,13 +326,13 @@ void MapTest_test_1_2(void)
 		assert(pos[i] && pos[i] != IntIntMMapA_end(ima));
 	}
 	assert(IntIntMMapA_size(ima) == SIZE);
-	assert(IntIntMMapA_next(IntIntMMapA_find(ima, SIZE/2/2 -1)) == IntIntMMapA_erase_range(ima, IntIntMMapA_find(ima, 0), IntIntMMapA_next(IntIntMMapA_find(ima, SIZE/2/2 -1))));
+	assert(IntIntMMapAIterator_next(IntIntMMapA_find(ima, SIZE/2/2 -1)) == IntIntMMapA_erase_range(ima, IntIntMMapA_find(ima, 0), IntIntMMapAIterator_next(IntIntMMapA_find(ima, SIZE/2/2 -1))));
 	assert(IntIntMMapA_size(ima) == SIZE - SIZE/2/2);
 	assert(IntIntMMapA_end(ima) == IntIntMMapA_erase_range(ima, IntIntMMapA_begin(ima), IntIntMMapA_end(ima)));
 	assert(IntIntMMapA_size(ima) == 0);
 	assert(IntIntMMapA_insert(ima, hoge_int[0], hoge_int[0]));
 	assert(IntIntMMapA_size(ima) == 1);
-	assert(IntIntMMapA_next(IntIntMMapA_begin(ima)) == IntIntMMapA_erase_range(ima, IntIntMMapA_begin(ima), IntIntMMapA_next(IntIntMMapA_begin(ima))));
+	assert(IntIntMMapAIterator_next(IntIntMMapA_begin(ima)) == IntIntMMapA_erase_range(ima, IntIntMMapA_begin(ima), IntIntMMapAIterator_next(IntIntMMapA_begin(ima))));
 	assert(IntIntMMapA_size(ima) == 0);
 	assert(IntIntMMapA_insert(ima, 100, 100));
 	assert(IntIntMMapA_insert(ima, 100, 100));

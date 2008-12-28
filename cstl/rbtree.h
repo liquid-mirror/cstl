@@ -87,8 +87,8 @@ static Name##RBTreeIterator Name##RBTree_begin(Name##RBTree *self);\
 static Name##RBTreeIterator Name##RBTree_end(Name##RBTree *self);\
 static Name##RBTreeIterator Name##RBTree_rbegin(Name##RBTree *self);\
 static Name##RBTreeIterator Name##RBTree_rend(Name##RBTree *self);\
-static Name##RBTreeIterator Name##RBTree_next(Name##RBTreeIterator pos);\
-static Name##RBTreeIterator Name##RBTree_prev(Name##RBTreeIterator pos);\
+static Name##RBTreeIterator Name##RBTreeIterator_next(Name##RBTreeIterator pos);\
+static Name##RBTreeIterator Name##RBTreeIterator_prev(Name##RBTreeIterator pos);\
 \
 static void Name##RBTreeNode_set_left(Name##RBTreeNode *self, Name##RBTreeNode *t);\
 static void Name##RBTreeNode_set_right(Name##RBTreeNode *self, Name##RBTreeNode *t);\
@@ -228,7 +228,7 @@ static size_t Name##RBTree_count(Name##RBTree *self, KeyType key)\
 	assert(CSTL_RBTREE_NODE_IS_HEAD(self) && "RBTree_count");\
 	first = Name##RBTree_lower_bound(self, key);\
 	last = Name##RBTree_upper_bound(self, key);\
-	for (pos = first; pos != last; pos = Name##RBTree_next(pos)) {\
+	for (pos = first; pos != last; pos = Name##RBTreeIterator_next(pos)) {\
 		count++;\
 	}\
 	return count;\
@@ -675,10 +675,10 @@ static Name##RBTreeIterator Name##RBTree_rend(Name##RBTree *self)\
 	return self;\
 }\
 \
-static Name##RBTreeIterator Name##RBTree_next(Name##RBTreeIterator pos)\
+static Name##RBTreeIterator Name##RBTreeIterator_next(Name##RBTreeIterator pos)\
 {\
-	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "RBTree_next");\
-	assert(!CSTL_RBTREE_NODE_IS_NIL(pos, Name##RBTree) && "RBTree_next");\
+	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "RBTreeIterator_next");\
+	assert(!CSTL_RBTREE_NODE_IS_NIL(pos, Name##RBTree) && "RBTreeIterator_next");\
 	/* 下位検索 */\
 	if (!CSTL_RBTREE_NODE_IS_NIL(pos->right, Name##RBTree)) {\
 		pos = pos->right;\
@@ -695,10 +695,10 @@ static Name##RBTreeIterator Name##RBTree_next(Name##RBTreeIterator pos)\
 	return pos->parent;\
 }\
 \
-static Name##RBTreeIterator Name##RBTree_prev(Name##RBTreeIterator pos)\
+static Name##RBTreeIterator Name##RBTreeIterator_prev(Name##RBTreeIterator pos)\
 {\
-	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "RBTree_prev");\
-	assert(!CSTL_RBTREE_NODE_IS_NIL(pos, Name##RBTree) && "RBTree_prev");\
+	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "RBTreeIterator_prev");\
+	assert(!CSTL_RBTREE_NODE_IS_NIL(pos, Name##RBTree) && "RBTreeIterator_prev");\
 	/* 下位検索 */\
 	if (!CSTL_RBTREE_NODE_IS_NIL(pos->left, Name##RBTree)) {\
 		pos = pos->left;\
@@ -740,9 +740,8 @@ Name##Iterator Name##_begin(Name *self);\
 Name##Iterator Name##_end(Name *self);\
 Name##Iterator Name##_rbegin(Name *self);\
 Name##Iterator Name##_rend(Name *self);\
-Name##Iterator Name##_next(Name##Iterator pos);\
-Name##Iterator Name##_prev(Name##Iterator pos);\
-KeyType const *Name##_key(Name##Iterator pos);\
+Name##Iterator Name##Iterator_next(Name##Iterator pos);\
+Name##Iterator Name##Iterator_prev(Name##Iterator pos);\
 void Name##_swap(Name *self, Name *x);\
 
 
@@ -814,7 +813,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	assert(pos && "RBTree_erase");\
 	assert(pos != self->tree && "RBTree_erase");\
 	assert(pos->magic == self->tree && "RBTree_erase");\
-	tmp = Name##_next(pos);\
+	tmp = Name##Iterator_next(pos);\
 	Name##RBTree_erase(self->tree, pos);\
 	self->size--;\
 	return tmp;\
@@ -910,26 +909,18 @@ Name##Iterator Name##_rend(Name *self)\
 	return Name##RBTree_rend(self->tree);\
 }\
 \
-Name##Iterator Name##_next(Name##Iterator pos)\
+Name##Iterator Name##Iterator_next(Name##Iterator pos)\
 {\
-	assert(pos && "RBTree_next");\
-	assert(pos->magic && "RBTree_next");\
-	return Name##RBTree_next(pos);\
+	assert(pos && "RBTreeIterator_next");\
+	assert(pos->magic && "RBTreeIterator_next");\
+	return Name##RBTreeIterator_next(pos);\
 }\
 \
-Name##Iterator Name##_prev(Name##Iterator pos)\
+Name##Iterator Name##Iterator_prev(Name##Iterator pos)\
 {\
-	assert(pos && "RBTree_prev");\
-	assert(pos->magic && "RBTree_prev");\
-	return Name##RBTree_prev(pos);\
-}\
-\
-KeyType const *Name##_key(Name##Iterator pos)\
-{\
-	assert(pos && "RBTree_key");\
-	assert(pos->magic && "RBTree_key");\
-	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "RBTree_key");\
-	return &pos->key;\
+	assert(pos && "RBTreeIterator_prev");\
+	assert(pos->magic && "RBTreeIterator_prev");\
+	return Name##RBTreeIterator_prev(pos);\
 }\
 \
 void Name##_swap(Name *self, Name *x)\

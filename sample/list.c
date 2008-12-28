@@ -43,23 +43,23 @@ int main(void)
 	hoge = Hoge_new("ddd", 4);
 	HogeList_push_front(x, hoge);
 
-	for (pos = HogeList_begin(x); pos != HogeList_end(x); pos = HogeList_next(pos)) {
-		Hoge_print(*HogeList_at(pos));
+	for (pos = HogeList_begin(x); pos != HogeList_end(x); pos = HogeListIterator_next(pos)) {
+		Hoge_print(*HogeListIterator_ref(pos));
 	}
-	for (pos = HogeList_begin(x); pos != HogeList_end(x); pos = HogeList_next(pos)) {
-		Hoge *h = *HogeList_at(pos);
+	for (pos = HogeList_begin(x); pos != HogeList_end(x); pos = HogeListIterator_next(pos)) {
+		Hoge *h = *HogeListIterator_ref(pos);
 		if (!strcmp(h->key, "bbb")) {
 			hoge = Hoge_new("eee", 5);
 			HogeList_insert(x, pos, hoge);
 		}
 	}
 	for (pos = HogeList_begin(x); pos != HogeList_end(x);) {
-		Hoge *h = *HogeList_at(pos);
+		Hoge *h = *HogeListIterator_ref(pos);
 		if (!strcmp(h->key, "bbb")) {
 			pos = HogeList_erase(x, pos);
 			Hoge_delete(h);
 		} else {
-			pos = HogeList_next(pos);
+			pos = HogeListIterator_next(pos);
 		}
 	}
 	while (!HogeList_empty(x)) {

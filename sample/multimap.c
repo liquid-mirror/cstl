@@ -25,25 +25,25 @@ int main(void)
 	/* すべての要素を出力する */
 	printf("english\t\tgerman\n");
 	printf("-------------------------------\n");
-	for (pos = StrStrMMap_begin(dict); pos != StrStrMMap_end(dict); pos = StrStrMMap_next(pos)) {
-		printf("%s\t\t%s\n", *StrStrMMap_key(pos), *StrStrMMap_value(pos));
+	for (pos = StrStrMMap_begin(dict); pos != StrStrMMap_end(dict); pos = StrStrMMapIterator_next(pos)) {
+		printf("%s\t\t%s\n", *StrStrMMapIterator_key(pos), *StrStrMMapIterator_value(pos));
 	}
 	printf("\n");
 
 	/* "smart"というキーに対応するすべての値を出力する */
 	word = "smart";
 	printf("%s: \n", word);
-	for (pos = StrStrMMap_lower_bound(dict, word); pos != StrStrMMap_upper_bound(dict, word); pos = StrStrMMap_next(pos)) {
-		printf("\t%s\n", *StrStrMMap_value(pos));
+	for (pos = StrStrMMap_lower_bound(dict, word); pos != StrStrMMap_upper_bound(dict, word); pos = StrStrMMapIterator_next(pos)) {
+		printf("\t%s\n", *StrStrMMapIterator_value(pos));
 	}
 	printf("\n");
 
 	/* "raffiniert"という値に対応するすべてのキーを出力する */
 	word = "raffiniert";
 	printf("%s: \n", word);
-	for (pos = StrStrMMap_begin(dict); pos != StrStrMMap_end(dict); pos = StrStrMMap_next(pos)) {
-		if (strcmp(word, *StrStrMMap_value(pos)) == 0) {
-			printf("\t%s\n", *StrStrMMap_key(pos));
+	for (pos = StrStrMMap_begin(dict); pos != StrStrMMap_end(dict); pos = StrStrMMapIterator_next(pos)) {
+		if (strcmp(word, *StrStrMMapIterator_value(pos)) == 0) {
+			printf("\t%s\n", *StrStrMMapIterator_key(pos));
 		}
 	}
 

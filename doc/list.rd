@@ -44,11 +44,11 @@ listを使うには、以下のマクロを用いてコードを展開する必�
       }
       /* サイズ */
       printf("size: %d\n", IntList_size(lst));
-      for (pos = IntList_begin(lst); pos != IntList_end(lst); pos = IntList_next(pos)) {
+      for (pos = IntList_begin(lst); pos != IntList_end(lst); pos = IntListIterator_next(pos)) {
           /* イテレータによる要素の読み書き */
-          printf("%d,", *IntList_at(pos));
-          *IntList_at(pos) += 1;
-          printf("%d\n", *IntList_at(pos));
+          printf("%d,", *IntListIterator_ref(pos));
+          *IntListIterator_ref(pos) += 1;
+          printf("%d\n", *IntListIterator_ref(pos));
       }
   
       /* 使い終わったら破棄 */
@@ -78,9 +78,9 @@ listを使うには、以下のマクロを用いてコードを展開する必�
   * イテレータ
     * ((<List_begin()>)) , ((<List_end()>))
     * ((<List_rbegin()>)) , ((<List_rend()>))
-    * ((<List_next()>)) , ((<List_prev()>))
+    * ((<ListIterator_next()>)) , ((<ListIterator_prev()>))
+    * ((<ListIterator_ref()>))
   * 要素のアクセス
-    * ((<List_at()>))
     * ((<List_front()>)) , ((<List_back()>))
   * 挿入
     * ((<List_insert()>)) , ((<List_insert_n()>)) , ((<List_insert_array()>)) , ((<List_insert_range()>))
@@ -159,24 +159,24 @@ listを使うには、以下のマクロを用いてコードを展開する必�
 * selfの最初の要素の前のイテレータを返す。
 <<< hr
 
-==== List_next()
-  ListIterator List_next(ListIterator pos);
+==== ListIterator_next()
+  ListIterator ListIterator_next(ListIterator pos);
 * posが示す位置の要素の次のイテレータを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがList_end()またはList_rend()でないこと。
 <<< hr
 
-==== List_prev()
-  ListIterator List_prev(ListIterator pos);
+==== ListIterator_prev()
+  ListIterator ListIterator_prev(ListIterator pos);
 * posが示す位置の要素の前のイテレータを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがList_end()またはList_rend()でないこと。
 <<< hr
 
-==== List_at()
-  T *List_at(ListIterator pos);
+==== ListIterator_ref()
+  T *ListIterator_ref(ListIterator pos);
 * posが示す位置の要素へのポインタを返す。
 * 事前条件
   * posが有効なイテレータであること。

@@ -48,23 +48,23 @@ int main(void)
 
 	printf("*** benchmark map<int, int> ***\n");
 
-	// lookup
+	// at
 	t = get_msec();
 	for (i = 0; i < COUNT; i++) {
-		*IntIntMap_lookup(x, i) = COUNT - i;
+		*IntIntMap_at(x, i) = COUNT - i;
 	}
-	printf("cstl: lookup[%d]: %g ms\n", COUNT, get_msec() - t);
+	printf("cstl: at[%d]: %g ms\n", COUNT, get_msec() - t);
 
 	t = get_msec();
 	for (i = 0; i < COUNT; i++) {
 		y[i] = COUNT - i;
 	}
-	printf("stl : lookup[%d]: %g ms\n", COUNT, get_msec() - t);
-	for (xpos = IntIntMap_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntIntMap_next(xpos), ++ypos) {
-		if (ypos->first != *IntIntMap_key(xpos)) {
+	printf("stl : at[%d]: %g ms\n", COUNT, get_msec() - t);
+	for (xpos = IntIntMap_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntIntMapIterator_next(xpos), ++ypos) {
+		if (ypos->first != *IntIntMapIterator_key(xpos)) {
 			printf("!!!NG!!!\n");
 		}
-		if (ypos->second != *IntIntMap_value(xpos)) {
+		if (ypos->second != *IntIntMapIterator_value(xpos)) {
 			printf("!!!NG!!!\n");
 		}
 	}
@@ -100,11 +100,11 @@ int main(void)
 	if (y.size() != IntIntMap_size(x)) {
 		printf("!!!NG!!!\n");
 	}
-	for (xpos = IntIntMap_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntIntMap_next(xpos), ++ypos) {
-		if (ypos->first != *IntIntMap_key(xpos)) {
+	for (xpos = IntIntMap_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntIntMapIterator_next(xpos), ++ypos) {
+		if (ypos->first != *IntIntMapIterator_key(xpos)) {
 			printf("!!!NG!!!\n");
 		}
-		if (ypos->second != *IntIntMap_value(xpos)) {
+		if (ypos->second != *IntIntMapIterator_value(xpos)) {
 			printf("!!!NG!!!\n");
 		}
 	}

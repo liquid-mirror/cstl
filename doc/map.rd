@@ -3,10 +3,10 @@
 mapはキーと値のペアを要素とするコンテナである。
 要素を挿入すると、キーによって自動的にソートされる。同じキーの要素を2個以上挿入することはできない。
 挿入した要素のキーは読み出し専用となる。
-キーによる要素のルックアップが可能。
-要素の挿入・削除・キーの検索・ルックアップの計算量はO(log N)である。
+キーによる要素のランダムアクセスが可能。
+要素の挿入・削除・キーの検索・キーによる要素のランダムアクセスの計算量はO(log N)である。
 
-multimapはキーの重複が許されることと、ルックアップが不可能であることを除き、mapと同じである。
+multimapはキーの重複が許されることと、キーによる要素のランダムアクセスが不可能であることを除き、mapと同じである。
 
 map/multimapを使うには、以下のマクロを用いてコードを展開する必要がある。
 
@@ -34,7 +34,7 @@ map/multimapを使うには、以下のマクロを用いてコードを展開�
   任意の要素の値の型
 : Compare
   要素を比較する関数またはマクロ
-  * KeyTypeが整数型、小数型、ポインタ型など、2つの値を単純に比較できる型の場合、
+  * KeyTypeが整数型、小数型、ポインタ型など、2つの値を演算子で比較できる型の場合、
     要素のソートの順序を昇順にするならばCSTL_LESSを、降順にするならばCSTL_GREATERをCompareに指定する。
     これらのマクロはヘッダで以下のように定義されている。
       #define CSTL_LESS(x, y)     ((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
@@ -63,17 +63,17 @@ map/multimapを使うには、以下のマクロを用いてコードを展開�
       /* 要素を挿入 */
       StrIntMap_insert(map, "aaa", 1, NULL);
       StrIntMap_insert(map, "bbb", 2, NULL);
-      /* ルックアップによる要素の読み書き */
-      printf("%d\n", *StrIntMap_lookup(map, "aaa"));
-      *StrIntMap_lookup(map, "bbb") = 3;
-      *StrIntMap_lookup(map, "ccc") = 4; /* 存在しないキーの要素は自動的に挿入 */
+      /* キーによる要素の読み書き */
+      printf("%d\n", *StrIntMap_at(map, "aaa"));
+      *StrIntMap_at(map, "bbb") = 3;
+      *StrIntMap_at(map, "ccc") = 4; /* 存在しないキーの要素は自動的に挿入 */
       /* サイズ */
       printf("size: %d\n", StrIntMap_size(map));
-      for (pos = StrIntMap_begin(map); pos != StrIntMap_end(map); pos = StrIntMap_next(pos)) {
+      for (pos = StrIntMap_begin(map); pos != StrIntMap_end(map); pos = StrIntMapIterator_next(pos)) {
           /* イテレータによる要素の読み書き */
-          printf("%s: %d,", *StrIntMap_key(pos), *StrIntMap_value(pos));
-          *StrIntMap_value(pos) += 1;
-          printf("%d\n", *StrIntMap_value(pos));
+          printf("%s: %d,", *StrIntMapIterator_key(pos), *StrIntMapIterator_value(pos));
+          *StrIntMapIterator_value(pos) += 1;
+          printf("%d\n", *StrIntMapIterator_value(pos));
       }
   
       /* 使い終わったら破棄 */
@@ -104,10 +104,10 @@ NameにMap, KeyTypeにKeyT, ValueTypeにValueTを指定した場合、
   * イテレータ
     * ((<Map_begin()>)) , ((<Map_end()>))
     * ((<Map_rbegin()>)) , ((<Map_rend()>))
-    * ((<Map_next()>)) , ((<Map_prev()>))
+    * ((<MapIterator_next()>)) , ((<MapIterator_prev()>))
+    * ((<MapIterator_key()>)) , ((<MapIterator_value()>))
   * 要素のアクセス
-    * ((<Map_key()>)) , ((<Map_value()>))
-    * ((<Map_lookup() map用>))
+    * ((<Map_at() map用>))
   * 挿入
     * ((<Map_insert() map用>)) , ((<Map_insert() multimap用>)) , ((<Map_insert_range()>))
   * 削除
@@ -177,40 +177,41 @@ NameにMap, KeyTypeにKeyT, ValueTypeにValueTを指定した場合、
 * selfの最初の要素の前のイテレータを返す。
 <<< hr
 
-==== Map_next()
-  MapIterator Map_next(MapIterator pos);
+==== MapIterator_next()
+  MapIterator MapIterator_next(MapIterator pos);
 * posが示す位置の要素の次のイテレータを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがMap_end()またはMap_rend()でないこと。
 <<< hr
 
-==== Map_prev()
-  MapIterator Map_prev(MapIterator pos);
+==== MapIterator_prev()
+  MapIterator MapIterator_prev(MapIterator pos);
 * posが示す位置の要素の前のイテレータを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがMap_end()またはMap_rend()でないこと。
 <<< hr
 
-==== Map_key()
-  KeyT const *Map_key(MapIterator pos);
+==== MapIterator_key()
+  KeyT const *MapIterator_key(MapIterator pos);
 * posが示す位置の要素のキーへのポインタを返す。
+* 戻り値のポインタの参照先はconstである。
 * 事前条件
   * posが有効なイテレータであること。
   * posがMap_end()またはMap_rend()でないこと。
 <<< hr
 
-==== Map_value()
-  ValueT *Map_value(MapIterator pos);
+==== MapIterator_value()
+  ValueT *MapIterator_value(MapIterator pos);
 * posが示す位置の要素の値へのポインタを返す。
 * 事前条件
   * posが有効なイテレータであること。
   * posがMap_end()またはMap_rend()でないこと。
 <<< hr
 
-==== Map_lookup() map用
-  ValueT *Map_lookup(Map *self, KeyT key);
+==== Map_at() map用
+  ValueT *Map_at(Map *self, KeyT key);
 * selfのkeyというキーの要素の値へのポインタを返す。
 * selfがkeyというキーの要素を持っていない場合、keyというキーの新しい要素(値は不定)を挿入し、その要素の値へのポインタを返す。
 * メモリ不足の場合、NDEBUGマクロが未定義ならばアサーションに失敗し、定義済みならばselfの変更を行わずNULLを返す。

@@ -63,8 +63,8 @@ int main(void)
 	if (y.size() != IntSet_size(x)) {
 		printf("!!!NG!!!\n");
 	}
-	for (xpos = IntSet_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntSet_next(xpos), ++ypos) {
-		if (*ypos != *IntSet_key(xpos)) {
+	for (xpos = IntSet_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntSetIterator_next(xpos), ++ypos) {
+		if (*ypos != *IntSetIterator_ref(xpos)) {
 			printf("!!!NG!!!\n");
 		}
 	}

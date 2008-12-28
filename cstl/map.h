@@ -76,11 +76,19 @@ static Name##RBTreeNode *Name##RBTreeNode_new(KeyType key, ValueType value, int 
 	return self;\
 }\
 \
-ValueType *Name##_value(Name##Iterator pos)\
+KeyType const *Name##Iterator_key(Name##Iterator pos)\
 {\
-	assert(pos && "Map_value");\
-	assert(pos->magic && "Map_value");\
-	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "Map_value");\
+	assert(pos && "MapIterator_key");\
+	assert(pos->magic && "MapIterator_key");\
+	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "MapIterator_key");\
+	return &pos->key;\
+}\
+\
+ValueType *Name##Iterator_value(Name##Iterator pos)\
+{\
+	assert(pos && "MapIterator_value");\
+	assert(pos->magic && "MapIterator_value");\
+	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "MapIterator_value");\
 	return &pos->value;\
 }\
 \
@@ -97,8 +105,9 @@ ValueType *Name##_value(Name##Iterator pos)\
 CSTL_MAP_BEGIN_EXTERN_C()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success);\
-ValueType *Name##_value(Name##Iterator pos);\
-ValueType *Name##_lookup(Name *self, KeyType key);\
+KeyType const *Name##Iterator_key(Name##Iterator pos);\
+ValueType *Name##Iterator_value(Name##Iterator pos);\
+ValueType *Name##_at(Name *self, KeyType key);\
 CSTL_MAP_END_EXTERN_C()\
 
 /*! 
@@ -148,9 +157,9 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	assert(last->magic && "Map_insert_range");\
 	head.right = (Name##RBTreeNode *) &Name##RBTree_nil;\
 	tmp = &head;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (Name##RBTree_find(self->tree, *Name##_key(pos)) == Name##RBTree_end(self->tree)) {\
-			tmp->right = Name##RBTreeNode_new(*Name##_key(pos), *Name##_value(pos), CSTL_RBTREE_RED);\
+	for (pos = first; pos != last; pos = Name##Iterator_next(pos)) {\
+		if (Name##RBTree_find(self->tree, *Name##Iterator_key(pos)) == Name##RBTree_end(self->tree)) {\
+			tmp->right = Name##RBTreeNode_new(*Name##Iterator_key(pos), *Name##Iterator_value(pos), CSTL_RBTREE_RED);\
 			if (!tmp->right) {\
 				for (pos = head.right; pos != 0; pos = tmp) {\
 					tmp = pos->right;\
@@ -171,11 +180,11 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	return 1;\
 }\
 \
-ValueType *Name##_lookup(Name *self, KeyType key)\
+ValueType *Name##_at(Name *self, KeyType key)\
 {\
 	Name##Iterator pos;\
-	assert(self && "Map_lookup");\
-	assert(self->magic == self && "Map_lookup");\
+	assert(self && "Map_at");\
+	assert(self->magic == self && "Map_at");\
 	pos = Name##RBTree_find(self->tree, key);\
 	if (pos == Name##RBTree_end(self->tree)) {\
 		static ValueType value; /* 新しい要素の値 */\
@@ -185,7 +194,7 @@ ValueType *Name##_lookup(Name *self, KeyType key)\
 			self->size++;\
 		} else {\
 			/* メモリ不足 */\
-			assert(0 && "Map_lookup");\
+			assert(0 && "Map_at");\
 			return 0;\
 		}\
 	}\
@@ -205,7 +214,8 @@ ValueType *Name##_lookup(Name *self, KeyType key)\
 CSTL_MAP_BEGIN_EXTERN_C()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value);\
-ValueType *Name##_value(Name##Iterator pos);\
+KeyType const *Name##Iterator_key(Name##Iterator pos);\
+ValueType *Name##Iterator_value(Name##Iterator pos);\
 CSTL_MAP_END_EXTERN_C()\
 
 /*! 
@@ -247,8 +257,8 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	assert(last->magic && "MultiMap_insert_range");\
 	head.right = (Name##RBTreeNode *) &Name##RBTree_nil;\
 	tmp = &head;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		tmp->right = Name##RBTreeNode_new(*Name##_key(pos), *Name##_value(pos), CSTL_RBTREE_RED);\
+	for (pos = first; pos != last; pos = Name##Iterator_next(pos)) {\
+		tmp->right = Name##RBTreeNode_new(*Name##Iterator_key(pos), *Name##Iterator_value(pos), CSTL_RBTREE_RED);\
 		if (!tmp->right) {\
 			for (pos = head.right; pos != 0; pos = tmp) {\
 				tmp = pos->right;\

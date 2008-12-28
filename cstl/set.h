@@ -74,6 +74,14 @@ static Name##RBTreeNode *Name##RBTreeNode_new(Type elem, int color)\
 	return self;\
 }\
 \
+Type const *Name##Iterator_ref(Name##Iterator pos)\
+{\
+	assert(pos && "SetIterator_ref");\
+	assert(pos->magic && "SetIterator_ref");\
+	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "SetIterator_ref");\
+	return &pos->key;\
+}\
+\
 
 
 /*! 
@@ -87,6 +95,7 @@ static Name##RBTreeNode *Name##RBTreeNode_new(Type elem, int color)\
 CSTL_SET_BEGIN_EXTERN_C()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
 Name##Iterator Name##_insert(Name *self, Type elem, int *success);\
+Type const *Name##Iterator_ref(Name##Iterator pos);\
 CSTL_SET_END_EXTERN_C()\
 
 /*! 
@@ -134,9 +143,9 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	assert(last->magic && "Set_insert_range");\
 	head.right = (Name##RBTreeNode *) &Name##RBTree_nil;\
 	tmp = &head;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (Name##RBTree_find(self->tree, *Name##_key(pos)) == Name##RBTree_end(self->tree)) {\
-			tmp->right = Name##RBTreeNode_new(*Name##_key(pos), CSTL_RBTREE_RED);\
+	for (pos = first; pos != last; pos = Name##Iterator_next(pos)) {\
+		if (Name##RBTree_find(self->tree, *Name##Iterator_ref(pos)) == Name##RBTree_end(self->tree)) {\
+			tmp->right = Name##RBTreeNode_new(*Name##Iterator_ref(pos), CSTL_RBTREE_RED);\
 			if (!tmp->right) {\
 				for (pos = head.right; pos != 0; pos = tmp) {\
 					tmp = pos->right;\
@@ -170,6 +179,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 CSTL_SET_BEGIN_EXTERN_C()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
 Name##Iterator Name##_insert(Name *self, Type elem);\
+Type const *Name##Iterator_ref(Name##Iterator pos);\
 CSTL_SET_END_EXTERN_C()\
 
 /*! 
@@ -209,8 +219,8 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	assert(last->magic && "MultiSet_insert_range");\
 	head.right = (Name##RBTreeNode *) &Name##RBTree_nil;\
 	tmp = &head;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		tmp->right = Name##RBTreeNode_new(*Name##_key(pos), CSTL_RBTREE_RED);\
+	for (pos = first; pos != last; pos = Name##Iterator_next(pos)) {\
+		tmp->right = Name##RBTreeNode_new(*Name##Iterator_ref(pos), CSTL_RBTREE_RED);\
 		if (!tmp->right) {\
 			for (pos = head.right; pos != 0; pos = tmp) {\
 				tmp = pos->right;\
