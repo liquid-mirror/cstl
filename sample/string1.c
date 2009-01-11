@@ -10,12 +10,11 @@ CSTL_STRING_IMPLEMENT(String, char)
 int main(int argc, char *argv[])
 {
 	int i;
-	String *filename = String_new(16);
-	String *basename = String_new(16);
-	String *extname = String_new(16);
-	String *tmpname = String_new(16);
-	String *suffix = String_new(8);
-	String_assign(suffix, "tmp");
+	String *filename = String_new();
+	String *basename = String_new();
+	String *extname = String_new();
+	String *tmpname = String_new();
+	String *suffix = String_new_assign("tmp");
 
 	for (i = 1; i < argc; i++) {
 		size_t idx;

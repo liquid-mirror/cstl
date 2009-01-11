@@ -54,7 +54,7 @@ void VectorTest_test_1_1(void)
 {
 	size_t a;
 	printf("***** test_1_1 *****\n");
-	uv = UCharVector_new(SIZE);
+	uv = UCharVector_new_reserve(SIZE);
 	vector_init_hoge();
 	/* 初期状態 */
 	assert(UCharVector_capacity(uv) == SIZE);
@@ -107,6 +107,12 @@ void VectorTest_test_1_1(void)
 
 	POOL_DUMP_OVERFLOW(&pool);
 	UCharVector_delete(uv);
+
+	/* new */
+	uv = UCharVector_new();
+	assert(UCharVector_size(uv) == 0);
+	assert(UCharVector_empty(uv));
+	UCharVector_delete(uv);
 }
 
 void VectorTest_test_1_2(void)
@@ -114,7 +120,7 @@ void VectorTest_test_1_2(void)
 	int i;
 	size_t a;
 	printf("***** test_1_2 *****\n");
-	uv = UCharVector_new(SIZE);
+	uv = UCharVector_new_reserve(SIZE);
 	vector_init_hoge();
 	/* push_back */
 	for (i = 0; i < SIZE; i++) {
@@ -160,7 +166,7 @@ void VectorTest_test_1_3(void)
 {
 	int i;
 	printf("***** test_1_3 *****\n");
-	uv = UCharVector_new(SIZE);
+	uv = UCharVector_new_reserve(SIZE);
 	vector_init_hoge();
 	/* insert_array */
 	UCharVector_clear(uv);
@@ -188,7 +194,7 @@ void VectorTest_test_1_4(void)
 	int i;
 	unsigned char buf[256];
 	printf("***** test_1_4 *****\n");
-	uv = UCharVector_new(SIZE);
+	uv = UCharVector_new_reserve(SIZE);
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
 		assert(UCharVector_insert(uv, 0, hoge[i]));
@@ -233,7 +239,7 @@ void VectorTest_test_1_4(void)
 void VectorTest_test_1_5(void)
 {
 	printf("***** test_1_5 *****\n");
-	uv = UCharVector_new(SIZE);
+	uv = UCharVector_new_reserve(SIZE);
 	vector_init_hoge();
 	/* insert_array */
 	assert(UCharVector_insert_array(uv, 0, hoge, SIZE));
@@ -290,7 +296,7 @@ void VectorTest_test_1_6(void)
 	unsigned char b[] = {1, 2, 4, 43, 2, 54, 1, 0, 2, 24};
 	size_t cap1, cap2;
 	printf("***** test_1_6 *****\n");
-	uv = UCharVector_new(SIZE);
+	uv = UCharVector_new_reserve(SIZE);
 	vector_init_hoge();
 
 	UCharVector_clear(uv);
@@ -332,7 +338,7 @@ void VectorTest_test_1_6(void)
 	assert(UCharVector_capacity(uv) == 10);
 	assert(UCharVector_size(uv) == 10);
 	/* swap */
-	x = UCharVector_new(SIZE);
+	x = UCharVector_new_reserve(SIZE);
 	UCharVector_clear(uv);
 	UCharVector_shrink(uv, 0);
 	UCharVector_clear(uv);
@@ -431,7 +437,7 @@ void VectorTest_test_2_1(void)
 {
 	size_t a;
 	printf("***** test_2_1 *****\n");
-	iv = IntVector_new(SIZE);
+	iv = IntVector_new_reserve(SIZE);
 	vector_init_piyo();
 	/* 初期状態 */
 	assert(IntVector_capacity(iv) == SIZE);
@@ -491,7 +497,7 @@ void VectorTest_test_2_2(void)
 	int i;
 	size_t a;
 	printf("***** test_2_2 *****\n");
-	iv = IntVector_new(SIZE);
+	iv = IntVector_new_reserve(SIZE);
 	vector_init_piyo();
 	/* push_back */
 	for (i = 0; i < SIZE; i++) {
@@ -537,7 +543,7 @@ void VectorTest_test_2_3(void)
 {
 	int i;
 	printf("***** test_2_3 *****\n");
-	iv = IntVector_new(SIZE);
+	iv = IntVector_new_reserve(SIZE);
 	vector_init_piyo();
 	/* insert_array */
 	IntVector_clear(iv);
@@ -565,7 +571,7 @@ void VectorTest_test_2_4(void)
 	int i;
 	int buf[256];
 	printf("***** test_2_4 *****\n");
-	iv = IntVector_new(SIZE);
+	iv = IntVector_new_reserve(SIZE);
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
 		assert(IntVector_insert(iv, 0, piyo[i]));
@@ -610,7 +616,7 @@ void VectorTest_test_2_4(void)
 void VectorTest_test_2_5(void)
 {
 	printf("***** test_2_5 *****\n");
-	iv = IntVector_new(SIZE);
+	iv = IntVector_new_reserve(SIZE);
 	vector_init_piyo();
 	/* insert_array */
 	assert(IntVector_insert_array(iv, 0, piyo, SIZE));

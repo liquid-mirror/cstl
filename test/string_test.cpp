@@ -33,7 +33,7 @@ void StringTest_test_1_1(void)
 	size_t i;
 	printf("***** test_1_1 *****\n");
 	/* 初期状態 */
-	x = String_new(SIZE);
+	x = String_new_reserve(SIZE);
 	assert(String_empty(x));
 	assert(String_size(x) == 0);
 	assert(String_capacity(x) == SIZE);
@@ -53,6 +53,31 @@ void StringTest_test_1_1(void)
 
 	POOL_DUMP_OVERFLOW(&pool);
 	String_delete(x);
+
+	/* new */
+	x = String_new();
+	assert(String_empty(x));
+	assert(String_size(x) == 0);
+	String_delete(x);
+	/* new_assign */
+	const char *str = "abcdefghijklmn";
+	x = String_new_assign(str);
+	assert(String_size(x) == strlen(str));
+	assert(String_capacity(x) == strlen(str));
+	assert(strcmp(String_c_str(x), str) == 0);
+	String_delete(x);
+	/* new_assign_len */
+	x = String_new_assign_len(str, 7);
+	assert(String_size(x) == 7);
+	assert(String_capacity(x) == 7);
+	assert(strcmp(String_c_str(x), "abcdefg") == 0);
+	String_delete(x);
+	/* new_assign_c */
+	x = String_new_assign_c(10, 'a');
+	assert(String_size(x) == 10);
+	assert(String_capacity(x) == 10);
+	assert(strcmp(String_c_str(x), "aaaaaaaaaa") == 0);
+	String_delete(x);
 }
 
 void StringTest_test_1_2(void)
@@ -60,7 +85,7 @@ void StringTest_test_1_2(void)
 	String *x;
 	String *y;
 	printf("***** test_1_2 *****\n");
-	x = String_new(SIZE);
+	x = String_new_reserve(SIZE);
 	/* capacity */
 	/* reserve */
 	String_reserve(x, 100);
@@ -118,7 +143,7 @@ void StringTest_test_1_2(void)
 	assert(strcmp("", String_c_str(x)) == 0);
 	/* compare */
 	String_assign(x, "abcdefg");
-	y = String_new(SIZE);
+	y = String_new_reserve(SIZE);
 	String_assign(y, "abcdefgh");
 	assert(String_compare(x, y) < 0);
 	String_erase(y, String_size(y)-2, 2);
@@ -178,7 +203,7 @@ void StringTest_test_1_3(void)
 {
 	String *x;
 	printf("***** test_1_3 *****\n");
-	x = String_new(SIZE);
+	x = String_new_reserve(SIZE);
 	/* assign */
 	assert(String_assign(x, "abcdefghijklmnopqrstuvwxyz") == x);
 	assert(String_size(x) == 26);
@@ -353,7 +378,7 @@ void StringTest_test_1_4(void)
 {
 	String *x;
 	printf("***** test_1_4 *****\n");
-	x = String_new(SIZE);
+	x = String_new_reserve(SIZE);
 	String_assign(x, "abcdefghijklmnopqrstuvwxyz");
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
@@ -563,8 +588,8 @@ void StringTest_test_1_5(void)
 	string s;
 	size_t i, j, k;
 	printf("***** test_1_5 *****\n");
-	x = String_new(SIZE);
-	y = String_new(SIZE);
+	x = String_new_reserve(SIZE);
+	y = String_new_reserve(SIZE);
 	String_assign(x, "abc abcd abcde abcdef abcdefg abcdefgh abcdefghi");
 	String_assign(y, "abcdefghijklmnopqrstuvwxyz");
 	s = String_c_str(x);

@@ -319,13 +319,13 @@ Name *Name##_new(void)\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->map = Name##_RingVector_new(CSTL_DEQUE_INITIAL_MAP_SIZE);\
+	self->map = Name##_RingVector_new_reserve(CSTL_DEQUE_INITIAL_MAP_SIZE);\
 	if (!self->map) {\
 		free(self);\
 		return 0;\
 	}\
 	Name##_RingVector_resize(self->map, CSTL_DEQUE_INITIAL_MAP_SIZE, 0);\
-	self->pool = Name##_RingVector_new(CSTL_DEQUE_INITIAL_MAP_SIZE);\
+	self->pool = Name##_RingVector_new_reserve(CSTL_DEQUE_INITIAL_MAP_SIZE);\
 	if (!self->pool) {\
 		Name##_RingVector_delete(self->map);\
 		free(self);\

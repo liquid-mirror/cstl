@@ -76,7 +76,7 @@ void AlgoTest_test_1_1(void)
 	vector<int> y;
 	int i;
 	printf("***** test_1_1 *****\n");
-	x = IntVector_new(SORT_COUNT);
+	x = IntVector_new_reserve(SORT_COUNT);
 	assert(x);
 
 	srand(time(0));
@@ -132,7 +132,7 @@ void AlgoTest_test_1_2(void)
 	vector<int> y;
 	int i;
 	printf("***** test_1_2 *****\n");
-	x = IntVector_new(SORT_COUNT);
+	x = IntVector_new_reserve(SORT_COUNT);
 
 	srand(time(0));
 	/* stable_sort */
@@ -188,7 +188,7 @@ void AlgoTest_test_1_3(void)
 	vector<int> y;
 	int i;
 	printf("***** test_1_3 *****\n");
-	x = IntVector_new(SORT_COUNT);
+	x = IntVector_new_reserve(SORT_COUNT);
 
 	srand(time(0));
 	/* stable_sort */
@@ -276,7 +276,7 @@ void AlgoTest_test_1_4(void)
 	HogeVector *x;
 	size_t i;
 	printf("***** test_1_4 *****\n");
-	x = HogeVector_new(SORT_COUNT);
+	x = HogeVector_new_reserve(SORT_COUNT);
 
 	srand(time(0));
 	/* stable_sort */
@@ -349,7 +349,7 @@ void AlgoTest_test_1_5(void)
 	HogeVector *x;
 	size_t i;
 	printf("***** test_1_5 *****\n");
-	x = HogeVector_new(SORT_COUNT);
+	x = HogeVector_new_reserve(SORT_COUNT);
 
 	srand(time(0));
 	/* stable_sort */
@@ -425,7 +425,7 @@ void AlgoTest_test_1_6(void)
 	vector<int> y;
 	int i;
 	printf("***** test_1_6 *****\n");
-	x = IntVector_new(SORT_COUNT);
+	x = IntVector_new_reserve(SORT_COUNT);
 	assert(x);
 
 	srand(time(0));
@@ -483,7 +483,7 @@ void AlgoTest_test_1_7(void)
 	vector<int> y;
 	int i;
 	printf("***** test_1_7 *****\n");
-	x = IntVector_new(SORT_COUNT);
+	x = IntVector_new_reserve(SORT_COUNT);
 	assert(x);
 
 	srand(time(0));
@@ -542,7 +542,7 @@ void AlgoTest_test_1_8(void)
 	vector<int> y;
 	int i;
 	printf("***** test_1_8 *****\n");
-	x = IntVector_new(SORT_COUNT);
+	x = IntVector_new_reserve(SORT_COUNT);
 	assert(x);
 
 	srand(time(0));
@@ -601,7 +601,7 @@ void AlgoTest_test_2_1(void)
 	IntVector *x;
 	int i;
 	printf("***** test_2_1 *****\n");
-	x = IntVector_new(COUNT);
+	x = IntVector_new_reserve(COUNT);
 	assert(x);
 	for (i = 0; i < COUNT; i++) {
 		assert(IntVector_push_back(x, i));
@@ -679,7 +679,7 @@ void AlgoTest_test_3_1(void)
 	IntVector *x;
 	int i;
 	printf("***** test_3_1 *****\n");
-	x = IntVector_new(COUNT);
+	x = IntVector_new_reserve(COUNT);
 	assert(x);
 	for (i = 0; i < COUNT; i++) {
 		assert(IntVector_push_back(x, i));
@@ -719,7 +719,7 @@ void AlgoTest_test_3_2(void)
 	IntVector *x;
 	int i;
 	printf("***** test_3_2 *****\n");
-	x = IntVector_new(COUNT);
+	x = IntVector_new_reserve(COUNT);
 	assert(x);
 	for (i = 0; i < COUNT; i++) {
 		assert(IntVector_push_back(x, i));
@@ -772,9 +772,9 @@ void AlgoTest_test_4_1(void)
 	IntVector *z;
 	int i;
 	printf("***** test_4_1 *****\n");
-	x = IntVector_new(COUNT);
-	y = IntVector_new(COUNT);
-	z = IntVector_new(COUNT);
+	x = IntVector_new_reserve(COUNT);
+	y = IntVector_new_reserve(COUNT);
+	z = IntVector_new_reserve(COUNT);
 	assert(x);
 	assert(y);
 	assert(z);
@@ -852,7 +852,7 @@ void AlgoTest_test_5_1(void)
 	IntVector *x;
 	int i;
 	printf("***** test_5_1 *****\n");
-	x = IntVector_new(COUNT);
+	x = IntVector_new_reserve(COUNT);
 	assert(x);
 	// inplace_merge
 	for (i = 0; i < COUNT / 2; i++) {
@@ -916,7 +916,7 @@ void AlgoTest_test_5_2(void)
 	IntVector *x;
 	int i;
 	printf("***** test_5_2 *****\n");
-	x = IntVector_new(COUNT);
+	x = IntVector_new_reserve(COUNT);
 	assert(x);
 	// inplace_merge
 	// merge_without_buffer
@@ -983,7 +983,7 @@ void AlgoTest_test_5_3(void)
 	IntVector *x;
 	int i;
 	printf("***** test_5_3 *****\n");
-	x = IntVector_new(COUNT);
+	x = IntVector_new_reserve(COUNT);
 	assert(x);
 	// inplace_merge
 	for (i = 0; i < COUNT; i++) {
@@ -1051,7 +1051,7 @@ void AlgoTest_test_6_1(void)
 	IntVector *x;
 	int i;
 	printf("***** test_6_1 *****\n");
-	x = IntVector_new(COUNT);
+	x = IntVector_new_reserve(COUNT);
 	assert(x);
 	for (i = 0; i < COUNT; i++) {
 		assert(IntVector_push_back(x, i));
@@ -1149,7 +1149,7 @@ void AlgoTest_test_6_2(void)
 	IntVector *x;
 	int i;
 	printf("***** test_6_2 *****\n");
-	x = IntVector_new(COUNT);
+	x = IntVector_new_reserve(COUNT);
 	assert(x);
 	for (i = 0; i < COUNT; i++) {
 		assert(IntVector_push_back(x, i));

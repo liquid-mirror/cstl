@@ -396,7 +396,7 @@ elif [ $lower = "list" ]; then
 	grep '#define CSTL_LIST_.*\(self\|pos\)' "../cstl/list.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "string" ]; then
 	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
-	grep '#define CSTL_STRING_.*self' "../cstl/string.h" | sed -e "s/\r//" >> "$path"".c"
+	grep '#define CSTL_STRING_\(.*self\|DEFAULT_CAPACITY\)' "../cstl/string.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "set" -o $lower = "multiset" -o\
 	 $lower = "map" -o $lower = "multimap" ]; then
 echo "\

@@ -65,6 +65,7 @@
 #define CSTL_NPOS	((size_t)-1)
 
 #define CSTL_STRING_AT(self, idx)	CSTL_VECTOR_AT((self)->data, (idx))
+#define CSTL_STRING_DEFAULT_CAPACITY	(32 - 1)
 
 
 /*! 
@@ -77,7 +78,11 @@
 typedef struct Name Name;\
 \
 CSTL_STRING_BEGIN_EXTERN_C()\
-Name *Name##_new(size_t n);\
+Name *Name##_new(void);\
+Name *Name##_new_reserve(size_t n);\
+Name *Name##_new_assign(const Type *cstr);\
+Name *Name##_new_assign_len(const Type *chars, size_t chars_len);\
+Name *Name##_new_assign_c(size_t n, Type c);\
 void Name##_delete(Name *self);\
 void Name##_clear(Name *self);\
 size_t Name##_size(Name *self);\
@@ -186,12 +191,17 @@ static int Name##_expand(Name *self, size_t n)\
 	return Name##_CharVector_expand(self->data, n + 1);\
 }\
 \
-Name *Name##_new(size_t n)\
+Name *Name##_new(void)\
+{\
+	return Name##_new_reserve(CSTL_STRING_DEFAULT_CAPACITY);\
+}\
+\
+Name *Name##_new_reserve(size_t n)\
 {\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->data = Name##_CharVector_new(n + 1);\
+	self->data = Name##_CharVector_new_reserve(n + 1);\
 	if (!self->data) {\
 		free(self);\
 		return 0;\
@@ -199,6 +209,32 @@ Name *Name##_new(size_t n)\
 	Name##_CharVector_push_back(self->data, '\0');\
 	CSTL_STRING_MAGIC(self->magic = self);\
 	return self;\
+}\
+\
+Name *Name##_new_assign(const Type *cstr)\
+{\
+	assert(cstr && "String_new_assign");\
+	return Name##_new_assign_len(cstr, CSTL_NPOS);\
+}\
+\
+Name *Name##_new_assign_len(const Type *chars, size_t chars_len)\
+{\
+	Name *self;\
+	assert(chars && "String_new_assign_len");\
+	if (chars_len == CSTL_NPOS) {\
+		chars_len = Name##_mystrlen(chars);\
+	}\
+	self = Name##_new_reserve(chars_len);\
+	if (!self) return 0;\
+	return Name##_assign_len(self, chars, chars_len);\
+}\
+\
+Name *Name##_new_assign_c(size_t n, Type c)\
+{\
+	Name *self;\
+	self = Name##_new_reserve(n);\
+	if (!self) return 0;\
+	return Name##_assign_c(self, n, c);\
 }\
 \
 void Name##_delete(Name *self)\
@@ -369,7 +405,7 @@ Name *Name##_assign_len(Name *self, const Type *chars, size_t chars_len)\
 {\
 	assert(self && "String_assign_len");\
 	assert(self->magic == self && "String_assign_len");\
-	assert(chars && "String_assign");\
+	assert(chars && "String_assign_len");\
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\

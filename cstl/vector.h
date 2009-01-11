@@ -77,7 +77,8 @@
 typedef struct Name Name;\
 \
 CSTL_VECTOR_BEGIN_EXTERN_C()\
-Name *Name##_new(size_t n);\
+Name *Name##_new(void);\
+Name *Name##_new_reserve(size_t n);\
 void Name##_delete(Name *self);\
 int Name##_push_back(Name *self, Type elem);\
 void Name##_pop_back(Name *self);\
@@ -117,22 +118,27 @@ struct Name {\
 	CSTL_VECTOR_MAGIC(Name *magic;)\
 };\
 \
-Name *Name##_new(size_t n)\
+Name *Name##_new(void)\
 {\
 	Name *self;\
-	Type *buf;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->capacity = n;\
-	if (!n) n = 1;\
-	buf = (Type *) malloc(sizeof(Type) * n);\
-	if (!buf) {\
-		free(self);\
+	self->capacity = 0;\
+	self->size = 0;\
+	self->buf = 0;\
+	CSTL_VECTOR_MAGIC(self->magic = self);\
+	return self;\
+}\
+\
+Name *Name##_new_reserve(size_t n)\
+{\
+	Name *self;\
+	self = Name##_new();\
+	if (!self) return 0;\
+	if (!Name##_reserve(self, n)) {\
+		Name##_delete(self);\
 		return 0;\
 	}\
-	self->size = 0;\
-	self->buf = buf;\
-	CSTL_VECTOR_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
@@ -239,9 +245,11 @@ void Name##_shrink(Name *self, size_t n)\
 		n = CSTL_VECTOR_SIZE(self);\
 	}\
 	self->capacity = n;\
-	if (!n) n = 1;\
 	newbuf = (Type *) realloc(self->buf, sizeof(Type) * n);\
-	if (newbuf) {\
+	if (!n) {\
+		/* nが0ならreallocはfreeと等価 */\
+		self->buf = 0;\
+	} else if (newbuf) {\
 		self->buf = newbuf;\
 	}\
 }\

@@ -8,10 +8,9 @@ CSTL_STRING_IMPLEMENT(String, char)
 int main(int argc, char *argv[])
 {
 	char buf[1024];
-	String *line = String_new(1024);
+	String *line = String_new_reserve(1024);
 	/* 区切り文字 */
-	String *delims = String_new(8);
-	String_assign(delims, " \t,.;");
+	String *delims = String_new_assign(" \t,.;");
 
 	while (fgets(buf, 1024, stdin)) {
 		size_t begIdx, endIdx;

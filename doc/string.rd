@@ -34,8 +34,8 @@ stringを使うには、以下のマクロを用いてコードを展開する�
   int main(void)
   {
       size_t i;
-      /* 許容量が32のstringを生成 */
-      String *str = String_new(32);
+      /* stringを生成 */
+      String *str = String_new();
   
       /* 代入 */
       String_assign(str, "string");
@@ -74,6 +74,8 @@ stringを使うには、以下のマクロを用いてコードを展開する�
 * 関数
   * 生成
     * ((<String_new()>))
+    * ((<String_new_reserve()>))
+    * ((<String_new_assign()>)) , ((<String_new_assign_len()>)) , ((<String_new_assign_c()>))
   * 破棄
     * ((<String_delete()>))
   * サイズ
@@ -125,8 +127,41 @@ stringを使うには、以下のマクロを用いてコードを展開する�
 <<< hr
 
 ==== String_new()
-  String *String_new(size_t n);
+  String *String_new(void);
+* stringを生成する。
+* 生成に成功した場合、そのオブジェクトへのポインタを返す。
+* メモリ不足の場合、NULLを返す。
+<<< hr
+
+==== String_new_reserve()
+  String *String_new_reserve(size_t n);
 * 許容量(内部メモリの再割り当てを行わずに格納できる文字数)がn個のstringを生成する。
+* 生成に成功した場合、そのオブジェクトへのポインタを返す。
+* メモリ不足の場合、NULLを返す。
+<<< hr
+
+==== String_new_assign()
+  String *String_new_assign(const CharT *cstr);
+* cstrというCの文字列で初期化されたstringを生成する。
+* 生成に成功した場合、そのオブジェクトへのポインタを返す。
+* メモリ不足の場合、NULLを返す。
+* 事前条件
+  * cstrがNULLでないこと。
+<<< hr
+
+==== String_new_assign_len()
+  String *String_new_assign_len(const CharT *chars, size_t chars_len);
+* charsという文字の配列からchars_len個の文字で初期化されたstringを生成する。
+* chars_lenがCSTL_NPOSと等しい場合、String_new_assign()と等価となる。ただしcharsは'\0'で終端していなければならない。
+* 生成に成功した場合、そのオブジェクトへのポインタを返す。
+* メモリ不足の場合、NULLを返す。
+* 事前条件
+  * charsがNULLでないこと。
+<<< hr
+
+==== String_new_assign_c()
+  String *String_new_assign_c(size_t n, CharT c);
+* n個のcという文字で初期化されたstringを生成する。
 * 生成に成功した場合、そのオブジェクトへのポインタを返す。
 * メモリ不足の場合、NULLを返す。
 <<< hr

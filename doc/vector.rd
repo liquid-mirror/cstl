@@ -33,11 +33,11 @@ vectorを使うには、以下のマクロを用いてコードを展開する�
   int main(void)
   {
       int i;
-      /* 許容量が32のintのvectorを生成 */
-      IntVector *vec = IntVector_new(32);
+      /* intのvectorを生成 */
+      IntVector *vec = IntVector_new();
   
       for (i = 0; i < 64; i++) {
-          /* 末尾から要素を追加。許容量を超えても自動的に拡張する */
+          /* 末尾から要素を追加。自動的に拡張する */
           IntVector_push_back(vec, i);
       }
       /* サイズ */
@@ -67,6 +67,7 @@ vectorを使うには、以下のマクロを用いてコードを展開する�
 * 関数
   * 生成
     * ((<Vector_new()>))
+    * ((<Vector_new_reserve()>))
   * 破棄
     * ((<Vector_delete()>))
   * サイズ
@@ -97,7 +98,14 @@ vectorを使うには、以下のマクロを用いてコードを展開する�
 <<< hr
 
 ==== Vector_new()
-  Vector *Vector_new(size_t n);
+  Vector *Vector_new(void);
+* vectorを生成する。
+* 生成に成功した場合、そのオブジェクトへのポインタを返す。
+* メモリ不足の場合、NULLを返す。
+<<< hr
+
+==== Vector_new_reserve()
+  Vector *Vector_new_reserve(size_t n);
 * 許容量(内部メモリの再割り当てを行わずに格納できる要素数)がn個のvectorを生成する。
 * 生成に成功した場合、そのオブジェクトへのポインタを返す。
 * メモリ不足の場合、NULLを返す。

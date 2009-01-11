@@ -64,7 +64,7 @@ int main(void)
 	IntVector *x;
 	vector<int> y;
 
-	x = IntVector_new(8);
+	x = IntVector_new_reserve(8);
 	y.reserve(8);
 
 	printf("*** benchmark vector<int> ***\n");
