@@ -596,6 +596,120 @@ void AlgoTest_test_1_8(void)
 #endif
 }
 
+void AlgoTest_test_1_9(void)
+{
+	static int buf[SORT_COUNT];
+	IntVector *x;
+	vector<int> y;
+	int i;
+	printf("***** test_1_9 *****\n");
+	x = IntVector_new_reserve(SORT_COUNT);
+	assert(x);
+
+	srand(time(0));
+	/* partial_sort */
+	for (i = 0; i < SORT_COUNT; i++) {
+		buf[i] = rand();
+		IntVector_push_back(x, buf[i]);
+		y.push_back(buf[i]);
+	}
+	IntVector_partial_sort(x, 0, IntVector_size(x), IntVector_size(x), int_less);
+	partial_sort(y.begin(), y.end(), y.end(), less<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* partial_sort済みをpartial_sort */
+	IntVector_partial_sort(x, 0, IntVector_size(x), IntVector_size(x), int_less);
+	partial_sort(y.begin(), y.end(), y.end(), less<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* 逆順にpartial_sort */
+	IntVector_partial_sort(x, 0, IntVector_size(x), IntVector_size(x), int_greater);
+	partial_sort(y.begin(), y.end(), y.end(), greater<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* partial_sort済みをpartial_sort */
+	IntVector_partial_sort(x, 0, IntVector_size(x), IntVector_size(x), int_greater);
+	partial_sort(y.begin(), y.end(), y.end(), greater<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+
+	IntVector_delete(x);
+}
+
+void AlgoTest_test_1_10(void)
+{
+	static int buf[SORT_COUNT];
+	IntVector *x;
+	vector<int> y;
+	int i;
+	printf("***** test_1_10 *****\n");
+	x = IntVector_new_reserve(SORT_COUNT);
+	assert(x);
+
+	srand(time(0));
+	/* partial_sort */
+	/* 部分的にソート */
+	for (i = 0; i < SORT_COUNT; i++) {
+		buf[i] = rand();
+		IntVector_push_back(x, buf[i]);
+		y.push_back(buf[i]);
+	}
+	size_t half_size = IntVector_size(x) / 2;
+	IntVector_partial_sort(x, half_size, IntVector_size(x) - half_size - 1000, IntVector_size(x) - half_size, int_less);
+	partial_sort(y.begin() + half_size, y.end() - 1000, y.end(), less<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* partial_sort済みをpartial_sort */
+	IntVector_partial_sort(x, half_size, IntVector_size(x) - half_size - 1000, IntVector_size(x) - half_size, int_less);
+	partial_sort(y.begin() + half_size, y.end() - 1000, y.end(), less<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* 逆順にpartial_sort */
+	IntVector_partial_sort(x, half_size, IntVector_size(x) - half_size - 1000, IntVector_size(x) - half_size, int_greater);
+	partial_sort(y.begin() + half_size, y.end() - 1000, y.end(), greater<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+	/* partial_sort済みをpartial_sort */
+	IntVector_partial_sort(x, half_size, IntVector_size(x) - half_size - 1000, IntVector_size(x) - half_size, int_greater);
+	partial_sort(y.begin() + half_size, y.end() - 1000, y.end(), greater<int>());
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i)) {
+			printf("NG: x[%d]:%d, y[%d]:%d\n", i, *IntVector_at(x, i), i, y[i]);
+			assert(0);
+		}
+	}
+
+	IntVector_delete(x);
+}
+
 void AlgoTest_test_2_1(void)
 {
 	IntVector *x;
@@ -1253,6 +1367,8 @@ void AlgoTest_run(void)
 	AlgoTest_test_1_6();
 	AlgoTest_test_1_7();
 	AlgoTest_test_1_8();
+	AlgoTest_test_1_9();
+	AlgoTest_test_1_10();
 	AlgoTest_test_2_1();
 	AlgoTest_test_3_1();
 	AlgoTest_test_3_2();

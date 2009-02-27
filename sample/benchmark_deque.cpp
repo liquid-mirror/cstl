@@ -407,6 +407,56 @@ int main(void)
 		}
 	}
 
+	IntDeque_clear(x);
+	y.clear();
+	// partial_sort
+	for (i = 0; i < SORT_COUNT; i++) {
+		hoge = rand();
+		IntDeque_push_back(x, hoge);
+		y.push_back(hoge);
+	}
+	t = get_msec();
+	IntDeque_partial_sort(x, 0, IntDeque_size(x), IntDeque_size(x), comp);
+	printf("cstl: partial_sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	partial_sort(y.begin(), y.end(), y.end());
+	printf("stl : partial_sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntDeque_at(x, i)) {
+			printf("!!!NG!!!\n");
+		}
+	}
+	// partial_sort 2
+	t = get_msec();
+	IntDeque_partial_sort(x, 0, IntDeque_size(x), IntDeque_size(x), comp);
+	printf("cstl: partial_sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	partial_sort(y.begin(), y.end(), y.end());
+	printf("stl : partial_sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntDeque_at(x, i)) {
+			printf("!!!NG!!!\n");
+		}
+	}
+	// partial_sort 3
+	t = get_msec();
+	IntDeque_partial_sort(x, 0, IntDeque_size(x), IntDeque_size(x), greater_comp);
+	printf("cstl: partial_sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	partial_sort(y.begin(), y.end(), y.end(), std::greater<int>());
+	printf("stl : partial_sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntDeque_at(x, i)) {
+			printf("!!!NG!!!\n");
+		}
+	}
+
 	IntDeque_delete(x);
 	return 0;
 }

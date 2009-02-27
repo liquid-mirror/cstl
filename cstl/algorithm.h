@@ -63,6 +63,7 @@ void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *
 void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
 void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
 void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *));\
+void Name##_partial_sort(Name *self, size_t idx, size_t sort_n, size_t n, int (*comp)(const void *, const void *));\
 
 
 #define CSTL_ALGORITHM_IMPLEMENT(Name, Type, DIRECT_ACCESS)	\
@@ -571,6 +572,28 @@ void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *
 		CSTL_ALGORITHM_SWAP(idx, idx + i - 1, tmp, DIRECT_ACCESS);\
 		Name##_down_heap(self, idx, 1, i - 1, comp);\
 	}\
+}\
+\
+void Name##_partial_sort(Name *self, size_t idx, size_t sort_n, size_t n, int (*comp)(const void *, const void *))\
+{\
+	register size_t i;\
+	Type tmp;\
+	assert(self && "partial_sort");\
+	assert(self->magic == self && "partial_sort");\
+	assert(Name##_size(self) >= idx + n && "partial_sort");\
+	assert(Name##_size(self) >= n && "partial_sort");\
+	assert(Name##_size(self) > idx && "partial_sort");\
+	assert(sort_n <= n && "partial_sort");\
+	assert(comp && "partial_sort");\
+	Name##_make_heap(self, idx, sort_n, comp);\
+	for (i = idx + sort_n; i < idx + n; i++) {\
+		if (comp(&DIRECT_ACCESS(self, idx), &DIRECT_ACCESS(self, i)) > 0) {\
+			Name##_pop_heap(self, idx, sort_n, comp);\
+			CSTL_ALGORITHM_SWAP(idx + sort_n - 1, i, tmp, DIRECT_ACCESS);\
+			Name##_push_heap(self, idx, sort_n, comp);\
+		}\
+	}\
+	Name##_sort_heap(self, idx, sort_n, comp);\
 }\
 \
 

@@ -310,6 +310,69 @@ int main(void)
 		}
 	}
 
+	IntVector_clear(x);
+	y.clear();
+
+	// partial_sort
+	for (i = 0; i < SORT_COUNT; i++) {
+		buf[i] = rand();
+		IntVector_push_back(x, buf[i]);
+		y.push_back(buf[i]);
+	}
+	t = get_msec();
+	IntVector_partial_sort(x, 0, IntVector_size(x), IntVector_size(x), comp);
+	printf("cstl: partial_sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	partial_sort(y.begin(), y.end(), y.end());
+	printf("stl : partial_sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	qsort(buf, SORT_COUNT, sizeof(int), comp);
+	printf("libc: qsort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i) || y[i] != buf[i]) {
+			printf("!!!NG!!!\n");
+		}
+	}
+	// partial_sort 2
+	t = get_msec();
+	IntVector_partial_sort(x, 0, IntVector_size(x), IntVector_size(x), comp);
+	printf("cstl: partial_sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	partial_sort(y.begin(), y.end(), y.end());
+	printf("stl : partial_sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	qsort(buf, SORT_COUNT, sizeof(int), comp);
+	printf("libc: qsort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i) || y[i] != buf[i]) {
+			printf("!!!NG!!!\n");
+		}
+	}
+	// partial_sort 3
+	t = get_msec();
+	IntVector_partial_sort(x, 0, IntVector_size(x), IntVector_size(x), greater_comp);
+	printf("cstl: partial_sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	partial_sort(y.begin(), y.end(), y.end(), std::greater<int>());
+	printf("stl : partial_sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	t = get_msec();
+	qsort(buf, SORT_COUNT, sizeof(int), greater_comp);
+	printf("libc: qsort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
+
+	for (i = 0; i < SORT_COUNT; i++) {
+		if (y[i] != *IntVector_at(x, i) || y[i] != buf[i]) {
+			printf("!!!NG!!!\n");
+		}
+	}
+
 	IntVector_delete(x);
 	return 0;
 }

@@ -67,7 +67,7 @@ algorithm.hというヘッダファイルをインクルードする必要があ
 
 * 関数
   * ソート
-    * ((<Container_sort()>)) , ((<Container_stable_sort()>))
+    * ((<Container_sort()>)) , ((<Container_stable_sort()>)) , ((<Container_partial_sort()>))
   * 二分探索
     * ((<Container_binary_search()>))
     * ((<Container_lower_bound()>)) , ((<Container_upper_bound()>))
@@ -101,6 +101,18 @@ algorithm.hというヘッダファイルをインクルードする必要があ
 * このソートは安定である。
 * 計算量はメモリに十分な空き領域がある場合はO(N * log N)である。空き領域がない場合はO(N * log N * log N)となる。
 * 事前条件
+  * idx + nがselfの現在の要素数以下の値であること。
+<<< hr
+
+==== Container_partial_sort()
+  void Container_partial_sort(Container *self, size_t idx, size_t sort_n, size_t n, int (*comp)(const void *p1, const void *p2));
+* selfのidx番目からn個の要素の内、最初のsort_n個が正しい順序になるように比較関数compに従ってソートする。
+* selfのidx + sort_n番目からn - sort_n個の要素の順序は未定義である。
+* sort_nがnに等しい場合、selfのidx番目からn個の要素をソートする。
+* このソートは安定でない。
+* 計算量はO(N * log N)である。
+* 事前条件
+  * sort_nがn以下の値であること。
   * idx + nがselfの現在の要素数以下の値であること。
 <<< hr
 
