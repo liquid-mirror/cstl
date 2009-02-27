@@ -503,134 +503,165 @@ void print_find_test(const char *cstr, string &t, size_t i, size_t j, size_t k, 
 	}
 }
 
-void find_test(String *x, const string &s, size_t i, size_t j, size_t k, const char *cstr)
+void find_test(String *x, const string &s, size_t idx, size_t cstr_idx, size_t chars_len, const char *cstr)
 {
 	string t;
 	size_t idx1, idx2;
 	/* find */
-	idx1 = String_find_len(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == CSTL_NPOS) ? s.find(&cstr[j], i) : s.find(&cstr[j], i, k);
+	idx1 = String_find_len(x, &cstr[cstr_idx], idx, chars_len);
+	idx2 = (chars_len == CSTL_NPOS) ? s.find(&cstr[cstr_idx], idx) : s.find(&cstr[cstr_idx], idx, chars_len);
 	/* STLの実装によって動作が違うことがある */
-	if (i == CSTL_NPOS) {
+	if (idx == CSTL_NPOS) {
 		assert(idx1 == CSTL_NPOS);
 	} else {
-		print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find");
+		print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx1, idx2, "find");
 		assert(idx1 == idx2);
 	}
 	/* find_c */
-	idx1 = String_find_c(String_c_str(x), cstr[j], i);
-	idx2 = s.find(cstr[j], i);
-	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_c");
+	idx1 = String_find_c(x, cstr[cstr_idx], idx);
+	idx2 = s.find(cstr[cstr_idx], idx);
+	print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx1, idx2, "find_c");
 	assert(idx1 == idx2);
-	assert(String_find_c(String_c_str(x), cstr[j], i) == String_find_first_of_c(String_c_str(x), cstr[j], i));
+	assert(String_find_c(x, cstr[cstr_idx], idx) == String_find_first_of_c(x, cstr[cstr_idx], idx));
 
 	/* rfind */
-	idx1 = String_rfind_len(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == CSTL_NPOS) ? s.rfind(&cstr[j], i) : s.rfind(&cstr[j], i, k);
-	print_find_test(&cstr[j], t, i, j, k, idx2, idx2, "rfind");
+	idx1 = String_rfind_len(x, &cstr[cstr_idx], idx, chars_len);
+	idx2 = (chars_len == CSTL_NPOS) ? s.rfind(&cstr[cstr_idx], idx) : s.rfind(&cstr[cstr_idx], idx, chars_len);
+	print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx2, idx2, "rfind");
 	assert(idx1 == idx2);
 	/* rfind_c */
-	idx1 = String_rfind_c(String_c_str(x), cstr[j], i);
-	idx2 = s.rfind(cstr[j], i);
-	print_find_test(&cstr[j], t, i, j, k, idx2, idx2, "rfind_c");
+	idx1 = String_rfind_c(x, cstr[cstr_idx], idx);
+	idx2 = s.rfind(cstr[cstr_idx], idx);
+	print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx2, idx2, "rfind_c");
 	assert(idx1 == idx2);
-	assert(String_rfind_c(String_c_str(x), cstr[j], i) == String_find_last_of_c(String_c_str(x), cstr[j], i));
+	assert(String_rfind_c(x, cstr[cstr_idx], idx) == String_find_last_of_c(x, cstr[cstr_idx], idx));
 
 	/* find_first_of */
-	idx1 = String_find_first_of_len(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == CSTL_NPOS) ? s.find_first_of(&cstr[j], i) : s.find_first_of(&cstr[j], i, k);
-	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_first_of");
+	idx1 = String_find_first_of_len(x, &cstr[cstr_idx], idx, chars_len);
+	idx2 = (chars_len == CSTL_NPOS) ? s.find_first_of(&cstr[cstr_idx], idx) : s.find_first_of(&cstr[cstr_idx], idx, chars_len);
+	print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx1, idx2, "find_first_of");
 	assert(idx1 == idx2);
 	/* find_first_of_c */
-	idx1 = String_find_first_of_c(String_c_str(x), cstr[j], i);
-	idx2 = s.find_first_of(cstr[j], i);
-	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_first_of_c");
+	idx1 = String_find_first_of_c(x, cstr[cstr_idx], idx);
+	idx2 = s.find_first_of(cstr[cstr_idx], idx);
+	print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx1, idx2, "find_first_of_c");
 	assert(idx1 == idx2);
 
 	/* find_last_of */
-	idx1 = String_find_last_of_len(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == CSTL_NPOS) ? s.find_last_of(&cstr[j], i) : s.find_last_of(&cstr[j], i, k);
-	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_last_of");
+	idx1 = String_find_last_of_len(x, &cstr[cstr_idx], idx, chars_len);
+	idx2 = (chars_len == CSTL_NPOS) ? s.find_last_of(&cstr[cstr_idx], idx) : s.find_last_of(&cstr[cstr_idx], idx, chars_len);
+	print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx1, idx2, "find_last_of");
 	assert(idx1 == idx2);
 	/* find_last_of_c */
-	idx1 = String_find_last_of_c(String_c_str(x), cstr[j], i);
-	idx2 = s.find_last_of(cstr[j], i);
-	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_last_of_c");
+	idx1 = String_find_last_of_c(x, cstr[cstr_idx], idx);
+	idx2 = s.find_last_of(cstr[cstr_idx], idx);
+	print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx1, idx2, "find_last_of_c");
 	assert(idx1 == idx2);
 
 	/* find_first_not_of */
-	idx1 = String_find_first_not_of_len(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == CSTL_NPOS) ? s.find_first_not_of(&cstr[j], i) : s.find_first_not_of(&cstr[j], i, k);
-	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_first_not_of");
+	idx1 = String_find_first_not_of_len(x, &cstr[cstr_idx], idx, chars_len);
+	idx2 = (chars_len == CSTL_NPOS) ? s.find_first_not_of(&cstr[cstr_idx], idx) : s.find_first_not_of(&cstr[cstr_idx], idx, chars_len);
+	print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx1, idx2, "find_first_not_of");
 	assert(idx1 == idx2);
 	/* find_first_not_of_c */
-	idx1 = String_find_first_not_of_c(String_c_str(x), cstr[j], i);
-	idx2 = s.find_first_not_of(cstr[j], i);
-	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_first_not_of_c");
+	idx1 = String_find_first_not_of_c(x, cstr[cstr_idx], idx);
+	idx2 = s.find_first_not_of(cstr[cstr_idx], idx);
+	print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx1, idx2, "find_first_not_of_c");
 	assert(idx1 == idx2);
 
 	/* find_last_not_of */
-	idx1 = String_find_last_not_of_len(String_c_str(x), &cstr[j], i, k);
-	idx2 = (k == CSTL_NPOS) ? s.find_last_not_of(&cstr[j], i) : s.find_last_not_of(&cstr[j], i, k);
-	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_last_not_of");
+	idx1 = String_find_last_not_of_len(x, &cstr[cstr_idx], idx, chars_len);
+	idx2 = (chars_len == CSTL_NPOS) ? s.find_last_not_of(&cstr[cstr_idx], idx) : s.find_last_not_of(&cstr[cstr_idx], idx, chars_len);
+	print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx1, idx2, "find_last_not_of");
 	assert(idx1 == idx2);
 	/* find_last_not_of_c */
-	idx1 = String_find_last_not_of_c(String_c_str(x), cstr[j], i);
-	idx2 = s.find_last_not_of(cstr[j], i);
-	print_find_test(&cstr[j], t, i, j, k, idx1, idx2, "find_last_not_of_c");
+	idx1 = String_find_last_not_of_c(x, cstr[cstr_idx], idx);
+	idx2 = s.find_last_not_of(cstr[cstr_idx], idx);
+	print_find_test(&cstr[cstr_idx], t, idx, cstr_idx, chars_len, idx1, idx2, "find_last_not_of_c");
 	assert(idx1 == idx2);
 }
 
-void StringTest_test_1_5(void)
+void find_check(const char *cstr, size_t len)
 {
 	String *x;
 	String *y;
 	string s;
-	size_t i, j, k;
-	printf("***** test_1_5 *****\n");
-	x = String_new_reserve(SIZE);
-	y = String_new_reserve(SIZE);
-	String_assign(x, "abc abcd abcde abcdef abcdefg abcdefgh abcdefghi");
-	String_assign(y, "abcdefghijklmnopqrstuvwxyz");
-	s = String_c_str(x);
+	size_t idx, cstr_idx, chars_len;
+	x = String_new_assign_len(cstr, len);
+	y = String_new_assign("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	if (len == CSTL_NPOS) {
+		s.assign(cstr);
+	} else {
+		s.assign(cstr, len);
+	}
 	assert(strcmp(s.c_str(), String_c_str(x)) == 0);
-	for (i = 0; i < String_size(x); i++) {
-		for (j = 0; j < String_size(x); j++) {
-			for (k = 0; k < String_size(x) -j +1; k++) {
-				find_test(x, s, i, j, k, String_c_str(x));
+	for (idx = 0; idx < String_size(x); idx++) {
+		for (cstr_idx = 0; cstr_idx < String_size(x); cstr_idx++) {
+			for (chars_len = 0; chars_len < String_size(x) -cstr_idx +1; chars_len++) {
+				find_test(x, s, idx, cstr_idx, chars_len, String_c_str(x));
 			}
-			if (k == String_size(x) -j +1) {
-				find_test(x, s, i, j, CSTL_NPOS, String_c_str(x));
-			}
-			if (j <= String_size(y)) {
-				for (k = 0; k < String_size(y) -j +1; k++) {
-					find_test(x, s, i, j, k, String_c_str(y));
-				}
-				if (k == String_size(y) -j +1) {
-					find_test(x, s, i, j, CSTL_NPOS, String_c_str(y));
-				}
+			if (chars_len == String_size(x) -cstr_idx +1) {
+				find_test(x, s, idx, cstr_idx, CSTL_NPOS, String_c_str(x));
 			}
 		}
 	}
-	for (j = 0; j < String_size(x); j++) {
-		for (k = 0; k < String_size(x) -j +1; k++) {
-			find_test(x, s, CSTL_NPOS, j, k, String_c_str(x));
-		}
-		if (k == String_size(x) -j +1) {
-			find_test(x, s, CSTL_NPOS, j, CSTL_NPOS, String_c_str(x));
-		}
-		if (j <= String_size(y)) {
-			for (k = 0; k < String_size(y) -j +1; k++) {
-				find_test(x, s, CSTL_NPOS, j, k, String_c_str(y));
+	for (idx = 0; idx < String_size(x); idx++) {
+		for (cstr_idx = 0; cstr_idx < String_size(y); cstr_idx++) {
+			for (chars_len = 0; chars_len < String_size(y) -cstr_idx +1; chars_len++) {
+				find_test(x, s, idx, cstr_idx, chars_len, String_c_str(y));
 			}
-			if (k == String_size(y) -j +1) {
-				find_test(x, s, CSTL_NPOS, j, CSTL_NPOS, String_c_str(y));
+			if (chars_len == String_size(y) -cstr_idx +1) {
+				find_test(x, s, idx, cstr_idx, CSTL_NPOS, String_c_str(y));
 			}
+		}
+	}
+
+	for (cstr_idx = 0; cstr_idx < String_size(x); cstr_idx++) {
+		for (chars_len = 0; chars_len < String_size(x) -cstr_idx +1; chars_len++) {
+			find_test(x, s, CSTL_NPOS, cstr_idx, chars_len, String_c_str(x));
+		}
+		if (chars_len == String_size(x) -cstr_idx +1) {
+			find_test(x, s, CSTL_NPOS, cstr_idx, CSTL_NPOS, String_c_str(x));
+		}
+	}
+	for (cstr_idx = 0; cstr_idx < String_size(y); cstr_idx++) {
+		for (chars_len = 0; chars_len < String_size(y) -cstr_idx +1; chars_len++) {
+			find_test(x, s, CSTL_NPOS, cstr_idx, chars_len, String_c_str(y));
+		}
+		if (chars_len == String_size(y) -cstr_idx +1) {
+			find_test(x, s, CSTL_NPOS, cstr_idx, CSTL_NPOS, String_c_str(y));
 		}
 	}
 
 	String_delete(x);
 	String_delete(y);
+}
+
+void StringTest_test_1_5(void)
+{
+	char *s;
+	printf("***** test_1_5 *****\n");
+
+	s = "abc abcd abcde abcdef abcdefg abcdefgh abcdefghi";
+	find_check(s, CSTL_NPOS);
+
+	s = "";
+	find_check(s, CSTL_NPOS);
+
+	s = "hoge\0piyo";
+	find_check(s, 9);
+
+	s = "\0\0\0";
+	find_check(s, 3);
+
+//    FILE *fp = fopen(__FILE__, "r");
+//    static char buf[BUFSIZ];
+//    int i = 0;
+//    while (fgets(buf, sizeof buf, fp) != NULL && i < 100) {
+//        find_check(buf, CSTL_NPOS);
+//        i++;
+//    }
+
 }
 
 

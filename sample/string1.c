@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 		/* コマンドライン引数をファイル名とする */
 		String_assign(filename, argv[i]);
 		/* ファイル名から'.'を探す */
-		idx = String_find_c(String_c_str(filename), '.', 0);
+		idx = String_find_c(filename, '.', 0);
 		if (idx == CSTL_NPOS) {
 			/* ファイル名に'.'が含まれない
 			 * ".tmp"を追加 */

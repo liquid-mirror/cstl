@@ -17,12 +17,12 @@ int main(int argc, char *argv[])
 		String_assign(line, buf);
 		String_pop_back(line); /* '\n'を取り除く */
 		/* 最初の単語の先頭を検索する */
-		begIdx = String_find_first_not_of(String_c_str(line), String_c_str(delims), 0);
+		begIdx = String_find_first_not_of(line, String_c_str(delims), 0);
 		/* 単語の先頭が見つかるまで繰り返す */
 		while (begIdx != CSTL_NPOS) {
 			size_t i;
 			/* 単語の末尾を検索する */
-			endIdx = String_find_first_of(String_c_str(line), String_c_str(delims), begIdx);
+			endIdx = String_find_first_of(line, String_c_str(delims), begIdx);
 			if (endIdx == CSTL_NPOS) {
 				/* 単語の終わりは行末である */
 				endIdx = String_length(line);
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 			}
 			putchar(' ');
 			/* 次の単語の先頭を検索する */
-			begIdx = String_find_first_not_of(String_c_str(line), String_c_str(delims), endIdx);
+			begIdx = String_find_first_not_of(line, String_c_str(delims), endIdx);
 		}
 		putchar('\n');
 	}

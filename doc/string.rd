@@ -400,183 +400,159 @@ stringを使うには、以下のマクロを用いてコードを展開する�
 <<< hr
 
 ==== String_find()
-  size_t String_find(const CharT *x, const CharT *cstr, size_t idx);
-* xというCの文字列のidx番目から、cstrというCの文字列が現れる最初の位置を前進して検索する。
+  size_t String_find(String *self, const CharT *cstr, size_t idx);
+* selfのidx番目から、cstrというCの文字列が現れる最初の位置を前進して検索する。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * cstrがNULLでないこと。
 <<< hr
 
 ==== String_find_len()
-  size_t String_find_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
-* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字が現れる最初の位置を前進して検索する。
+  size_t String_find_len(String *self, const CharT *chars, size_t idx, size_t chars_len);
+* selfのidx番目から、charsという文字の配列のchars_len個の文字が現れる最初の位置を前進して検索する。
 * chars_lenがCSTL_NPOSと等しい場合、String_find()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * charsがNULLでないこと。
 <<< hr
 
 ==== String_find_c()
-  size_t String_find_c(const CharT *x, CharT c, size_t idx);
-* xというCの文字列のidx番目から、cという文字が現れる最初の位置を前進して検索する。
+  size_t String_find_c(String *self, CharT c, size_t idx);
+* selfのidx番目から、cという文字が現れる最初の位置を前進して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
-* 事前条件
-  * xがNULLでないこと。
 <<< hr
 
 ==== String_rfind()
-  size_t String_rfind(const CharT *x, const CharT *cstr, size_t idx);
-* xというCの文字列のidx番目から、cstrというCの文字列が現れる最後の位置を後退して検索する。
+  size_t String_rfind(String *self, const CharT *cstr, size_t idx);
+* selfのidx番目から、cstrというCの文字列が現れる最後の位置を後退して検索する。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * cstrがNULLでないこと。
 <<< hr
 
 ==== String_rfind_len()
-  size_t String_rfind_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
-* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字が現れる最後の位置を後退して検索する。
+  size_t String_rfind_len(String *self, const CharT *chars, size_t idx, size_t chars_len);
+* selfのidx番目から、charsという文字の配列のchars_len個の文字が現れる最後の位置を後退して検索する。
 * chars_lenがCSTL_NPOSと等しい場合、String_rfind()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、見つかった部分文字列の最初の文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * charsがNULLでないこと。
 <<< hr
 
 ==== String_rfind_c()
-  size_t String_rfind_c(const CharT *x, CharT c, size_t idx);
-* xというCの文字列のidx番目から、cという文字が現れる最後の位置を後退して検索する。
+  size_t String_rfind_c(String *self, CharT c, size_t idx);
+* selfのidx番目から、cという文字が現れる最後の位置を後退して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
-* 事前条件
-  * xがNULLでないこと。
 <<< hr
 
 ==== String_find_first_of()
-  size_t String_find_first_of(const CharT *x, const CharT *cstr, size_t idx);
-* xというCの文字列のidx番目から、cstrというCの文字列に含まれる最初の文字が現れる位置を前進して検索する。
+  size_t String_find_first_of(String *self, const CharT *cstr, size_t idx);
+* selfのidx番目から、cstrというCの文字列に含まれる最初の文字が現れる位置を前進して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * cstrがNULLでないこと。
 <<< hr
 
 ==== String_find_first_of_len()
-  size_t String_find_first_of_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
-* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字に含まれる最初の文字が現れる位置を前進して検索する。
+  size_t String_find_first_of_len(String *self, const CharT *chars, size_t idx, size_t chars_len);
+* selfのidx番目から、charsという文字の配列のchars_len個の文字に含まれる最初の文字が現れる位置を前進して検索する。
 * chars_lenがCSTL_NPOSと等しい場合、String_find_first_of()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * charsがNULLでないこと。
 <<< hr
 
 ==== String_find_first_of_c()
-  size_t String_find_first_of_c(const CharT *x, CharT c, size_t idx);
-* xというCの文字列のidx番目から、cという文字が現れる最初の位置を前進して検索する。
+  size_t String_find_first_of_c(String *self, CharT c, size_t idx);
+* selfのidx番目から、cという文字が現れる最初の位置を前進して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
-* 事前条件
-  * xがNULLでないこと。
 <<< hr
 
 ==== String_find_last_of()
-  size_t String_find_last_of(const CharT *x, const CharT *cstr, size_t idx);
-* xというCの文字列のidx番目から、cstrというCの文字列に含まれる最後の文字が現れる位置を後退して検索する。
+  size_t String_find_last_of(String *self, const CharT *cstr, size_t idx);
+* selfのidx番目から、cstrというCの文字列に含まれる最後の文字が現れる位置を後退して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * cstrがNULLでないこと。
 <<< hr
 
 ==== String_find_last_of_len()
-  size_t String_find_last_of_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
-* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字に含まれる最後の文字が現れる位置を後退して検索する。
+  size_t String_find_last_of_len(String *self, const CharT *chars, size_t idx, size_t chars_len);
+* selfのidx番目から、charsという文字の配列のchars_len個の文字に含まれる最後の文字が現れる位置を後退して検索する。
 * chars_lenがCSTL_NPOSと等しい場合、String_find_last_of()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * charsがNULLでないこと。
 <<< hr
 
 ==== String_find_last_of_c()
-  size_t String_find_last_of_c(const CharT *x, CharT c, size_t idx);
-* xというCの文字列のidx番目から、cという文字が現れる最後の位置を後退して検索する。
+  size_t String_find_last_of_c(String *self, CharT c, size_t idx);
+* selfのidx番目から、cという文字が現れる最後の位置を後退して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
-* 事前条件
-  * xがNULLでないこと。
 <<< hr
 
 ==== String_find_first_not_of()
-  size_t String_find_first_not_of(const CharT *x, const CharT *cstr, size_t idx);
-* xというCの文字列のidx番目から、cstrというCの文字列に含まれない最初の文字が現れる位置を前進して検索する。
+  size_t String_find_first_not_of(String *self, const CharT *cstr, size_t idx);
+* selfのidx番目から、cstrというCの文字列に含まれない最初の文字が現れる位置を前進して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * cstrがNULLでないこと。
 <<< hr
 
 ==== String_find_first_not_of_len()
-  size_t String_find_first_not_of_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
-* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字に含まれない最初の文字が現れる位置を前進して検索する。
+  size_t String_find_first_not_of_len(String *self, const CharT *chars, size_t idx, size_t chars_len);
+* selfのidx番目から、charsという文字の配列のchars_len個の文字に含まれない最初の文字が現れる位置を前進して検索する。
 * chars_lenがCSTL_NPOSと等しい場合、String_find_first_not_of()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * charsがNULLでないこと。
 <<< hr
 
 ==== String_find_first_not_of_c()
-  size_t String_find_first_not_of_c(const CharT *x, CharT c, size_t idx);
-* xというCの文字列のidx番目から、c以外の文字が現れる最初の位置を前進して検索する。
+  size_t String_find_first_not_of_c(String *self, CharT c, size_t idx);
+* selfのidx番目から、c以外の文字が現れる最初の位置を前進して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
-* 事前条件
-  * xがNULLでないこと。
 <<< hr
 
 ==== String_find_last_not_of()
-  size_t String_find_last_not_of(const CharT *x, const CharT *cstr, size_t idx);
-* xというCの文字列のidx番目から、cstrというCの文字列に含まれない最後の文字が現れる位置を後退して検索する。
+  size_t String_find_last_not_of(String *self, const CharT *cstr, size_t idx);
+* selfのidx番目から、cstrというCの文字列に含まれない最後の文字が現れる位置を後退して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * cstrがNULLでないこと。
 <<< hr
 
 ==== String_find_last_not_of_len()
-  size_t String_find_last_not_of_len(const CharT *x, const CharT *chars, size_t idx, size_t chars_len);
-* xというCの文字列のidx番目から、charsという文字の配列のchars_len個の文字に含まれない最後の文字が現れる位置を後退して検索する。
+  size_t String_find_last_not_of_len(String *self, const CharT *chars, size_t idx, size_t chars_len);
+* selfのidx番目から、charsという文字の配列のchars_len個の文字に含まれない最後の文字が現れる位置を後退して検索する。
 * chars_lenがCSTL_NPOSと等しい場合、String_find_last_not_of()と等価となる。ただしcharsは'\0'で終端していなければならない。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
 * 事前条件
-  * xがNULLでないこと。
   * charsがNULLでないこと。
 <<< hr
 
 ==== String_find_last_not_of_c()
-  size_t String_find_last_not_of_c(const CharT *x, CharT c, size_t idx);
-* xというCの文字列のidx番目から、c以外の文字が現れる最後の位置を後退して検索する。
+  size_t String_find_last_not_of_c(String *self, CharT c, size_t idx);
+* selfのidx番目から、c以外の文字が現れる最後の位置を後退して検索する。
 * 検索に成功した場合、その文字のインデックスを返す。
 * 検索に失敗した場合、CSTL_NPOSを返す。
-* 事前条件
-  * xがNULLでないこと。
 <<< hr
 
 =end
