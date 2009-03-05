@@ -50,26 +50,26 @@
 /*! 
  * \brief setノード構造体
  */\
-struct Name##RBTreeNode {\
-	struct Name##RBTreeNode *parent;\
-	struct Name##RBTreeNode *left;\
-	struct Name##RBTreeNode *right;\
+struct Name##RBTree {\
+	struct Name##RBTree *parent;\
+	struct Name##RBTree *left;\
+	struct Name##RBTree *right;\
 	int color;\
 	Type key;\
-	CSTL_RBTREE_MAGIC(struct Name##RBTreeNode *magic;)\
+	CSTL_RBTREE_MAGIC(struct Name##RBTree *magic;)\
 };\
 \
 CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare)\
 \
-static Name##RBTreeNode *Name##RBTreeNode_new(Type elem, int color)\
+static Name##RBTree *Name##RBTree_new_node(Type elem, int color)\
 {\
-	Name##RBTreeNode *self;\
-	self = (Name##RBTreeNode *) malloc(sizeof(Name##RBTreeNode));\
+	Name##RBTree *self;\
+	self = (Name##RBTree *) malloc(sizeof(Name##RBTree));\
 	if (!self) return 0;\
 	self->key = elem;\
-	self->left = (Name##RBTreeNode *) &Name##RBTree_nil;\
-	self->right = (Name##RBTreeNode *) &Name##RBTree_nil;\
-	self->parent = (Name##RBTreeNode *) &Name##RBTree_nil;\
+	self->left = (Name##RBTree *) &Name##RBTree_nil;\
+	self->right = (Name##RBTree *) &Name##RBTree_nil;\
+	self->parent = (Name##RBTree *) &Name##RBTree_nil;\
 	self->color = color;\
 	return self;\
 }\
@@ -78,7 +78,7 @@ Type const *Name##Iterator_ref(Name##Iterator pos)\
 {\
 	assert(pos && "SetIterator_ref");\
 	assert(pos->magic && "SetIterator_ref");\
-	assert(!CSTL_RBTREE_NODE_IS_HEAD(pos) && "SetIterator_ref");\
+	assert(!CSTL_RBTREE_IS_HEAD(pos) && "SetIterator_ref");\
 	return &pos->key;\
 }\
 \
@@ -115,7 +115,7 @@ Name##Iterator Name##_insert(Name *self, Type elem, int *success)\
 	assert(self->magic == self && "Set_insert");\
 	pos = Name##RBTree_find(self->tree, elem);\
 	if (pos == Name##RBTree_end(self->tree)) {\
-		pos = Name##RBTreeNode_new(elem, CSTL_RBTREE_RED);\
+		pos = Name##RBTree_new_node(elem, CSTL_RBTREE_RED);\
 		if (pos) {\
 			Name##RBTree_insert(self->tree, pos);\
 			if (success) *success = 1;\
@@ -133,7 +133,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
 	register Name##Iterator pos;\
 	register Name##Iterator tmp;\
-	Name##RBTreeNode head;\
+	Name##RBTree head;\
 	register size_t count = 0;\
 	assert(self && "Set_insert_range");\
 	assert(self->magic == self && "Set_insert_range");\
@@ -141,11 +141,11 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	assert(last && "Set_insert_range");\
 	assert(first->magic && "Set_insert_range");\
 	assert(last->magic && "Set_insert_range");\
-	head.right = (Name##RBTreeNode *) &Name##RBTree_nil;\
+	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##Iterator_next(pos)) {\
 		if (Name##RBTree_find(self->tree, *Name##Iterator_ref(pos)) == Name##RBTree_end(self->tree)) {\
-			tmp->right = Name##RBTreeNode_new(*Name##Iterator_ref(pos), CSTL_RBTREE_RED);\
+			tmp->right = Name##RBTree_new_node(*Name##Iterator_ref(pos), CSTL_RBTREE_RED);\
 			if (!tmp->right) {\
 				for (pos = head.right; pos != 0; pos = tmp) {\
 					tmp = pos->right;\
@@ -157,9 +157,9 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 			count++;\
 		}\
 	}\
-	for (pos = head.right; pos != (Name##RBTreeNode *) &Name##RBTree_nil; pos = tmp) {\
+	for (pos = head.right; pos != (Name##RBTree *) &Name##RBTree_nil; pos = tmp) {\
 		tmp = pos->right;\
-		pos->right = (Name##RBTreeNode *) &Name##RBTree_nil;\
+		pos->right = (Name##RBTree *) &Name##RBTree_nil;\
 		Name##RBTree_insert(self->tree, pos);\
 	}\
 	self->size += count;\
@@ -197,7 +197,7 @@ Name##Iterator Name##_insert(Name *self, Type elem)\
 	Name##Iterator pos;\
 	assert(self && "MultiSet_insert");\
 	assert(self->magic == self && "MultiSet_insert");\
-	pos = Name##RBTreeNode_new(elem, CSTL_RBTREE_RED);\
+	pos = Name##RBTree_new_node(elem, CSTL_RBTREE_RED);\
 	if (pos) {\
 		Name##RBTree_insert(self->tree, pos);\
 		self->size++;\
@@ -209,7 +209,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
 	register Name##Iterator pos;\
 	register Name##Iterator tmp;\
-	Name##RBTreeNode head;\
+	Name##RBTree head;\
 	register size_t count = 0;\
 	assert(self && "MultiSet_insert_range");\
 	assert(self->magic == self && "MultiSet_insert_range");\
@@ -217,10 +217,10 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	assert(last && "MultiSet_insert_range");\
 	assert(first->magic && "MultiSet_insert_range");\
 	assert(last->magic && "MultiSet_insert_range");\
-	head.right = (Name##RBTreeNode *) &Name##RBTree_nil;\
+	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##Iterator_next(pos)) {\
-		tmp->right = Name##RBTreeNode_new(*Name##Iterator_ref(pos), CSTL_RBTREE_RED);\
+		tmp->right = Name##RBTree_new_node(*Name##Iterator_ref(pos), CSTL_RBTREE_RED);\
 		if (!tmp->right) {\
 			for (pos = head.right; pos != 0; pos = tmp) {\
 				tmp = pos->right;\
@@ -231,9 +231,9 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 		tmp = tmp->right;\
 		count++;\
 	}\
-	for (pos = head.right; pos != (Name##RBTreeNode *) &Name##RBTree_nil; pos = tmp) {\
+	for (pos = head.right; pos != (Name##RBTree *) &Name##RBTree_nil; pos = tmp) {\
 		tmp = pos->right;\
-		pos->right = (Name##RBTreeNode *) &Name##RBTree_nil;\
+		pos->right = (Name##RBTree *) &Name##RBTree_nil;\
 		Name##RBTree_insert(self->tree, pos);\
 	}\
 	self->size += count;\
