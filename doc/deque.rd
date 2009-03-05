@@ -92,7 +92,7 @@ dequeを使うには、以下のマクロを用いてコードを展開する必
 <<< hr
 
 ==== Deque
-  Deque
+  typedef struct Deque Deque;
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 <<< hr
 

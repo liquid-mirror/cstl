@@ -122,12 +122,12 @@ NameにMap, KeyTypeにKeyT, ValueTypeにValueTを指定した場合、
 <<< hr
 
 ==== Map
-  Map
+  typedef struct Map Map;
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 <<< hr
 
 ==== MapIterator
-  MapIterator
+  typedef ... MapIterator;
 イテレータの型。要素の位置を示す。
 関数から返されたイテレータを有効なイテレータという。
 宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。

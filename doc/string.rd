@@ -122,7 +122,7 @@ stringを使うには、以下のマクロを用いてコードを展開する�
 <<< hr
 
 ==== String
-  String
+  typedef struct String String;
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 <<< hr
 

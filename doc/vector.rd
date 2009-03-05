@@ -93,7 +93,7 @@ vectorを使うには、以下のマクロを用いてコードを展開する�
 <<< hr
 
 ==== Vector
-  Vector
+  typedef struct Vector Vector;
 コンテナの型。抽象データ型となっており、以下の関数によってのみアクセスできる。
 <<< hr
 
