@@ -111,15 +111,14 @@ CSTL_LIST_END_EXTERN_C()\
  * \param Type 要素の型
  */
 #define CSTL_LIST_IMPLEMENT(Name, Type)	\
-typedef struct Name Name##Node;\
 /*! 
  * \brief list構造体
  */\
 struct Name {\
-	Name##Node *prev;\
-	Name##Node *next;\
+	Name *prev;\
+	Name *next;\
 	Type elem;\
-	CSTL_LIST_MAGIC(Name##Node *magic;)\
+	CSTL_LIST_MAGIC(Name *magic;)\
 };\
 \
 Name *Name##_new(void)\
@@ -144,11 +143,11 @@ void Name##_delete(Name *self)\
 \
 int Name##_push_back(Name *self, Type elem)\
 {\
-	Name##Node *node;\
-	Name##Node *pos;\
+	Name *node;\
+	Name *pos;\
 	assert(self && "List_push_back");\
 	assert(self->magic == self && "List_push_back");\
-	node = (Name##Node *) malloc(sizeof(Name##Node));\
+	node = (Name *) malloc(sizeof(Name));\
 	if (!node) return 0;\
 	pos = CSTL_LIST_END(self);\
 	node->elem = elem;\
@@ -162,11 +161,11 @@ int Name##_push_back(Name *self, Type elem)\
 \
 int Name##_push_front(Name *self, Type elem)\
 {\
-	Name##Node *node;\
-	Name##Node *pos;\
+	Name *node;\
+	Name *pos;\
 	assert(self && "List_push_front");\
 	assert(self->magic == self && "List_push_front");\
-	node = (Name##Node *) malloc(sizeof(Name##Node));\
+	node = (Name *) malloc(sizeof(Name));\
 	if (!node) return 0;\
 	pos = CSTL_LIST_BEGIN(self);\
 	node->elem = elem;\
@@ -290,12 +289,12 @@ Name##Iterator Name##Iterator_prev(Name##Iterator pos)\
 \
 Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem)\
 {\
-	Name##Node *node;\
+	Name *node;\
 	assert(self && "List_insert");\
 	assert(self->magic == self && "List_insert");\
 	assert(pos && "List_insert");\
 	assert(pos->magic == self && "List_insert");\
-	node = (Name##Node *) malloc(sizeof(Name##Node));\
+	node = (Name *) malloc(sizeof(Name));\
 	if (!node) return 0;\
 	node->elem = elem;\
 	node->next = pos;\
@@ -377,7 +376,7 @@ int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Na
 \
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 {\
-	Name##Node *node;\
+	Name *node;\
 	assert(self && "List_erase");\
 	assert(self->magic == self && "List_erase");\
 	assert(pos && "List_erase");\
@@ -438,8 +437,8 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 \
 void Name##_swap(Name *self, Name *x)\
 {\
-	Name##Node *tmp_next;\
-	Name##Node *tmp_prev;\
+	Name *tmp_next;\
+	Name *tmp_prev;\
 	CSTL_LIST_MAGIC(register Name##Iterator pos);\
 	assert(self && "List_swap");\
 	assert(x && "List_swap");\
@@ -469,7 +468,7 @@ void Name##_swap(Name *self, Name *x)\
 \
 void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last)\
 {\
-	Name##Node *tmp;\
+	Name *tmp;\
 	CSTL_LIST_MAGIC(register Name##Iterator i);\
 	assert(self && "List_splice");\
 	assert(self->magic == self && "List_splice");\
@@ -498,12 +497,12 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 	last->prev = tmp;\
 }\
 \
-static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, int (*comp)(const void *, const void *))\
+static Name *Name##_merge_list(Name *x, Name *y, int (*comp)(const void *, const void *))\
 {\
-	register Name##Node *p;\
-	Name##Node *xlast;\
-	Name##Node *ylast;\
-	Name##Node head;\
+	register Name *p;\
+	Name *xlast;\
+	Name *ylast;\
+	Name head;\
 	xlast = x->prev;\
 	ylast = y->prev;\
 	p = &head;\
@@ -536,11 +535,11 @@ static Name##Node *Name##_merge_list(Name##Node *x, Name##Node *y, int (*comp)(c
 	return head.next;\
 }\
 \
-static Name##Node *Name##_merge_sort(Name##Node *first, int (*comp)(const void *, const void *))\
+static Name *Name##_merge_sort(Name *first, int (*comp)(const void *, const void *))\
 {\
-	register Name##Node *x;\
-	register Name##Node *y;\
-	Name##Node *tmp;\
+	register Name *x;\
+	register Name *y;\
+	Name *tmp;\
 	if (first->next == first) {\
 		return first;\
 	}\
@@ -563,8 +562,8 @@ static Name##Node *Name##_merge_sort(Name##Node *first, int (*comp)(const void *
 \
 void Name##_sort(Name *self, int (*comp)(const void *, const void *))\
 {\
-	Name##Node *first;\
-	Name##Node *last;\
+	Name *first;\
+	Name *last;\
 	assert(self && "List_sort");\
 	assert(self->magic == self && "List_sort");\
 	assert(comp && "List_sort");\
@@ -586,10 +585,10 @@ void Name##_sort(Name *self, int (*comp)(const void *, const void *))\
 \
 void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *))\
 {\
-	Name##Node *first1;\
-	Name##Node *last1;\
-	Name##Node *first2;\
-	Name##Node *last2;\
+	Name *first1;\
+	Name *last1;\
+	Name *first2;\
+	Name *last2;\
 	CSTL_LIST_MAGIC(register Name##Iterator pos);\
 	assert(self && "List_merge");\
 	assert(self->magic == self && "List_merge");\
@@ -628,8 +627,8 @@ void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *))\
 \
 void Name##_reverse(Name *self)\
 {\
-	register Name##Node *p;\
-	register Name##Node *tmp;\
+	register Name *p;\
+	register Name *tmp;\
 	assert(self && "List_reverse");\
 	assert(self->magic == self && "List_reverse");\
 	p = self;\
