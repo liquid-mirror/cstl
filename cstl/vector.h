@@ -307,8 +307,8 @@ Type *Name##_back(Name *self)\
 }\
 \
 
-#define CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)	\
-static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
+#define CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)	\
+static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n)\
 {\
 	register size_t i;\
 	for (i = last; i > first; i--) {\
@@ -317,8 +317,8 @@ static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)
 }\
 \
 
-#define CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)	\
-static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n)\
+#define CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)	\
+static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
 {\
 	register size_t i;\
 	for (i = first; i < last; i++) {\
@@ -331,7 +331,7 @@ static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n
 static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
 {\
 	if (!Name##_expand(self, CSTL_VECTOR_SIZE(self) + n)) return 0;\
-	Name##_move_forward(self, idx, self->size, n);\
+	Name##_move_backward(self, idx, self->size, n);\
 	self->size += n;\
 	return 1;\
 }\
@@ -429,7 +429,7 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 	assert(CSTL_VECTOR_SIZE(self) >= idx + n && "Vector_erase");\
 	assert(CSTL_VECTOR_SIZE(self) >= n && "Vector_erase");\
 	assert(CSTL_VECTOR_SIZE(self) > idx && "Vector_erase");\
-	Name##_move_backward(self, idx + n, self->size, n);\
+	Name##_move_forward(self, idx + n, self->size, n);\
 	self->size -= n;\
 }\
 \
