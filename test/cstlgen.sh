@@ -406,7 +406,7 @@ enum {
 	CSTL_RBTREE_HEAD
 };
 " >> "$path"".c"
-	grep '#define CSTL_RBTREE_.*self' "../cstl/rbtree.h" | sed -e "s/\r//" >> "$path"".c"
+	grep '#define CSTL_RBTREE_.*node' "../cstl/rbtree.h" | sed -e "s/\r//" >> "$path"".c"
 fi
 echo "" >> "$path"".c"
 echo "$src" | cpp -I.. | grep "$name" | indent -kr -ut -ts4 \

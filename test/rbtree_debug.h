@@ -62,7 +62,7 @@ static char *Name##_str_color(int c)\
 	}\
 }\
 \
-static void Name##RBTree_p(Name##RBTree *self, size_t depth)\
+static void Name##RBTree_p(Name##RBTree *node, size_t depth)\
 {\
 	size_t i;\
 	if (visual) {\
@@ -70,48 +70,48 @@ static void Name##RBTree_p(Name##RBTree *self, size_t depth)\
 			printf("	");\
 		}\
 		if (map) {\
-			printf("%s["#format1"]["#format2"]", Name##_str_color(self->color), self->key, self->value);\
+			printf("%s["#format1"]["#format2"]", Name##_str_color(node->color), node->key, node->value);\
 		} else {\
-			printf("%s["#format1"]", Name##_str_color(self->color), self->key);\
+			printf("%s["#format1"]", Name##_str_color(node->color), node->key);\
 		}\
 	} else {\
 		if (map) {\
 			printf("n[%p], p[%p], l[%p], r[%p], k["#format1"], v["#format2"], c[%s], d[%d]",\
-				(void *) self, (void *) self->parent, (void *) self->left, (void *) self->right, self->key, self->value,\
-				Name##_str_color(self->color), depth);\
+				(void *) node, (void *) node->parent, (void *) node->left, (void *) node->right, node->key, node->value,\
+				Name##_str_color(node->color), depth);\
 		} else {\
 			printf("n[%p], p[%p], l[%p], r[%p], v["#format1"], c[%s], d[%d]",\
-				(void *) self, (void *) self->parent, (void *) self->left, (void *) self->right, self->key,\
-				Name##_str_color(self->color), depth);\
+				(void *) node, (void *) node->parent, (void *) node->left, (void *) node->right, node->key,\
+				Name##_str_color(node->color), depth);\
 		}\
-		if (CSTL_RBTREE_IS_ROOT(self)) {\
+		if (CSTL_RBTREE_IS_ROOT(node)) {\
 			printf(", root");\
-		} else if (CSTL_RBTREE_IS_NIL(self->left, Name) && CSTL_RBTREE_IS_NIL(self->right, Name)) {\
+		} else if (CSTL_RBTREE_IS_NIL(node->left, Name) && CSTL_RBTREE_IS_NIL(node->right, Name)) {\
 			printf(", leaf");\
 		}\
 	}\
 	printf("\n");\
 }\
 \
-static void Name##RBTree_print(Name##RBTree *self)\
+static void Name##RBTree_print(Name##RBTree *node)\
 {\
 	static size_t depth = 0;\
-	if (CSTL_RBTREE_IS_NIL(self, Name)) {\
+	if (CSTL_RBTREE_IS_NIL(node, Name)) {\
 		return;\
 	}\
 	depth++;\
 	if (Name##_max_depth < depth) Name##_max_depth = depth;\
-	if (CSTL_RBTREE_IS_NIL(self->right, Name) && CSTL_RBTREE_IS_NIL(self->left, Name)) {\
+	if (CSTL_RBTREE_IS_NIL(node->right, Name) && CSTL_RBTREE_IS_NIL(node->left, Name)) {\
 		if (Name##_min_depth > depth) Name##_min_depth = depth;\
 	}\
 	if (visual) {\
-		Name##RBTree_print(self->right);\
-		Name##RBTree_p(self, depth);\
-		Name##RBTree_print(self->left);\
+		Name##RBTree_print(node->right);\
+		Name##RBTree_p(node, depth);\
+		Name##RBTree_print(node->left);\
 	} else {\
-		Name##RBTree_p(self, depth);\
-		Name##RBTree_print(self->left);\
-		Name##RBTree_print(self->right);\
+		Name##RBTree_p(node, depth);\
+		Name##RBTree_print(node->left);\
+		Name##RBTree_print(node->right);\
 	}\
 	depth--;\
 }\

@@ -64,16 +64,16 @@ CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)\
 \
 static Name##RBTree *Name##RBTree_new_node(KeyType key, ValueType value, int color)\
 {\
-	Name##RBTree *self;\
-	self = (Name##RBTree *) malloc(sizeof(Name##RBTree));\
-	if (!self) return 0;\
-	self->key = key;\
-	self->value = value;\
-	self->left = (Name##RBTree *) &Name##RBTree_nil;\
-	self->right = (Name##RBTree *) &Name##RBTree_nil;\
-	self->parent = (Name##RBTree *) &Name##RBTree_nil;\
-	self->color = color;\
-	return self;\
+	Name##RBTree *node;\
+	node = (Name##RBTree *) malloc(sizeof(Name##RBTree));\
+	if (!node) return 0;\
+	node->key = key;\
+	node->value = value;\
+	node->left = (Name##RBTree *) &Name##RBTree_nil;\
+	node->right = (Name##RBTree *) &Name##RBTree_nil;\
+	node->parent = (Name##RBTree *) &Name##RBTree_nil;\
+	node->color = color;\
+	return node;\
 }\
 \
 KeyType const *Name##Iterator_key(Name##Iterator pos)\
