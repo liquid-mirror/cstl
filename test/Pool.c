@@ -112,7 +112,7 @@ void Pool_init(Pool *self, void *buf, size_t size, size_t alignment)
  * mallocと同じ仕様
  */
 #ifdef POOL_DEBUG
-void *Pool_malloc_debug(Pool *self, size_t size, char *file, size_t line)
+void *Pool_malloc_debug(Pool *self, size_t size, const char *file, size_t line)
 #else
 void *Pool_malloc(Pool *self, size_t size)
 #endif
@@ -191,7 +191,7 @@ void *Pool_malloc(Pool *self, size_t size)
  * reallocと同じ仕様
  */
 #ifdef POOL_DEBUG
-void *Pool_realloc_debug(Pool *self, void *ptr, size_t newsize, char *file, size_t line)
+void *Pool_realloc_debug(Pool *self, void *ptr, size_t newsize, const char *file, size_t line)
 #else
 void *Pool_realloc(Pool *self, void *ptr, size_t newsize)
 #endif
@@ -353,7 +353,7 @@ void *Pool_realloc(Pool *self, void *ptr, size_t newsize)
  */
 #ifdef POOL_SLIST
 #ifdef POOL_DEBUG
-void Pool_free_debug(Pool *self, void *ptr, char *file, size_t line)
+void Pool_free_debug(Pool *self, void *ptr, const char *file, size_t line)
 #else
 void Pool_free(Pool *self, void *ptr)
 #endif
@@ -418,7 +418,7 @@ void Pool_free(Pool *self, void *ptr)
 }
 #else
 #ifdef POOL_DEBUG
-void Pool_free_debug(Pool *self, void *ptr, char *file, size_t line)
+void Pool_free_debug(Pool *self, void *ptr, const char *file, size_t line)
 #else
 void Pool_free(Pool *self, void *ptr)
 #endif

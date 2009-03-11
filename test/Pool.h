@@ -96,7 +96,7 @@ struct BlockHeader {
 	unsigned char occupied;	/* 使用中フラグ */
 	unsigned char magic;	/* マジックナンバー */
 #ifdef POOL_DEBUG
-	char *file;				/* ファイル名 */
+	const char *file;		/* ファイル名 */
 	size_t line;			/* ファイルの行番号 */
 	size_t alloc_size;		/* ユーザが指定したサイズ */
 #endif
@@ -124,9 +124,9 @@ extern "C" {
 #endif
 void Pool_init(Pool *self, void *buf, size_t size, size_t alignment);
 #ifdef POOL_DEBUG
-void *Pool_malloc_debug(Pool *self, size_t size, char *file, size_t line);
-void *Pool_realloc_debug(Pool *self, void *ptr, size_t newsize, char *file, size_t line);
-void Pool_free_debug(Pool *self, void *ptr, char *file, size_t line);
+void *Pool_malloc_debug(Pool *self, size_t size, const char *file, size_t line);
+void *Pool_realloc_debug(Pool *self, void *ptr, size_t newsize, const char *file, size_t line);
+void Pool_free_debug(Pool *self, void *ptr, const char *file, size_t line);
 void hex_dump(void *buf, size_t size);
 size_t Pool_dump_leak(Pool *self, int dump);
 void Pool_dump_block(Pool *self, void *ptr);
