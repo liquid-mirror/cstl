@@ -338,8 +338,6 @@ static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_INSERT(Name, Type)	\
-CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name, Type)\
-\
 int Name##_insert(Name *self, size_t idx, Type elem)\
 {\
 	assert(self && "Vector_insert");\
@@ -348,6 +346,8 @@ int Name##_insert(Name *self, size_t idx, Type elem)\
 	return Name##_insert_array(self, idx, &elem, 1);\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_INSERT_N(Name, Type)	\
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
 {\
 	register size_t i;\
@@ -363,6 +363,8 @@ int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
 	return 1;\
 }\
 \
+
+#define CSTL_VECTOR_IMPLEMENT_INSERT_ARRAY(Name, Type)	\
 int Name##_insert_array(Name *self, size_t idx, Type const *elems, size_t n)\
 {\
 	register size_t i;\
@@ -479,7 +481,10 @@ CSTL_VECTOR_IMPLEMENT_FRONT(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_BACK(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT_N(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT_ARRAY(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT_RANGE(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_ERASE(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_SWAP(Name, Type)\

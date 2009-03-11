@@ -175,7 +175,8 @@ CSTL_VECTOR_IMPLEMENT_SHRINK(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_RESIZE(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##_CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_INSERT(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT_ARRAY(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_ERASE(Name##_CharVector, Type)\
 \
 /*! 
@@ -409,6 +410,8 @@ Name *Name##_assign_len(Name *self, const Type *chars, size_t chars_len)\
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\
+	/* NOTE: charsがself内の文字列の場合、chars_lenはString_size()より小さいはずなので
+	 * Vector_expand()は許容量拡張せず、内部バッファのアドレスが変わることはない。 */\
 	if (!Name##_CharVector_expand(self->data, chars_len + 1)) {\
 		return 0;\
 	}\
@@ -479,36 +482,58 @@ Name *Name##_insert(Name *self, size_t idx, const Type *cstr)\
 Name *Name##_insert_len(Name *self, size_t idx, const Type *chars, size_t chars_len)\
 {\
 	register size_t i;\
+	size_t size;\
 	assert(self && "String_insert_len");\
 	assert(self->magic == self && "String_insert_len");\
-	assert(Name##_size(self) >= idx && "String_insert_len");\
 	assert(chars && "String_insert_len");\
+	size = Name##_size(self);\
+	assert(size >= idx && "String_insert_len");\
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\
-	if (!Name##_insert_n_no_elem(self, idx, chars_len)) {\
-		return 0;\
-	}\
-	if (Name##_c_str(self) <= chars && chars < Name##_c_str(self) + Name##_size(self)) {\
-		/* charsがself内の文字列 */\
-		if (&CSTL_STRING_AT(self, idx) <= chars) {\
+	if (Name##_c_str(self) <= chars && chars < Name##_c_str(self) + size) {\
+		if (Name##_capacity(self) < size + chars_len) {\
+			/* NOTE: charsがself内の文字列の場合、許容量拡張で内部バッファのアドレスが変わって
+			 * charsが読めなくなる可能性があるためtmpにコピーして置き換える。 */\
+			Type *tmp = (Type *) malloc(sizeof(Type) * chars_len);\
+			if (!tmp) return 0;\
 			for (i = 0; i < chars_len; i++) {\
-				CSTL_STRING_AT(self, idx + i) = chars[chars_len + i];\
+				tmp[i] = chars[i];\
 			}\
-		} else if (chars < &CSTL_STRING_AT(self, idx) && &CSTL_STRING_AT(self, idx) < chars + chars_len) {\
-			size_t k = &CSTL_STRING_AT(self, idx) - chars;\
-			for (i = 0; i < k; i++) {\
+			chars = tmp;\
+			if (!Name##_insert_n_no_elem(self, idx, chars_len)) {\
+				free(tmp);\
+				return 0;\
+			}\
+			for (i = 0; i < chars_len; i++) {\
 				CSTL_STRING_AT(self, idx + i) = chars[i];\
 			}\
-			for (i = 0; i < chars_len - k; i++) {\
-				CSTL_STRING_AT(self, idx + k + i) = CSTL_STRING_AT(self, idx + chars_len + i);\
-			}\
+			free(tmp);\
 		} else {\
-			for (i = 0; i < chars_len; i++) {\
-				CSTL_STRING_AT(self, idx + i) = chars[i];\
+			/* charsがself内の文字列だが、許容量拡張はされない */\
+			Name##_insert_n_no_elem(self, idx, chars_len); /* 必ず真を返す */\
+			if (&CSTL_STRING_AT(self, idx) <= chars) {\
+				for (i = 0; i < chars_len; i++) {\
+					CSTL_STRING_AT(self, idx + i) = chars[chars_len + i];\
+				}\
+			} else if (chars < &CSTL_STRING_AT(self, idx) && &CSTL_STRING_AT(self, idx) < chars + chars_len) {\
+				size_t k = &CSTL_STRING_AT(self, idx) - chars;\
+				for (i = 0; i < k; i++) {\
+					CSTL_STRING_AT(self, idx + i) = chars[i];\
+				}\
+				for (i = 0; i < chars_len - k; i++) {\
+					CSTL_STRING_AT(self, idx + k + i) = CSTL_STRING_AT(self, idx + chars_len + i);\
+				}\
+			} else {\
+				for (i = 0; i < chars_len; i++) {\
+					CSTL_STRING_AT(self, idx + i) = chars[i];\
+				}\
 			}\
 		}\
 	} else {\
+		if (!Name##_insert_n_no_elem(self, idx, chars_len)) {\
+			return 0;\
+		}\
 		for (i = 0; i < chars_len; i++) {\
 			CSTL_STRING_AT(self, idx + i) = chars[i];\
 		}\
@@ -555,7 +580,7 @@ Name *Name##_replace_len(Name *self, size_t idx, size_t len, const Type *chars, 
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\
-	if (Name##_c_str(self) <= chars && chars < Name##_c_str(self) + Name##_size(self)) {\
+	if (Name##_c_str(self) <= chars && chars < Name##_c_str(self) + size) {\
 		/* charsがself内の文字列 */\
 		if (chars_len <= len) {\
 			/* 拡張必要なし */\
@@ -572,19 +597,37 @@ Name *Name##_replace_len(Name *self, size_t idx, size_t len, const Type *chars, 
 				Name##_erase(self, idx + chars_len, len - chars_len);\
 			}\
 		} else {\
-			/* 拡張必要あり */\
-			if (!Name##_expand(self, Name##_size(self) + (chars_len - len))) {\
-				return 0;\
-			}\
-			if (&CSTL_STRING_AT(self, idx) <= chars) {\
+			if (Name##_capacity(self) < size + (chars_len - len)) {\
+				/* 拡張必要あり */\
+				/* NOTE: charsがself内の文字列の場合、許容量拡張で内部バッファのアドレスが変わって
+				 * charsが読めなくなる可能性があるためtmpにコピーして置き換える。 */\
+				Type *tmp = (Type *) malloc(sizeof(Type) * chars_len);\
+				if (!tmp) return 0;\
+				for (i = 0; i < chars_len; i++) {\
+					tmp[i] = chars[i];\
+				}\
+				chars = tmp;\
+				if (!Name##_expand(self, size + (chars_len - len))) {\
+					free(tmp);\
+					return 0;\
+				}\
 				for (i = 0; i < len; i++) {\
 					CSTL_STRING_AT(self, idx + i) = chars[i];\
 				}\
 				Name##_insert_len(self, idx + len, &chars[len], chars_len - len);\
+				free(tmp);\
 			} else {\
-				Name##_insert_len(self, idx + len, &chars[len], chars_len - len);\
-				for (i = len; i > 0; i--) {\
-					CSTL_STRING_AT(self, idx + i - 1) = chars[i - 1];\
+				/* charsがself内の文字列だが、許容量拡張はされない */\
+				if (&CSTL_STRING_AT(self, idx) <= chars) {\
+					for (i = 0; i < len; i++) {\
+						CSTL_STRING_AT(self, idx + i) = chars[i];\
+					}\
+					Name##_insert_len(self, idx + len, &chars[len], chars_len - len);\
+				} else {\
+					Name##_insert_len(self, idx + len, &chars[len], chars_len - len);\
+					for (i = len; i > 0; i--) {\
+						CSTL_STRING_AT(self, idx + i - 1) = chars[i - 1];\
+					}\
 				}\
 			}\
 		}\

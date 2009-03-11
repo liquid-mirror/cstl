@@ -211,6 +211,12 @@ void StringTest_test_1_3(void)
 	assert(String_assign(x, String_c_str(x)) == x);
 	assert(String_size(x) == 26);
 	assert(strcmp("abcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
+	assert(String_assign_len(x, String_c_str(x) + 1, String_length(x) - 1) == x);
+	assert(String_size(x) == 25);
+	assert(strcmp("bcdefghijklmnopqrstuvwxyz", String_c_str(x)) == 0);
+	assert(String_assign(x, String_c_str(x) + String_length(x) - 1) == x);
+	assert(String_size(x) == 1);
+	assert(strcmp("z", String_c_str(x)) == 0);
 	assert(String_assign_len(x, "abcdefghijklmnopqrstuvwxyz", 10) == x);
 	assert(String_size(x) == 10);
 	assert(strcmp("abcdefghij", String_c_str(x)) == 0);
@@ -433,6 +439,13 @@ void StringTest_test_1_4(void)
 	printf("%s\n", String_c_str(x));
 	assert(strcmp("jkjknpqrsqrstuvwXYZ", String_c_str(x)) == 0);
 
+	String_shrink(x, 0);
+	assert(String_replace_len(x, 0, 4, String_c_str(x), 5) == x);
+	assert(String_size(x) == 20);
+	printf("%s\n", String_c_str(x));
+	assert(strcmp("jkjknnpqrsqrstuvwXYZ", String_c_str(x)) == 0);
+
+
 
 	assert(String_replace(x, 0, CSTL_NPOS, "") == x);
 	assert(String_size(x) == 0);
@@ -639,7 +652,7 @@ void find_check(const char *cstr, size_t len)
 
 void StringTest_test_1_5(void)
 {
-	char *s;
+	const char *s;
 	printf("***** test_1_5 *****\n");
 
 	s = "abc abcd abcde abcdef abcdefg abcdefgh abcdefghi";
