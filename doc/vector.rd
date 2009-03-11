@@ -197,6 +197,7 @@ vectorを使うには、以下のマクロを用いてコードを展開する�
 * 事前条件
   * elemsがNULLでないこと。
   * idxがselfの現在の要素数以下の値であること。
+  * elemsがself内の配列でないこと。
 <<< hr
 
 ==== Vector_insert_range()
