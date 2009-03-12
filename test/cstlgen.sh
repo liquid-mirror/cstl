@@ -18,6 +18,7 @@ case $container in
 	debug=$6
 	path=$7
 	alloc=$8
+	nocompile=$9
 	;;
 "deque")
 	lower="deque"
@@ -29,6 +30,7 @@ case $container in
 	debug=$6
 	path=$7
 	alloc=$8
+	nocompile=$9
 	;;
 "ring")
 	lower="ring"
@@ -40,6 +42,7 @@ case $container in
 	debug=$6
 	path=$7
 	alloc=$8
+	nocompile=$9
 	;;
 "list")
 	lower="list"
@@ -51,6 +54,7 @@ case $container in
 	debug=$6
 	path=$7
 	alloc=$8
+	nocompile=$9
 	;;
 "string")
 	lower="string"
@@ -62,6 +66,7 @@ case $container in
 	debug=$6
 	path=$7
 	alloc=$8
+	nocompile=$9
 	;;
 "set")
 	lower="set"
@@ -73,6 +78,7 @@ case $container in
 	debug1=$6
 	path=$7
 	alloc=$8
+	nocompile=$9
 	;;
 "multiset")
 	lower="set"
@@ -84,6 +90,7 @@ case $container in
 	debug1=$6
 	path=$7
 	alloc=$8
+	nocompile=$9
 	;;
 "map")
 	lower="map"
@@ -98,6 +105,8 @@ case $container in
 	path=$9
 	shift
 	alloc=$9
+	shift
+	nocompile=$9
 	;;
 "multimap")
 	lower="map"
@@ -112,6 +121,8 @@ case $container in
 	path=$9
 	shift
 	alloc=$9
+	shift
+	nocompile=$9
 	;;
 *)
 	usage
@@ -136,13 +147,23 @@ fi
 if [ "$debug" = "false" -o "$debug" = "no" ]; then
 	debug=""
 fi
+if [ "$debug1" = "false" -o "$debug1" = "no" ]; then
+	debug1=""
+fi
 
+if [ "$debug" != "" ]; then
+	list_debug="#include \"./list_debug.h\""
+	deque_debug="#include \"./deque_debug.h\""
+fi
+if [ "$debug1" != "" ]; then
+	rbtree_debug="#include \"./rbtree_debug.h\""
+fi
 
 hdr="\
 #include \"../cstl/${lower}.h\"
-#include \"./list_debug.h\"
-#include \"./deque_debug.h\"
-#include \"./rbtree_debug.h\"
+${list_debug}
+${deque_debug}
+${rbtree_debug}
 #undef CSTL_VECTOR_MAGIC
 #undef CSTL_RING_MAGIC
 #undef CSTL_DEQUE_MAGIC
@@ -174,9 +195,9 @@ fi
 
 src="\
 #include \"../cstl/${lower}.h\"
-#include \"./list_debug.h\"
-#include \"./deque_debug.h\"
-#include \"./rbtree_debug.h\"
+${list_debug}
+${deque_debug}
+${rbtree_debug}
 #undef assert
 "
 
@@ -219,7 +240,9 @@ vectorrev=`grep '$Id' "../cstl/vector.h" | sed -e "s/\r//"`
 ringrev=`grep '$Id' "../cstl/ring.h" | sed -e "s/\r//"`
 algorev=`grep '$Id' "../cstl/algorithm.h" | sed -e "s/\r//"`
 rbtreerev=`grep '$Id' "../cstl/rbtree.h" | sed -e "s/\r//"`
-rbdebugrev=`grep '$Id' "./rbtree_debug.h" | sed -e "s/\r//"`
+if [ "$debug1" != "" ]; then
+	rbdebugrev=`grep '$Id' "./rbtree_debug.h" | sed -e "s/\r//"`
+fi
 
 # ヘッダファイル生成
 included=`echo "$name""_H_INCLUDED" | tr "[:lower:]" "[:upper:]"`
@@ -435,6 +458,8 @@ echo "$src" | cpp -CC -I.. | grep "$name" \
 >> "$path"".c"
 
 # コンパイル確認
-gcc -Wall -ansi -pedantic-errors "$path"".c" -c -DNDEBUG
-gcc -Wall -ansi -pedantic-errors "$path"".c" -c
-rm "$path"".o"
+if [ "$nocompile" = "" ]; then
+	gcc -Wall -ansi -pedantic-errors "$path"".c" -c -DNDEBUG
+	gcc -Wall -ansi -pedantic-errors "$path"".c" -c
+	rm "$path"".o"
+fi
