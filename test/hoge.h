@@ -4,7 +4,7 @@
 #include <string.h>
 
 typedef struct Hoge {
-	char *key;
+	const char *key;
 	int value;
 } Hoge;
 
