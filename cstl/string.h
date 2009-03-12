@@ -179,8 +179,8 @@ CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT_ARRAY(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_ERASE(Name##_CharVector, Type)\
 \
-/*! 
- * \brief string構造体
+/*! \
+ * \brief string構造体\
  */\
 struct Name {\
 	Name##_CharVector *data;\
@@ -410,7 +410,7 @@ Name *Name##_assign_len(Name *self, const Type *chars, size_t chars_len)\
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\
-	/* NOTE: charsがself内の文字列の場合、chars_lenはString_size()より小さいはずなので
+	/* NOTE: charsがself内の文字列の場合、chars_lenはString_size()より小さいはずなので\
 	 * Vector_expand()は許容量拡張せず、内部バッファのアドレスが変わることはない。 */\
 	if (!Name##_CharVector_expand(self->data, chars_len + 1)) {\
 		return 0;\
@@ -493,7 +493,7 @@ Name *Name##_insert_len(Name *self, size_t idx, const Type *chars, size_t chars_
 	}\
 	if (Name##_c_str(self) <= chars && chars < Name##_c_str(self) + size) {\
 		if (Name##_capacity(self) < size + chars_len) {\
-			/* NOTE: charsがself内の文字列の場合、許容量拡張で内部バッファのアドレスが変わって
+			/* NOTE: charsがself内の文字列の場合、許容量拡張で内部バッファのアドレスが変わって\
 			 * charsが読めなくなる可能性があるためtmpにコピーして置き換える。 */\
 			Type *tmp = (Type *) malloc(sizeof(Type) * chars_len);\
 			if (!tmp) return 0;\
@@ -511,7 +511,8 @@ Name *Name##_insert_len(Name *self, size_t idx, const Type *chars, size_t chars_
 			free(tmp);\
 		} else {\
 			/* charsがself内の文字列だが、許容量拡張はされない */\
-			Name##_insert_n_no_elem(self, idx, chars_len); /* 必ず真を返す */\
+			/* insert_n_no_elem()は必ず真を返す */\
+			Name##_insert_n_no_elem(self, idx, chars_len);\
 			if (&CSTL_STRING_AT(self, idx) <= chars) {\
 				for (i = 0; i < chars_len; i++) {\
 					CSTL_STRING_AT(self, idx + i) = chars[chars_len + i];\
@@ -599,7 +600,7 @@ Name *Name##_replace_len(Name *self, size_t idx, size_t len, const Type *chars, 
 		} else {\
 			if (Name##_capacity(self) < size + (chars_len - len)) {\
 				/* 拡張必要あり */\
-				/* NOTE: charsがself内の文字列の場合、許容量拡張で内部バッファのアドレスが変わって
+				/* NOTE: charsがself内の文字列の場合、許容量拡張で内部バッファのアドレスが変わって\
 				 * charsが読めなくなる可能性があるためtmpにコピーして置き換える。 */\
 				Type *tmp = (Type *) malloc(sizeof(Type) * chars_len);\
 				if (!tmp) return 0;\

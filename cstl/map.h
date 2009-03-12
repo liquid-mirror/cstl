@@ -47,8 +47,8 @@
 
 
 #define CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
-/*! 
- * \brief mapノード構造体
+/*! \
+ * \brief map赤黒木構造体\
  */\
 struct Name##RBTree {\
 	struct Name##RBTree *parent;\
@@ -187,7 +187,8 @@ ValueType *Name##_at(Name *self, KeyType key)\
 	assert(self->magic == self && "Map_at");\
 	pos = Name##RBTree_find(self->tree, key);\
 	if (pos == Name##RBTree_end(self->tree)) {\
-		static ValueType value; /* 新しい要素の値 */\
+		/* 新しい要素の値 */\
+		static ValueType value;\
 		pos = Name##RBTree_new_node(&key, &value, CSTL_RBTREE_RED);\
 		if (pos) {\
 			Name##RBTree_insert(self->tree, pos);\

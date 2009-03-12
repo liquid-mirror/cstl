@@ -75,8 +75,8 @@
 #define CSTL_RING_INTERFACE(Name, Type)	\
 \
 typedef struct Name Name;\
-/*! 
- * \brief リングバッファ構造体
+/*! \
+ * \brief リングバッファ構造体\
  */\
 struct Name {\
 	size_t begin;\

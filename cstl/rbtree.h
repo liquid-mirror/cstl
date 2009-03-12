@@ -746,8 +746,8 @@ void Name##_swap(Name *self, Name *x);\
 #define CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 typedef struct Name##RBTree Name##RBTree;\
-/*! 
- * \brief set/map構造体
+/*! \
+ * \brief set/map構造体\
  */\
 struct Name {\
 	Name##RBTree *tree;\

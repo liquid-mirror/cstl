@@ -117,7 +117,8 @@ void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, con
 			if (comp(&DIRECT_ACCESS(self, middle), &DIRECT_ACCESS(self, r)) > 0) {\
 				CSTL_ALGORITHM_SWAP(middle, r, tmp, DIRECT_ACCESS);\
 			}\
-			CSTL_ALGORITHM_SWAP(middle, r - 1, tmp, DIRECT_ACCESS); /* r - 1の要素をを枢軸にする */\
+			/* r - 1の要素をを枢軸にする */\
+			CSTL_ALGORITHM_SWAP(middle, r - 1, tmp, DIRECT_ACCESS);\
 			/* partition */\
 			i = l;\
 			j = r - 1;\

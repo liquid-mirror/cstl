@@ -118,8 +118,8 @@ CSTL_VECTOR_IMPLEMENT_RESIZE(Name##_RingVector, Name##_Ring*)\
 CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##_RingVector, Name##_Ring*)\
 CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##_RingVector, Name##_Ring*)\
 \
-/*! 
- * \brief deque構造体
+/*! \
+ * \brief deque構造体\
  */\
 struct Name {\
 	size_t begin;\

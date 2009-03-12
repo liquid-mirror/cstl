@@ -47,8 +47,8 @@
 
 
 #define CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)	\
-/*! 
- * \brief setノード構造体
+/*! \
+ * \brief set赤黒木構造体\
  */\
 struct Name##RBTree {\
 	struct Name##RBTree *parent;\

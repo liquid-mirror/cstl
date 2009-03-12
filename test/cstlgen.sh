@@ -160,14 +160,14 @@ else
 fi
 if [ "$debug1" != "" ]; then
 	format=`echo "$debug1" | grep '%[#+-]*[0-9]*[dioxXucsfeEgGp]'`
-	if [ "$debug1" == "$format" ]; then
+	if [ "$debug1" = "$format" ]; then
 		rbdebug=`echo "$lower" | tr "[:lower:]" "[:upper:]"`
 		hdr=${hdr}"CSTL_${rbdebug}_DEBUG_INTERFACE($name)"
 	fi
 fi
 if [ "$debug" != "" ]; then
 	format=`echo "$debug" | grep '%[#+-]*[0-9]*[dioxXucsfeEgGp]'`
-	if [ "$debug" == "$format" ]; then
+	if [ "$debug" = "$format" ]; then
 		hdr=${hdr}"CSTL_${upper}_DEBUG_INTERFACE($name, $type)"
 	fi
 fi
@@ -201,7 +201,7 @@ else
 fi
 if [ "$rbdebug" != "" ]; then
 	format=`echo "$debug2" | grep '%[#+-]*[0-9]*[dioxXucsfeEgGp]'`
-	if [ "$debug2" != "" -a "$debug2" == "$format" ]; then
+	if [ "$debug2" != "" -a "$debug2" = "$format" ]; then
 		src=${src}"CSTL_${rbdebug}_DEBUG_IMPLEMENT($name, $type, $value, $comp, $debug1, $debug2, 1)"
 	else
 		src=${src}"CSTL_${rbdebug}_DEBUG_IMPLEMENT($name, $type, $comp, $debug1, 1)"
@@ -209,7 +209,7 @@ if [ "$rbdebug" != "" ]; then
 fi
 if [ "$debug" != "" ]; then
 	format=`echo "$debug" | grep '%[#+-]*[0-9]*[dioxXucsfeEgGp]'`
-	if [ "$debug" == "$format" ]; then
+	if [ "$debug" = "$format" ]; then
 		src=${src}"CSTL_${upper}_DEBUG_IMPLEMENT($name, $type, $debug)"
 	fi
 fi
@@ -277,8 +277,18 @@ echo "\
 #ifdef __cplusplus
 extern \"C\" {
 #endif" >> "$path"".h"
-echo "$hdr" | cpp -I.. | grep "$name" | indent -kr -ut -ts4 \
-| sed -e "s/$name \* /$name */g" >> "$path"".h"
+echo "$hdr" | cpp -CC -I.. | grep "$name" \
+| sed -e 's:/\*\([ !]\):\
+/\*\1:g' \
+| sed -e 's/\t* \* /\
+ \* /g' \
+| sed -e 's:\*/:\*/\
+:g' \
+| indent -kr -ut -ts4 -fc1 \
+| sed -e "s/$name \* /$name */g" \
+| sed -e 's:^\( \*.*\) \*/:\1\
+ \*/:' \
+>> "$path"".h"
 echo "\
 #ifdef __cplusplus
 }
@@ -409,10 +419,20 @@ enum {
 	grep '#define CSTL_RBTREE_.*node' "../cstl/rbtree.h" | sed -e "s/\r//" >> "$path"".c"
 fi
 echo "" >> "$path"".c"
-echo "$src" | cpp -I.. | grep "$name" | indent -kr -ut -ts4 \
+echo "$src" | cpp -CC -I.. | grep "$name" \
+| sed -e 's:/\*\([ !]\):\
+/\*\1:g' \
+| sed -e 's/\t* \* /\
+ \* /g' \
+| sed -e 's:\*/:\*/\
+:g' \
+| indent -kr -ut -ts4 -fc1 \
 | sed -e "s/$name \* /$name */g" | sed -e 's/^} /}\
 \
-/' >> "$path"".c"
+/' \
+| sed -e 's:^\( \*.*\) \*/:\1\
+ \*/:' \
+>> "$path"".c"
 
 # コンパイル確認
 gcc -Wall -ansi -pedantic-errors "$path"".c" -c -DNDEBUG

@@ -65,8 +65,8 @@
  */
 #define CSTL_LIST_INTERFACE(Name, Type)	\
 typedef struct Name Name;\
-/*! 
- * \brief イテレータ
+/*! \
+ * \brief イテレータ\
  */\
 typedef struct Name *Name##Iterator;\
 \
@@ -111,8 +111,8 @@ CSTL_LIST_END_EXTERN_C()\
  * \param Type 要素の型
  */
 #define CSTL_LIST_IMPLEMENT(Name, Type)	\
-/*! 
- * \brief list構造体
+/*! \
+ * \brief list構造体\
  */\
 struct Name {\
 	Name *prev;\

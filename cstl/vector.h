@@ -108,8 +108,8 @@ static int Name##_expand(Name *self, size_t size);\
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n);\
 static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n);\
 static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n);\
-/*! 
- * \brief vector構造体
+/*! \
+ * \brief vector構造体\
  */\
 struct Name {\
 	size_t size;\
