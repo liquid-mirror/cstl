@@ -46,9 +46,9 @@ listを使うには、以下のマクロを用いてコードを展開する必�
       printf("size: %d\n", IntList_size(lst));
       for (pos = IntList_begin(lst); pos != IntList_end(lst); pos = IntListIterator_next(pos)) {
           /* イテレータによる要素の読み書き */
-          printf("%d,", *IntListIterator_ref(pos));
-          *IntListIterator_ref(pos) += 1;
-          printf("%d\n", *IntListIterator_ref(pos));
+          printf("%d,", *IntListIterator_elem(pos));
+          *IntListIterator_elem(pos) += 1;
+          printf("%d\n", *IntListIterator_elem(pos));
       }
   
       /* 使い終わったら破棄 */
@@ -79,7 +79,7 @@ listを使うには、以下のマクロを用いてコードを展開する必�
     * ((<List_begin()>)) , ((<List_end()>))
     * ((<List_rbegin()>)) , ((<List_rend()>))
     * ((<ListIterator_next()>)) , ((<ListIterator_prev()>))
-    * ((<ListIterator_ref()>))
+    * ((<ListIterator_elem()>))
   * 要素のアクセス
     * ((<List_front()>)) , ((<List_back()>))
   * 挿入
@@ -175,8 +175,8 @@ listを使うには、以下のマクロを用いてコードを展開する必�
   * posがList_end()またはList_rend()でないこと。
 <<< hr
 
-==== ListIterator_ref()
-  T *ListIterator_ref(ListIterator pos);
+==== ListIterator_elem()
+  T *ListIterator_elem(ListIterator pos);
 * posが示す位置の要素へのポインタを返す。
 * 事前条件
   * posが有効なイテレータであること。

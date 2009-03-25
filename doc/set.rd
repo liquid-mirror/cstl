@@ -65,7 +65,7 @@ set/multisetを使うには、 以下のマクロを用いてコードを展開�
       printf("size: %d\n", IntSet_size(set));
       for (pos = IntSet_begin(set); pos != IntSet_end(set); pos = IntSetIterator_next(pos)) {
           /* イテレータによる要素の読み出し(書き換えはできない) */
-          printf("%d\n", *IntSetIterator_ref(pos));
+          printf("%d\n", *IntSetIterator_elem(pos));
       }
       /* 3以上の要素を削除 */
       IntSet_erase_range(set, IntSet_find(set, 3), IntSet_end(set));
@@ -99,7 +99,7 @@ NameにSet, TypeにTを指定した場合、
     * ((<Set_begin()>)) , ((<Set_end()>))
     * ((<Set_rbegin()>)) , ((<Set_rend()>))
     * ((<SetIterator_next()>)) , ((<SetIterator_prev()>))
-    * ((<SetIterator_ref()>))
+    * ((<SetIterator_elem()>))
   * 挿入
     * ((<Set_insert() set用>)) , ((<Set_insert() multiset用>)) , ((<Set_insert_range()>))
   * 削除
@@ -185,8 +185,8 @@ NameにSet, TypeにTを指定した場合、
   * posがSet_end()またはSet_rend()でないこと。
 <<< hr
 
-==== SetIterator_ref()
-  T const *SetIterator_ref(SetIterator pos);
+==== SetIterator_elem()
+  T const *SetIterator_elem(SetIterator pos);
 * posが示す位置の要素へのポインタを返す。
 * 戻り値のポインタの参照先はconstである。
 * 事前条件

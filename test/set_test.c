@@ -169,18 +169,18 @@ void SetTest_test_1_1(void)
 		assert(pos[i] == IntSetA_upper_bound(ia, hoge_int[i]-1));
 		assert(IntSetA_lower_bound(ia, hoge_int[i]+1) == IntSetA_upper_bound(ia, hoge_int[i]));
 	}
-	assert(IntSetA_find(ia, *IntSetAIterator_ref(IntSetA_begin(ia)) -1) == IntSetA_end(ia));
-	assert(IntSetA_lower_bound(ia, *IntSetAIterator_ref(IntSetA_rbegin(ia)) +1) == IntSetA_end(ia));
-	assert(IntSetA_upper_bound(ia, *IntSetAIterator_ref(IntSetA_rbegin(ia))) == IntSetA_end(ia));
+	assert(IntSetA_find(ia, *IntSetAIterator_elem(IntSetA_begin(ia)) -1) == IntSetA_end(ia));
+	assert(IntSetA_lower_bound(ia, *IntSetAIterator_elem(IntSetA_rbegin(ia)) +1) == IntSetA_end(ia));
+	assert(IntSetA_upper_bound(ia, *IntSetAIterator_elem(IntSetA_rbegin(ia))) == IntSetA_end(ia));
 	/* begin, end, next, key */
 	for (p = IntSetA_begin(ia), i = 0; p != IntSetA_end(ia); p = IntSetAIterator_next(p), i++) {
-		assert(*IntSetAIterator_ref(p) == i);
+		assert(*IntSetAIterator_elem(p) == i);
 	}
 	assert(i == SIZE/2);
 	assert(IntSetAIterator_next(IntSetA_rbegin(ia)) == IntSetA_end(ia));
 	/* rbegin, rend, prev, key */
 	for (p = IntSetA_rbegin(ia), i = SIZE/2 -1; p != IntSetA_rend(ia); p = IntSetAIterator_prev(p), i--) {
-		assert(*IntSetAIterator_ref(p) == i);
+		assert(*IntSetAIterator_elem(p) == i);
 	}
 	assert(i == -1);
 	assert(IntSetAIterator_prev(IntSetA_begin(ia)) == IntSetA_rend(ia));
@@ -333,18 +333,18 @@ void SetTest_test_1_2(void)
 		assert(pos[i] == IntSetD_upper_bound(id, hoge_int[i]+1));
 		assert(IntSetD_lower_bound(id, hoge_int[i]-1) == IntSetD_upper_bound(id, hoge_int[i]));
 	}
-	assert(IntSetD_find(id, *IntSetDIterator_ref(IntSetD_begin(id)) +1) == IntSetD_end(id));
-	assert(IntSetD_lower_bound(id, *IntSetDIterator_ref(IntSetD_rbegin(id)) -1) == IntSetD_end(id));
-	assert(IntSetD_upper_bound(id, *IntSetDIterator_ref(IntSetD_rbegin(id))) == IntSetD_end(id));
+	assert(IntSetD_find(id, *IntSetDIterator_elem(IntSetD_begin(id)) +1) == IntSetD_end(id));
+	assert(IntSetD_lower_bound(id, *IntSetDIterator_elem(IntSetD_rbegin(id)) -1) == IntSetD_end(id));
+	assert(IntSetD_upper_bound(id, *IntSetDIterator_elem(IntSetD_rbegin(id))) == IntSetD_end(id));
 	/* begin, end, next, key */
 	for (p = IntSetD_begin(id), i = SIZE/2 -1; p != IntSetD_end(id); p = IntSetDIterator_next(p), i--) {
-		assert(*IntSetDIterator_ref(p) == i);
+		assert(*IntSetDIterator_elem(p) == i);
 	}
 	assert(i == -1);
 	assert(IntSetDIterator_next(IntSetD_rbegin(id)) == IntSetD_end(id));
 	/* rbegin, rend, prev, key */
 	for (p = IntSetD_rbegin(id), i = 0; p != IntSetD_rend(id); p = IntSetDIterator_prev(p), i++) {
-		assert(*IntSetDIterator_ref(p) == i);
+		assert(*IntSetDIterator_elem(p) == i);
 	}
 	assert(i == SIZE/2);
 	assert(IntSetDIterator_prev(IntSetD_begin(id)) == IntSetD_rend(id));
@@ -453,18 +453,18 @@ void SetTest_test_1_3(void)
 		}
 		assert(IntMSetA_lower_bound(ima, hoge_int[i]+1) == IntMSetA_upper_bound(ima, hoge_int[i]));
 	}
-	assert(IntMSetA_find(ima, *IntMSetAIterator_ref(IntMSetA_begin(ima)) -1) == IntMSetA_end(ima));
-	assert(IntMSetA_lower_bound(ima, *IntMSetAIterator_ref(IntMSetA_rbegin(ima)) +1) == IntMSetA_end(ima));
-	assert(IntMSetA_upper_bound(ima, *IntMSetAIterator_ref(IntMSetA_rbegin(ima))) == IntMSetA_end(ima));
+	assert(IntMSetA_find(ima, *IntMSetAIterator_elem(IntMSetA_begin(ima)) -1) == IntMSetA_end(ima));
+	assert(IntMSetA_lower_bound(ima, *IntMSetAIterator_elem(IntMSetA_rbegin(ima)) +1) == IntMSetA_end(ima));
+	assert(IntMSetA_upper_bound(ima, *IntMSetAIterator_elem(IntMSetA_rbegin(ima))) == IntMSetA_end(ima));
 	/* begin, end, next, key */
 	for (p = IntMSetA_begin(ima), i = 0; p != IntMSetA_end(ima); p = IntMSetAIterator_next(p), i++) {
-/*        printf("%d, %d\n", i, *IntMSetAIterator_ref(p));*/
+/*        printf("%d, %d\n", i, *IntMSetAIterator_elem(p));*/
 	}
 	assert(i == SIZE);
 	assert(IntMSetAIterator_next(IntMSetA_rbegin(ima)) == IntMSetA_end(ima));
 	/* rbegin, rend, prev, key */
 	for (p = IntMSetA_rbegin(ima), i = SIZE -1; p != IntMSetA_rend(ima); p = IntMSetAIterator_prev(p), i--) {
-/*        printf("%d, %d\n", i, *IntMSetAIterator_ref(p));*/
+/*        printf("%d, %d\n", i, *IntMSetAIterator_elem(p));*/
 	}
 	assert(i == -1);
 	assert(IntMSetAIterator_prev(IntMSetA_begin(ima)) == IntMSetA_rend(ima));
@@ -590,18 +590,18 @@ void SetTest_test_2_1(void)
 		assert(pos[i] == DoubleSetA_upper_bound(da, hoge_double[i]-0.5));
 		assert(DoubleSetA_lower_bound(da, hoge_double[i]+0.5) == DoubleSetA_upper_bound(da, hoge_double[i]));
 	}
-	assert(DoubleSetA_find(da, *DoubleSetAIterator_ref(DoubleSetA_begin(da)) -1) == DoubleSetA_end(da));
-	assert(DoubleSetA_lower_bound(da, *DoubleSetAIterator_ref(DoubleSetA_rbegin(da)) +1) == DoubleSetA_end(da));
-	assert(DoubleSetA_upper_bound(da, *DoubleSetAIterator_ref(DoubleSetA_rbegin(da))) == DoubleSetA_end(da));
+	assert(DoubleSetA_find(da, *DoubleSetAIterator_elem(DoubleSetA_begin(da)) -1) == DoubleSetA_end(da));
+	assert(DoubleSetA_lower_bound(da, *DoubleSetAIterator_elem(DoubleSetA_rbegin(da)) +1) == DoubleSetA_end(da));
+	assert(DoubleSetA_upper_bound(da, *DoubleSetAIterator_elem(DoubleSetA_rbegin(da))) == DoubleSetA_end(da));
 	/* begin, end, next, key */
 	for (p = DoubleSetA_begin(da), i = 0; p != DoubleSetA_end(da); p = DoubleSetAIterator_next(p), i++) {
-		assert(*DoubleSetAIterator_ref(p) == i*0.5);
+		assert(*DoubleSetAIterator_elem(p) == i*0.5);
 	}
 	assert(i == SIZE/2);
 	assert(DoubleSetAIterator_next(DoubleSetA_rbegin(da)) == DoubleSetA_end(da));
 	/* rbegin, rend, prev, key */
 	for (p = DoubleSetA_rbegin(da), i = SIZE/2 -1; p != DoubleSetA_rend(da); p = DoubleSetAIterator_prev(p), i--) {
-		assert(*DoubleSetAIterator_ref(p) == i*0.5);
+		assert(*DoubleSetAIterator_elem(p) == i*0.5);
 	}
 	assert(i == -1);
 	assert(DoubleSetAIterator_prev(DoubleSetA_begin(da)) == DoubleSetA_rend(da));
@@ -705,18 +705,18 @@ void SetTest_test_3_1(void)
 		assert(pos[i] == PtrSetA_upper_bound(pa, hoge_ptr[i]-1));
 		assert(PtrSetA_lower_bound(pa, hoge_ptr[i]+1) == PtrSetA_upper_bound(pa, hoge_ptr[i]));
 	}
-	assert(PtrSetA_find(pa, *PtrSetAIterator_ref(PtrSetA_begin(pa)) -1) == PtrSetA_end(pa));
-	assert(PtrSetA_lower_bound(pa, *PtrSetAIterator_ref(PtrSetA_rbegin(pa)) +1) == PtrSetA_end(pa));
-	assert(PtrSetA_upper_bound(pa, *PtrSetAIterator_ref(PtrSetA_rbegin(pa))) == PtrSetA_end(pa));
+	assert(PtrSetA_find(pa, *PtrSetAIterator_elem(PtrSetA_begin(pa)) -1) == PtrSetA_end(pa));
+	assert(PtrSetA_lower_bound(pa, *PtrSetAIterator_elem(PtrSetA_rbegin(pa)) +1) == PtrSetA_end(pa));
+	assert(PtrSetA_upper_bound(pa, *PtrSetAIterator_elem(PtrSetA_rbegin(pa))) == PtrSetA_end(pa));
 	/* begin, end, next, key */
 	for (p = PtrSetA_begin(pa), i = 0; p != PtrSetA_end(pa); p = PtrSetAIterator_next(p), i++) {
-		assert(*PtrSetAIterator_ref(p) == &hoge_int[i]);
+		assert(*PtrSetAIterator_elem(p) == &hoge_int[i]);
 	}
 	assert(i == SIZE/2);
 	assert(PtrSetAIterator_next(PtrSetA_rbegin(pa)) == PtrSetA_end(pa));
 	/* rbegin, rend, prev, key */
 	for (p = PtrSetA_rbegin(pa), i = SIZE/2 -1; p != PtrSetA_rend(pa); p = PtrSetAIterator_prev(p), i--) {
-		assert(*PtrSetAIterator_ref(p) == &hoge_int[i]);
+		assert(*PtrSetAIterator_elem(p) == &hoge_int[i]);
 	}
 	assert(i == -1);
 	assert(PtrSetAIterator_prev(PtrSetA_begin(pa)) == PtrSetA_rend(pa));
@@ -825,16 +825,16 @@ void SetTest_test_4_1(void)
 	}
 	assert(StrSetA_find(sa, "hoge") == StrSetA_end(sa));
 	assert(StrSetA_lower_bound(sa, "hoge") == StrSetA_end(sa));
-	assert(StrSetA_upper_bound(sa, *StrSetAIterator_ref(StrSetA_rbegin(sa))) == StrSetA_end(sa));
+	assert(StrSetA_upper_bound(sa, *StrSetAIterator_elem(StrSetA_rbegin(sa))) == StrSetA_end(sa));
 	/* begin, end, next, key */
 	for (p = StrSetA_begin(sa), i = 0; p != StrSetA_end(sa); p = StrSetAIterator_next(p), i++) {
-		assert(*StrSetAIterator_ref(p) == hoge_str[i]);
+		assert(*StrSetAIterator_elem(p) == hoge_str[i]);
 	}
 	assert(i == SIZE/2);
 	assert(StrSetAIterator_next(StrSetA_rbegin(sa)) == StrSetA_end(sa));
 	/* rbegin, rend, prev, key */
 	for (p = StrSetA_rbegin(sa), i = SIZE/2 -1; p != StrSetA_rend(sa); p = StrSetAIterator_prev(p), i--) {
-		assert(*StrSetAIterator_ref(p) == hoge_str[i]);
+		assert(*StrSetAIterator_elem(p) == hoge_str[i]);
 	}
 	assert(i == -1);
 	assert(StrSetAIterator_prev(StrSetA_begin(sa)) == StrSetA_rend(sa));
@@ -943,18 +943,18 @@ void SetTest_test_5_1(void)
 		}
 		assert(UIntSetA_lower_bound(uia, hoge_int[i]+1) == UIntSetA_upper_bound(uia, hoge_int[i]));
 	}
-	assert(UIntSetA_find(uia, *UIntSetAIterator_ref(UIntSetA_begin(uia)) -1) == UIntSetA_end(uia));
-	assert(UIntSetA_lower_bound(uia, *UIntSetAIterator_ref(UIntSetA_rbegin(uia)) +1) == UIntSetA_end(uia));
-	assert(UIntSetA_upper_bound(uia, *UIntSetAIterator_ref(UIntSetA_rbegin(uia))) == UIntSetA_end(uia));
+	assert(UIntSetA_find(uia, *UIntSetAIterator_elem(UIntSetA_begin(uia)) -1) == UIntSetA_end(uia));
+	assert(UIntSetA_lower_bound(uia, *UIntSetAIterator_elem(UIntSetA_rbegin(uia)) +1) == UIntSetA_end(uia));
+	assert(UIntSetA_upper_bound(uia, *UIntSetAIterator_elem(UIntSetA_rbegin(uia))) == UIntSetA_end(uia));
 	/* begin, end, next, key */
 	for (p = UIntSetA_begin(uia), i = 0; p != UIntSetA_end(uia); p = UIntSetAIterator_next(p), i++) {
-		assert(*UIntSetAIterator_ref(p) == i);
+		assert(*UIntSetAIterator_elem(p) == i);
 	}
 	assert(i == SIZE/2);
 	assert(UIntSetAIterator_next(UIntSetA_rbegin(uia)) == UIntSetA_end(uia));
 	/* rbegin, rend, prev, key */
 	for (p = UIntSetA_rbegin(uia), i = SIZE/2 -1; p != UIntSetA_rend(uia); p = UIntSetAIterator_prev(p), i--) {
-		assert(*UIntSetAIterator_ref(p) == i);
+		assert(*UIntSetAIterator_elem(p) == i);
 	}
 	assert(i == -1);
 	assert(UIntSetAIterator_prev(UIntSetA_begin(uia)) == UIntSetA_rend(uia));
