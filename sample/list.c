@@ -44,17 +44,17 @@ int main(void)
 	HogeList_push_front(x, hoge);
 
 	for (pos = HogeList_begin(x); pos != HogeList_end(x); pos = HogeList_next(pos)) {
-		Hoge_print(*HogeList_elem(pos));
+		Hoge_print(*HogeList_data(pos));
 	}
 	for (pos = HogeList_begin(x); pos != HogeList_end(x); pos = HogeList_next(pos)) {
-		Hoge *h = *HogeList_elem(pos);
+		Hoge *h = *HogeList_data(pos);
 		if (!strcmp(h->key, "bbb")) {
 			hoge = Hoge_new("eee", 5);
 			HogeList_insert(x, pos, hoge);
 		}
 	}
 	for (pos = HogeList_begin(x); pos != HogeList_end(x);) {
-		Hoge *h = *HogeList_elem(pos);
+		Hoge *h = *HogeList_data(pos);
 		if (!strcmp(h->key, "bbb")) {
 			pos = HogeList_erase(x, pos);
 			Hoge_delete(h);

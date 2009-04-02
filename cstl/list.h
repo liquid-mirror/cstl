@@ -80,7 +80,7 @@ void Name##_pop_back(Name *self);\
 int Name##_empty(Name *self);\
 size_t Name##_size(Name *self);\
 void Name##_clear(Name *self);\
-Type *Name##_elem(Name##Iterator pos);\
+Type *Name##_data(Name##Iterator pos);\
 Type *Name##_front(Name *self);\
 Type *Name##_back(Name *self);\
 Name##Iterator Name##_begin(Name *self);\
@@ -211,11 +211,11 @@ void Name##_clear(Name *self)\
 	Name##_erase_range(self, CSTL_LIST_BEGIN(self), CSTL_LIST_END(self));\
 }\
 \
-Type *Name##_elem(Name##Iterator pos)\
+Type *Name##_data(Name##Iterator pos)\
 {\
-	assert(pos && "List_elem");\
-	assert(pos->magic && "List_elem");\
-	assert(pos->magic != pos && "List_elem");\
+	assert(pos && "List_data");\
+	assert(pos->magic && "List_data");\
+	assert(pos->magic != pos && "List_data");\
 	return &pos->elem;\
 }\
 \
