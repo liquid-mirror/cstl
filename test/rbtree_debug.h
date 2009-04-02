@@ -156,7 +156,7 @@ int Name##_verify(Name *self)\
 			tree->parent == (Name##RBTree *) &Name##RBTree_nil;\
 	}\
 	len = Name##RBTree_black_count(Name##RBTree_begin(tree), Name##RBTree_get_root(tree));\
-	for (pos = Name##RBTree_begin(tree); pos != Name##RBTree_end(tree); pos = Name##RBTreeIterator_next(pos)) {\
+	for (pos = Name##RBTree_begin(tree); pos != Name##RBTree_end(tree); pos = Name##RBTree_next(pos)) {\
 		l = pos->left;\
 		r = pos->right;\
 		if (pos->color == CSTL_RBTREE_RED) {\

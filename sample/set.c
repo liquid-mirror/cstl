@@ -20,8 +20,8 @@ int main(void)
 	IntSet_insert(x, 8, NULL);
 	IntSet_insert(x, 7, NULL);
 
-	for (pos = IntSet_begin(x); pos != IntSet_end(x); pos = IntSetIterator_next(pos)) {
-		printf("%d ", *IntSetIterator_elem(pos));
+	for (pos = IntSet_begin(x); pos != IntSet_end(x); pos = IntSet_next(pos)) {
+		printf("%d ", *IntSet_elem(pos));
 	}
 	printf("\n");
 
@@ -35,15 +35,15 @@ int main(void)
 	IntSet_erase_range(x, IntSet_begin(x), IntSet_find(x, 3));
 	IntSet_erase_key(x, 5);
 
-	for (pos = IntSet_begin(x); pos != IntSet_end(x); pos = IntSetIterator_next(pos)) {
-		printf("%d ", *IntSetIterator_elem(pos));
+	for (pos = IntSet_begin(x); pos != IntSet_end(x); pos = IntSet_next(pos)) {
+		printf("%d ", *IntSet_elem(pos));
 	}
 	printf("\n");
 
-	printf("lower_bound(5): %d\n", *IntSetIterator_elem(IntSet_lower_bound(x, 5)));
-	printf("upper_bound(5): %d\n", *IntSetIterator_elem(IntSet_upper_bound(x, 5)));
-	printf("lower_bound(6): %d\n", *IntSetIterator_elem(IntSet_lower_bound(x, 6)));
-	printf("upper_bound(6): %d\n", *IntSetIterator_elem(IntSet_upper_bound(x, 6)));
+	printf("lower_bound(5): %d\n", *IntSet_elem(IntSet_lower_bound(x, 5)));
+	printf("upper_bound(5): %d\n", *IntSet_elem(IntSet_upper_bound(x, 5)));
+	printf("lower_bound(6): %d\n", *IntSet_elem(IntSet_lower_bound(x, 6)));
+	printf("upper_bound(6): %d\n", *IntSet_elem(IntSet_upper_bound(x, 6)));
 	IntSet_delete(x);
 	return 0;
 }

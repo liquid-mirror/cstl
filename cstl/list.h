@@ -80,15 +80,15 @@ void Name##_pop_back(Name *self);\
 int Name##_empty(Name *self);\
 size_t Name##_size(Name *self);\
 void Name##_clear(Name *self);\
-Type *Name##Iterator_elem(Name##Iterator pos);\
+Type *Name##_elem(Name##Iterator pos);\
 Type *Name##_front(Name *self);\
 Type *Name##_back(Name *self);\
 Name##Iterator Name##_begin(Name *self);\
 Name##Iterator Name##_end(Name *self);\
 Name##Iterator Name##_rbegin(Name *self);\
 Name##Iterator Name##_rend(Name *self);\
-Name##Iterator Name##Iterator_next(Name##Iterator pos);\
-Name##Iterator Name##Iterator_prev(Name##Iterator pos);\
+Name##Iterator Name##_next(Name##Iterator pos);\
+Name##Iterator Name##_prev(Name##Iterator pos);\
 Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type elem);\
 int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type elem);\
 int Name##_insert_array(Name *self, Name##Iterator pos, Type const *elems, size_t n);\
@@ -211,11 +211,11 @@ void Name##_clear(Name *self)\
 	Name##_erase_range(self, CSTL_LIST_BEGIN(self), CSTL_LIST_END(self));\
 }\
 \
-Type *Name##Iterator_elem(Name##Iterator pos)\
+Type *Name##_elem(Name##Iterator pos)\
 {\
-	assert(pos && "ListIterator_elem");\
-	assert(pos->magic && "ListIterator_elem");\
-	assert(pos->magic != pos && "ListIterator_elem");\
+	assert(pos && "List_elem");\
+	assert(pos->magic && "List_elem");\
+	assert(pos->magic != pos && "List_elem");\
 	return &pos->elem;\
 }\
 \
@@ -263,19 +263,19 @@ Name##Iterator Name##_rend(Name *self)\
 	return CSTL_LIST_REND(self);\
 }\
 \
-Name##Iterator Name##Iterator_next(Name##Iterator pos)\
+Name##Iterator Name##_next(Name##Iterator pos)\
 {\
-	assert(pos && "ListIterator_next");\
-	assert(pos->magic && "ListIterator_next");\
-	assert(pos->magic != pos && "ListIterator_next");\
+	assert(pos && "List_next");\
+	assert(pos->magic && "List_next");\
+	assert(pos->magic != pos && "List_next");\
 	return pos->next;\
 }\
 \
-Name##Iterator Name##Iterator_prev(Name##Iterator pos)\
+Name##Iterator Name##_prev(Name##Iterator pos)\
 {\
-	assert(pos && "ListIterator_prev");\
-	assert(pos->magic && "ListIterator_prev");\
-	assert(pos->magic != pos && "ListIterator_prev");\
+	assert(pos && "List_prev");\
+	assert(pos->magic && "List_prev");\
+	assert(pos->magic != pos && "List_prev");\
 	return pos->prev;\
 }\
 \

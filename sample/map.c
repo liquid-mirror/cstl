@@ -19,18 +19,18 @@ int main(void)
 	*StrFltMap_at(stocks, "Siemens") = 842.20;
 
 	/* すべての要素を出力する */
-	for (pos = StrFltMap_begin(stocks); pos != StrFltMap_end(stocks); pos = StrFltMapIterator_next(pos)) {
-		printf("stock: %s\tprice: %g\n", *StrFltMapIterator_key(pos), *StrFltMapIterator_value(pos));
+	for (pos = StrFltMap_begin(stocks); pos != StrFltMap_end(stocks); pos = StrFltMap_next(pos)) {
+		printf("stock: %s\tprice: %g\n", *StrFltMap_key(pos), *StrFltMap_value(pos));
 	}
 	printf("\n");
 
 	/* 値が倍になった */
-	for (pos = StrFltMap_begin(stocks); pos != StrFltMap_end(stocks); pos = StrFltMapIterator_next(pos)) {
-		*StrFltMapIterator_value(pos) *= 2;
+	for (pos = StrFltMap_begin(stocks); pos != StrFltMap_end(stocks); pos = StrFltMap_next(pos)) {
+		*StrFltMap_value(pos) *= 2;
 	}
 	/* すべての要素を出力する */
-	for (pos = StrFltMap_begin(stocks); pos != StrFltMap_end(stocks); pos = StrFltMapIterator_next(pos)) {
-		printf("stock: %s\tprice: %g\n", *StrFltMapIterator_key(pos), *StrFltMapIterator_value(pos));
+	for (pos = StrFltMap_begin(stocks); pos != StrFltMap_end(stocks); pos = StrFltMap_next(pos)) {
+		printf("stock: %s\tprice: %g\n", *StrFltMap_key(pos), *StrFltMap_value(pos));
 	}
 	printf("\n");
 
@@ -40,8 +40,8 @@ int main(void)
 	StrFltMap_erase_key(stocks, "VW");
 
 	/* すべての要素を出力する */
-	for (pos = StrFltMap_begin(stocks); pos != StrFltMap_end(stocks); pos = StrFltMapIterator_next(pos)) {
-		printf("stock: %s\tprice: %g\n", *StrFltMapIterator_key(pos), *StrFltMapIterator_value(pos));
+	for (pos = StrFltMap_begin(stocks); pos != StrFltMap_end(stocks); pos = StrFltMap_next(pos)) {
+		printf("stock: %s\tprice: %g\n", *StrFltMap_key(pos), *StrFltMap_value(pos));
 	}
 	printf("\n");
 

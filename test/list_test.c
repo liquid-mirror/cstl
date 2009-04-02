@@ -182,18 +182,18 @@ void ListTest_test_1_4(void)
 	assert(HogeList_size(hl) == NELEMS(hogetab));
 	assert(!HogeList_empty(hl));
 	/* elem */
-	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos), i++) {
-		hoge = *HogeListIterator_elem(pos);
+	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos), i++) {
+		hoge = *HogeList_elem(pos);
 		assert(!strcmp(hoge.key, hogetab[i].key));
 		assert(hoge.value == hogetab[i].value);
 	}
 	assert(i == NELEMS(hogetab));
-	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos), i++) {
-		*HogeListIterator_elem(pos) = hogetab[0];
+	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos), i++) {
+		*HogeList_elem(pos) = hogetab[0];
 	}
 	assert(i == NELEMS(hogetab));
-	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos)) {
-		hoge = *HogeListIterator_elem(pos);
+	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
+		hoge = *HogeList_elem(pos);
 		assert(!strcmp(hoge.key, hogetab[0].key));
 		assert(hoge.value == hogetab[0].value);
 	}
@@ -224,20 +224,20 @@ void ListTest_test_1_5(void)
 	assert(HogeList_size(hl) == NELEMS(hogetab));
 	assert(!HogeList_empty(hl));
 	/* 真ん中の位置にinsert */
-	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos), i++) {
-		hoge = *HogeListIterator_elem(pos);
+	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos), i++) {
+		hoge = *HogeList_elem(pos);
 		assert(!strcmp(hoge.key, hogetab[i].key));
 		assert(hoge.value == hogetab[i].value);
 		if (i == NELEMS(hogetab)/2) {
 			hoge = hogetab[0];
-			assert(HogeList_insert(hl, pos, hoge) == HogeListIterator_prev(pos));
+			assert(HogeList_insert(hl, pos, hoge) == HogeList_prev(pos));
 			assert(HogeList_verify(hl));
 			break;
 		}
 	}
 	assert(HogeList_size(hl) == NELEMS(hogetab)+1);
-	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos), i++) {
-		hoge = *HogeListIterator_elem(pos);
+	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos), i++) {
+		hoge = *HogeList_elem(pos);
 		if (!flag && i == NELEMS(hogetab)/2) {
 			assert(!strcmp(hoge.key, hogetab[0].key));
 			assert(hoge.value == hogetab[0].value);
@@ -268,7 +268,7 @@ void ListTest_test_1_6(void)
 	size = HogeList_size(hl);
 	for (i = 0; i < NELEMS(hogetab); i++) {
 		pos = HogeList_begin(hl);
-		assert(HogeListIterator_next(pos) == HogeList_erase(hl, pos));
+		assert(HogeList_next(pos) == HogeList_erase(hl, pos));
 		assert(HogeList_size(hl) == --size);
 		assert(HogeList_verify(hl));
 	}
@@ -284,7 +284,7 @@ void ListTest_test_1_6(void)
 	size = HogeList_size(hl);
 	for (i = 0; i < NELEMS(hogetab); i++) {
 		pos = HogeList_rbegin(hl);
-		assert(HogeListIterator_next(pos) == HogeList_erase(hl, pos));
+		assert(HogeList_next(pos) == HogeList_erase(hl, pos));
 		assert(HogeList_size(hl) == --size);
 		assert(HogeList_verify(hl));
 	}
@@ -301,13 +301,13 @@ void ListTest_test_1_6(void)
 		if (i == NELEMS(hogetab)/2) {
 			pos = HogeList_erase(hl, pos);
 		} else {
-			pos = HogeListIterator_next(pos);
+			pos = HogeList_next(pos);
 		}
 		assert(HogeList_verify(hl));
 	}
 	assert(HogeList_size(hl) == NELEMS(hogetab)-1);
-	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos), i++) {
-		hoge = *HogeListIterator_elem(pos);
+	for (i = 0, pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos), i++) {
+		hoge = *HogeList_elem(pos);
 		if (i >= NELEMS(hogetab)/2) {
 			assert(!strcmp(hoge.key, hogetab[i+1].key));
 			assert(hoge.value == hogetab[i+1].value);
@@ -336,14 +336,14 @@ void ListTest_test_1_7(void)
 	assert(HogeList_size(hl) == NELEMS(hogetab));
 	assert(!HogeList_empty(hl));
 	/* rbegin/rend 逆順に走査 */
-	for (i = 0, pos = HogeList_rbegin(hl); pos != HogeList_rend(hl); pos = HogeListIterator_prev(pos), i++) {
-		hoge = *HogeListIterator_elem(pos);
+	for (i = 0, pos = HogeList_rbegin(hl); pos != HogeList_rend(hl); pos = HogeList_prev(pos), i++) {
+		hoge = *HogeList_elem(pos);
 		assert(!strcmp(hoge.key, hogetab[NELEMS(hogetab)-1 - i].key));
 		assert(hoge.value == hogetab[NELEMS(hogetab)-1 - i].value);
 	}
 	assert(i == NELEMS(hogetab));
-	assert(HogeListIterator_next(HogeList_rbegin(hl)) == HogeList_end(hl));
-	assert(HogeListIterator_prev(HogeList_begin(hl)) == HogeList_rend(hl));
+	assert(HogeList_next(HogeList_rbegin(hl)) == HogeList_end(hl));
+	assert(HogeList_prev(HogeList_begin(hl)) == HogeList_rend(hl));
 	HogeList_clear(hl);
 }
 
@@ -400,9 +400,9 @@ void ListTest_test_1_8(void)
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
 	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
-	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos)) {
-		hoge = *HogeListIterator_elem(pos);
-		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeListIterator_prev(pos), HogeListIterator_next(pos));
+	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
+		hoge = *HogeList_elem(pos);
+		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
 	}
 	/* sort less*/
 	printf("size[%d]\n", HogeList_size(hl));
@@ -414,9 +414,9 @@ void ListTest_test_1_8(void)
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "000"; prev.value = 0;
 	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
-	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos)) {
-		hoge = *HogeListIterator_elem(pos);
-		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeListIterator_prev(pos), HogeListIterator_next(pos));
+	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
+		hoge = *HogeList_elem(pos);
+		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
 		assert(strcmp(prev.key, hoge.key) <= 0);
 		assert(prev.value <= hoge.value);
 		prev = hoge;
@@ -431,9 +431,9 @@ void ListTest_test_1_8(void)
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "000"; prev.value = 0;
 	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
-	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos)) {
-		hoge = *HogeListIterator_elem(pos);
-		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeListIterator_prev(pos), HogeListIterator_next(pos));
+	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
+		hoge = *HogeList_elem(pos);
+		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
 		assert(strcmp(prev.key, hoge.key) <= 0);
 		assert(prev.value <= hoge.value);
 		prev = hoge;
@@ -448,9 +448,9 @@ void ListTest_test_1_8(void)
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "999"; prev.value = 999;
 	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
-	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos)) {
-		hoge = *HogeListIterator_elem(pos);
-		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeListIterator_prev(pos), HogeListIterator_next(pos));
+	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
+		hoge = *HogeList_elem(pos);
+		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
 		assert(strcmp(prev.key, hoge.key) >= 0);
 		if (strcmp(prev.key, hoge.key) == 0) {
 			assert(prev.value <= hoge.value);
@@ -469,9 +469,9 @@ void ListTest_test_1_8(void)
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "999"; prev.value = 999;
 	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
-	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos)) {
-		hoge = *HogeListIterator_elem(pos);
-		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeListIterator_prev(pos), HogeListIterator_next(pos));
+	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
+		hoge = *HogeList_elem(pos);
+		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
 		assert(strcmp(prev.key, hoge.key) >= 0);
 		if (strcmp(prev.key, hoge.key) == 0) {
 			assert(prev.value <= hoge.value);
@@ -488,9 +488,9 @@ void ListTest_test_1_8(void)
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
 	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
-	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos)) {
-		hoge = *HogeListIterator_elem(pos);
-		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeListIterator_prev(pos), HogeListIterator_next(pos));
+	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
+		hoge = *HogeList_elem(pos);
+		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
 	}
 	/* merge */
 	printf("\n");
@@ -503,9 +503,9 @@ void ListTest_test_1_8(void)
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
 	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
-	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos)) {
-		hoge = *HogeListIterator_elem(pos);
-		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeListIterator_prev(pos), HogeListIterator_next(pos));
+	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
+		hoge = *HogeList_elem(pos);
+		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
 	}
 
 	printf("before merge 2\n");
@@ -517,9 +517,9 @@ void ListTest_test_1_8(void)
 	pos = HogeList_end(x);
 	hoge.key = "XXX"; hoge.value = 9999;
 	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
-	for (pos = HogeList_begin(x); pos != HogeList_end(x); pos = HogeListIterator_next(pos)) {
-		hoge = *HogeListIterator_elem(pos);
-		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeListIterator_prev(pos), HogeListIterator_next(pos));
+	for (pos = HogeList_begin(x); pos != HogeList_end(x); pos = HogeList_next(pos)) {
+		hoge = *HogeList_elem(pos);
+		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
 	}
 
 	printf("after merge\n");
@@ -529,9 +529,9 @@ void ListTest_test_1_8(void)
 	pos = HogeList_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
 	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
-	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeListIterator_next(pos)) {
-		hoge = *HogeListIterator_elem(pos);
-		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeListIterator_prev(pos), HogeListIterator_next(pos));
+	for (pos = HogeList_begin(hl); pos != HogeList_end(hl); pos = HogeList_next(pos)) {
+		hoge = *HogeList_elem(pos);
+		printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));
 	}
 	assert(HogeList_empty(x));
 	assert(HogeList_size(hl) == NELEMS(hogetab2));
@@ -557,25 +557,25 @@ void ListTest_test_2_1(void)
 	assert(IntList_insert_array(il, IntList_begin(il), buf, 32));
 	assert(IntList_verify(il));
 	assert(IntList_size(il) == 32);
-	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntListIterator_next(pos), i++) {
-		assert(*IntListIterator_elem(pos) == i);
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		assert(*IntList_elem(pos) == i);
 	}
 	/* resize */
 	assert(IntList_resize(il, 64, 100));
 	assert(IntList_verify(il));
 	assert(IntList_size(il) == 64);
-	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntListIterator_next(pos), i++) {
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
 		if (i < 32) {
-			assert(*IntListIterator_elem(pos) == i);
+			assert(*IntList_elem(pos) == i);
 		} else {
-			assert(*IntListIterator_elem(pos) == 100);
+			assert(*IntList_elem(pos) == 100);
 		}
 	}
 	assert(IntList_resize(il, 16, 99));
 	assert(IntList_verify(il));
 	assert(IntList_size(il) == 16);
-	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntListIterator_next(pos), i++) {
-		assert(*IntListIterator_elem(pos) == i);
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		assert(*IntList_elem(pos) == i);
 	}
 	assert(IntList_resize(il, 0, 99));
 	assert(IntList_verify(il));
@@ -587,50 +587,50 @@ void ListTest_test_2_1(void)
 	assert(IntList_insert_array(il, IntList_begin(il), buf, 32));
 	assert(IntList_insert_array(x, IntList_begin(x), b, sizeof b / sizeof b[0]));
 	assert(IntList_size(il) == 32);
-	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntListIterator_next(pos), i++) {
-		assert(*IntListIterator_elem(pos) == i);
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		assert(*IntList_elem(pos) == i);
 	}
 	assert(IntList_size(x) == sizeof b / sizeof b[0]);
-	for (pos = IntList_begin(x), i = 0; pos != IntList_end(x); pos = IntListIterator_next(pos), i++) {
-		assert(*IntListIterator_elem(pos) == b[i]);
+	for (pos = IntList_begin(x), i = 0; pos != IntList_end(x); pos = IntList_next(pos), i++) {
+		assert(*IntList_elem(pos) == b[i]);
 	}
 	IntList_swap(il, x);
 	assert(IntList_verify(il));
 	assert(IntList_verify(x));
 	assert(IntList_size(x) == 32);
 	printf("x:\n");
-	for (pos = IntList_begin(x), i = 0; pos != IntList_end(x); pos = IntListIterator_next(pos), i++) {
-		assert(*IntListIterator_elem(pos) == i);
-		printf("%2d, ", *IntListIterator_elem(pos));
+	for (pos = IntList_begin(x), i = 0; pos != IntList_end(x); pos = IntList_next(pos), i++) {
+		assert(*IntList_elem(pos) == i);
+		printf("%2d, ", *IntList_elem(pos));
 	}
 	printf("\n");
 	printf("il:\n");
 	assert(IntList_size(il) == sizeof b / sizeof b[0]);
-	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntListIterator_next(pos), i++) {
-		assert(*IntListIterator_elem(pos) == b[i]);
-		printf("%2d, ", *IntListIterator_elem(pos));
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		assert(*IntList_elem(pos) == b[i]);
+		printf("%2d, ", *IntList_elem(pos));
 	}
 	printf("\n");
 	/* splice */
 	IntList_splice(x, IntList_begin(x), il, IntList_begin(il), IntList_end(il));
 /*    IntList_splice(x, IntList_begin(x), il, IntList_begin(il), IntList_begin(il));*/
-/*    IntList_splice(x, IntList_begin(x), il, IntList_begin(il), IntListIterator_next(IntList_begin(il)));*/
-/*    IntList_splice(x, IntList_begin(x), x, IntListIterator_next(IntList_begin(x)), IntList_end(x));*/
-/*    IntList_splice(x, IntList_end(x), x, IntListIterator_next(IntList_begin(x)), IntList_end(x));*/
-/*    IntList_splice(x, IntList_rbegin(x), x, IntListIterator_next(IntList_begin(x)), IntListIterator_prev(IntList_rbegin(x)));*/
+/*    IntList_splice(x, IntList_begin(x), il, IntList_begin(il), IntList_next(IntList_begin(il)));*/
+/*    IntList_splice(x, IntList_begin(x), x, IntList_next(IntList_begin(x)), IntList_end(x));*/
+/*    IntList_splice(x, IntList_end(x), x, IntList_next(IntList_begin(x)), IntList_end(x));*/
+/*    IntList_splice(x, IntList_rbegin(x), x, IntList_next(IntList_begin(x)), IntList_prev(IntList_rbegin(x)));*/
 	assert(IntList_verify(il));
 	assert(IntList_verify(x));
 
 	assert(IntList_size(il) == 0);
 	assert(IntList_size(x) == 32 + sizeof b / sizeof b[0]);
 	printf("x:\n");
-	for (pos = IntList_begin(x), i = 0; pos != IntList_end(x); pos = IntListIterator_next(pos), i++) {
-		printf("%2d, ", *IntListIterator_elem(pos));
+	for (pos = IntList_begin(x), i = 0; pos != IntList_end(x); pos = IntList_next(pos), i++) {
+		printf("%2d, ", *IntList_elem(pos));
 	}
 	printf("\n");
 	printf("il:\n");
-	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntListIterator_next(pos), i++) {
-		printf("%2d, ", *IntListIterator_elem(pos));
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		printf("%2d, ", *IntList_elem(pos));
 	}
 	/* insert_range */
 	IntList_clear(il);
@@ -639,8 +639,8 @@ void ListTest_test_2_1(void)
 	assert(IntList_insert_array(x, IntList_begin(x), b, sizeof b / sizeof b[0]));
 	assert(IntList_insert_range(il, IntList_begin(il), IntList_begin(x), IntList_end(x)));
 	printf("insert_range, il:\n");
-	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntListIterator_next(pos), i++) {
-		printf("%2d, ", *IntListIterator_elem(pos));
+	for (pos = IntList_begin(il), i = 0; pos != IntList_end(il); pos = IntList_next(pos), i++) {
+		printf("%2d, ", *IntList_elem(pos));
 	}
 	assert(IntList_verify(il));
 	assert(IntList_verify(x));
