@@ -432,7 +432,7 @@ int Name##_merge(Name *self, size_t idx, \
 	assert(Name##_size(y) >= yn && "merge");\
 	assert(Name##_size(y) > yidx && "merge");\
 	assert(comp && "merge");\
-	if (!Name##_insert_n_no_elem(self, idx, xn + yn)) {\
+	if (!Name##_insert_n_no_data(self, idx, xn + yn)) {\
 		return 0;\
 	}\
 	i = j = k = 0;\

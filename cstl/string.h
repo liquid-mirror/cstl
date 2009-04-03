@@ -175,7 +175,7 @@ CSTL_VECTOR_IMPLEMENT_SHRINK(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_RESIZE(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##_CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_DATA(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT_ARRAY(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_ERASE(Name##_CharVector, Type)\
 \
@@ -465,9 +465,9 @@ Name *Name##_push_back(Name *self, Type c)\
 	return Name##_insert_c(self, Name##_size(self), 1, c);\
 }\
 \
-static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
+static int Name##_insert_n_no_data(Name *self, size_t idx, size_t n)\
 {\
-	return Name##_CharVector_insert_n_no_elem(self->data, idx, n);\
+	return Name##_CharVector_insert_n_no_data(self->data, idx, n);\
 }\
 \
 Name *Name##_insert(Name *self, size_t idx, const Type *cstr)\
@@ -501,7 +501,7 @@ Name *Name##_insert_len(Name *self, size_t idx, const Type *chars, size_t chars_
 				tmp[i] = chars[i];\
 			}\
 			chars = tmp;\
-			if (!Name##_insert_n_no_elem(self, idx, chars_len)) {\
+			if (!Name##_insert_n_no_data(self, idx, chars_len)) {\
 				free(tmp);\
 				return 0;\
 			}\
@@ -511,8 +511,8 @@ Name *Name##_insert_len(Name *self, size_t idx, const Type *chars, size_t chars_
 			free(tmp);\
 		} else {\
 			/* charsがself内の文字列だが、許容量拡張はされない */\
-			/* insert_n_no_elem()は必ず真を返す */\
-			Name##_insert_n_no_elem(self, idx, chars_len);\
+			/* insert_n_no_data()は必ず真を返す */\
+			Name##_insert_n_no_data(self, idx, chars_len);\
 			if (&CSTL_STRING_AT(self, idx) <= chars) {\
 				for (i = 0; i < chars_len; i++) {\
 					CSTL_STRING_AT(self, idx + i) = chars[chars_len + i];\
@@ -532,7 +532,7 @@ Name *Name##_insert_len(Name *self, size_t idx, const Type *chars, size_t chars_
 			}\
 		}\
 	} else {\
-		if (!Name##_insert_n_no_elem(self, idx, chars_len)) {\
+		if (!Name##_insert_n_no_data(self, idx, chars_len)) {\
 			return 0;\
 		}\
 		for (i = 0; i < chars_len; i++) {\
@@ -548,7 +548,7 @@ Name *Name##_insert_c(Name *self, size_t idx, size_t n, Type c)\
 	assert(self && "String_insert_c");\
 	assert(self->magic == self && "String_insert_c");\
 	assert(Name##_size(self) >= idx && "String_insert_c");\
-	if (!Name##_insert_n_no_elem(self, idx, n)) {\
+	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
 	for (i = 0; i < n; i++) {\
@@ -676,7 +676,7 @@ Name *Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c)\
 		}\
 	} else {\
 		/* 拡張必要あり */\
-		if (!Name##_insert_n_no_elem(self, idx, n - len)) {\
+		if (!Name##_insert_n_no_data(self, idx, n - len)) {\
 			return 0;\
 		}\
 		for (i = 0; i < n; i++) {\

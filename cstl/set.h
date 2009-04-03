@@ -61,12 +61,12 @@ struct Name##RBTree {\
 \
 CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare)\
 \
-static Name##RBTree *Name##RBTree_new_node(Type const *elem, int color)\
+static Name##RBTree *Name##RBTree_new_node(Type const *data, int color)\
 {\
 	Name##RBTree *node;\
 	node = (Name##RBTree *) malloc(sizeof(Name##RBTree));\
 	if (!node) return 0;\
-	node->key = *elem;\
+	node->key = *data;\
 	node->left = (Name##RBTree *) &Name##RBTree_nil;\
 	node->right = (Name##RBTree *) &Name##RBTree_nil;\
 	node->parent = (Name##RBTree *) &Name##RBTree_nil;\
@@ -94,7 +94,7 @@ Type const *Name##_data(Name##Iterator pos)\
 \
 CSTL_SET_BEGIN_EXTERN_C()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
-Name##Iterator Name##_insert(Name *self, Type elem, int *success);\
+Name##Iterator Name##_insert(Name *self, Type data, int *success);\
 Type const *Name##_data(Name##Iterator pos);\
 CSTL_SET_END_EXTERN_C()\
 
@@ -108,14 +108,14 @@ CSTL_SET_END_EXTERN_C()\
 #define CSTL_SET_IMPLEMENT(Name, Type, Compare)	\
 CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 \
-Name##Iterator Name##_insert(Name *self, Type elem, int *success)\
+Name##Iterator Name##_insert(Name *self, Type data, int *success)\
 {\
 	Name##Iterator pos;\
 	assert(self && "Set_insert");\
 	assert(self->magic == self && "Set_insert");\
-	pos = Name##RBTree_find(self->tree, elem);\
+	pos = Name##RBTree_find(self->tree, data);\
 	if (pos == Name##RBTree_end(self->tree)) {\
-		pos = Name##RBTree_new_node(&elem, CSTL_RBTREE_RED);\
+		pos = Name##RBTree_new_node(&data, CSTL_RBTREE_RED);\
 		if (pos) {\
 			Name##RBTree_insert(self->tree, pos);\
 			if (success) *success = 1;\
@@ -178,7 +178,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 \
 CSTL_SET_BEGIN_EXTERN_C()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
-Name##Iterator Name##_insert(Name *self, Type elem);\
+Name##Iterator Name##_insert(Name *self, Type data);\
 Type const *Name##_data(Name##Iterator pos);\
 CSTL_SET_END_EXTERN_C()\
 
@@ -192,12 +192,12 @@ CSTL_SET_END_EXTERN_C()\
 #define CSTL_MULTISET_IMPLEMENT(Name, Type, Compare)	\
 CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 \
-Name##Iterator Name##_insert(Name *self, Type elem)\
+Name##Iterator Name##_insert(Name *self, Type data)\
 {\
 	Name##Iterator pos;\
 	assert(self && "MultiSet_insert");\
 	assert(self->magic == self && "MultiSet_insert");\
-	pos = Name##RBTree_new_node(&elem, CSTL_RBTREE_RED);\
+	pos = Name##RBTree_new_node(&data, CSTL_RBTREE_RED);\
 	if (pos) {\
 		Name##RBTree_insert(self->tree, pos);\
 		self->size++;\

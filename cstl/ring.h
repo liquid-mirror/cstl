@@ -92,8 +92,8 @@ Name *Name##_new(size_t n);\
 void Name##_init(Name *self, Type *buf, size_t n);\
 void Name##_delete(Name *self);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
-int Name##_push_back(Name *self, Type elem);\
-int Name##_push_front(Name *self, Type elem);\
+int Name##_push_back(Name *self, Type data);\
+int Name##_push_front(Name *self, Type data);\
 void Name##_pop_front(Name *self);\
 void Name##_pop_back(Name *self);\
 size_t Name##_size(Name *self);\
@@ -104,9 +104,9 @@ void Name##_clear(Name *self);\
 Type *Name##_at(Name *self, size_t idx);\
 Type *Name##_front(Name *self);\
 Type *Name##_back(Name *self);\
-int Name##_insert(Name *self, size_t idx, Type elem);\
-int Name##_insert_array(Name *self, size_t idx, Type const *elems, size_t n);\
-int Name##_resize(Name *self, size_t n, Type elem);\
+int Name##_insert(Name *self, size_t idx, Type data);\
+int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n);\
+int Name##_resize(Name *self, size_t n, Type data);\
 void Name##_swap(Name *self, Name *x);\
 CSTL_RING_END_EXTERN_C()\
 
@@ -220,24 +220,24 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 \
 CSTL_RING_IMPLEMENT_FOR_DEQUE(Name, Type)\
 \
-int Name##_push_back(Name *self, Type elem)\
+int Name##_push_back(Name *self, Type data)\
 {\
 	assert(self && "Ring_push_back");\
 	assert(self->magic == self && "Ring_push_back");\
 	if (CSTL_RING_FULL(self)) return 0;\
-	self->buf[self->end] = elem;\
+	self->buf[self->end] = data;\
 	self->end = CSTL_RING_NEXT_IDX(self, self->end);\
 	self->size++;\
 	return 1;\
 }\
 \
-int Name##_push_front(Name *self, Type elem)\
+int Name##_push_front(Name *self, Type data)\
 {\
 	assert(self && "Ring_push_front");\
 	assert(self->magic == self && "Ring_push_front");\
 	if (CSTL_RING_FULL(self)) return 0;\
 	self->begin = CSTL_RING_PREV_IDX(self, self->begin);\
-	self->buf[self->begin] = elem;\
+	self->buf[self->begin] = data;\
 	self->size++;\
 	return 1;\
 }\
@@ -301,22 +301,22 @@ Type *Name##_back(Name *self)\
 	return &CSTL_RING_BACK(self);\
 }\
 \
-int Name##_insert(Name *self, size_t idx, Type elem)\
+int Name##_insert(Name *self, size_t idx, Type data)\
 {\
 	assert(self && "Ring_insert");\
 	assert(self->magic == self && "Ring_insert");\
 	assert(CSTL_RING_SIZE(self) >= idx && "Ring_insert");\
-	return Name##_insert_array(self, idx, &elem, 1);\
+	return Name##_insert_array(self, idx, &data, 1);\
 }\
 \
-int Name##_insert_array(Name *self, size_t idx, Type const *elems, size_t n)\
+int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 {\
 	size_t i, j;\
 	size_t pos;\
 	assert(self && "Ring_insert_array");\
 	assert(self->magic == self && "Ring_insert_array");\
 	assert(CSTL_RING_SIZE(self) >= idx && "Ring_insert_array");\
-	assert(elems && "Ring_insert_array");\
+	assert(data && "Ring_insert_array");\
 	if (CSTL_RING_SIZE(self) + n > CSTL_RING_MAX_SIZE(self)) return 0;\
 	pos = CSTL_RING_ADVANCE_IDX(self, self->begin, idx);\
 	if (CSTL_RING_SIZE(self) / 2 < idx) {\
@@ -330,13 +330,13 @@ int Name##_insert_array(Name *self, size_t idx, Type const *elems, size_t n)\
 		pos = CSTL_RING_RETREAT_IDX(self, pos, n);\
 	}\
 	for (i = pos, j = 0; j < n; i = CSTL_RING_NEXT_IDX(self, i), j++) {\
-		self->buf[i] = elems[j];\
+		self->buf[i] = data[j];\
 	}\
 	self->size += n;\
 	return 1;\
 }\
 \
-int Name##_resize(Name *self, size_t n, Type elem)\
+int Name##_resize(Name *self, size_t n, Type data)\
 {\
 	size_t size;\
 	assert(self && "Ring_resize");\
@@ -350,7 +350,7 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 			return 0;\
 		}\
 		for (i = 0; i < n - size; i++) {\
-			Name##_push_back(self, elem);\
+			Name##_push_back(self, data);\
 		}\
 	}\
 	self->size = n;\

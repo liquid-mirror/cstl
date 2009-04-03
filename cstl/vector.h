@@ -80,7 +80,7 @@ CSTL_VECTOR_BEGIN_EXTERN_C()\
 Name *Name##_new(void);\
 Name *Name##_new_reserve(size_t n);\
 void Name##_delete(Name *self);\
-int Name##_push_back(Name *self, Type elem);\
+int Name##_push_back(Name *self, Type data);\
 void Name##_pop_back(Name *self);\
 size_t Name##_size(Name *self);\
 size_t Name##_capacity(Name *self);\
@@ -88,13 +88,13 @@ int Name##_empty(Name *self);\
 void Name##_clear(Name *self);\
 int Name##_reserve(Name *self, size_t n);\
 void Name##_shrink(Name *self, size_t n);\
-int Name##_resize(Name *self, size_t n, Type elem);\
+int Name##_resize(Name *self, size_t n, Type data);\
 Type *Name##_at(Name *self, size_t idx);\
 Type *Name##_front(Name *self);\
 Type *Name##_back(Name *self);\
-int Name##_insert(Name *self, size_t idx, Type elem);\
-int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem);\
-int Name##_insert_array(Name *self, size_t idx, Type const *elems, size_t n);\
+int Name##_insert(Name *self, size_t idx, Type data);\
+int Name##_insert_n(Name *self, size_t idx, size_t n, Type data);\
+int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n);\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 void Name##_swap(Name *self, Name *x);\
@@ -107,7 +107,7 @@ CSTL_VECTOR_END_EXTERN_C()\
 static int Name##_expand(Name *self, size_t size);\
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n);\
 static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n);\
-static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n);\
+static int Name##_insert_n_no_data(Name *self, size_t idx, size_t n);\
 /*! \
  * \brief vector構造体\
  */\
@@ -154,12 +154,12 @@ void Name##_delete(Name *self)\
 
 
 #define CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name, Type)	\
-int Name##_push_back(Name *self, Type elem)\
+int Name##_push_back(Name *self, Type data)\
 {\
 	assert(self && "Vector_push_back");\
 	assert(self->magic == self && "Vector_push_back");\
 	if (!Name##_expand(self, CSTL_VECTOR_SIZE(self) + 1)) return 0;\
-	self->buf[self->size] = elem;\
+	self->buf[self->size] = data;\
 	self->size++;\
 	return 1;\
 }\
@@ -256,7 +256,7 @@ void Name##_shrink(Name *self, size_t n)\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_RESIZE(Name, Type)	\
-int Name##_resize(Name *self, size_t n, Type elem)\
+int Name##_resize(Name *self, size_t n, Type data)\
 {\
 	size_t size;\
 	assert(self && "Vector_resize");\
@@ -266,11 +266,11 @@ int Name##_resize(Name *self, size_t n, Type elem)\
 		self->size = n;\
 	} else {\
 		register size_t i;\
-		if (!Name##_insert_n_no_elem(self, size, n - size)) {\
+		if (!Name##_insert_n_no_data(self, size, n - size)) {\
 			return 0;\
 		}\
 		for (i = size; i < n; i++) {\
-			CSTL_VECTOR_AT(self, i) = elem;\
+			CSTL_VECTOR_AT(self, i) = data;\
 		}\
 	}\
 	return 1;\
@@ -327,8 +327,8 @@ static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)
 }\
 \
 
-#define CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name, Type)	\
-static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
+#define CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_DATA(Name, Type)	\
+static int Name##_insert_n_no_data(Name *self, size_t idx, size_t n)\
 {\
 	if (!Name##_expand(self, CSTL_VECTOR_SIZE(self) + n)) return 0;\
 	Name##_move_backward(self, idx, self->size, n);\
@@ -338,45 +338,45 @@ static int Name##_insert_n_no_elem(Name *self, size_t idx, size_t n)\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_INSERT(Name, Type)	\
-int Name##_insert(Name *self, size_t idx, Type elem)\
+int Name##_insert(Name *self, size_t idx, Type data)\
 {\
 	assert(self && "Vector_insert");\
 	assert(self->magic == self && "Vector_insert");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert");\
-	return Name##_insert_array(self, idx, &elem, 1);\
+	return Name##_insert_array(self, idx, &data, 1);\
 }\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_INSERT_N(Name, Type)	\
-int Name##_insert_n(Name *self, size_t idx, size_t n, Type elem)\
+int Name##_insert_n(Name *self, size_t idx, size_t n, Type data)\
 {\
 	register size_t i;\
 	assert(self && "Vector_insert_n");\
 	assert(self->magic == self && "Vector_insert_n");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n");\
-	if (!Name##_insert_n_no_elem(self, idx, n)) {\
+	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
 	for (i = 0; i < n; i++) {\
-		self->buf[idx + i] = elem;\
+		self->buf[idx + i] = data;\
 	}\
 	return 1;\
 }\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_INSERT_ARRAY(Name, Type)	\
-int Name##_insert_array(Name *self, size_t idx, Type const *elems, size_t n)\
+int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 {\
 	register size_t i;\
 	assert(self && "Vector_insert_array");\
 	assert(self->magic == self && "Vector_insert_array");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_array");\
-	assert(elems && "Vector_insert_array");\
-	if (!Name##_insert_n_no_elem(self, idx, n)) {\
+	assert(data && "Vector_insert_array");\
+	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
 	for (i = 0; i < n; i++) {\
-		self->buf[idx + i] = elems[i];\
+		self->buf[idx + i] = data[i];\
 	}\
 	return 1;\
 }\
@@ -394,7 +394,7 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 	assert(CSTL_VECTOR_SIZE(x) >= xidx + n && "Vector_insert_range");\
 	assert(CSTL_VECTOR_SIZE(x) >= n && "Vector_insert_range");\
 	assert(CSTL_VECTOR_SIZE(x) > xidx && "Vector_insert_range");\
-	if (!Name##_insert_n_no_elem(self, idx, n)) {\
+	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
 	if (self == x) {\
@@ -481,7 +481,7 @@ CSTL_VECTOR_IMPLEMENT_FRONT(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_BACK(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)\
-CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_ELEM(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_DATA(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT_N(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT_ARRAY(Name, Type)\
