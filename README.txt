@@ -10,27 +10,27 @@ SourceForge.jp CSTL
 
 
 ディレクトリ・ファイル構成
-  cstl/
-    vector.h      vector
-    ring.h        リングバッファ
-    deque.h       deque
-    list.h        list
-    rbtree.h      赤黒木
-    set.h         set/multiset
-    map.h         map/multimap
-    string.h      string
-    algorithm.h   アルゴリズム
-  doc/
-    CSTL.rd       CSTLのドキュメント
-    CSTL.html     CSTL.rdをhtml化したもの(tarballのみに同梱)
-    Makefile      CSTL.htmlを生成するためのMakefile
+  cstl/           CSTLのソースファイル
+    vector.h        vector
+    ring.h          リングバッファ
+    deque.h         deque
+    list.h          list
+    rbtree.h        赤黒木
+    set.h           set/multiset
+    map.h           map/multimap
+    string.h        string
+    algorithm.h     アルゴリズム
+  doc/            CSTLのドキュメント
+    html/           ドキュメントをDoxygenでhtml化したもの(tarballのみに同梱)
+    Doxyfile        Doxygen用設定ファイル
   test/           単体テスト
   sample/         CSTLを使用したサンプルやSTLと性能を比較したベンチマーク
   README.txt      このファイル
 
 
 インストール
-  CSTL.htmlをご覧下さい。
+  cstlディレクトリをインクルードパスの通ったディレクトリにコピーするだけで使用
+  可能です。
 
 
 単体テストについて
@@ -39,8 +39,8 @@ SourceForge.jp CSTL
 
 
 ドキュメント生成について
-  CSTL.rdからhtml等を生成するにはrubyとRDtoolのインストールが必要です。docディ
-  レクトリでmakeを実行すればCSTL.htmlが生成されます。
+  ドキュメントを生成するにはDoxygenのインストールが必要です。docディレクトリで
+  doxygenを実行すればhtmlドキュメントが生成されます。
 
 
 

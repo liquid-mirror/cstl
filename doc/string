@@ -1,0 +1,883 @@
+/*! 
+\file string
+stringは代入・連結・挿入・置換・削除・検索などの有用な文字列処理機能を持つコンテナである。
+末尾での文字の挿入・削除の計算量がO(1)であり、それ以外の位置の文字の挿入・削除の計算量はO(N)である。
+インデックスによる文字のランダムアクセスが可能。
+また、内部データの連続性は保証される。
+
+stringを使うには、<cstl/string.h>をインクルードし、以下のマクロを用いてコードを展開する必要がある。
+
+\code
+#include <cstl/string.h>
+
+#define CSTL_STRING_INTERFACE(Name, Type)
+#define CSTL_STRING_IMPLEMENT(Name, Type)
+\endcode
+
+\b CSTL_STRING_INTERFACE() は任意の名前と文字の型のstringのインターフェイスを展開する。
+\b CSTL_STRING_IMPLEMENT() はその実装を展開する。
+
+また、\b CSTL_STRING_INTERFACE() を展開する前に、<cstl/algorithm.h>をインクルードすることにより、
+<a href="algorithm.html">アルゴリズム</a>が使用可能となる。
+
+\par 使用例:
+\include string_example.c
+
+\attention 以下に説明する型定義・関数は、
+\b CSTL_STRING_INTERFACE(Name, Type) の\a Name に\b String , \a Type に\b CharT を仮に指定した場合のものである。
+実際に使用する際には、使用例のように適切な引数を指定すること。
+
+ */
+
+/*! 
+ * \brief インターフェイスマクロ
+ *
+ * 任意の名前と文字の型のstringのインターフェイスを展開する。
+ *
+ * \param Name 既存の型と重複しない任意の名前。stringの型名と関数のプレフィックスになる
+ * \param Type 任意の文字の型
+ * \attention 引数は CSTL_STRING_IMPLEMENT()の引数と同じものを指定すること。
+ * \attention \a Type に括弧を付けないこと。
+ */
+#define CSTL_STRING_INTERFACE(Name, Type)
+
+/*! 
+ * \brief 実装マクロ
+ *
+ * CSTL_STRING_INTERFACE()で展開したインターフェイスの実装を展開する。
+ *
+ * \param Name 既存の型と重複しない任意の名前。stringの型名と関数のプレフィックスになる
+ * \param Type 任意の文字の型
+ * \attention 引数は CSTL_STRING_INTERFACE()の引数と同じものを指定すること。
+ * \attention \a Type に括弧を付けないこと。
+ */
+#define CSTL_STRING_IMPLEMENT(Name, Type)
+
+
+/*! 
+ * \brief NPOS
+ *
+ * size_t型の最大値。
+ * 検索関数において、検索に失敗した時に返される。
+ */
+#define CSTL_NPOS	((size_t)-1)
+
+/*! 
+ * \brief stringの型
+ *
+ * 抽象データ型となっており、内部データメンバは非公開である。
+ *
+ * 以下、 String_new*() から返されたString構造体へのポインタをstringオブジェクトという。
+ */
+typedef struct String String;
+
+/*! 
+ * \brief 生成
+ *
+ * 文字数が0のstringを生成する。
+ * 
+ * \return 生成に成功した場合、stringオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ */
+String *String_new(void);
+
+/*! 
+ * \brief 許容量を予約して生成
+ *
+ * 許容量(内部メモリの再割り当てを行わずに格納できる文字数)が\a n 個、
+ * 文字数が0のstringを生成する。
+ * 
+ * \param n 許容量
+ *
+ * \return 生成に成功した場合、stringオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ */
+String *String_new_reserve(size_t n);
+
+/*! 
+ * \brief C の文字列で初期化して生成
+ *
+ * \a cstr で初期化されたstringを生成する。
+ * 
+ * \param cstr C の文字列
+ *
+ * \return 生成に成功した場合、stringオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ *
+ * \pre \a cstr がNULLでないこと。
+ */
+String *String_new_assign(const CharT *cstr);
+
+/*! 
+ * \brief 文字の配列で初期化して生成
+ *
+ * \a chars から\a chars_len 個の文字で初期化されたstringを生成する。
+ * 
+ * \param chars 文字の配列
+ * \param chars_len \a chars の長さ
+ *
+ * \return 生成に成功した場合、stringオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ *
+ * \pre \a chars がNULLでないこと。
+ *
+ * \note \a chars が 0 で終端していて、かつ\a chars_len が CSTL_NPOS と等しい場合、
+ *       String_new_assign() と等価となる。
+ */
+String *String_new_assign_len(const CharT *chars, size_t chars_len);
+
+/*! 
+ * \brief 文字で初期化して生成
+ *
+ * \a n 個の\a c で初期化されたstringを生成する。
+ * 
+ * \param n \a c の個数
+ * \param c 文字
+ *
+ * \return 生成に成功した場合、stringオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ */
+String *String_new_assign_c(size_t n, CharT c);
+
+/*! 
+ * \brief 破棄
+ * 
+ * \a self を破棄する。
+ * \a self がNULLの場合、何もしない。
+ *
+ * \param self stringオブジェクト
+ */
+void String_delete(String *self);
+
+/*! 
+ * \brief 文字数を取得
+ * 
+ * \param self stringオブジェクト
+ * 
+ * \return \a self の文字数
+ *
+ * \note String_length() と等価である。
+ */
+size_t String_size(String *self);
+
+/*! 
+ * \brief 文字数を取得
+ * 
+ * \param self stringオブジェクト
+ * 
+ * \return \a self の文字数
+ *
+ * \note String_size() と等価である。
+ */
+size_t String_length(String *self);
+
+/*! 
+ * \brief 空チェック
+ * 
+ * \param self stringオブジェクト
+ * 
+ * \return \a self の文字数が0の場合、非0を返す。
+ * \return \a self の文字数が1以上の場合、0を返す。
+ */
+int String_empty(String *self);
+
+/*! 
+ * \brief 許容量を取得
+ * 
+ * \param self stringオブジェクト
+ * 
+ * \return \a self の許容量
+ */
+size_t String_capacity(String *self);
+
+/*! 
+ * \brief 許容量を予約
+ * 
+ * \a self の許容量を文字\a n 個の領域に拡張する。
+ * \a self が持つ文字は維持され、拡張した領域の初期化はしない。
+ *
+ * \param self stringオブジェクト
+ * \param n 許容量
+ * 
+ * \return 拡張に成功した場合、非0を返す。
+ * \return \a n が\a self の現在の許容量以下の場合、\a self の変更を行わず非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ */
+int String_reserve(String *self, size_t n);
+
+/*! 
+ * \brief 許容量を縮小
+ * 
+ * \a self の許容量を文字\a n 個の領域に縮小する。
+ * \a n が\a self の現在の文字数以下の場合、\a self の許容量を文字数と同じにする。
+ * \a n が\a self の現在の許容量以上の場合、何もしない。
+ *
+ * \param self stringオブジェクト
+ * \param n 許容量
+ */
+void String_shrink(String *self, size_t n);
+
+/*! 
+ * \brief 比較
+ *
+ * \a self と\a x の文字列を比較する。
+ * 
+ * \param self stringオブジェクト
+ * \param x \a self と比較するstringオブジェクト
+ *
+ * \retval 0 文字列が等しい場合
+ * \retval 負の値 \a self が\a x より辞書順位で小さい場合
+ * \retval 正の値 \a self が\a x より辞書順位で大きい場合
+ */
+int String_compare(String *self, String *x);
+
+/*! 
+ * \brief インデックスによる文字のアクセス
+ * 
+ * \param self stringオブジェクト
+ * \param idx インデックス
+ *
+ * \return \a self の\a idx 番目の文字へのポインタ
+ *
+ * \pre \a idx が\a self の文字数より小さい値であること。
+ *
+ * \attention 戻り値は\a self の変更により無効となる。
+ */
+CharT *String_at(String *self, size_t idx);
+
+/*! 
+ * \brief C の文字列を取得
+ * 
+ * \param self stringオブジェクト
+ *
+ * \return \a self の文字列を0で終端したC の文字列として返す。
+ *
+ * \attention 戻り値は\a self の変更により無効となる。
+ */
+const CharT *String_c_str(String *self);
+
+/*! 
+ * \brief 文字の配列を取得
+ * 
+ * \param self stringオブジェクト
+ *
+ * \return \a self の文字列を文字の配列として返す。
+ *
+ * \attention 戻り値の配列が0で終端することは保証されない。
+ * \attention 戻り値は\a self の変更により無効となる。
+ */
+const CharT *String_data(String *self);
+
+/*! 
+ * \brief C の文字列を代入
+ *
+ * \a self に\a cstr を代入する。
+ * \a cstr は\a self 内の文字列でもよい。
+ * 
+ * \param self stringオブジェクト
+ * \param cstr C の文字列
+ *
+ * \return 代入に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ *
+ * \pre \a cstr がNULLでないこと。
+ */
+String *String_assign(String *self, const CharT *cstr);
+
+/*! 
+ * \brief 文字の配列を代入
+ *
+ * \a self に\a chars から\a chars_len 個の文字を代入する。
+ * \a chars は\a self 内の文字の配列でもよい。
+ * 
+ * \param self stringオブジェクト
+ * \param chars 文字の配列
+ * \param chars_len \a chars の長さ
+ *
+ * \return 代入に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ *
+ * \pre \a chars がNULLでないこと。
+ *
+ * \note \a chars が 0 で終端していて、かつ\a chars_len が CSTL_NPOS と等しい場合、
+ *       String_assign() と等価となる。
+ */
+String *String_assign_len(String *self, const CharT *chars,
+						  size_t chars_len);
+
+/*! 
+ * \brief 文字を代入
+ *
+ * \a self に\a n 個の\a c を代入する。
+ * 
+ * \param self stringオブジェクト
+ * \param n \a c の個数
+ * \param c 文字
+ *
+ * \return 代入に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ */
+String *String_assign_c(String *self, size_t n, CharT c);
+
+/*! 
+ * \brief C の文字列を追加
+ *
+ * \a self の末尾に、\a cstr を追加する。
+ * \a cstr は\a self 内の文字列でもよい。
+ * 
+ * \param self stringオブジェクト
+ * \param cstr C の文字列
+ *
+ * \return 追加に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ *
+ * \pre \a cstr がNULLでないこと。
+ */
+String *String_append(String *self, const CharT *cstr);
+
+/*! 
+ * \brief 文字の配列を追加
+ *
+ * \a self の末尾に、\a chars から\a chars_len 個の文字を追加する。
+ * \a chars は\a self 内の文字の配列でもよい。
+ * 
+ * \param self stringオブジェクト
+ * \param chars 文字の配列
+ * \param chars_len \a chars の長さ
+ *
+ * \return 追加に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ *
+ * \pre \a chars がNULLでないこと。
+ *
+ * \note \a chars が 0 で終端していて、かつ\a chars_len が CSTL_NPOS と等しい場合、
+ *       String_append() と等価となる。
+ */
+String *String_append_len(String *self, const CharT *chars,
+						  size_t chars_len);
+
+/*! 
+ * \brief 文字を追加
+ *
+ * \a self の末尾に、\a n 個の\a c を追加する。
+ * 
+ * \param self stringオブジェクト
+ * \param n \a c の個数
+ * \param c 文字
+ *
+ * \return 追加に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ */
+String *String_append_c(String *self, size_t n, CharT c);
+
+/*! 
+ * \brief 1文字を追加
+ *
+ * \a self の末尾に、\a c を追加する。
+ * 
+ * \param self stringオブジェクト
+ * \param c 文字
+ *
+ * \return 追加に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ */
+String *String_push_back(String *self, CharT c);
+
+/*! 
+ * \brief C の文字列を挿入
+ *
+ * \a self の\a idx 番目の位置に、\a cstr を挿入する。
+ * \a cstr は\a self 内の文字列でもよい。
+ * 
+ * \param self stringオブジェクト
+ * \param idx 挿入する位置
+ * \param cstr C の文字列
+ *
+ * \return 挿入に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ *
+ * \pre \a idx が\a self の文字数以下の値であること。
+ * \pre \a cstr がNULLでないこと。
+ */
+String *String_insert(String *self, size_t idx, const CharT *cstr);
+
+/*! 
+ * \brief 文字の配列を挿入
+ *
+ * \a self の\a idx 番目の位置に、\a chars から\a chars_len 個の文字を挿入する。
+ * \a chars は\a self 内の文字の配列でもよい。
+ * 
+ * \param self stringオブジェクト
+ * \param idx 挿入する位置
+ * \param chars 文字の配列
+ * \param chars_len \a chars の長さ
+ *
+ * \return 挿入に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ *
+ * \pre \a idx が\a self の文字数以下の値であること。
+ * \pre \a chars がNULLでないこと。
+ *
+ * \note \a chars が 0 で終端していて、かつ\a chars_len が CSTL_NPOS と等しい場合、
+ *       String_insert() と等価となる。
+ */
+String *String_insert_len(String *self, size_t idx, const CharT *chars,
+						  size_t chars_len);
+
+/*! 
+ * \brief 文字を挿入
+ *
+ * \a self の\a idx 番目の位置に、\a n 個の\a c を挿入する。
+ * 
+ * \param self stringオブジェクト
+ * \param idx 挿入する位置
+ * \param n \a c の個数
+ * \param c 文字
+ *
+ * \return 挿入に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ *
+ * \pre \a idx が\a self の文字数以下の値であること。
+ */
+String *String_insert_c(String *self, size_t idx, size_t n, CharT c);
+
+/*! 
+ * \brief C の文字列で置換
+ *
+ * \a self の\a idx 番目から最大\a len 個の文字を、\a cstr で置換する。
+ * \a cstr は\a self 内の文字列でもよい。
+ * 
+ * \param self stringオブジェクト
+ * \param idx 置換開始インデックス
+ * \param len \a idx からの長さ
+ * \param cstr C の文字列
+ *
+ * \return 置換に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ *
+ * \pre \a idx が\a self の文字数以下の値であること。
+ * \pre \a cstr がNULLでないこと。
+ *
+ * \note \a idx + \a len が\a self の文字数より大きい場合、\a self の\a idx 番目から末尾までが置換される。
+ */
+String *String_replace(String *self, size_t idx, size_t len,
+					   const CharT *cstr);
+
+/*! 
+ * \brief 文字の配列で置換
+ *
+ * \a self の\a idx 番目から最大\a len 個の文字を、\a chars から\a chars_len 個の文字で置換する。
+ * \a chars は\a self 内の文字の配列でもよい。
+ * 
+ * \param self stringオブジェクト
+ * \param idx 置換開始インデックス
+ * \param len \a idx からの長さ
+ * \param chars 文字の配列
+ * \param chars_len \a chars の長さ
+ *
+ * \return 置換に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ *
+ * \pre \a idx が\a self の文字数以下の値であること。
+ * \pre \a chars がNULLでないこと。
+ *
+ * \note \a chars が 0 で終端していて、かつ\a chars_len が CSTL_NPOS と等しい場合、
+ *       String_replace() と等価となる。
+ * \note \a idx + \a len が\a self の文字数より大きい場合、\a self の\a idx 番目から末尾までが置換される。
+ */
+String *String_replace_len(String *self, size_t idx, size_t len,
+						   const CharT *chars, size_t chars_len);
+
+/*! 
+ * \brief 文字で置換
+ *
+ * \a self の\a idx 番目から最大\a len 個の文字を、\a n 個の\a c で置換する。
+ * 
+ * \param self stringオブジェクト
+ * \param idx 置換開始インデックス
+ * \param len \a idx からの長さ
+ * \param n \a c の個数
+ * \param c 文字
+ *
+ * \return 置換に成功した場合、\a self を返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ *
+ * \pre \a idx が\a self の文字数以下の値であること。
+ *
+ * \note \a idx + \a len が\a self の文字数より大きい場合、\a self の\a idx 番目から末尾までが置換される。
+ */
+String *String_replace_c(String *self, size_t idx, size_t len, size_t n,
+						 CharT c);
+
+/*! 
+ * \brief 文字を削除
+ * 
+ * \a self の\a idx 番目の文字から最大\a len 個の文字を削除する。
+ *
+ * \param self stringオブジェクト
+ * \param idx 削除開始インデックス
+ * \param len \a idx からの長さ
+ * 
+ * \return \a self
+ *
+ * \pre \a idx が\a self の文字数以下の値であること。
+ *
+ * \note \a idx + \a len が\a self の文字数より大きい場合、\a self の\a idx 番目から末尾までが削除される。
+ */
+String *String_erase(String *self, size_t idx, size_t len);
+
+/*! 
+ * \brief 最後の文字を削除
+ * 
+ * \a self の最後の文字を削除する。
+ *
+ * \param self stringオブジェクト
+ *
+ * \pre \a self が空でないこと。
+ */
+void String_pop_back(String *self);
+
+/*! 
+ * \brief 全文字を削除
+ *
+ * \a self のすべての文字を削除する。
+ * 
+ * \param self stringオブジェクト
+ */
+void String_clear(String *self);
+
+/*! 
+ * \brief 文字数を変更
+ *
+ * \a self の文字数を\a n 個に変更する。
+ * \a n が\a self の現在の文字数以下の場合、文字数が\a n 個になるまで末尾から文字が削除される。
+ * \a n が\a self の現在の文字数より大きい場合、文字数が\a n 個になるまで\a c が末尾から挿入される。
+ * 
+ * \param self stringオブジェクト
+ * \param n 文字数
+ * \param c 文字
+ * 
+ * \return 文字数の変更に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ */
+int String_resize(String *self, size_t n, CharT c);
+
+/*! 
+ * \brief 交換
+ *
+ * \a self と\a x の内容を交換する。
+ * 
+ * \param self stringオブジェクト
+ * \param x \a self と内容を交換するstringオブジェクト
+ */
+void String_swap(String *self, String *x);
+
+/*! 
+ * \brief C の文字列を検索
+ * 
+ * \a self の\a idx 番目から末尾までの範囲で、\a cstr が現れる最初の位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param cstr C の文字列
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、見つかった部分文字列の先頭の文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a cstr がNULLでないこと。
+ */
+size_t String_find(String *self, const CharT *cstr, size_t idx);
+
+/*! 
+ * \brief 文字の配列を検索
+ * 
+ * \a self の\a idx 番目から末尾までの範囲で、\a chars から\a chars_len 個の文字が現れる最初の位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param chars 文字の配列
+ * \param idx 検索開始インデックス
+ * \param chars_len \a chars の長さ
+ * 
+ * \return 検索に成功した場合、見つかった部分文字列の先頭の文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a chars がNULLでないこと。
+ *
+ * \note \a chars が 0 で終端していて、かつ\a chars_len が CSTL_NPOS と等しい場合、
+ *       String_find() と等価となる。
+ */
+size_t String_find_len(String *self, const CharT *chars, size_t idx,
+					   size_t chars_len);
+/*! 
+ * \brief 文字を検索
+ * 
+ * \a self の\a idx 番目から末尾までの範囲で、\a c が現れる最初の位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param c 文字
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ */
+size_t String_find_c(String *self, CharT c, size_t idx);
+
+/*! 
+ * \brief C の文字列を後ろから検索
+ * 
+ * \a self の先頭から\a idx - 1番目までの範囲で、\a cstr が現れる最後の位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param cstr C の文字列
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、見つかった部分文字列の先頭の文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a cstr がNULLでないこと。
+ */
+size_t String_rfind(String *self, const CharT *cstr, size_t idx);
+
+/*! 
+ * \brief 文字の配列を後ろから検索
+ * 
+ * \a self の先頭から\a idx - 1番目までの範囲で、\a chars から\a chars_len 個の文字が現れる最後の位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param chars 文字の配列
+ * \param idx 検索開始インデックス
+ * \param chars_len \a chars の長さ
+ * 
+ * \return 検索に成功した場合、見つかった部分文字列の先頭の文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a chars がNULLでないこと。
+ *
+ * \note \a chars が 0 で終端していて、かつ\a chars_len が CSTL_NPOS と等しい場合、
+ *       String_rfind() と等価となる。
+ */
+size_t String_rfind_len(String *self, const CharT *chars, size_t idx,
+						size_t chars_len);
+
+/*! 
+ * \brief 文字を後ろから検索
+ * 
+ * \a self の先頭から\a idx - 1番目までの範囲で、\a c が現れる最後の位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param c 文字
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ */
+size_t String_rfind_c(String *self, CharT c, size_t idx);
+
+/*! 
+ * \brief C の文字列に含まれる最初の文字を検索
+ * 
+ * \a self の\a idx 番目から末尾までの範囲で、\a cstr に含まれる最初の文字が現れる位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param cstr C の文字列
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a cstr がNULLでないこと。
+ */
+size_t String_find_first_of(String *self, const CharT *cstr, size_t idx);
+
+/*! 
+ * \brief 文字の配列に含まれる最初の文字を検索
+ * 
+ * \a self の\a idx 番目から末尾までの範囲で、\a chars から\a chars_len 個の文字に含まれる最初の文字が現れる位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param chars 文字の配列
+ * \param idx 検索開始インデックス
+ * \param chars_len \a chars の長さ
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a chars がNULLでないこと。
+ *
+ * \note \a chars が 0 で終端していて、かつ\a chars_len が CSTL_NPOS と等しい場合、
+ *       String_find_first_of() と等価となる。
+ */
+size_t String_find_first_of_len(String *self, const CharT *chars,
+								size_t idx, size_t chars_len);
+
+/*! 
+ * \brief 指定文字の最初の位置を検索
+ * 
+ * \a self の\a idx 番目から末尾までの範囲で、\a c が現れる最初の位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param c 文字
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ */
+size_t String_find_first_of_c(String *self, CharT c, size_t idx);
+
+/*! 
+ * \brief C の文字列に含まれる最後の文字を検索
+ * 
+ * \a self の先頭から\a idx - 1番目までの範囲で、\a cstr に含まれる最後の文字が現れる位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param cstr C の文字列
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a cstr がNULLでないこと。
+ */
+size_t String_find_last_of(String *self, const CharT *cstr, size_t idx);
+
+/*! 
+ * \brief 文字の配列に含まれる最後の文字を検索
+ * 
+ * \a self の先頭から\a idx - 1番目までの範囲で、\a chars から\a chars_len 個の文字に含まれる最後の文字が現れる位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param chars 文字の配列
+ * \param idx 検索開始インデックス
+ * \param chars_len \a chars の長さ
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a chars がNULLでないこと。
+ *
+ * \note \a chars が 0 で終端していて、かつ\a chars_len が CSTL_NPOS と等しい場合、
+ *       String_find_last_of() と等価となる。
+ */
+size_t String_find_last_of_len(String *self, const CharT *chars,
+							   size_t idx, size_t chars_len);
+
+/*! 
+ * \brief 指定文字の最後の位置を検索
+ * 
+ * \a self の先頭から\a idx - 1番目までの範囲で、\a c が現れる最後の位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param c 文字
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ */
+size_t String_find_last_of_c(String *self, CharT c, size_t idx);
+
+/*! 
+ * \brief C の文字列に含まれない最初の文字を検索
+ * 
+ * \a self の\a idx 番目から末尾までの範囲で、\a cstr に含まれない最初の文字が現れる位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param cstr C の文字列
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a cstr がNULLでないこと。
+ */
+size_t String_find_first_not_of(String *self, const CharT *cstr,
+								size_t idx);
+
+/*! 
+ * \brief 文字の配列に含まれない最初の文字を検索
+ * 
+ * \a self の\a idx 番目から末尾までの範囲で、\a chars から\a chars_len 個の文字に含まれない最初の文字が現れる位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param chars 文字の配列
+ * \param idx 検索開始インデックス
+ * \param chars_len \a chars の長さ
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a chars がNULLでないこと。
+ *
+ * \note \a chars が 0 で終端していて、かつ\a chars_len が CSTL_NPOS と等しい場合、
+ *       String_find_first_not_of() と等価となる。
+ */
+size_t String_find_first_not_of_len(String *self, const CharT *chars,
+									size_t idx, size_t chars_len);
+
+/*! 
+ * \brief 指定文字以外の文字の最初の位置を検索
+ * 
+ * \a self の\a idx 番目から末尾までの範囲で、\a c 以外の文字が現れる最初の位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param c 文字
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ */
+size_t String_find_first_not_of_c(String *self, CharT c, size_t idx);
+
+/*! 
+ * \brief C の文字列に含まれない最後の文字を検索
+ * 
+ * \a self の先頭から\a idx - 1番目までの範囲で、\a cstr に含まれない最後の文字が現れる位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param cstr C の文字列
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a cstr がNULLでないこと。
+ */
+size_t String_find_last_not_of(String *self, const CharT *cstr,
+							   size_t idx);
+
+/*! 
+ * \brief 文字の配列に含まれない最後の文字を検索
+ * 
+ * \a self の先頭から\a idx - 1番目までの範囲で、\a chars から\a chars_len 個の文字に含まれない最後の文字が現れる位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param chars 文字の配列
+ * \param idx 検索開始インデックス
+ * \param chars_len \a chars の長さ
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ *
+ * \pre \a chars がNULLでないこと。
+ *
+ * \note \a chars が 0 で終端していて、かつ\a chars_len が CSTL_NPOS と等しい場合、
+ *       String_find_last_not_of() と等価となる。
+ */
+size_t String_find_last_not_of_len(String *self, const CharT *chars,
+								   size_t idx, size_t chars_len);
+
+/*! 
+ * \brief 指定文字以外の文字の最後の位置を検索
+ * 
+ * \a self の先頭から\a idx - 1番目までの範囲で、\a c 以外の文字が現れる最後の位置を検索する。
+ *
+ * \param self stringオブジェクト
+ * \param c 文字
+ * \param idx 検索開始インデックス
+ * 
+ * \return 検索に成功した場合、その文字のインデックスを返す。
+ * \return 検索に失敗した場合、CSTL_NPOSを返す。
+ */
+size_t String_find_last_not_of_c(String *self, CharT c, size_t idx);
+
+
+/* vim:set ts=4 sts=4 sw=4 ft=c: */

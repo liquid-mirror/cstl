@@ -1,0 +1,420 @@
+/*! 
+\file set
+
+setは要素が値によって自動的にソートされるコンテナである。
+同じ値の要素を2個以上挿入することはできない。
+挿入した要素は読み出し専用となる。
+要素の挿入・削除・検索の計算量はO(log N)である。
+
+multisetは要素の重複が許されることを除き、setと同じである。
+
+set/multisetを使うには、<cstl/set.h>をインクルードし、以下のマクロを用いてコードを展開する必要がある。
+
+\code
+#include <cstl/set.h>
+
+#define CSTL_SET_INTERFACE(Name, Type)
+#define CSTL_SET_IMPLEMENT(Name, Type, Compare)
+
+#define CSTL_MULTISET_INTERFACE(Name, Type)
+#define CSTL_MULTISET_IMPLEMENT(Name, Type, Compare)
+\endcode
+
+\b CSTL_SET_INTERFACE() は任意の名前と要素の型のsetのインターフェイスを展開する。
+\b CSTL_SET_IMPLEMENT() はその実装を展開する。
+
+\b CSTL_MULTISET_INTERFACE() は任意の名前と要素の型のmultisetのインターフェイスを展開する。
+\b CSTL_MULTISET_IMPLEMENT() はその実装を展開する。
+
+\par 使用例:
+\include set_example.c
+
+\attention 以下に説明する型定義・関数は、
+\b CSTL_SET_INTERFACE(Name, Type) , \b CSTL_MULTISET_INTERFACE(Name, Type) 
+の\a Name に\b Set , \a Type に\b T を仮に指定した場合のものである。
+実際に使用する際には、使用例のように適切な引数を指定すること。
+\attention また、set専用/multiset専用と記した関数以外の関数は、set/multiset共通の関数である。
+
+ */
+
+
+
+/*! 
+ * \brief set用インターフェイスマクロ
+ *
+ * 任意の名前と要素の型のsetのインターフェイスを展開する。
+ *
+ * \param Name 既存の型と重複しない任意の名前。setの型名と関数のプレフィックスになる
+ * \param Type 任意の要素の型
+ * \attention 引数は CSTL_SET_IMPLEMENT()の引数と同じものを指定すること。
+ * \attention \a Type に括弧を付けないこと。
+ */
+#define CSTL_SET_INTERFACE(Name, Type)
+
+/*! 
+ * \brief set用実装マクロ
+ *
+ * CSTL_SET_INTERFACE()で展開したインターフェイスの実装を展開する。
+ *
+ * - \a Type が整数型、小数型、ポインタ型など、2つの値を演算子(==, <, >)で比較できる型の場合、
+ *   要素のソートの順序を昇順にするならば CSTL_LESS を、降順にするならば CSTL_GREATER を\a Compare に指定する。
+ *
+ * - \a Type がその他の型の場合、
+ *   \code
+ *   int comp(Type x, Type y);
+ *   \endcode
+ *   のような引数と戻り値を持ち、
+ *   x == yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
+ *   返す比較関数またはマクロを\a Compare に指定する。
+ *   尚、\a Type が文字列型(const char *)ならば、C標準関数のstrcmpが指定可能である。
+ *
+ * \param Name 既存の型と重複しない任意の名前。setの型名と関数のプレフィックスになる
+ * \param Type 任意の要素の型
+ * \param Compare 要素を比較する関数またはマクロ
+ * \attention \a Compare 以外の引数は CSTL_SET_INTERFACE()の引数と同じものを指定すること。
+ * \attention \a Type に括弧を付けないこと。
+ */
+#define CSTL_SET_IMPLEMENT(Name, Type, Compare)
+
+/*! 
+ * \brief multiset用インターフェイスマクロ
+ *
+ * 任意の名前と要素の型のmultisetのインターフェイスを展開する。
+ *
+ * 使用方法は CSTL_SET_INTERFACE()と同じである。
+ */
+#define CSTL_MULTISET_INTERFACE(Name, Type)
+
+/*! 
+ * \brief multiset用実装マクロ
+ *
+ * CSTL_MULTISET_INTERFACE()で展開したインターフェイスの実装を展開する。
+ *
+ * 使用方法は CSTL_SET_IMPLEMENT()と同じである。
+ */
+#define CSTL_MULTISET_IMPLEMENT(Name, Type, Compare)
+
+
+/*! 
+ * \brief 昇順指定
+ * 
+ * 要素を昇順にソートする場合、 CSTL_SET_IMPLEMENT() , CSTL_MULTISET_INTERFACE() の \a Compare 引数に指定する。
+ *
+ * \param x 1つ目の値
+ * \param y 2つ目の値
+ * 
+ * \retval 0 \a x == \a y の場合
+ * \retval 負の値 \a x < \a y の場合
+ * \retval 正の値 \a x > \a y の場合
+ */
+#define CSTL_LESS(x, y)		((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
+
+/*! 
+ * \brief 降順指定
+ * 
+ * 要素を降順にソートする場合、 CSTL_SET_IMPLEMENT() , CSTL_MULTISET_INTERFACE() の \a Compare 引数に指定する。
+ *
+ * \param x 1つ目の値
+ * \param y 2つ目の値
+ * 
+ * \retval 0 \a x == \a y の場合
+ * \retval 負の値 \a x > \a y の場合
+ * \retval 正の値 \a x < \a y の場合
+ */
+#define CSTL_GREATER(x, y)	((x) == (y) ? 0 : (x) > (y) ? -1 : 1)
+
+
+/*! 
+ * \brief set/multisetの型
+ *
+ * 抽象データ型となっており、内部データメンバは非公開である。
+ *
+ * 以下、 Set_new() から返されたSet構造体へのポインタをsetオブジェクトという。
+ */
+typedef struct Set Set;
+
+/*! 
+ * \brief イテレータの型
+ *
+ * 要素の位置を示す。
+ *
+ * 以下、関数から返されたイテレータを有効なイテレータという。
+ * 宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
+ */
+typedef struct SetRBTree *SetIterator;
+
+/*! 
+ * \brief 生成
+ *
+ * 要素数が0のset/multisetを生成する。
+ * 
+ * \return 生成に成功した場合、setオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ */
+Set *Set_new(void);
+
+/*! 
+ * \brief 破棄
+ * 
+ * \a self のすべての要素を削除し、\a self を破棄する。
+ * \a self がNULLの場合、何もしない。
+ *
+ * \param self setオブジェクト
+ */
+void Set_delete(Set *self);
+
+/*! 
+ * \brief 要素数を取得
+ * 
+ * \param self setオブジェクト
+ * 
+ * \return \a self の要素数
+ */
+size_t Set_size(Set *self);
+
+/*! 
+ * \brief 空チェック
+ * 
+ * \param self setオブジェクト
+ * 
+ * \return \a self の要素数が0の場合、非0を返す。
+ * \return \a self の要素数が1以上の場合、0を返す。
+ */
+int Set_empty(Set *self);
+
+/*! 
+ * \brief 最初の要素のイテレータ
+ * 
+ * \param self setオブジェクト
+ * 
+ * \return \a self の最初の要素のイテレータ
+ */
+SetIterator Set_begin(Set *self);
+
+/*! 
+ * \brief 最後の要素の次のイテレータ
+ * 
+ * \param self setオブジェクト
+ * 
+ * \return \a self の最後の要素の次のイテレータ
+ */
+SetIterator Set_end(Set *self);
+
+/*! 
+ * \brief 最後の要素のイテレータ
+ * 
+ * \param self setオブジェクト
+ * 
+ * \return \a self の最後の要素のイテレータ
+ */
+SetIterator Set_rbegin(Set *self);
+
+/*! 
+ * \brief 最初の要素の前のイテレータ
+ * 
+ * \param self setオブジェクト
+ * 
+ * \return \a self の最初の要素の前のイテレータ
+ */
+SetIterator Set_rend(Set *self);
+
+/*! 
+ * \brief 次のイテレータ
+ * 
+ * \param pos イテレータ
+ * 
+ * \return \a pos が示す位置の要素の次のイテレータ
+ *
+ * \pre \a pos が有効なイテレータであること。
+ * \pre \a pos が Set_end() または Set_rend() でないこと。
+ */
+SetIterator Set_next(SetIterator pos);
+
+/*! 
+ * \brief 前のイテレータ
+ * 
+ * \param pos イテレータ
+ * 
+ * \return \a pos が示す位置の要素の前のイテレータ
+ *
+ * \pre \a pos が有効なイテレータであること。
+ * \pre \a pos が Set_end() または Set_rend() でないこと。
+ */
+SetIterator Set_prev(SetIterator pos);
+
+/*! 
+ * \brief イテレータによる要素のアクセス
+ * 
+ * \param pos イテレータ
+ * 
+ * \return \a pos が示す位置の要素へのポインタ
+ *
+ * \pre \a pos が有効なイテレータであること。
+ * \pre \a pos が Set_end() または Set_rend() でないこと。
+ *
+ * \attention 戻り値のポインタの参照先はconstである。
+ */
+T const *Set_data(SetIterator pos);
+
+/*! 
+ * \brief 要素を挿入(set専用)
+ *
+ * \a data のコピーを\a self に挿入する。
+ *
+ * \param self setオブジェクト
+ * \param data 挿入するデータ
+ * \param success 成否を格納する変数へのポインタ。ただし、NULLを指定した場合はアクセスしない。
+ * 
+ * \return 挿入に成功した場合、*\a success に非0の値を格納し、新しい要素のイテレータを返す。
+ * \return \a self が既に\a data という値の要素を持っている場合、挿入を行わず、*\a success に0を格納し、その要素のイテレータを返す。
+ * \return メモリ不足の場合、*\a success に0を格納し、\a self の変更を行わず0を返す。
+ *
+ * \attention この関数はsetのみで提供される。
+ */
+SetIterator Set_insert(Set *self, T data, int *success);
+
+/*! 
+ * \brief 要素を挿入(multiset専用)
+ *
+ * \a data のコピーを\a self に挿入する。
+ * \a self が既に\a data という値の要素を持っている場合、その値の一番最後の位置に挿入される。
+ *
+ * \param self setオブジェクト
+ * \param data 挿入するデータ
+ * 
+ * \return 挿入に成功した場合、新しい要素のイテレータを返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \attention この関数はmultisetのみで提供される。
+ */
+SetIterator Set_insert(Set *self, T data);
+
+/*! 
+ * \brief 指定範囲の要素を挿入
+ * 
+ * [\a first, \a last)の範囲の要素のコピーを\a self に挿入する。
+ * multisetの場合、[\a first, \a last)の要素は\a self が持つ要素でもよい。
+ *
+ * \param self setオブジェクト
+ * \param first コピー元の範囲の開始位置
+ * \param last コピー元の範囲の終了位置
+ * 
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre [\a first, \a last)が有効なイテレータであること。
+ */
+int Set_insert_range(Set *self, SetIterator first, SetIterator last);
+
+/*! 
+ * \brief 要素を削除
+ * 
+ * \a self の\a pos が示す位置の要素を削除する。
+ * 
+ * \param self setオブジェクト
+ * \param pos 削除する要素の位置
+ * 
+ * \return 削除した要素の次のイテレータ
+ *
+ * \pre \a pos が\a self の有効なイテレータであること。
+ * \pre \a pos が Set_end() または Set_rend() でないこと。
+ */
+SetIterator Set_erase(Set *self, SetIterator pos);
+
+/*! 
+ * \brief 指定範囲の要素を削除
+ * 
+ * \a self の[\a first, \a last)の範囲の要素を削除する。
+ * 
+ * \param self setオブジェクト
+ * \param first 削除する範囲の開始位置
+ * \param last 削除する範囲の終了位置
+ * 
+ * \return \a last
+ *
+ * \pre [\a first, \a last)が\a self の有効なイテレータであること。
+ */
+SetIterator Set_erase_range(Set *self, SetIterator first, SetIterator last);
+
+/*! 
+ * \brief 指定した値の要素を削除
+ * 
+ * \a self の\a data という値の要素をすべて削除する。
+ * 
+ * \param self setオブジェクト
+ * \param data 削除する要素の値
+ * 
+ * \return 削除した数
+ */
+size_t Set_erase_key(Set *self, T data);
+
+/*! 
+ * \brief 全要素を削除
+ *
+ * \a self のすべての要素を削除する。
+ * 
+ * \param self setオブジェクト
+ */
+void Set_clear(Set *self);
+
+/*! 
+ * \brief 交換
+ *
+ * \a self と\a x の内容を交換する。
+ * 
+ * \param self setオブジェクト
+ * \param x \a self と内容を交換するsetオブジェクト
+ */
+void Set_swap(Set *self, Set *x);
+
+/*! 
+ * \brief 指定した値の要素をカウント
+ * 
+ * \param self setオブジェクト
+ * \param data カウントする要素の値
+ * 
+ * \return \a self の\a data という値の要素の数
+ */
+size_t Set_count(Set *self, T data);
+
+/*! 
+ * \brief 指定した値の要素を検索
+ * 
+ * \a self の\a data という値の最初の要素を検索する。
+ *
+ * \param self setオブジェクト
+ * \param data 検索する要素の値
+ * 
+ * \return 見つかった場合、その要素のイテレータを返す。
+ * \return 見つからない場合、 Set_end(\a self) を返す。
+ */
+SetIterator Set_find(Set *self, T data);
+
+/*! 
+ * \brief 最初の位置の検索
+ * 
+ * ソートの基準に従い、\a self の\a data \b 以上 の値の最初の要素を検索する。
+ *
+ * \param self setオブジェクト
+ * \param data 検索する要素の値
+ * 
+ * \return 見つかった場合、その要素のイテレータを返す。
+ * \return 見つからない場合、 Set_end(\a self) を返す。
+ */
+SetIterator Set_lower_bound(Set *self, T data);
+
+/*! 
+ * \brief 最後の位置の検索
+ * 
+ * ソートの基準に従い、\a self の\a data \b より大きい 値の最初の要素を検索する。
+ *
+ * \param self setオブジェクト
+ * \param data 検索する要素の値
+ * 
+ * \return 見つかった場合、その要素のイテレータを返す。
+ * \return 見つからない場合、 Set_end(\a self) を返す。
+ */
+SetIterator Set_upper_bound(Set *self, T data);
+
+
+/* vim:set ts=4 sts=4 sw=4 ft=c: */

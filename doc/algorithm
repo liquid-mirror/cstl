@@ -1,0 +1,463 @@
+/*! 
+\mainpage CSTL リファレンスマニュアル
+
+\section s1 概要
+CSTLは、C++のSTLを模倣したC言語用のコンテナライブラリである。
+CSTLは以下の特長を持つ。
+- STLと同様なデータ構造・アルゴリズムを提供。
+- STLに似たインターフェイス。
+- 任意の型の要素に対応。
+- 大抵のC89準拠の処理系に移植可能。
+
+
+\section s2 インストール
+- 手動でコピーする方法\n
+  <a href="http://sourceforge.jp/projects/cstl/files/">SourceForge.jp</a>
+  からtarballをダウンロードする。
+  tarballを展開し、cstlディレクトリをインクルードパスの通ったディレクトリにコピーする。
+
+- <a href="http://svn.sourceforge.jp/svnroot/cstl/">SVNリポジトリ</a>からチェックアウトする方法\n
+  インクルードパスの通ったディレクトリに移動し、以下のコマンドを実行する。
+  - 最新スナップショットをチェックアウトする場合
+  \code
+  svn checkout http://svn.sourceforge.jp/svnroot/cstl/trunk/cstl ./cstl
+  \endcode
+  - 特定のバージョンをチェックアウトする場合(x.x.xはバージョン番号)
+  \code
+  svn checkout http://svn.sourceforge.jp/svnroot/cstl/tags/rel-x.x.x/cstl ./cstl
+  \endcode
+
+ヘッダファイルのみなのでビルドする必要はない。
+
+\section s3 コンテナ
+
+CSTLは以下のコンテナを提供する。
+
+- <a href="vector.html">vector</a>\n
+  可変長配列。末尾での要素の挿入・削除が高速。インデックスによる要素のランダムアクセスが可能。
+  <a href="algorithm.html">アルゴリズム</a>が使用可能。
+
+- <a href="deque.html">deque</a>\n
+  可変長両端キュー。先頭と末尾での要素の挿入・削除が高速。インデックスによる要素のランダムアクセスが可能。
+  <a href="algorithm.html">アルゴリズム</a>が使用可能。
+
+- <a href="list.html">list</a>\n
+  双方向リンクリスト。任意の位置での要素の挿入・削除が高速だが、要素のランダムアクセスはできない。
+
+- <a href="set.html">set/multiset</a>\n
+  要素が値によって自動的にソートされるコンテナ。multisetは要素の重複を許す。
+
+- <a href="map.html">map/multimap</a>\n
+  キーと値のペアを要素とするコンテナ。要素はキーによって自動的にソートされる。multimapは要素のキーの重複を許す。
+
+- <a href="string.html">string</a>\n
+  文字列処理に有用な機能を持つコンテナ。
+  <a href="algorithm.html">アルゴリズム</a>が使用可能。
+
+
+\section s4 STLとの主な違い
+- オブジェクトの生成/破棄は、必ずnew/deleteに相当する関数でしなければならない。
+- 要素の挿入/削除時、自動的にコンストラクタ/デストラクタに相当する関数が呼ばれることはない。
+- vector, deque, stringはインデックスで要素にアクセスするため、イテレータをサポートしない。
+- vector, stringのshrink()は許容量の縮小ができる。
+- stringのreserve()は許容量の縮小ができない。
+- set, mapのinsert()は重複による成否を引数で返す。
+- set, multiset, map, multimapのerase()は削除した次の位置のイテレータを返す。
+- set, multiset, map, multimapのerase_range()は削除した次の位置のイテレータを返す。
+- 未対応なメンバ関数あり。
+- vector, deque, stringのみアルゴリズムをサポートする。
+- アルゴリズムのbinary_search()は見つかったインデックスを返す。
+- 未対応なアルゴリズムあり。
+
+\section s5 ライセンス
+本ソフトウェアのライセンスは、修正BSDライセンスに従う。
+
+\code
+Copyright (c) 2006-2009, KATO Noriaki
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+\endcode
+
+
+\subsection s6 日本語訳(参考)
+
+\code
+Copyright (c) 2006-2009, KATO Noriaki
+All rights reserved.
+
+ソースコード形式かバイナリ形式か、変更するかしないかを問わず、以下の条件を満た
+す場合に限り、再頒布および使用が許可されます。
+
+1. ソースコードを再頒布する場合、上記の著作権表示、本条件一覧、および下記免責
+   条項を含めること。
+2. バイナリ形式で再頒布する場合、頒布物に付属のドキュメント等の資料に、上記の
+   著作権表示、本条件一覧、および下記免責条項を含めること。
+
+本ソフトウェアは、著作権者によって「現状のまま」提供されており、明示黙示を問わ
+ず、商業的な使用可能性、および特定の目的に対する適合性に関する暗黙の保証も含
+め、またそれに限定されない、いかなる保証もありません。著作権者は、事由のいかん
+を問わず、損害発生の原因いかんを問わず、かつ責任の根拠が契約であるか厳格責任で
+あるか（過失その他の）不法行為であるかを問わず、仮にそのような損害が発生する可
+能性を知らされていたとしても、本ソフトウェアの使用によって発生した（代替品また
+は代用サービスの調達、使用の喪失、データの喪失、利益の喪失、業務の中断も含め、
+またそれに限定されない）直接損害、間接損害、偶発的な損害、特別損害、懲罰的損
+害、または結果損害について、一切責任を負わないものとします。
+\endcode
+
+\section s7 作者
+KATO Noriaki <katono@users.sourceforge.jp>
+
+ */
+
+
+
+/*! 
+\file algorithm
+
+<a href="vector.html">vector</a>, <a href="deque.html">deque</a>, <a href="string.html">string</a>
+において、共通なアルゴリズムを提供する。
+
+アルゴリズムを使うには、\b CSTL_XXX_INTERFACE() (XXXは、VECTOR, DEQUE, STRINGのいずれか)を展開する前に、
+<cstl/algorithm.h>というヘッダファイルをインクルードする必要がある。
+
+\code
+#include <cstl/algorithm.h>
+\endcode
+
+\par 使用例:
+\include algorithm_example.c
+
+\attention 以下に説明する関数は、
+\b CSTL_XXX_INTERFACE(Name, Type) の\a Name に\b Container , \a Type に\b T を仮に指定した場合のものである。
+実際に使用する際には、使用例のように適切な引数を指定すること。
+
+ */
+
+
+/*! 
+ * \brief ソート
+ * 
+ * \a self の\a idx 番目から\a n 個の要素を比較関数\a comp に従ってソートする。
+ * このソートは安定でない。
+ *
+ * \param self オブジェクト
+ * \param idx ソート開始インデックス
+ * \param n ソートする要素数
+ * \param comp 比較関数
+ *
+ * \pre \a idx  + \a n が\a self の要素数以下の値であること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量は平均的にはO(N * log N)である。最悪な場合はO(N^2)となる。
+ */
+void Containor_sort(Containor *self, size_t idx, size_t n,
+				int (*comp) (const void * p1, const void * p2));
+
+/*! 
+ * \brief 安定ソート
+ * 
+ * \a self の\a idx 番目から\a n 個の要素を比較関数\a comp に従ってソートする。
+ * このソートは安定である。
+ *
+ * \param self オブジェクト
+ * \param idx ソート開始インデックス
+ * \param n ソートする要素数
+ * \param comp 比較関数
+ *
+ * \pre \a idx + \a n が\a self の要素数以下の値であること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量はメモリに十分な空き領域がある場合はO(N * log N)である。空き領域がない場合はO(N * log N * log N)となる。
+ */
+void Containor_stable_sort(Containor *self, size_t idx, size_t n,
+					   int (*comp) (const void * p1, const void * p2));
+
+/*! 
+ * \brief 部分ソート
+ * 
+ * \a self の\a idx 番目から\a n 個の要素の内、最初の\a sort_n 個が正しい順序になるように比較関数\a comp に従ってソートする。
+ * \a self の\a idx + \a sort_n 番目から\a n - \a sort_n 個の要素の順序は未定義である。
+ * このソートは安定でない。
+ *
+ * \param self オブジェクト
+ * \param idx ソート開始インデックス
+ * \param sort_n この関数実行の結果、ソート済みになる要素数
+ * \param n ソート対象の要素数
+ * \param comp 比較関数
+ *
+ * \pre \a sort_n が\a n 以下の値であること。
+ * \pre \a idx + \a n が\a self の要素数以下の値であること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量はO(N * log N)である。
+ * \note \a sort_n が\a n に等しい場合、\a self の\a idx 番目から\a n 個の要素をソートする。
+ */
+void Containor_partial_sort(Containor *self, size_t idx, size_t sort_n, size_t n,
+						int (*comp) (const void * p1, const void * p2));
+
+/*! 
+ * \brief 二分探索
+ * 
+ * \a self の\a idx 番目から\a n 個の要素において、比較関数\a comp に従って\a value に \b 一致 する要素を検索する。
+ *
+ * \param self オブジェクト
+ * \param idx 検索開始インデックス
+ * \param n 検索する要素数
+ * \param value 検索する値
+ * \param comp 比較関数
+ *
+ * \return 見つかった場合、その要素のインデックスを返す。
+ *         複数見つかった場合、最初の要素のインデックスを返す。
+ * \return 見つからない場合、\a idx + \a n を返す。
+ *
+ * \pre \a idx + \a n が\a self の要素数以下の値であること。
+ * \pre \a self の\a idx 番目から\a n 個の要素が比較関数\a comp に従ってソートされていること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量はO(log N)である。
+ */
+size_t Containor_binary_search(Containor *self, size_t idx, size_t n, T value,
+						   int (*comp) (const void * p1, const void * p2));
+
+/*! 
+ * \brief 最初の位置の検索
+ * 
+ * \a self の\a idx 番目から\a n 個の要素において、比較関数\a comp に従って\a value \b 以上 の最初の要素を検索する。
+ *
+ * \param self オブジェクト
+ * \param idx 検索開始インデックス
+ * \param n 検索する要素数
+ * \param value 検索する値
+ * \param comp 比較関数
+ *
+ * \return 見つかった場合、その要素のインデックスを返す。
+ * \return 見つからない場合、\a idx + \a n を返す。
+ *
+ * \pre \a idx + \a n が\a self の要素数以下の値であること。
+ * \pre \a self の\a idx 番目から\a n 個の要素が比較関数\a comp に従ってソートされていること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量はO(log N)である。
+ */
+size_t Containor_lower_bound(Containor *self, size_t idx, size_t n, T value,
+						 int (*comp) (const void * p1, const void * p2));
+
+/*! 
+ * \brief 最後の位置の検索
+ * 
+ * \a self の\a idx 番目から\a n 個の要素において、比較関数\a comp に従って\a value \b より大きい 最初の要素を検索する。
+ *
+ * \param self オブジェクト
+ * \param idx 検索開始インデックス
+ * \param n 検索する要素数
+ * \param value 検索する値
+ * \param comp 比較関数
+ *
+ * \return 見つかった場合、その要素のインデックスを返す。
+ * \return 見つからない場合、\a idx + \a n を返す。
+ *
+ * \pre \a idx + \a n が\a self の要素数以下の値であること。
+ * \pre \a self の\a idx 番目から\a n 個の要素が比較関数\a comp に従ってソートされていること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量はO(log N)である。
+ */
+size_t Containor_upper_bound(Containor *self, size_t idx, size_t n, T value,
+						 int (*comp) (const void * p1, const void * p2));
+
+/*! 
+ * \brief 逆順に並べ替え
+ * 
+ * \a self の\a idx 番目から\a n 個の要素を逆順に並べ替える。
+ *
+ * \param self オブジェクト
+ * \param idx 並べ替え開始インデックス
+ * \param n 並べ替える要素数
+ *
+ * \pre \a idx + \a n が\a self の要素数以下の値であること。
+ *
+ * \note 計算量はO(N)である。
+ */
+void Containor_reverse(Containor *self, size_t idx, size_t n);
+
+/*! 
+ * \brief 回転
+ * 
+ * \a self の\a middle 番目から\a last - 1番目までの要素を\a first 番目の位置に移動する。
+ * \a first 番目から\a middle - 1番目までにあった要素は後ろにずらされる。
+ *
+ * \param self オブジェクト
+ * \param first \a middle 番目から\a last - 1番目までの要素の移動先
+ * \param middle 移動元の範囲の開始インデックス
+ * \param last 移動元の範囲の終了インデックス
+ *
+ * \pre \a first <= \a middle <= \a last <= \a self の要素数、であること。
+ *
+ * \note 計算量はO(N)である。
+ */
+void Containor_rotate(Containor *self, size_t first, size_t middle, size_t last);
+
+/*! 
+ * \brief マージ
+ * 
+ * \a x の\a xidx 番目から\a xn 個の要素と\a y の\a yidx 番目から\a yn 個の要素のコピーを比較関数\a comp に従ってマージし、\a self の\a idx 番目の位置に挿入する。
+ * \a self の\a idx 番目から\a xn + \a yn 個の要素はソートされた状態になる。
+ *
+ * \param self オブジェクト
+ * \param idx 挿入する位置
+ * \param x 1つ目のマージ元のオブジェクト
+ * \param xidx \a x のマージ開始インデックス
+ * \param xn \a x のマージする要素数
+ * \param y 2つ目のマージ元のオブジェクト
+ * \param yidx \a y のマージ開始インデックス
+ * \param yn \a y のマージする要素数
+ * \param comp 比較関数
+ *
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre \a idx が\a self の要素数以下の値であること。
+ * \pre \a xidx + \a xn が\a x の要素数以下の値であること。
+ * \pre \a yidx + \a yn が\a y の要素数以下の値であること。
+ * \pre \a self と\a x 、\a self と\a y は同じオブジェクトでないこと。
+ * \pre \a x の\a xidx 番目から\a xn 個の要素が比較関数\a comp に従ってソートされていること。
+ * \pre \a y の\a yidx 番目から\a yn 個の要素が比較関数\a comp に従ってソートされていること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量はO(N)である。
+ */
+int Containor_merge(Containor *self, size_t idx, Containor *x, size_t xidx,
+				size_t xn, Containor *y, size_t yidx, size_t yn,
+				int (*comp) (const void * p1, const void * p2));
+
+/*! 
+ * \brief 連続する範囲のマージ
+ * 
+ * \a self の連続する2つの範囲\a first 番目から\a middle - 1番目までと\a middle 番目から\a last - 1番目までの要素を比較関数\a comp に従ってマージする。
+ * \a self の\a first 番目から\a last - 1番目までの要素はソートされた状態になる。
+ *
+ * \param self オブジェクト
+ * \param first 1つ目のマージ範囲の開始インデックス
+ * \param middle 1つ目のマージ範囲の終了インデックス、かつ2つ目のマージ範囲の開始インデックス
+ * \param last 2つ目のマージ範囲の終了インデックス
+ * \param comp 比較関数
+ *
+ * \pre \a first <= \a middle <= \a last <= \a self の要素数、であること。
+ * \pre \a self の\a first 番目から\a middle - 1番目までの要素は比較関数\a comp に従ってソートされていること。
+ * \pre \a self の\a middle 番目から\a last - 1番目までの要素は比較関数\a comp に従ってソートされていること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量はメモリに十分な空き領域がある場合はO(N)である。空き領域がない場合はO(N * log N)となる。
+ */
+void Containor_inplace_merge(Containor *self, size_t first, size_t middle, size_t last,
+				int (*comp) (const void * p1, const void * p2));
+
+/*! 
+ * \brief ヒープに変換
+ * 
+ * \a self の\a idx 番目から\a n 個の要素を比較関数\a comp に従ってヒープに変換する。
+ *
+ * \param self オブジェクト
+ * \param idx 変換開始インデックス
+ * \param n 変換する要素数
+ * \param comp 比較関数
+ *
+ * \pre \a idx + \a n が\a self の要素数以下の値であること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量はO(N)である。
+ */
+void Containor_make_heap(Containor *self, size_t idx, size_t n,
+					 int (*comp) (const void * p1, const void * p2));
+
+/*! 
+ * \brief ヒープソート
+ * 
+ * \a self の\a idx 番目から\a n 個の要素を比較関数\a comp に従ってソートする。
+ * このソートは安定でない。
+ *
+ * \param self オブジェクト
+ * \param idx ソート開始インデックス
+ * \param n ソートする要素数
+ * \param comp 比較関数
+ *
+ * \pre \a idx + \a n が\a self の要素数以下の値であること。
+ * \pre \a self の\a idx 番目から\a n 個の要素が比較関数\a comp に従ってヒープになっていること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量はO(N * log N)である。
+ */
+void Containor_sort_heap(Containor *self, size_t idx, size_t n,
+					 int (*comp) (const void * p1, const void * p2));
+
+/*! 
+ * \brief ヒープに追加
+ * 
+ * \a self の\a idx + \a n - 1番目の要素を、\a self の\a idx 番目から\a n - 1個の範囲のヒープに追加して、\a idx 番目から\a n 個の要素を一つのヒープとして再構成する。
+ *
+ * \param self オブジェクト
+ * \param idx ヒープ開始インデックス
+ * \param n この関数実行の結果、ヒープになる要素数
+ * \param comp 比較関数
+ *
+ * \pre \a idx + \a n が\a self の要素数以下の値であること。
+ * \pre \a self の\a idx 番目から\a n - 1個の要素が比較関数\a comp に従ってヒープになっていること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量はO(log N)である。
+ */
+void Containor_push_heap(Containor *self, size_t idx, size_t n,
+					 int (*comp) (const void * p1, const void * p2));
+
+/*! 
+ * \brief ヒープから削除
+ * 
+ * \a self の\a idx 番目から\a n 個の範囲のヒープから、ヒープの最初の要素とヒープの最後の要素を交換し、\a self の\a idx 番目から\a n - 1個の要素を一つのヒープとして再構成する。
+ *
+ * \param self オブジェクト
+ * \param idx ヒープ開始インデックス
+ * \param n ヒープの要素数
+ * \param comp 比較関数
+ *
+ * \pre \a idx + \a n が\a self の要素数以下の値であること。
+ * \pre \a self の\a idx 番目から\a n 個の要素が比較関数\a comp に従ってヒープになっていること。
+ * \pre \a n が1以上であること。
+ * \pre \a comp には、*p1 == *p2ならば0を、*p1 < *p2ならば正または負の整数を、*p1 > *p2ならば*p1 < *p2の場合と逆の符号の整数を返す関数を指定すること。
+ *      (C標準関数のqsort(), bsearch()に使用する関数ポインタと同じ仕様)
+ *
+ * \note 計算量はO(log N)である。
+ */
+void Containor_pop_heap(Containor *self, size_t idx, size_t n,
+					int (*comp) (const void * p1, const void * p2));
+
+/* vim:set ts=4 sts=4 sw=4 ft=c: */

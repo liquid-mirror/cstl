@@ -1,0 +1,337 @@
+/*! 
+\file vector
+vectorは可変長な配列である。許容量を超えた要素の追加をした場合、自動的に拡張する。
+末尾での要素の挿入・削除の計算量がO(1)であり、それ以外の位置の要素の挿入・削除の計算量はO(N)である。
+インデックスによる要素のランダムアクセスが可能。
+また、内部データの連続性は保証される。
+
+vectorを使うには、<cstl/vector.h>をインクルードし、以下のマクロを用いてコードを展開する必要がある。
+
+\code
+#include <cstl/vector.h>
+
+#define CSTL_VECTOR_INTERFACE(Name, Type)
+#define CSTL_VECTOR_IMPLEMENT(Name, Type)
+\endcode
+
+\b CSTL_VECTOR_INTERFACE() は任意の名前と要素の型のvectorのインターフェイスを展開する。
+\b CSTL_VECTOR_IMPLEMENT() はその実装を展開する。
+
+また、\b CSTL_VECTOR_INTERFACE() を展開する前に、<cstl/algorithm.h>をインクルードすることにより、
+<a href="algorithm.html">アルゴリズム</a>が使用可能となる。
+
+\par 使用例:
+\include vector_example.c
+
+\attention 以下に説明する型定義・関数は、
+\b CSTL_VECTOR_INTERFACE(Name, Type) の\a Name に\b Vector , \a Type に\b T を仮に指定した場合のものである。
+実際に使用する際には、使用例のように適切な引数を指定すること。
+
+ */
+
+/*! 
+ * \brief インターフェイスマクロ
+ *
+ * 任意の名前と要素の型のvectorのインターフェイスを展開する。
+ *
+ * \param Name 既存の型と重複しない任意の名前。vectorの型名と関数のプレフィックスになる
+ * \param Type 任意の要素の型
+ * \attention 引数は CSTL_VECTOR_IMPLEMENT()の引数と同じものを指定すること。
+ * \attention \a Type に括弧を付けないこと。
+ */
+#define CSTL_VECTOR_INTERFACE(Name, Type)
+
+/*! 
+ * \brief 実装マクロ
+ *
+ * CSTL_VECTOR_INTERFACE()で展開したインターフェイスの実装を展開する。
+ *
+ * \param Name 既存の型と重複しない任意の名前。vectorの型名と関数のプレフィックスになる
+ * \param Type 任意の要素の型
+ * \attention 引数は CSTL_VECTOR_INTERFACE()の引数と同じものを指定すること。
+ * \attention \a Type に括弧を付けないこと。
+ */
+#define CSTL_VECTOR_IMPLEMENT(Name, Type)
+
+
+/*! 
+ * \brief vectorの型
+ *
+ * 抽象データ型となっており、内部データメンバは非公開である。
+ *
+ * 以下、 Vector_new*() から返されたVector構造体へのポインタをvectorオブジェクトという。
+ */
+typedef struct Vector Vector;
+
+/*! 
+ * \brief 生成
+ *
+ * 要素数が0のvectorを生成する。
+ * 
+ * \return 生成に成功した場合、vectorオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ */
+Vector *Vector_new(void);
+
+/*! 
+ * \brief 許容量を予約して生成
+ *
+ * 許容量(内部メモリの再割り当てを行わずに格納できる要素数)が\a n 個、
+ * 要素数が0のvectorを生成する。
+ * 
+ * \param n 許容量
+ *
+ * \return 生成に成功した場合、vectorオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ */
+Vector *Vector_new_reserve(size_t n);
+
+/*! 
+ * \brief 破棄
+ * 
+ * \a self のすべての要素を削除し、\a self を破棄する。
+ * \a self がNULLの場合、何もしない。
+ *
+ * \param self vectorオブジェクト
+ */
+void Vector_delete(Vector *self);
+
+/*! 
+ * \brief 要素数を取得
+ * 
+ * \param self vectorオブジェクト
+ * 
+ * \return \a self の要素数
+ */
+size_t Vector_size(Vector *self);
+
+/*! 
+ * \brief 空チェック
+ * 
+ * \param self vectorオブジェクト
+ * 
+ * \return \a self の要素数が0の場合、非0を返す。
+ * \return \a self の要素数が1以上の場合、0を返す。
+ */
+int Vector_empty(Vector *self);
+
+/*! 
+ * \brief 許容量を取得
+ * 
+ * \param self vectorオブジェクト
+ * 
+ * \return \a self の許容量
+ */
+size_t Vector_capacity(Vector *self);
+
+/*! 
+ * \brief 許容量を予約
+ * 
+ * \a self の許容量を要素\a n 個の領域に拡張する。
+ * \a self が持つ要素は維持され、拡張した領域の初期化はしない。
+ *
+ * \param self vectorオブジェクト
+ * \param n 許容量
+ * 
+ * \return 拡張に成功した場合、非0を返す。
+ * \return \a n が\a self の現在の許容量以下の場合、\a self の変更を行わず非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ */
+int Vector_reserve(Vector *self, size_t n);
+
+/*! 
+ * \brief 許容量を縮小
+ * 
+ * \a self の許容量を要素\a n 個の領域に縮小する。
+ * \a n が\a self の現在の要素数以下の場合、\a self の許容量を要素数と同じにする。
+ * \a n が\a self の現在の許容量以上の場合、何もしない。
+ *
+ * \param self vectorオブジェクト
+ * \param n 許容量
+ */
+void Vector_shrink(Vector *self, size_t n);
+
+/*! 
+ * \brief インデックスによる要素のアクセス
+ * 
+ * \param self vectorオブジェクト
+ * \param idx インデックス
+ *
+ * \return \a self の\a idx 番目の要素へのポインタ
+ *
+ * \pre \a idx が\a self の要素数より小さい値であること。
+ *
+ * \attention 戻り値は\a self の変更により無効となる。
+ */
+T *Vector_at(Vector *self, size_t idx);
+
+/*! 
+ * \brief 最初の要素のアクセス
+ * 
+ * \param self vectorオブジェクト
+ * 
+ * \return \a self の最初の要素へのポインタ
+ *
+ * \pre \a self が空でないこと。
+ *
+ * \attention 戻り値は\a self の変更により無効となる。
+ */
+T *Vector_front(Vector *self);
+
+/*! 
+ * \brief 最後の要素のアクセス
+ * 
+ * \param self vectorオブジェクト
+ * 
+ * \return \a self の最後の要素へのポインタ
+ *
+ * \pre \a self が空でないこと。
+ *
+ * \attention 戻り値は\a self の変更により無効となる。
+ */
+T *Vector_back(Vector *self);
+
+/*! 
+ * \brief 要素を挿入
+ *
+ * \a self の\a idx 番目の位置に、\a data のコピーを挿入する。
+ *
+ * \param self vectorオブジェクト
+ * \param idx 挿入する位置
+ * \param data 挿入するデータ
+ * 
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre \a idx が\a self の要素数以下の値であること。
+ */
+int Vector_insert(Vector *self, size_t idx, T data);
+
+/*! 
+ * \brief 複数個の要素を挿入
+ *
+ * \a self の\a idx 番目の位置に、\a data のコピーを\a n 個挿入する。
+ * 
+ * \param self vectorオブジェクト
+ * \param idx 挿入する位置
+ * \param n 挿入するデータの個数
+ * \param data 挿入するデータ
+ * 
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre \a idx が\a self の要素数以下の値であること。
+ */
+int Vector_insert_n(Vector *self, size_t idx, size_t n, T data);
+
+/*! 
+ * \brief 配列の要素を挿入
+ * 
+ * \a self の\a idx 番目の位置に、\a data という配列から\a n 個の要素のコピーを挿入する。
+ * 
+ * \param self vectorオブジェクト
+ * \param idx 挿入する位置
+ * \param data 挿入するデータの配列
+ * \param n 挿入するデータの個数
+ * 
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre \a idx が\a self の要素数以下の値であること。
+ * \pre \a data がNULLでないこと。
+ */
+int Vector_insert_array(Vector *self, size_t idx, T const *data, size_t n);
+
+/*! 
+ * \brief 指定範囲の要素を挿入
+ * 
+ * \a self の\a idx 番目の位置に、\a x の\a xidx 番目から\a n 個の要素のコピーを挿入する。
+ * \a self と\a x は同じオブジェクトでもよい。
+ *
+ * \param self vectorオブジェクト
+ * \param idx 挿入する位置
+ * \param x コピー元のvectorオブジェクト
+ * \param xidx \a x のコピー開始インデックス
+ * \param n コピーする要素数
+ * 
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre \a xidx + \a n が\a x の要素数以下の値であること。
+ * \pre \a idx が\a self の要素数以下の値であること。
+ */
+int Vector_insert_range(Vector *self, size_t idx, Vector *x, size_t xidx, size_t n);
+
+/*! 
+ * \brief 末尾に要素を挿入
+ * 
+ * \a data のコピーを\a self の最後の要素として挿入する。
+ *
+ * \param self vectorオブジェクト
+ * \param data 挿入するデータ
+ * 
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ */
+int Vector_push_back(Vector *self, T data);
+
+/*! 
+ * \brief 要素を削除
+ * 
+ * \a self の\a idx 番目から\a n 個の要素を削除する。
+ * 
+ * \param self vectorオブジェクト
+ * \param idx 削除開始インデックス
+ * \param n 削除する要素数
+ * 
+ * \pre \a idx + \a n が\a self の要素数以下の値であること。
+ */
+void Vector_erase(Vector *self, size_t idx, size_t n);
+
+/*! 
+ * \brief 最後の要素を削除
+ * 
+ * \a self の最後の要素を削除する。
+ *
+ * \param self vectorオブジェクト
+ *
+ * \pre \a self が空でないこと。
+ */
+void Vector_pop_back(Vector *self);
+
+/*! 
+ * \brief 全要素を削除
+ *
+ * \a self のすべての要素を削除する。
+ * 
+ * \param self vectorオブジェクト
+ */
+void Vector_clear(Vector *self);
+
+/*! 
+ * \brief 要素数を変更
+ *
+ * \a self の要素数を\a n 個に変更する。
+ * \a n が\a self の現在の要素数以下の場合、要素数が\a n 個になるまで末尾から要素が削除される。
+ * \a n が\a self の現在の要素数より大きい場合、要素数が\a n 個になるまで\a data のコピーが末尾から挿入される。
+ * 
+ * \param self vectorオブジェクト
+ * \param n 要素数
+ * \param data 挿入するデータ
+ * 
+ * \return 要素数の変更に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ */
+int Vector_resize(Vector *self, size_t n, T data);
+
+/*! 
+ * \brief 交換
+ *
+ * \a self と\a x の内容を交換する。
+ * 
+ * \param self vectorオブジェクト
+ * \param x \a self と内容を交換するvectorオブジェクト
+ */
+void Vector_swap(Vector *self, Vector *x);
+
+/* vim:set ts=4 sts=4 sw=4 ft=c: */
