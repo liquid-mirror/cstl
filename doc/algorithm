@@ -70,18 +70,17 @@ CSTLは以下のコンテナを提供する。
 - 未対応なアルゴリズムあり。
 
 \section s5 ライセンス
-本ソフトウェアのライセンスは、修正BSDライセンスに従う。
+CSTLは、修正BSDライセンスに従う。
 
-\code
 Copyright (c) 2006-2009, KATO Noriaki
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice,
+-# Redistributions of source code must retain the above copyright notice,
    this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice,
+-# Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
 
@@ -95,21 +94,19 @@ OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
 WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-\endcode
 
 
 \subsection s6 日本語訳(参考)
 
-\code
 Copyright (c) 2006-2009, KATO Noriaki
 All rights reserved.
 
 ソースコード形式かバイナリ形式か、変更するかしないかを問わず、以下の条件を満た
 す場合に限り、再頒布および使用が許可されます。
 
-1. ソースコードを再頒布する場合、上記の著作権表示、本条件一覧、および下記免責
+-# ソースコードを再頒布する場合、上記の著作権表示、本条件一覧、および下記免責
    条項を含めること。
-2. バイナリ形式で再頒布する場合、頒布物に付属のドキュメント等の資料に、上記の
+-# バイナリ形式で再頒布する場合、頒布物に付属のドキュメント等の資料に、上記の
    著作権表示、本条件一覧、および下記免責条項を含めること。
 
 本ソフトウェアは、著作権者によって「現状のまま」提供されており、明示黙示を問わ
@@ -121,7 +118,6 @@ All rights reserved.
 は代用サービスの調達、使用の喪失、データの喪失、利益の喪失、業務の中断も含め、
 またそれに限定されない）直接損害、間接損害、偶発的な損害、特別損害、懲罰的損
 害、または結果損害について、一切責任を負わないものとします。
-\endcode
 
 \section s7 作者
 KATO Noriaki <katono@users.sourceforge.jp>
