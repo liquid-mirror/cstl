@@ -380,6 +380,15 @@ echo "\
 #define CSTL_VECTOR_MAGIC(x)
 #endif
 " >> "$path"".c"
+elif [ $lower = "list" ]; then
+echo "\
+#ifndef NDEBUG
+#define CSTL_${upper}_MAGIC(x) x
+#define CSTL_LIST_MAGIC_ELEM(Name) ((Name *) -1)
+#else
+#define CSTL_${upper}_MAGIC(x)
+#endif
+" >> "$path"".c"
 elif [ $lower = "set" -o $lower = "multiset" -o\
 	   $lower = "map" -o $lower = "multimap" ]; then
 echo "\
