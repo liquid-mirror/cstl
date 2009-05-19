@@ -187,9 +187,8 @@ ValueType *Name##_at(Name *self, KeyType key)\
 	assert(self->magic == self && "Map_at");\
 	pos = Name##RBTree_find(self->tree, key);\
 	if (pos == Name##RBTree_end(self->tree)) {\
-		/* 新しい要素の値 */\
-		static ValueType value;\
-		pos = Name##RBTree_new_node(&key, &value, CSTL_RBTREE_RED);\
+		/* 新しい要素の値にはnilの値を使用 */\
+		pos = Name##RBTree_new_node(&key, &Name##RBTree_nil.value, CSTL_RBTREE_RED);\
 		if (pos) {\
 			Name##RBTree_insert(self->tree, pos);\
 			self->size++;\
