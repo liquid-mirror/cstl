@@ -45,10 +45,10 @@
 #define CSTL_STRING_END_EXTERN_C()
 #endif
 
-#ifndef NDEBUG
-#define CSTL_STRING_MAGIC(x) x
-#else
+#ifdef NDEBUG
 #define CSTL_STRING_MAGIC(x)
+#else
+#define CSTL_STRING_MAGIC(x) x
 #endif
 
 #ifndef CSTL_ALGORITHM_INTERFACE

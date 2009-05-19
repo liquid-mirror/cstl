@@ -46,10 +46,10 @@
 #define CSTL_DEQUE_END_EXTERN_C()
 #endif
 
-#ifndef NDEBUG
-#define CSTL_DEQUE_MAGIC(x) x
-#else
+#ifdef NDEBUG
 #define CSTL_DEQUE_MAGIC(x)
+#else
+#define CSTL_DEQUE_MAGIC(x) x
 #endif
 
 #ifndef CSTL_ALGORITHM_INTERFACE

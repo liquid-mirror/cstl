@@ -289,10 +289,10 @@ if [ $lower = "string" ]; then
 fi
 if [ $lower = "ring" ]; then
 echo "\
-#ifndef NDEBUG
-#define CSTL_${upper}_MAGIC(x) x
-#else
+#ifdef NDEBUG
 #define CSTL_${upper}_MAGIC(x)
+#else
+#define CSTL_${upper}_MAGIC(x) x
 #endif
 " >> "$path"".h"
 fi
@@ -360,50 +360,50 @@ echo "#include \"$name.h\"
 if [ $lower != "ring" ]; then
 if [ $lower = "deque" ]; then
 echo "\
-#ifndef NDEBUG
-#define CSTL_${upper}_MAGIC(x) x
-#define CSTL_VECTOR_MAGIC(x) x
-#define CSTL_RING_MAGIC(x) x
-#else
+#ifdef NDEBUG
 #define CSTL_${upper}_MAGIC(x)
 #define CSTL_VECTOR_MAGIC(x)
 #define CSTL_RING_MAGIC(x)
+#else
+#define CSTL_${upper}_MAGIC(x) x
+#define CSTL_VECTOR_MAGIC(x) x
+#define CSTL_RING_MAGIC(x) x
 #endif
 " >> "$path"".c"
 elif [ $lower = "string" ]; then
 echo "\
-#ifndef NDEBUG
-#define CSTL_${upper}_MAGIC(x) x
-#define CSTL_VECTOR_MAGIC(x) x
-#else
+#ifdef NDEBUG
 #define CSTL_${upper}_MAGIC(x)
 #define CSTL_VECTOR_MAGIC(x)
+#else
+#define CSTL_${upper}_MAGIC(x) x
+#define CSTL_VECTOR_MAGIC(x) x
 #endif
 " >> "$path"".c"
 elif [ $lower = "list" ]; then
 echo "\
-#ifndef NDEBUG
+#ifdef NDEBUG
+#define CSTL_${upper}_MAGIC(x)
+#else
 #define CSTL_${upper}_MAGIC(x) x
 #define CSTL_LIST_MAGIC_ELEM(Name) ((Name *) -1)
-#else
-#define CSTL_${upper}_MAGIC(x)
 #endif
 " >> "$path"".c"
 elif [ $lower = "set" -o $lower = "multiset" -o\
 	   $lower = "map" -o $lower = "multimap" ]; then
 echo "\
-#ifndef NDEBUG
-#define CSTL_RBTREE_MAGIC(x) x
-#else
+#ifdef NDEBUG
 #define CSTL_RBTREE_MAGIC(x)
+#else
+#define CSTL_RBTREE_MAGIC(x) x
 #endif
 " >> "$path"".c"
 else
 echo "\
-#ifndef NDEBUG
-#define CSTL_${upper}_MAGIC(x) x
-#else
+#ifdef NDEBUG
 #define CSTL_${upper}_MAGIC(x)
+#else
+#define CSTL_${upper}_MAGIC(x) x
 #endif
 " >> "$path"".c"
 fi

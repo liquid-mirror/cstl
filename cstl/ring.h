@@ -44,10 +44,10 @@
 #define CSTL_RING_END_EXTERN_C()
 #endif
 
-#ifndef NDEBUG
-#define CSTL_RING_MAGIC(x) x
-#else
+#ifdef NDEBUG
 #define CSTL_RING_MAGIC(x)
+#else
+#define CSTL_RING_MAGIC(x) x
 #endif
 
 
