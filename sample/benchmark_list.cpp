@@ -100,8 +100,8 @@ int main(void)
 	if (y.size() != IntList_size(x)) {
 		printf("!!!NG!!!\n");
 	}
-	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntListIterator_next(xpos), ++ypos) {
-		if (*ypos != *IntListIterator_ref(xpos)) {
+	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntList_next(xpos), ++ypos) {
+		if (*ypos != *IntList_data(xpos)) {
 			printf("!!!NG!!!\n");
 		}
 	}
@@ -146,8 +146,8 @@ int main(void)
 	if (y.size() != IntList_size(x)) {
 		printf("!!!NG!!!\n");
 	}
-	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntListIterator_next(xpos), ++ypos) {
-		if (*ypos != *IntListIterator_ref(xpos)) {
+	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntList_next(xpos), ++ypos) {
+		if (*ypos != *IntList_data(xpos)) {
 			printf("!!!NG!!!\n");
 		}
 	}
@@ -181,8 +181,8 @@ int main(void)
 	if (y.size() != IntList_size(x)) {
 		printf("!!!NG!!!\n");
 	}
-	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntListIterator_next(xpos), ++ypos) {
-		if (*ypos != *IntListIterator_ref(xpos)) {
+	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntList_next(xpos), ++ypos) {
+		if (*ypos != *IntList_data(xpos)) {
 			printf("!!!NG!!!\n");
 		}
 	}
@@ -221,9 +221,9 @@ int main(void)
 	y.sort();
 	printf("stl : sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
-	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntListIterator_next(xpos), ++ypos) {
-		if (*ypos != *IntListIterator_ref(xpos)) {
-			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *IntListIterator_ref(xpos));
+	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntList_next(xpos), ++ypos) {
+		if (*ypos != *IntList_data(xpos)) {
+			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *IntList_data(xpos));
 		}
 	}
 	// sort 2
@@ -235,9 +235,9 @@ int main(void)
 	y.sort();
 	printf("stl : sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
-	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntListIterator_next(xpos), ++ypos) {
-		if (*ypos != *IntListIterator_ref(xpos)) {
-			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *IntListIterator_ref(xpos));
+	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntList_next(xpos), ++ypos) {
+		if (*ypos != *IntList_data(xpos)) {
+			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *IntList_data(xpos));
 		}
 	}
 	// sort 3
@@ -249,9 +249,9 @@ int main(void)
 	y.sort(std::greater<int>());
 	printf("stl : sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
-	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntListIterator_next(xpos), ++ypos) {
-		if (*ypos != *IntListIterator_ref(xpos)) {
-			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *IntListIterator_ref(xpos));
+	for (xpos = IntList_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntList_next(xpos), ++ypos) {
+		if (*ypos != *IntList_data(xpos)) {
+			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *IntList_data(xpos));
 		}
 	}
 
