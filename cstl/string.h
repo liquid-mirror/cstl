@@ -169,13 +169,13 @@ static size_t Name##_mystrlen(const Type *cstr)\
 \
 CSTL_VECTOR_INTERFACE(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_BASE(Name##_CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_RESERVE(Name##_CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_SHRINK(Name##_CharVector, Type)\
-CSTL_VECTOR_IMPLEMENT_RESIZE(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_DATA(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_SHRINK(Name##_CharVector, Type)\
+CSTL_VECTOR_IMPLEMENT_RESIZE(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT_ARRAY(Name##_CharVector, Type)\
 CSTL_VECTOR_IMPLEMENT_ERASE(Name##_CharVector, Type)\
 \

@@ -104,10 +104,6 @@ CSTL_VECTOR_END_EXTERN_C()\
 
 
 #define CSTL_VECTOR_IMPLEMENT_BASE(Name, Type)	\
-static int Name##_expand(Name *self, size_t size);\
-static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n);\
-static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n);\
-static int Name##_insert_n_no_data(Name *self, size_t idx, size_t n);\
 /*! \
  * \brief vector構造体\
  */\
@@ -467,21 +463,21 @@ void Name##_swap(Name *self, Name *x)\
  */
 #define CSTL_VECTOR_IMPLEMENT(Name, Type)	\
 CSTL_VECTOR_IMPLEMENT_BASE(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_RESERVE(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_DATA(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_POP_BACK(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_SIZE(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_CAPACITY(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_EMPTY(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_CLEAR(Name, Type)\
-CSTL_VECTOR_IMPLEMENT_RESERVE(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_SHRINK(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_RESIZE(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_AT(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_FRONT(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_BACK(Name, Type)\
-CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)\
-CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)\
-CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_DATA(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT_N(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_INSERT_ARRAY(Name, Type)\

@@ -109,14 +109,14 @@ CSTL_RING_INTERFACE(Name##_Ring, Type)\
 CSTL_RING_IMPLEMENT_FOR_DEQUE(Name##_Ring, Type)\
 CSTL_VECTOR_INTERFACE(Name##_RingVector, Name##_Ring*)\
 CSTL_VECTOR_IMPLEMENT_BASE(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_RESERVE(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##_RingVector, Name##_Ring*)\
+CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##_RingVector, Name##_Ring*)\
 CSTL_VECTOR_IMPLEMENT_INSERT_N_NO_DATA(Name##_RingVector, Name##_Ring*)\
 CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name##_RingVector, Name##_Ring*)\
 CSTL_VECTOR_IMPLEMENT_POP_BACK(Name##_RingVector, Name##_Ring*)\
 CSTL_VECTOR_IMPLEMENT_BACK(Name##_RingVector, Name##_Ring*)\
-CSTL_VECTOR_IMPLEMENT_RESERVE(Name##_RingVector, Name##_Ring*)\
 CSTL_VECTOR_IMPLEMENT_RESIZE(Name##_RingVector, Name##_Ring*)\
-CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name##_RingVector, Name##_Ring*)\
-CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name##_RingVector, Name##_Ring*)\
 \
 /*! \
  * \brief deque構造体\
