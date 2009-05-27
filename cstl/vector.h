@@ -44,10 +44,10 @@
 #define CSTL_VECTOR_END_EXTERN_C()
 #endif
 
-#ifndef NDEBUG
-#define CSTL_VECTOR_MAGIC(x) x
-#else
+#ifdef NDEBUG
 #define CSTL_VECTOR_MAGIC(x)
+#else
+#define CSTL_VECTOR_MAGIC(x) x
 #endif
 
 #ifndef CSTL_ALGORITHM_INTERFACE

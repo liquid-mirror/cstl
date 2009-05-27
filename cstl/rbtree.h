@@ -38,10 +38,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#ifndef NDEBUG
-#define CSTL_RBTREE_MAGIC(x) x
-#else
+#ifdef NDEBUG
 #define CSTL_RBTREE_MAGIC(x)
+#else
+#define CSTL_RBTREE_MAGIC(x) x
 #endif
 
 /*! 

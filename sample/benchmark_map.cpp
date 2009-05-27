@@ -60,11 +60,11 @@ int main(void)
 		y[i] = COUNT - i;
 	}
 	printf("stl : at[%d]: %g ms\n", COUNT, get_msec() - t);
-	for (xpos = IntIntMap_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntIntMapIterator_next(xpos), ++ypos) {
-		if (ypos->first != *IntIntMapIterator_key(xpos)) {
+	for (xpos = IntIntMap_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntIntMap_next(xpos), ++ypos) {
+		if (ypos->first != *IntIntMap_key(xpos)) {
 			printf("!!!NG!!!\n");
 		}
-		if (ypos->second != *IntIntMapIterator_value(xpos)) {
+		if (ypos->second != *IntIntMap_value(xpos)) {
 			printf("!!!NG!!!\n");
 		}
 	}
@@ -100,11 +100,11 @@ int main(void)
 	if (y.size() != IntIntMap_size(x)) {
 		printf("!!!NG!!!\n");
 	}
-	for (xpos = IntIntMap_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntIntMapIterator_next(xpos), ++ypos) {
-		if (ypos->first != *IntIntMapIterator_key(xpos)) {
+	for (xpos = IntIntMap_begin(x), ypos = y.begin(); ypos != y.end(); xpos = IntIntMap_next(xpos), ++ypos) {
+		if (ypos->first != *IntIntMap_key(xpos)) {
 			printf("!!!NG!!!\n");
 		}
-		if (ypos->second != *IntIntMapIterator_value(xpos)) {
+		if (ypos->second != *IntIntMap_value(xpos)) {
 			printf("!!!NG!!!\n");
 		}
 	}

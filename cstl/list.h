@@ -44,11 +44,11 @@
 #define CSTL_LIST_END_EXTERN_C()
 #endif
 
-#ifndef NDEBUG
+#ifdef NDEBUG
+#define CSTL_LIST_MAGIC(x)
+#else
 #define CSTL_LIST_MAGIC(x) x
 #define CSTL_LIST_MAGIC_ELEM(Name) ((Name *) -1)
-#else
-#define CSTL_LIST_MAGIC(x)
 #endif
 
 
