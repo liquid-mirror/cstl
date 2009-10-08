@@ -34,10 +34,10 @@
 #define CSTL_ALGORITHM_H_INCLUDED
 
 
-#define CSTL_ALGORITHM_SWAP(i, j, tmp, DIRECT_ACCESS)	\
-	tmp = DIRECT_ACCESS(self, i);\
-	DIRECT_ACCESS(self, i) = DIRECT_ACCESS(self, j);\
-	DIRECT_ACCESS(self, j) = tmp;\
+#define CSTL_ALGORITHM_SWAP(i, j, tmp)	\
+	tmp = *i;\
+	*i = *j;\
+	*j = tmp;\
 
 #define CSTL_ALGORITHM_SWITCH_INSERTION_SORT	(9)
 
@@ -71,9 +71,11 @@ static void Name##_insertion_sort(Name *self, size_t idx, size_t n, int (*comp)(
 {\
 	register size_t i, j;\
 	Type tmp;\
+	Type *alias1;\
+	Type *alias2;\
 	for (i = 1; i < n; i++) {\
-		for (j = i; j > 0 && comp(&DIRECT_ACCESS(self, idx + j - 1), &DIRECT_ACCESS(self, idx + j)) > 0; j--) {\
-			CSTL_ALGORITHM_SWAP(idx + j, idx + j - 1, tmp, DIRECT_ACCESS);\
+		for (j = i; j > 0 && comp(alias1 = &DIRECT_ACCESS(self, idx + j - 1), alias2 = &DIRECT_ACCESS(self, idx + j)) > 0; j--) {\
+			CSTL_ALGORITHM_SWAP(alias2, alias1, tmp);\
 		}\
 	}\
 }\
@@ -102,23 +104,30 @@ void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, con
 		l = low[sp];\
 		r = high[sp];\
 		if (l < r) {\
+			Type *alias1;\
+			Type *alias2;\
+			Type *alias3;\
 			if (r - l < CSTL_ALGORITHM_SWITCH_INSERTION_SORT) {\
 				Name##_insertion_sort(self, l, r - l + 1, comp);\
 				continue;\
 			}\
 			/* med3 */\
 			middle = (l + r) / 2;\
-			if (comp(&DIRECT_ACCESS(self, l), &DIRECT_ACCESS(self, middle)) > 0) {\
-				CSTL_ALGORITHM_SWAP(l, middle, tmp, DIRECT_ACCESS);\
+			alias1 = &DIRECT_ACCESS(self, l);\
+			alias2 = &DIRECT_ACCESS(self, middle);\
+			alias3 = &DIRECT_ACCESS(self, r);\
+			if (comp(alias1, alias2) > 0) {\
+				CSTL_ALGORITHM_SWAP(alias1, alias2, tmp);\
 			}\
-			if (comp(&DIRECT_ACCESS(self, l), &DIRECT_ACCESS(self, r)) > 0) {\
-				CSTL_ALGORITHM_SWAP(l, r, tmp, DIRECT_ACCESS);\
+			if (comp(alias1, alias3) > 0) {\
+				CSTL_ALGORITHM_SWAP(alias1, alias3, tmp);\
 			}\
-			if (comp(&DIRECT_ACCESS(self, middle), &DIRECT_ACCESS(self, r)) > 0) {\
-				CSTL_ALGORITHM_SWAP(middle, r, tmp, DIRECT_ACCESS);\
+			if (comp(alias2, alias3) > 0) {\
+				CSTL_ALGORITHM_SWAP(alias2, alias3, tmp);\
 			}\
 			/* r - 1の要素をを枢軸にする */\
-			CSTL_ALGORITHM_SWAP(middle, r - 1, tmp, DIRECT_ACCESS);\
+			alias3 = &DIRECT_ACCESS(self, r - 1);\
+			CSTL_ALGORITHM_SWAP(alias2, alias3, tmp);\
 			/* partition */\
 			i = l;\
 			j = r - 1;\
@@ -132,9 +141,12 @@ void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, con
 				if (i >= j) {\
 					break;\
 				}\
-				CSTL_ALGORITHM_SWAP(i, j, tmp, DIRECT_ACCESS);\
+				alias1 = &DIRECT_ACCESS(self, i);\
+				alias2 = &DIRECT_ACCESS(self, j);\
+				CSTL_ALGORITHM_SWAP(alias1, alias2, tmp);\
 			}\
-			CSTL_ALGORITHM_SWAP(i, r - 1, tmp, DIRECT_ACCESS);\
+			alias1 = &DIRECT_ACCESS(self, i);\
+			CSTL_ALGORITHM_SWAP(alias1, alias3, tmp);\
 			/* stack push */\
 			if (i - l < r - i) {\
 				low[sp] = i + 1;\
@@ -182,7 +194,9 @@ static size_t Name##_rotate_aux(Name *self, size_t first, size_t middle, size_t 
 		return last;\
 	} else if (k == l) {\
 		for (i = 0; i < k; i++) {\
-			CSTL_ALGORITHM_SWAP(first + i, middle + i, tmp, DIRECT_ACCESS);\
+			Type *alias1 = &DIRECT_ACCESS(self, first + i);\
+			Type *alias2 = &DIRECT_ACCESS(self, middle + i);\
+			CSTL_ALGORITHM_SWAP(alias1, alias2, tmp);\
 		}\
 		return result;\
 	}\
@@ -231,8 +245,12 @@ static void Name##_merge_without_buffer(Name *self, size_t first, size_t middle,
 		return;\
 	}\
 	if (len1 + len2 == 2) {\
-		if (comp(&DIRECT_ACCESS(self, first), &DIRECT_ACCESS(self, middle)) > 0) {\
-			CSTL_ALGORITHM_SWAP(first, middle, tmp, DIRECT_ACCESS);\
+		Type *alias1;\
+		Type *alias2;\
+		alias1 = &DIRECT_ACCESS(self, first);\
+		alias2 = &DIRECT_ACCESS(self, middle);\
+		if (comp(alias1, alias2) > 0) {\
+			CSTL_ALGORITHM_SWAP(alias1, alias2, tmp);\
 		}\
 		return;\
 	}\
@@ -396,7 +414,9 @@ void Name##_reverse(Name *self, size_t idx, size_t n)\
 	first = idx;\
 	last = idx + n - 1;\
 	while (first < last) {\
-		CSTL_ALGORITHM_SWAP(first, last, tmp, DIRECT_ACCESS);\
+		Type *alias1 = &DIRECT_ACCESS(self, first);\
+		Type *alias2 = &DIRECT_ACCESS(self, last);\
+		CSTL_ALGORITHM_SWAP(alias1, alias2, tmp);\
 		first++;\
 		last--;\
 	}\
@@ -437,11 +457,13 @@ int Name##_merge(Name *self, size_t idx, \
 	}\
 	i = j = k = 0;\
 	while (i < xn && j < yn) {\
-		if (comp(&DIRECT_ACCESS(x, xidx + i), &DIRECT_ACCESS(y, yidx + j)) <= 0) {\
-			DIRECT_ACCESS(self, idx + k) = DIRECT_ACCESS(x, xidx + i);\
+		Type *alias1;\
+		Type *alias2;\
+		if (comp(alias1 = &DIRECT_ACCESS(x, xidx + i), alias2 = &DIRECT_ACCESS(y, yidx + j)) <= 0) {\
+			DIRECT_ACCESS(self, idx + k) = *alias1;\
 			i++;\
 		} else {\
-			DIRECT_ACCESS(self, idx + k) = DIRECT_ACCESS(y, yidx + j);\
+			DIRECT_ACCESS(self, idx + k) = *alias2;\
 			j++;\
 		}\
 		k++;\
@@ -488,10 +510,11 @@ static void Name##_up_heap(Name *self, size_t top_idx, size_t hi_idx, int (*comp
 	/* hi_の付く変数は1から始まるヒープのインデックスを示す */\
 	register size_t hi_i;\
 	Type tmp;\
+	Type *alias;\
 	hi_i = hi_idx;\
 	tmp = DIRECT_ACCESS(self, hi_i + top_idx - 1);\
-	while (hi_i > 1 && comp(&DIRECT_ACCESS(self, hi_i / 2 + top_idx - 1), &tmp) < 0) {\
-		DIRECT_ACCESS(self, hi_i + top_idx - 1) = DIRECT_ACCESS(self, hi_i / 2 + top_idx - 1);\
+	while (hi_i > 1 && comp(alias = &DIRECT_ACCESS(self, hi_i / 2 + top_idx - 1), &tmp) < 0) {\
+		DIRECT_ACCESS(self, hi_i + top_idx - 1) = *alias;\
 		hi_i = hi_i / 2;\
 	}\
 	DIRECT_ACCESS(self, hi_i + top_idx - 1) = tmp;\
@@ -502,6 +525,7 @@ static void Name##_down_heap(Name *self, size_t top_idx, size_t hi_from, size_t 
 	/* hi_の付く変数は1から始まるヒープのインデックスを示す */\
 	register size_t hi_i, hi_j;\
 	Type tmp;\
+	Type *alias;\
 	hi_j = hi_from;\
 	tmp = DIRECT_ACCESS(self, hi_j + top_idx - 1);\
 	while (2 * hi_j <= hi_to) {\
@@ -510,8 +534,8 @@ static void Name##_down_heap(Name *self, size_t top_idx, size_t hi_from, size_t 
 			/* 右の子が存在し、左より右の子が大きい */\
 			hi_i++;\
 		}\
-		if (comp(&tmp, &DIRECT_ACCESS(self, hi_i + top_idx - 1)) < 0) {\
-			DIRECT_ACCESS(self, hi_j + top_idx - 1) = DIRECT_ACCESS(self, hi_i + top_idx - 1);\
+		if (comp(&tmp, alias = &DIRECT_ACCESS(self, hi_i + top_idx - 1)) < 0) {\
+			DIRECT_ACCESS(self, hi_j + top_idx - 1) = *alias;\
 			hi_j = hi_i;\
 		} else {\
 			break;\
@@ -534,6 +558,8 @@ void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *
 void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
 {\
 	Type tmp;\
+	Type *alias1;\
+	Type *alias2;\
 	assert(self && "pop_heap");\
 	assert(self->magic == self && "pop_heap");\
 	assert(Name##_size(self) >= idx + n && "pop_heap");\
@@ -541,7 +567,9 @@ void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *,
 	assert(Name##_size(self) > idx && "pop_heap");\
 	assert(comp && "pop_heap");\
 	assert(n > 0 && "pop_heap");\
-	CSTL_ALGORITHM_SWAP(idx, idx + n - 1, tmp, DIRECT_ACCESS);\
+	alias1 = &DIRECT_ACCESS(self, idx);\
+	alias2 = &DIRECT_ACCESS(self, idx + n - 1);\
+	CSTL_ALGORITHM_SWAP(alias1, alias2, tmp);\
 	Name##_down_heap(self, idx, 1, n - 1, comp);\
 }\
 \
@@ -570,7 +598,9 @@ void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *
 	assert(Name##_size(self) > idx && "sort_heap");\
 	assert(comp && "sort_heap");\
 	for (i = n; i > 1; i--) {\
-		CSTL_ALGORITHM_SWAP(idx, idx + i - 1, tmp, DIRECT_ACCESS);\
+		Type *alias1 = &DIRECT_ACCESS(self, idx);\
+		Type *alias2 = &DIRECT_ACCESS(self, idx + i - 1);\
+		CSTL_ALGORITHM_SWAP(alias1, alias2, tmp);\
 		Name##_down_heap(self, idx, 1, i - 1, comp);\
 	}\
 }\
@@ -589,8 +619,12 @@ void Name##_partial_sort(Name *self, size_t idx, size_t sort_n, size_t n, int (*
 	Name##_make_heap(self, idx, sort_n, comp);\
 	for (i = idx + sort_n; i < idx + n; i++) {\
 		if (comp(&DIRECT_ACCESS(self, idx), &DIRECT_ACCESS(self, i)) > 0) {\
+			Type *alias1;\
+			Type *alias2;\
 			Name##_pop_heap(self, idx, sort_n, comp);\
-			CSTL_ALGORITHM_SWAP(idx + sort_n - 1, i, tmp, DIRECT_ACCESS);\
+			alias1 = &DIRECT_ACCESS(self, idx + sort_n - 1);\
+			alias2 = &DIRECT_ACCESS(self, i);\
+			CSTL_ALGORITHM_SWAP(alias1, alias2, tmp);\
 			Name##_push_heap(self, idx, sort_n, comp);\
 		}\
 	}\
