@@ -734,6 +734,7 @@ size_t Name##_count(Name *self, KeyType key);\
 Name##Iterator Name##_find(Name *self, KeyType key);\
 Name##Iterator Name##_lower_bound(Name *self, KeyType key);\
 Name##Iterator Name##_upper_bound(Name *self, KeyType key);\
+void Name##_equal_range(Name *self, KeyType key, Name##Iterator *first, Name##Iterator *last);\
 Name##Iterator Name##_begin(Name *self);\
 Name##Iterator Name##_end(Name *self);\
 Name##Iterator Name##_rbegin(Name *self);\
@@ -877,6 +878,16 @@ Name##Iterator Name##_upper_bound(Name *self, KeyType key)\
 	assert(self && "(Set|Map)_upper_bound");\
 	assert(self->magic == self && "(Set|Map)_upper_bound");\
 	return Name##RBTree_upper_bound(self->tree, key);\
+}\
+\
+void Name##_equal_range(Name *self, KeyType key, Name##Iterator *first, Name##Iterator *last)\
+{\
+	assert(self && "(Set|Map)_equal_range");\
+	assert(self->magic == self && "(Set|Map)_equal_range");\
+	assert(first && "(Set|Map)_equal_range");\
+	assert(last && "(Set|Map)_equal_range");\
+	*first = Name##RBTree_lower_bound(self->tree, key);\
+	*last = Name##RBTree_upper_bound(self->tree, key);\
 }\
 \
 Name##Iterator Name##_begin(Name *self)\
