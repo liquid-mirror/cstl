@@ -89,6 +89,32 @@ else
 endif
 	./$@.exe
 
+unordered_set: ../cstl/unordered_set.h ../cstl/hashtable.h unordered_set_test.c Pool.o hashtable_debug.h
+ifneq ($(CSTLGEN),)
+	sh cstlgen.sh unordered_set IntUSet "int" IntUSet_hash_int CSTL_EQUAL_TO false '%d' . $(POOL)
+	sh cstlgen.sh unordered_multiset IntUMSet "int" IntUMSet_hash_int CSTL_EQUAL_TO false '%d' . $(POOL)
+	sh cstlgen.sh unordered_set StrUSet "const char*" StrUSet_hash_string strcmp false '%s' . $(POOL)
+	sh cstlgen.sh unordered_set UIntUSet "unsigned int" UIntUSet_hash_uint CSTL_EQUAL_TO false '%d' . $(POOL)
+	sh cstlgen.sh unordered_set HogeUSet "Hoge" HOGE_HASH HOGE_COMP hoge.h '%d' . $(POOL)
+	sh cstlgen.sh unordered_set HogepUSet "Hoge*" HOGEP_HASH HOGEP_COMP hoge.h '%p' . $(POOL)
+	$(CC) $(CFLAGS) -o $@.exe unordered_set_test.c Pool.o IntUSet.c IntUMSet.c StrUSet.c UIntUSet.c $(CSTLGEN)
+else
+	$(CC) $(CFLAGS) -o $@.exe unordered_set_test.c Pool.o
+endif
+	./$@.exe
+
+unordered_map: ../cstl/unordered_map.h ../cstl/hashtable.h unordered_map_test.c Pool.o hashtable_debug.h
+ifneq ($(CSTLGEN),)
+	sh cstlgen.sh unordered_map IntIntUMap "int" "int" IntIntUMap_hash_int CSTL_EQUAL_TO false '%d' '%d' . $(POOL)
+	sh cstlgen.sh unordered_map HogeIntUMap "Hoge" "int" HOGE_HASH HOGE_COMP hoge.h '%d' '%d' . $(POOL)
+	sh cstlgen.sh unordered_map HogepIntUMap "Hoge*" "int" HOGEP_HASH HOGEP_COMP hoge.h '%p' '%d' . $(POOL)
+	sh cstlgen.sh unordered_multimap IntIntUMMap "int" "int" IntIntUMMap_hash_int CSTL_EQUAL_TO false '%d' '%d' . $(POOL)
+	$(CC) $(CFLAGS) -o $@.exe unordered_map_test.c Pool.o IntIntUMap.c IntIntUMMap.c $(CSTLGEN)
+else
+	$(CC) $(CFLAGS) -o $@.exe unordered_map_test.c Pool.o
+endif
+	./$@.exe
+
 string: ../cstl/string.h ../cstl/vector.h string_test.cpp Pool.o
 ifneq ($(CSTLGEN),)
 	sh cstlgen.sh string String "char" true false false . $(POOL)
@@ -110,4 +136,4 @@ endif
 	./$@.exe
 
 
-test: vector ring deque list set map string algo
+test: vector ring deque list set map unordered_set unordered_map string algo

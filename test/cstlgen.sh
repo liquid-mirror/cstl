@@ -4,6 +4,8 @@ usage()
 	echo "Usage: cstlgen.sh {vector | deque | list | string} name type [algo] [include] [debug] [path]"
 	echo "   or: cstlgen.sh {set | multiset} name type comp [include] [debug1] [path]"
 	echo "   or: cstlgen.sh {map | multimap} name keytype valuetype comp [include] [debug1] [debug2] [path]"
+	echo "   or: cstlgen.sh {unordered_set | unordered_multiset} name type hash comp [include] [debug1] [path]"
+	echo "   or: cstlgen.sh {unordered_map | unordered_multimap} name keytype valuetype hash comp [include] [debug1] [debug2] [path]"
 }
 
 container=$1
@@ -124,6 +126,70 @@ case $container in
 	shift
 	nocompile=$9
 	;;
+"unordered_set")
+	lower="unordered_set"
+	upper="UNORDERED_SET"
+	name=$2
+	type=$3
+	hash=$4
+	comp=$5
+	include_file=$6
+	debug1=$7
+	path=$8
+	alloc=$9
+	shift
+	nocompile=$9
+	;;
+"unordered_multiset")
+	lower="unordered_set"
+	upper="UNORDERED_MULTISET"
+	name=$2
+	type=$3
+	hash=$4
+	comp=$5
+	include_file=$6
+	debug1=$7
+	path=$8
+	alloc=$9
+	shift
+	nocompile=$9
+	;;
+"unordered_map")
+	lower="unordered_map"
+	upper="UNORDERED_MAP"
+	name=$2
+	type=$3
+	value=$4
+	hash=$5
+	comp=$6
+	include_file=$7
+	debug1=$8
+	debug2=$9
+	shift
+	path=$9
+	shift
+	alloc=$9
+	shift
+	nocompile=$9
+	;;
+"unordered_multimap")
+	lower="unordered_map"
+	upper="UNORDERED_MULTIMAP"
+	name=$2
+	type=$3
+	value=$4
+	hash=$5
+	comp=$6
+	include_file=$7
+	debug1=$8
+	debug2=$9
+	shift
+	path=$9
+	shift
+	alloc=$9
+	shift
+	nocompile=$9
+	;;
 *)
 	usage
 	exit
@@ -157,6 +223,7 @@ if [ "$debug" != "" ]; then
 fi
 if [ "$debug1" != "" ]; then
 	rbtree_debug="#include \"./rbtree_debug.h\""
+	hashtable_debug="#include \"./hashtable_debug.h\""
 fi
 
 hdr="\
@@ -164,17 +231,19 @@ hdr="\
 ${list_debug}
 ${deque_debug}
 ${rbtree_debug}
+${hashtable_debug}
 #undef CSTL_VECTOR_MAGIC
 #undef CSTL_RING_MAGIC
 #undef CSTL_DEQUE_MAGIC
 #undef CSTL_LIST_MAGIC
 #undef CSTL_STRING_MAGIC
+#undef CSTL_HASHTABLE_MAGIC
 "
 if [ "$algo" != "false" ]; then
 	hdr=${hdr}"#include \"../cstl/algorithm.h\"
 	"
 fi
-if [ $container = "map" -o $container = "multimap" ]; then
+if [ $container = "map" -o $container = "multimap" -o $container = "unordered_map" -o $container = "unordered_multimap" ]; then
 	hdr=${hdr}"CSTL_${upper}_INTERFACE($name, $type, $value)"
 else
 	hdr=${hdr}"CSTL_${upper}_INTERFACE($name, $type)"
@@ -182,8 +251,13 @@ fi
 if [ "$debug1" != "" ]; then
 	format=`echo "$debug1" | grep '%[#+-]*[0-9]*[dioxXucsfeEgGp]'`
 	if [ "$debug1" = "$format" ]; then
-		rbdebug=`echo "$lower" | tr "[:lower:]" "[:upper:]"`
-		hdr=${hdr}"CSTL_${rbdebug}_DEBUG_INTERFACE($name)"
+		if [ $container = "set" -o $container = "multiset" -o $container = "map" -o $container = "multimap" ]; then
+			rbdebug=`echo "$lower" | tr "[:lower:]" "[:upper:]"`
+			hdr=${hdr}"CSTL_${rbdebug}_DEBUG_INTERFACE($name)"
+		else
+			hashdebug=`echo "$lower" | tr "[:lower:]" "[:upper:]"`
+			hdr=${hdr}"CSTL_${hashdebug}_DEBUG_INTERFACE($name)"
+		fi
 	fi
 fi
 if [ "$debug" != "" ]; then
@@ -198,11 +272,12 @@ src="\
 ${list_debug}
 ${deque_debug}
 ${rbtree_debug}
+${hashtable_debug}
 #undef assert
 "
 
 tmp=`grep -h '#define CSTL_' ../cstl/*.h | \
-	grep -v 'CSTL_.*\(INCLUDED\|EXTERN_C\|INTERFACE\|IMPLEMENT.*\|LESS\|GREATER\)' | \
+	grep -v 'CSTL_.*\(INCLUDED\|EXTERN_C\|INTERFACE\|IMPLEMENT.*\|LESS\|GREATER\|EQUAL_TO\)' | \
 	sort | sed -e "s/#define \(CSTL_[^ \t(]*\).*/\1/" | uniq`
 for i in ${tmp}; do
 	src=${src}"#undef ${i}
@@ -217,6 +292,10 @@ if [ $container = "set" -o $container = "multiset" ]; then
 	src=${src}"CSTL_${upper}_IMPLEMENT($name, $type, $comp)"
 elif [ $container = "map" -o $container = "multimap" ]; then
 	src=${src}"CSTL_${upper}_IMPLEMENT($name, $type, $value, $comp)"
+elif [ $container = "unordered_set" -o $container = "unordered_multiset" ]; then
+	src=${src}"CSTL_${upper}_IMPLEMENT($name, $type, $hash, $comp)"
+elif [ $container = "unordered_map" -o $container = "unordered_multimap" ]; then
+	src=${src}"CSTL_${upper}_IMPLEMENT($name, $type, $value, $hash, $comp)"
 else
 	src=${src}"CSTL_${upper}_IMPLEMENT($name, $type)"
 fi
@@ -226,6 +305,14 @@ if [ "$rbdebug" != "" ]; then
 		src=${src}"CSTL_${rbdebug}_DEBUG_IMPLEMENT($name, $type, $value, $comp, $debug1, $debug2, 1)"
 	else
 		src=${src}"CSTL_${rbdebug}_DEBUG_IMPLEMENT($name, $type, $comp, $debug1, 1)"
+	fi
+fi
+if [ "$hashdebug" != "" ]; then
+	format=`echo "$debug2" | grep '%[#+-]*[0-9]*[dioxXucsfeEgGp]'`
+	if [ "$debug2" != "" -a "$debug2" = "$format" ]; then
+		src=${src}"CSTL_${hashdebug}_DEBUG_IMPLEMENT($name, $type, $value, $hash, $comp, $debug1, $debug2)"
+	else
+		src=${src}"CSTL_${hashdebug}_DEBUG_IMPLEMENT($name, $type, $hash, $comp, $debug1)"
 	fi
 fi
 if [ "$debug" != "" ]; then
@@ -240,8 +327,10 @@ vectorrev=`grep '$Id' "../cstl/vector.h" | sed -e "s/\r//"`
 ringrev=`grep '$Id' "../cstl/ring.h" | sed -e "s/\r//"`
 algorev=`grep '$Id' "../cstl/algorithm.h" | sed -e "s/\r//"`
 rbtreerev=`grep '$Id' "../cstl/rbtree.h" | sed -e "s/\r//"`
+hashtablerev=`grep '$Id' "../cstl/hashtable.h" | sed -e "s/\r//"`
 if [ "$debug1" != "" ]; then
 	rbdebugrev=`grep '$Id' "./rbtree_debug.h" | sed -e "s/\r//"`
+	hashdebugrev=`grep '$Id' "./hashtable_debug.h" | sed -e "s/\r//"`
 fi
 
 # ヘッダファイル生成
@@ -270,6 +359,12 @@ elif [ $lower = "set" -o $lower = "multiset" -o\
 	echo "${rbtreerev}" >> "$path"".h"
 	if [ "$rbdebug" != "" ]; then
 		echo "${rbdebugrev}" >> "$path"".h"
+	fi
+elif [ $lower = "unordered_set" -o $lower = "unordered_multiset" -o\
+	   $lower = "unordered_map" -o $lower = "unordered_multimap" ]; then
+	echo "${hashtablerev}" >> "$path"".h"
+	if [ "$hashdebug" != "" ]; then
+		echo "${hashdebugrev}" >> "$path"".h"
 	fi
 fi
 echo " */" >> "$path"".h"
@@ -345,14 +440,23 @@ elif [ $lower = "set" -o $lower = "multiset" -o\
 	if [ "$rbdebug" != "" ]; then
 		echo "${rbdebugrev}" >> "$path"".c"
 	fi
+elif [ $lower = "unordered_set" -o $lower = "unordered_multiset" -o\
+	   $lower = "unordered_map" -o $lower = "unordered_multimap" ]; then
+	echo "${hashtablerev}" >> "$path"".c"
+	if [ "$hashdebug" != "" ]; then
+		echo "${hashdebugrev}" >> "$path"".c"
+	fi
 fi
 echo " */" >> "$path"".c"
 echo "#include <stdlib.h>" >> "$path"".c"
 if [ "$comp" = "strcmp" ]; then
 	echo "#include <string.h>" >> "$path"".c"
 fi
-if [ "$rbdebug" != "" -o "$debug" != "" ]; then
+if [ "$rbdebug" != "" -o "$hashdebug" != "" -o "$debug" != "" ]; then
 	echo "#include <stdio.h>" >> "$path"".c"
+	if [ "$hashdebug" != "" ]; then
+		echo "#include <math.h>" >> "$path"".c"
+	fi
 fi
 echo "#include <assert.h>" >> "$path"".c"
 echo "#include \"$name.h\"
@@ -396,6 +500,17 @@ echo "\
 #define CSTL_RBTREE_MAGIC(x)
 #else
 #define CSTL_RBTREE_MAGIC(x) x
+#endif
+" >> "$path"".c"
+elif [ $lower = "unordered_set" -o $lower = "unordered_multiset" -o\
+	   $lower = "unordered_map" -o $lower = "unordered_multimap" ]; then
+echo "\
+#ifdef NDEBUG
+#define CSTL_HASHTABLE_MAGIC(x)
+#define CSTL_VECTOR_MAGIC(x)
+#else
+#define CSTL_HASHTABLE_MAGIC(x) x
+#define CSTL_VECTOR_MAGIC(x) x
 #endif
 " >> "$path"".c"
 else
@@ -449,6 +564,9 @@ enum {
 };
 " >> "$path"".c"
 	grep '#define CSTL_RBTREE_.*node' "../cstl/rbtree.h" | sed -e "s/\r//" >> "$path"".c"
+elif [ $lower = "unordered_set" -o $lower = "unordered_multiset" -o\
+	   $lower = "unordered_map" -o $lower = "unordered_multimap" ]; then
+	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
 fi
 echo "" >> "$path"".c"
 echo "$src" | cpp -CC -I.. | grep "$name" \
@@ -470,5 +588,7 @@ echo "$src" | cpp -CC -I.. | grep "$name" \
 if [ "$nocompile" = "" ]; then
 	gcc -Wall -ansi -pedantic-errors "$path"".c" -c -DNDEBUG
 	gcc -Wall -ansi -pedantic-errors "$path"".c" -c
+	g++ -Wall -ansi -pedantic-errors "$path"".c" -c -DNDEBUG
+	g++ -Wall -ansi -pedantic-errors "$path"".c" -c
 	rm "$path"".o"
 fi
