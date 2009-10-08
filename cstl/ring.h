@@ -57,7 +57,7 @@
 #define CSTL_RING_PREV_IDX(self, idx)			CSTL_RING_RETREAT_IDX((self), (idx), 1)
 #define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->max_size - (first) + (last))
 #define CSTL_RING_AT(self, idx)					(self)->buf[CSTL_RING_ADVANCE_IDX((self), (self)->begin, (idx))]
-#define CSTL_RING_EMPTY(self)					((self)->begin == (self)->end && (self)->size != CSTL_RING_MAX_SIZE((self)))
+#define CSTL_RING_EMPTY(self)					((self)->size == 0)
 #define CSTL_RING_MAX_SIZE(self)				(self)->max_size
 #define CSTL_RING_FULL(self)					((self)->size == CSTL_RING_MAX_SIZE((self)))
 #define CSTL_RING_SIZE(self)					(self)->size
