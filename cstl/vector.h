@@ -222,6 +222,10 @@ int Name##_reserve(Name *self, size_t n)\
 	assert(self && "Vector_reserve");\
 	assert(self->magic == self && "Vector_reserve");\
 	if (n <= CSTL_VECTOR_CAPACITY(self)) return 1;\
+	if (n > ((size_t) -1) / sizeof(Type)) {\
+		/* sizeof(Type)*n がオーバーフローする */\
+		return 0;\
+	}\
 	newbuf = (Type *) realloc(self->buf, sizeof(Type) * n);\
 	if (!newbuf) return 0;\
 	self->buf = newbuf;\
