@@ -59,12 +59,12 @@ struct Name##Node {\
 	CSTL_HASHTABLE_MAGIC(struct Name##Node_Vector *magic;)\
 };\
 \
-static Name##Node *Name##Node_new(Type const *data)\
+static Name##Node *Name##Node_new(Type data)\
 {\
 	Name##Node *node;\
 	node = (Name##Node *) malloc(sizeof(Name##Node));\
 	if (!node) return 0;\
-	node->key = *data;\
+	node->key = data;\
 	node->next = 0;\
 	return node;\
 }\
@@ -122,7 +122,7 @@ Name##Iterator Name##_insert(Name *self, Type data, int *success)\
 		if (success) *success = 0;\
 		return pos;\
 	}\
-	node = Name##Node_new(&data);\
+	node = Name##Node_new(data);\
 	if (!node) {\
 		if (success) *success = 0;\
 		return node;\
@@ -159,7 +159,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
 		if (Name##_find(self, pos->key) == Name##_end(self)) {\
 			Name##Node *node;\
-			node = Name##Node_new(&pos->key);\
+			node = Name##Node_new(pos->key);\
 			if (!node) {\
 				Name##Node_clear(list);\
 				return 0;\
@@ -232,7 +232,7 @@ Name##Iterator Name##_insert(Name *self, Type data)\
 	assert(self->magic == self && "UnorderedMultiSet_insert");\
 	hash_val = Hasher(data);\
 	idx = hash_val % Name##_bucket_count(self);\
-	node = Name##Node_new(&data);\
+	node = Name##Node_new(data);\
 	if (!node) {\
 		return node;\
 	}\
@@ -279,7 +279,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	assert(last->magic && "UnorderedMultiSet_insert_range");\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
 		Name##Node *node;\
-		node = Name##Node_new(&pos->key);\
+		node = Name##Node_new(pos->key);\
 		if (!node) {\
 			Name##Node_clear(list);\
 			return 0;\
