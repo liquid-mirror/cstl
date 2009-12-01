@@ -78,6 +78,8 @@ Name *Name##_new(void);\
 void Name##_delete(Name *self);\
 int Name##_push_back(Name *self, Type data);\
 int Name##_push_front(Name *self, Type data);\
+int Name##_push_back_ref(Name *self, Type const *data);\
+int Name##_push_front_ref(Name *self, Type const *data);\
 void Name##_pop_front(Name *self);\
 void Name##_pop_back(Name *self);\
 size_t Name##_size(Name *self);\
@@ -87,7 +89,9 @@ Type *Name##_at(Name *self, size_t idx);\
 Type *Name##_front(Name *self);\
 Type *Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type data);\
+int Name##_insert_ref(Name *self, size_t idx, Type const *data);\
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type data);\
+int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data);\
 int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n);\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
@@ -369,35 +373,51 @@ int Name##_push_back(Name *self, Type data)\
 {\
 	assert(self && "Deque_push_back");\
 	assert(self->magic == self && "Deque_push_back");\
-	if (CSTL_RING_FULL(CSTL_VECTOR_AT(self->map, self->end - 1))) {\
-		if (!Name##_expand_end_side(self, 1)) {\
-			return 0;\
-		}\
-		Name##_Ring_push_back_no_data(CSTL_VECTOR_AT(self->map, self->end));\
-		CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end)) = data;\
-		self->end++;\
-	} else {\
-		Name##_Ring_push_back_no_data(CSTL_VECTOR_AT(self->map, self->end - 1));\
-		CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end - 1)) = data;\
-	}\
-	self->size++;\
-	return 1;\
+	return Name##_push_back_ref(self, &data);\
 }\
 \
 int Name##_push_front(Name *self, Type data)\
 {\
 	assert(self && "Deque_push_front");\
 	assert(self->magic == self && "Deque_push_front");\
+	return Name##_push_front_ref(self, &data);\
+}\
+\
+int Name##_push_back_ref(Name *self, Type const *data)\
+{\
+	assert(self && "Deque_push_back_ref");\
+	assert(self->magic == self && "Deque_push_back_ref");\
+	assert(data && "Deque_push_back_ref");\
+	if (CSTL_RING_FULL(CSTL_VECTOR_AT(self->map, self->end - 1))) {\
+		if (!Name##_expand_end_side(self, 1)) {\
+			return 0;\
+		}\
+		Name##_Ring_push_back_no_data(CSTL_VECTOR_AT(self->map, self->end));\
+		CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end)) = *data;\
+		self->end++;\
+	} else {\
+		Name##_Ring_push_back_no_data(CSTL_VECTOR_AT(self->map, self->end - 1));\
+		CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end - 1)) = *data;\
+	}\
+	self->size++;\
+	return 1;\
+}\
+\
+int Name##_push_front_ref(Name *self, Type const *data)\
+{\
+	assert(self && "Deque_push_back_ref");\
+	assert(self->magic == self && "Deque_push_back_ref");\
+	assert(data && "Deque_push_back_ref");\
 	if (CSTL_RING_FULL(CSTL_VECTOR_AT(self->map, self->begin))) {\
 		if (!Name##_expand_begin_side(self, 1)) {\
 			return 0;\
 		}\
 		Name##_Ring_push_front_no_data(CSTL_VECTOR_AT(self->map, self->begin - 1));\
-		CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin - 1)) = data;\
+		CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin - 1)) = *data;\
 		self->begin--;\
 	} else {\
 		Name##_Ring_push_front_no_data(CSTL_VECTOR_AT(self->map, self->begin));\
-		CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin)) = data;\
+		CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin)) = *data;\
 	}\
 	self->size++;\
 	return 1;\
@@ -495,6 +515,15 @@ int Name##_insert(Name *self, size_t idx, Type data)\
 	return Name##_insert_array(self, idx, &data, 1);\
 }\
 \
+int Name##_insert_ref(Name *self, size_t idx, Type const *data)\
+{\
+	assert(self && "Deque_insert_ref");\
+	assert(self->magic == self && "Deque_insert_ref");\
+	assert(Name##_size(self) >= idx && "Deque_insert_ref");\
+	assert(data && "Deque_insert_ref");\
+	return Name##_insert_array(self, idx, data, 1);\
+}\
+\
 static int Name##_insert_n_no_data(Name *self, size_t idx, size_t n)\
 {\
 	size_t size = CSTL_DEQUE_SIZE(self);\
@@ -518,15 +547,24 @@ static int Name##_insert_n_no_data(Name *self, size_t idx, size_t n)\
 \
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type data)\
 {\
-	register size_t i;\
 	assert(self && "Deque_insert_n");\
 	assert(self->magic == self && "Deque_insert_n");\
 	assert(Name##_size(self) >= idx && "Deque_insert_n");\
+	return Name##_insert_n_ref(self, idx, n, &data);\
+}\
+\
+int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data)\
+{\
+	register size_t i;\
+	assert(self && "Deque_insert_n_ref");\
+	assert(self->magic == self && "Deque_insert_n_ref");\
+	assert(Name##_size(self) >= idx && "Deque_insert_n_ref");\
+	assert(data && "Deque_insert_n_ref");\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
 	for (i = 0; i < n; i++) {\
-		*Name##_at(self, idx + i) = data;\
+		*Name##_at(self, idx + i) = *data;\
 	}\
 	return 1;\
 }\

@@ -60,12 +60,12 @@ struct Name##Node {\
 	CSTL_HASHTABLE_MAGIC(struct Name##Node_Vector *magic;)\
 };\
 \
-static Name##Node *Name##Node_new(KeyType const *key, ValueType const *value)\
+static Name##Node *Name##Node_new(KeyType key, ValueType const *value)\
 {\
 	Name##Node *node;\
 	node = (Name##Node *) malloc(sizeof(Name##Node));\
 	if (!node) return 0;\
-	node->key = *key;\
+	node->key = key;\
 	node->value = *value;\
 	node->next = 0;\
 	return node;\
@@ -102,6 +102,7 @@ ValueType *Name##_value(Name##Iterator pos)\
 CSTL_UNORDERED_MAP_BEGIN_EXTERN_C()\
 CSTL_HASHTABLE_INTERFACE(Name, KeyType, ValueType)\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success);\
+Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value, int *success);\
 KeyType const *Name##_key(Name##Iterator pos);\
 ValueType *Name##_value(Name##Iterator pos);\
 ValueType *Name##_at(Name *self, KeyType key);\
@@ -122,13 +123,21 @@ CSTL_HASHTABLE_IMPLEMENT_REHASH(Name, KeyType, ValueType, Hasher, Compare)\
 \
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success)\
 {\
+	assert(self && "UnorderedMap_insert");\
+	assert(self->magic == self && "UnorderedMap_insert");\
+	return Name##_insert_ref(self, key, &value, success);\
+}\
+\
+Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value, int *success)\
+{\
 	Name##Node **alias;\
 	Name##Node *node;\
 	Name##Node *pos;\
 	size_t hash_val;\
 	size_t idx;\
-	assert(self && "UnorderedMap_insert");\
-	assert(self->magic == self && "UnorderedMap_insert");\
+	assert(self && "UnorderedMap_insert_ref");\
+	assert(self->magic == self && "UnorderedMap_insert_ref");\
+	assert(value && "UnorderedMap_insert_ref");\
 	hash_val = Hasher(key);\
 	idx = hash_val % Name##_bucket_count(self);\
 	pos = Name##_find_node(self, key, idx);\
@@ -136,7 +145,7 @@ Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *succ
 		if (success) *success = 0;\
 		return pos;\
 	}\
-	node = Name##Node_new(&key, &value);\
+	node = Name##Node_new(key, value);\
 	if (!node) {\
 		if (success) *success = 0;\
 		return node;\
@@ -173,7 +182,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
 		if (Name##_find(self, pos->key) == Name##_end(self)) {\
 			Name##Node *node;\
-			node = Name##Node_new(&pos->key, &pos->value);\
+			node = Name##Node_new(pos->key, &pos->value);\
 			if (!node) {\
 				Name##Node_clear(list);\
 				return 0;\
@@ -219,7 +228,7 @@ ValueType *Name##_at(Name *self, KeyType key)\
 	pos = Name##_find_node(self, key, idx);\
 	if (pos == Name##_end(self)) {\
 		/* 新しい要素の値にはend_nodeの値を使用 */\
-		pos = Name##Node_new(&key, &self->end_node.value);\
+		pos = Name##Node_new(key, &self->end_node.value);\
 		if (pos) {\
 			Name##Node **alias;\
 			/* rehash */\
@@ -259,6 +268,7 @@ ValueType *Name##_at(Name *self, KeyType key)\
 CSTL_UNORDERED_MAP_BEGIN_EXTERN_C()\
 CSTL_HASHTABLE_INTERFACE(Name, KeyType, ValueType)\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value);\
+Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value);\
 KeyType const *Name##_key(Name##Iterator pos);\
 ValueType *Name##_value(Name##Iterator pos);\
 CSTL_UNORDERED_MAP_END_EXTERN_C()\
@@ -278,17 +288,25 @@ CSTL_HASHTABLE_IMPLEMENT_REHASH_MULTI(Name, KeyType, ValueType, Hasher, Compare)
 \
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 {\
+	assert(self && "UnorderedMultiMap_insert");\
+	assert(self->magic == self && "UnorderedMultiMap_insert");\
+	return Name##_insert_ref(self, key, &value);\
+}\
+\
+Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value)\
+{\
 	Name##Node **alias;\
 	Name##Node *node;\
 	register Name##Node *pos;\
 	register Name##Node *prev;\
 	size_t hash_val;\
 	size_t idx;\
-	assert(self && "UnorderedMultiMap_insert");\
-	assert(self->magic == self && "UnorderedMultiMap_insert");\
+	assert(self && "UnorderedMultiMap_insert_ref");\
+	assert(self->magic == self && "UnorderedMultiMap_insert_ref");\
+	assert(value && "UnorderedMultiMap_insert_ref");\
 	hash_val = Hasher(key);\
 	idx = hash_val % Name##_bucket_count(self);\
-	node = Name##Node_new(&key, &value);\
+	node = Name##Node_new(key, value);\
 	if (!node) {\
 		return node;\
 	}\
@@ -335,7 +353,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	assert(last->magic && "UnorderedMultiMap_insert_range");\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
 		Name##Node *node;\
-		node = Name##Node_new(&pos->key, &pos->value);\
+		node = Name##Node_new(pos->key, &pos->value);\
 		if (!node) {\
 			Name##Node_clear(list);\
 			return 0;\

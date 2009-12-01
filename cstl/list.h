@@ -76,6 +76,8 @@ Name *Name##_new(void);\
 void Name##_delete(Name *self);\
 int Name##_push_back(Name *self, Type data);\
 int Name##_push_front(Name *self, Type data);\
+int Name##_push_back_ref(Name *self, Type const *data);\
+int Name##_push_front_ref(Name *self, Type const *data);\
 void Name##_pop_front(Name *self);\
 void Name##_pop_back(Name *self);\
 int Name##_empty(Name *self);\
@@ -91,7 +93,9 @@ Name##Iterator Name##_rend(Name *self);\
 Name##Iterator Name##_next(Name##Iterator pos);\
 Name##Iterator Name##_prev(Name##Iterator pos);\
 Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type data);\
+Name##Iterator Name##_insert_ref(Name *self, Name##Iterator pos, Type const *data);\
 int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type data);\
+int Name##_insert_n_ref(Name *self, Name##Iterator pos, size_t n, Type const *data);\
 int Name##_insert_array(Name *self, Name##Iterator pos, Type const *data, size_t n);\
 int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Name##Iterator last);\
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
@@ -142,20 +146,6 @@ void Name##_delete(Name *self)\
 	free(self);\
 }\
 \
-static Name##Iterator Name##_insert_ref(Name *self, Name##Iterator pos, Type const *data)\
-{\
-	Name *node;\
-	node = (Name *) malloc(sizeof(Name));\
-	if (!node) return 0;\
-	node->data = *data;\
-	node->next = pos;\
-	node->prev = pos->prev;\
-	pos->prev = node;\
-	node->prev->next = node;\
-	CSTL_LIST_MAGIC(node->magic = CSTL_LIST_MAGIC_ELEM(Name));\
-	return node;\
-}\
-\
 int Name##_push_back(Name *self, Type data)\
 {\
 	assert(self && "List_push_back");\
@@ -168,6 +158,22 @@ int Name##_push_front(Name *self, Type data)\
 	assert(self && "List_push_front");\
 	assert(self->magic == self && "List_push_front");\
 	return Name##_insert_ref(self, CSTL_LIST_BEGIN(self), &data) ? 1 : 0;\
+}\
+\
+int Name##_push_back_ref(Name *self, Type const *data)\
+{\
+	assert(self && "List_push_back_ref");\
+	assert(self->magic == self && "List_push_back_ref");\
+	assert(data && "List_push_back_ref");\
+	return Name##_insert_ref(self, CSTL_LIST_END(self), data) ? 1 : 0;\
+}\
+\
+int Name##_push_front_ref(Name *self, Type const *data)\
+{\
+	assert(self && "List_push_front_ref");\
+	assert(self->magic == self && "List_push_front_ref");\
+	assert(data && "List_push_front_ref");\
+	return Name##_insert_ref(self, CSTL_LIST_BEGIN(self), data) ? 1 : 0;\
 }\
 \
 void Name##_pop_front(Name *self)\
@@ -289,19 +295,48 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type data)\
 	return Name##_insert_ref(self, pos, &data);\
 }\
 \
+Name##Iterator Name##_insert_ref(Name *self, Name##Iterator pos, Type const *data)\
+{\
+	Name *node;\
+	assert(self && "List_insert_ref");\
+	assert(self->magic == self && "List_insert_ref");\
+	assert(pos && "List_insert_ref");\
+	assert((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_ref");\
+	assert(data && "List_insert_ref");\
+	node = (Name *) malloc(sizeof(Name));\
+	if (!node) return 0;\
+	node->data = *data;\
+	node->next = pos;\
+	node->prev = pos->prev;\
+	pos->prev = node;\
+	node->prev->next = node;\
+	CSTL_LIST_MAGIC(node->magic = CSTL_LIST_MAGIC_ELEM(Name));\
+	return node;\
+}\
+\
 int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type data)\
 {\
-	Name x;\
-	register size_t i;\
 	assert(self && "List_insert_n");\
 	assert(self->magic == self && "List_insert_n");\
 	assert(pos && "List_insert_n");\
 	assert((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_n");\
+	return Name##_insert_n_ref(self, pos, n, &data);\
+}\
+\
+int Name##_insert_n_ref(Name *self, Name##Iterator pos, size_t n, Type const *data)\
+{\
+	Name x;\
+	register size_t i;\
+	assert(self && "List_insert_n_ref");\
+	assert(self->magic == self && "List_insert_n_ref");\
+	assert(pos && "List_insert_n_ref");\
+	assert((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_n_ref");\
+	assert(data && "List_insert_n_ref");\
 	x.next = &x;\
 	x.prev = &x;\
 	CSTL_LIST_MAGIC(x.magic = &x);\
 	for (i = 0; i < n; i++) {\
-		if (!Name##_insert_ref(&x, CSTL_LIST_END(&x), &data)) {\
+		if (!Name##_insert_ref(&x, CSTL_LIST_END(&x), data)) {\
 			Name##_clear(&x);\
 			return 0;\
 		}\

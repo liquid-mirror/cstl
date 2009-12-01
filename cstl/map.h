@@ -62,12 +62,12 @@ struct Name##RBTree {\
 \
 CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)\
 \
-static Name##RBTree *Name##RBTree_new_node(KeyType const *key, ValueType const *value, int color)\
+static Name##RBTree *Name##RBTree_new_node(KeyType key, ValueType const *value, int color)\
 {\
 	Name##RBTree *node;\
 	node = (Name##RBTree *) malloc(sizeof(Name##RBTree));\
 	if (!node) return 0;\
-	node->key = *key;\
+	node->key = key;\
 	node->value = *value;\
 	node->left = (Name##RBTree *) &Name##RBTree_nil;\
 	node->right = (Name##RBTree *) &Name##RBTree_nil;\
@@ -105,6 +105,7 @@ ValueType *Name##_value(Name##Iterator pos)\
 CSTL_MAP_BEGIN_EXTERN_C()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success);\
+Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value, int *success);\
 KeyType const *Name##_key(Name##Iterator pos);\
 ValueType *Name##_value(Name##Iterator pos);\
 ValueType *Name##_at(Name *self, KeyType key);\
@@ -124,12 +125,20 @@ CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success)\
 {\
-	Name##Iterator pos;\
 	assert(self && "Map_insert");\
 	assert(self->magic == self && "Map_insert");\
+	return Name##_insert_ref(self, key, &value, success);\
+}\
+\
+Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value, int *success)\
+{\
+	Name##Iterator pos;\
+	assert(self && "Map_insert_ref");\
+	assert(self->magic == self && "Map_insert_ref");\
+	assert(value && "Map_insert_ref");\
 	pos = Name##RBTree_find(self->tree, key);\
 	if (pos == Name##RBTree_end(self->tree)) {\
-		pos = Name##RBTree_new_node(&key, &value, CSTL_RBTREE_RED);\
+		pos = Name##RBTree_new_node(key, value, CSTL_RBTREE_RED);\
 		if (pos) {\
 			Name##RBTree_insert(self->tree, pos);\
 			if (success) *success = 1;\
@@ -158,8 +167,8 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (Name##RBTree_find(self->tree, *Name##_key(pos)) == Name##RBTree_end(self->tree)) {\
-			tmp->right = Name##RBTree_new_node(Name##_key(pos), Name##_value(pos), CSTL_RBTREE_RED);\
+		if (Name##RBTree_find(self->tree, pos->key) == Name##RBTree_end(self->tree)) {\
+			tmp->right = Name##RBTree_new_node(pos->key, &pos->value, CSTL_RBTREE_RED);\
 			if (!tmp->right) {\
 				for (pos = head.right; pos != 0; pos = tmp) {\
 					tmp = pos->right;\
@@ -188,7 +197,7 @@ ValueType *Name##_at(Name *self, KeyType key)\
 	pos = Name##RBTree_find(self->tree, key);\
 	if (pos == Name##RBTree_end(self->tree)) {\
 		/* 新しい要素の値にはnilの値を使用 */\
-		pos = Name##RBTree_new_node(&key, &Name##RBTree_nil.value, CSTL_RBTREE_RED);\
+		pos = Name##RBTree_new_node(key, &Name##RBTree_nil.value, CSTL_RBTREE_RED);\
 		if (pos) {\
 			Name##RBTree_insert(self->tree, pos);\
 			self->size++;\
@@ -214,6 +223,7 @@ ValueType *Name##_at(Name *self, KeyType key)\
 CSTL_MAP_BEGIN_EXTERN_C()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value);\
+Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value);\
 KeyType const *Name##_key(Name##Iterator pos);\
 ValueType *Name##_value(Name##Iterator pos);\
 CSTL_MAP_END_EXTERN_C()\
@@ -232,10 +242,18 @@ CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 {\
-	Name##Iterator pos;\
 	assert(self && "MultiMap_insert");\
 	assert(self->magic == self && "MultiMap_insert");\
-	pos = Name##RBTree_new_node(&key, &value, CSTL_RBTREE_RED);\
+	return Name##_insert_ref(self, key, &value);\
+}\
+\
+Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value)\
+{\
+	Name##Iterator pos;\
+	assert(self && "MultiMap_insert_ref");\
+	assert(self->magic == self && "MultiMap_insert_ref");\
+	assert(value && "MultiMap_insert_ref");\
+	pos = Name##RBTree_new_node(key, value, CSTL_RBTREE_RED);\
 	if (pos) {\
 		Name##RBTree_insert(self->tree, pos);\
 		self->size++;\
@@ -258,7 +276,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		tmp->right = Name##RBTree_new_node(Name##_key(pos), Name##_value(pos), CSTL_RBTREE_RED);\
+		tmp->right = Name##RBTree_new_node(pos->key, &pos->value, CSTL_RBTREE_RED);\
 		if (!tmp->right) {\
 			for (pos = head.right; pos != 0; pos = tmp) {\
 				tmp = pos->right;\

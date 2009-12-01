@@ -81,6 +81,7 @@ Name *Name##_new(void);\
 Name *Name##_new_reserve(size_t n);\
 void Name##_delete(Name *self);\
 int Name##_push_back(Name *self, Type data);\
+int Name##_push_back_ref(Name *self, Type const *data);\
 void Name##_pop_back(Name *self);\
 size_t Name##_size(Name *self);\
 size_t Name##_capacity(Name *self);\
@@ -93,7 +94,9 @@ Type *Name##_at(Name *self, size_t idx);\
 Type *Name##_front(Name *self);\
 Type *Name##_back(Name *self);\
 int Name##_insert(Name *self, size_t idx, Type data);\
+int Name##_insert_ref(Name *self, size_t idx, Type const *data);\
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type data);\
+int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data);\
 int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n);\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
@@ -154,8 +157,16 @@ int Name##_push_back(Name *self, Type data)\
 {\
 	assert(self && "Vector_push_back");\
 	assert(self->magic == self && "Vector_push_back");\
+	return Name##_push_back_ref(self, &data);\
+}\
+\
+int Name##_push_back_ref(Name *self, Type const *data)\
+{\
+	assert(self && "Vector_push_back_ref");\
+	assert(self->magic == self && "Vector_push_back_ref");\
+	assert(data && "Vector_push_back_ref");\
 	if (!Name##_expand(self, CSTL_VECTOR_SIZE(self) + 1)) return 0;\
-	self->buf[self->size] = data;\
+	self->buf[self->size] = *data;\
 	self->size++;\
 	return 1;\
 }\
@@ -245,11 +256,13 @@ void Name##_shrink(Name *self, size_t n)\
 		n = CSTL_VECTOR_SIZE(self);\
 	}\
 	self->capacity = n;\
-	newbuf = (Type *) realloc(self->buf, sizeof(Type) * n);\
 	if (!n) {\
-		/* nが0ならreallocはfreeと等価 */\
+		free(self->buf);\
 		self->buf = 0;\
-	} else if (newbuf) {\
+		return;\
+	}\
+	newbuf = (Type *) realloc(self->buf, sizeof(Type) * n);\
+	if (newbuf) {\
 		self->buf = newbuf;\
 	}\
 }\
@@ -346,19 +359,37 @@ int Name##_insert(Name *self, size_t idx, Type data)\
 	return Name##_insert_array(self, idx, &data, 1);\
 }\
 \
+int Name##_insert_ref(Name *self, size_t idx, Type const *data)\
+{\
+	assert(self && "Vector_insert_ref");\
+	assert(self->magic == self && "Vector_insert_ref");\
+	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_ref");\
+	assert(data && "Vector_insert_ref");\
+	return Name##_insert_array(self, idx, data, 1);\
+}\
+\
 
 #define CSTL_VECTOR_IMPLEMENT_INSERT_N(Name, Type)	\
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type data)\
 {\
-	register size_t i;\
 	assert(self && "Vector_insert_n");\
 	assert(self->magic == self && "Vector_insert_n");\
 	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n");\
+	return Name##_insert_n_ref(self, idx, n, &data);\
+}\
+\
+int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data)\
+{\
+	register size_t i;\
+	assert(self && "Vector_insert_n_ref");\
+	assert(self->magic == self && "Vector_insert_n_ref");\
+	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n_ref");\
+	assert(data && "Vector_insert_n_ref");\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
 	for (i = 0; i < n; i++) {\
-		self->buf[idx + i] = data;\
+		self->buf[idx + i] = *data;\
 	}\
 	return 1;\
 }\
