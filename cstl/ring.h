@@ -173,6 +173,7 @@ int Name##_push_back_ref(Name *self, Type const *data)\
 {\
 	assert(self && "Ring_push_back_ref");\
 	assert(self->magic == self && "Ring_push_back_ref");\
+	assert(data && "Ring_push_back_ref");\
 	if (CSTL_RING_FULL(self)) return 0;\
 	self->buf[self->end] = *data;\
 	self->end = CSTL_RING_NEXT_IDX(self, self->end);\
@@ -184,6 +185,7 @@ int Name##_push_front_ref(Name *self, Type const *data)\
 {\
 	assert(self && "Ring_push_front_ref");\
 	assert(self->magic == self && "Ring_push_front_ref");\
+	assert(data && "Ring_push_front_ref");\
 	if (CSTL_RING_FULL(self)) return 0;\
 	self->begin = CSTL_RING_PREV_IDX(self, self->begin);\
 	self->buf[self->begin] = *data;\
