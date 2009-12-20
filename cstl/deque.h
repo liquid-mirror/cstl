@@ -60,8 +60,6 @@
 #define CSTL_ALGORITHM_IMPLEMENT(Name, Type, DIRECT_ACCESS)
 #endif
 
-#define CSTL_DEQUE_RINGBUF_SIZE(Type)	(sizeof(Type) < 512 ? 512 / sizeof(Type) : 1)
-#define CSTL_DEQUE_INITIAL_MAP_SIZE		(8)
 #define CSTL_DEQUE_SIZE(self)			(self)->size
 
 /*! 
@@ -122,6 +120,22 @@ CSTL_VECTOR_IMPLEMENT_POP_BACK(Name##_RingVector, Name##_Ring*)\
 CSTL_VECTOR_IMPLEMENT_BACK(Name##_RingVector, Name##_Ring*)\
 CSTL_VECTOR_IMPLEMENT_RESIZE(Name##_RingVector, Name##_Ring*)\
 \
+enum {\
+	Name##_INITIAL_MAP_SIZE = 8,\
+	/* リングバッファのサイズ(必ず2の冪乗となる) */\
+	Name##_RINGBUF_SIZE = \
+						((sizeof(Type) > 0x100) ? 0x200 / 0x200 :\
+						 (sizeof(Type) > 0x080) ? 0x200 / 0x100 :\
+						 (sizeof(Type) > 0x040) ? 0x200 / 0x080 :\
+						 (sizeof(Type) > 0x020) ? 0x200 / 0x040 :\
+						 (sizeof(Type) > 0x010) ? 0x200 / 0x020 :\
+						 (sizeof(Type) > 0x008) ? 0x200 / 0x010 :\
+						 (sizeof(Type) > 0x004) ? 0x200 / 0x008 :\
+						 (sizeof(Type) > 0x002) ? 0x200 / 0x004 :\
+						 (sizeof(Type) > 0x001) ? 0x200 / 0x002 :\
+						                          0x200 / 0x001)\
+};\
+\
 /*! \
  * \brief deque構造体\
  */\
@@ -142,15 +156,15 @@ static void Name##_coordinate(Name *self, size_t idx, size_t *map_idx, size_t *r
 		*map_idx = self->begin;\
 		*ring_idx = idx;\
 	} else {\
-		*map_idx = (self->begin + 1) + (idx - n) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
-		*ring_idx = (idx - n) % CSTL_DEQUE_RINGBUF_SIZE(Type);\
+		*map_idx = (self->begin + 1) + (idx - n) / Name##_RINGBUF_SIZE;\
+		*ring_idx = (idx - n) & (Name##_RINGBUF_SIZE - 1);\
 	}\
 }\
 \
 static Name##_Ring *Name##_pop_ring(Name *self)\
 {\
 	if (CSTL_VECTOR_EMPTY(self->pool)) {\
-		return Name##_Ring_new(CSTL_DEQUE_RINGBUF_SIZE(Type));\
+		return Name##_Ring_new(Name##_RINGBUF_SIZE);\
 	} else {\
 		Name##_Ring *ret = *Name##_RingVector_back(self->pool);\
 		Name##_RingVector_pop_back(self->pool);\
@@ -174,12 +188,12 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 	size_t m;\
 	size_t expand;\
 	register size_t i;\
-	m = CSTL_DEQUE_RINGBUF_SIZE(Type) - \
+	m = Name##_RINGBUF_SIZE - \
 		CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, self->begin));\
 	if (n <= m) {\
 		return 1;\
 	}\
-	expand = 1 + (n - m - 1) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
+	expand = 1 + (n - m - 1) / Name##_RINGBUF_SIZE;\
 	if (self->begin < expand) {\
 		size_t b, e;\
 		b = self->begin;\
@@ -222,12 +236,12 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 	size_t m;\
 	size_t expand;\
 	register size_t i;\
-	m = CSTL_DEQUE_RINGBUF_SIZE(Type) - \
+	m = Name##_RINGBUF_SIZE - \
 		CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, self->end - 1));\
 	if (n <= m) {\
 		return 1;\
 	}\
-	expand = 1 + (n - m - 1) / CSTL_DEQUE_RINGBUF_SIZE(Type);\
+	expand = 1 + (n - m - 1) / Name##_RINGBUF_SIZE;\
 	if (CSTL_VECTOR_SIZE(self->map) - self->end < expand) {\
 		size_t b, e;\
 		b = self->begin;\
@@ -323,13 +337,13 @@ Name *Name##_new(void)\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->map = Name##_RingVector_new_reserve(CSTL_DEQUE_INITIAL_MAP_SIZE);\
+	self->map = Name##_RingVector_new_reserve(Name##_INITIAL_MAP_SIZE);\
 	if (!self->map) {\
 		free(self);\
 		return 0;\
 	}\
-	Name##_RingVector_resize(self->map, CSTL_DEQUE_INITIAL_MAP_SIZE, 0);\
-	self->pool = Name##_RingVector_new_reserve(CSTL_DEQUE_INITIAL_MAP_SIZE);\
+	Name##_RingVector_resize(self->map, Name##_INITIAL_MAP_SIZE, 0);\
+	self->pool = Name##_RingVector_new_reserve(Name##_INITIAL_MAP_SIZE);\
 	if (!self->pool) {\
 		Name##_RingVector_delete(self->map);\
 		free(self);\
@@ -338,7 +352,7 @@ Name *Name##_new(void)\
 	self->begin = CSTL_VECTOR_SIZE(self->map) / 2;\
 	self->end = self->begin + 1;\
 	self->size = 0;\
-	CSTL_VECTOR_AT(self->map, self->begin) = Name##_Ring_new(CSTL_DEQUE_RINGBUF_SIZE(Type));\
+	CSTL_VECTOR_AT(self->map, self->begin) = Name##_Ring_new(Name##_RINGBUF_SIZE);\
 	if (!CSTL_VECTOR_AT(self->map, self->begin)) {\
 		Name##_RingVector_delete(self->map);\
 		Name##_RingVector_delete(self->pool);\
@@ -392,12 +406,10 @@ int Name##_push_back_ref(Name *self, Type const *data)\
 		if (!Name##_expand_end_side(self, 1)) {\
 			return 0;\
 		}\
-		Name##_Ring_push_back_no_data(CSTL_VECTOR_AT(self->map, self->end));\
-		CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end)) = *data;\
+		Name##_Ring_push_back_ref(CSTL_VECTOR_AT(self->map, self->end), data);\
 		self->end++;\
 	} else {\
-		Name##_Ring_push_back_no_data(CSTL_VECTOR_AT(self->map, self->end - 1));\
-		CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end - 1)) = *data;\
+		Name##_Ring_push_back_ref(CSTL_VECTOR_AT(self->map, self->end - 1), data);\
 	}\
 	self->size++;\
 	return 1;\
@@ -412,12 +424,10 @@ int Name##_push_front_ref(Name *self, Type const *data)\
 		if (!Name##_expand_begin_side(self, 1)) {\
 			return 0;\
 		}\
-		Name##_Ring_push_front_no_data(CSTL_VECTOR_AT(self->map, self->begin - 1));\
-		CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin - 1)) = *data;\
+		Name##_Ring_push_front_ref(CSTL_VECTOR_AT(self->map, self->begin - 1), data);\
 		self->begin--;\
 	} else {\
-		Name##_Ring_push_front_no_data(CSTL_VECTOR_AT(self->map, self->begin));\
-		CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin)) = *data;\
+		Name##_Ring_push_front_ref(CSTL_VECTOR_AT(self->map, self->begin), data);\
 	}\
 	self->size++;\
 	return 1;\

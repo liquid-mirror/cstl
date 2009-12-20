@@ -28,7 +28,7 @@ CSTL_RING_IMPLEMENT(IntRing, int)
 static UCharRing *ur;
 static IntRing *ir;
 
-#define MAX		255
+#define MAX		256
 
 static unsigned char hoge[MAX];
 static int piyo[MAX];

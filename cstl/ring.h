@@ -51,8 +51,8 @@
 #endif
 
 
-#define CSTL_RING_ADVANCE_IDX(self, idx, n)		((idx) + (n) >= (self)->max_size ? (idx) + (n) - (self)->max_size : (idx) + (n))
-#define CSTL_RING_RETREAT_IDX(self, idx, n)		((idx) >= (n) ? (idx) - (n) : (self)->max_size + (idx) - (n))
+#define CSTL_RING_ADVANCE_IDX(self, idx, n)		(((idx) + (n)) & ((self)->max_size - 1))
+#define CSTL_RING_RETREAT_IDX(self, idx, n)		(((self)->max_size + (idx) - (n)) & (((self)->max_size) - 1))
 #define CSTL_RING_NEXT_IDX(self, idx)			CSTL_RING_ADVANCE_IDX((self), (idx), 1)
 #define CSTL_RING_PREV_IDX(self, idx)			CSTL_RING_RETREAT_IDX((self), (idx), 1)
 #define CSTL_RING_DISTANCE(self, first, last)	((first) <= (last) ? (last) - (first) : (self)->max_size - (first) + (last))
@@ -94,6 +94,8 @@ void Name##_delete(Name *self);\
 void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_push_back(Name *self, Type data);\
 int Name##_push_front(Name *self, Type data);\
+int Name##_push_back_ref(Name *self, Type const *data);\
+int Name##_push_front_ref(Name *self, Type const *data);\
 void Name##_pop_front(Name *self);\
 void Name##_pop_back(Name *self);\
 size_t Name##_size(Name *self);\
@@ -144,6 +146,7 @@ void Name##_init(Name *self, Type *buf, size_t n)\
 	self->begin = 0;\
 	self->end = 0;\
 	self->buf = buf;\
+	/* NOTE: max_sizeは必ず2の冪乗でなければならない */\
 	self->max_size = n;\
 	self->size = 0;\
 	CSTL_RING_MAGIC(self->magic = self);\
@@ -164,6 +167,28 @@ static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)
 	for (i = first; i != last; i = CSTL_RING_NEXT_IDX(self, i)) {\
 		self->buf[CSTL_RING_RETREAT_IDX(self, i, n)] = self->buf[i];\
 	}\
+}\
+\
+int Name##_push_back_ref(Name *self, Type const *data)\
+{\
+	assert(self && "Ring_push_back_ref");\
+	assert(self->magic == self && "Ring_push_back_ref");\
+	if (CSTL_RING_FULL(self)) return 0;\
+	self->buf[self->end] = *data;\
+	self->end = CSTL_RING_NEXT_IDX(self, self->end);\
+	self->size++;\
+	return 1;\
+}\
+\
+int Name##_push_front_ref(Name *self, Type const *data)\
+{\
+	assert(self && "Ring_push_front_ref");\
+	assert(self->magic == self && "Ring_push_front_ref");\
+	if (CSTL_RING_FULL(self)) return 0;\
+	self->begin = CSTL_RING_PREV_IDX(self, self->begin);\
+	self->buf[self->begin] = *data;\
+	self->size++;\
+	return 1;\
 }\
 \
 void Name##_pop_front(Name *self)\
@@ -224,22 +249,14 @@ int Name##_push_back(Name *self, Type data)\
 {\
 	assert(self && "Ring_push_back");\
 	assert(self->magic == self && "Ring_push_back");\
-	if (CSTL_RING_FULL(self)) return 0;\
-	self->buf[self->end] = data;\
-	self->end = CSTL_RING_NEXT_IDX(self, self->end);\
-	self->size++;\
-	return 1;\
+	return Name##_push_back_ref(self, &data);\
 }\
 \
 int Name##_push_front(Name *self, Type data)\
 {\
 	assert(self && "Ring_push_front");\
 	assert(self->magic == self && "Ring_push_front");\
-	if (CSTL_RING_FULL(self)) return 0;\
-	self->begin = CSTL_RING_PREV_IDX(self, self->begin);\
-	self->buf[self->begin] = data;\
-	self->size++;\
-	return 1;\
+	return Name##_push_front_ref(self, &data);\
 }\
 \
 size_t Name##_size(Name *self)\

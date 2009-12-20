@@ -17,10 +17,10 @@ int Name##_verify(Name *self)\
 	if (!self->map || !self->pool) {\
 		return 0;\
 	}\
-	if (CSTL_VECTOR_CAPACITY(self->map) < CSTL_DEQUE_INITIAL_MAP_SIZE) {\
+	if (CSTL_VECTOR_CAPACITY(self->map) < Name##_INITIAL_MAP_SIZE) {\
 		return 0;\
 	}\
-	if (CSTL_VECTOR_CAPACITY(self->pool) != CSTL_DEQUE_INITIAL_MAP_SIZE) {\
+	if (CSTL_VECTOR_CAPACITY(self->pool) != Name##_INITIAL_MAP_SIZE) {\
 		return 0;\
 	}\
 \
@@ -56,7 +56,7 @@ int Name##_verify(Name *self)\
 	}\
 \
 	for (i = self->begin; i < self->end; i++) {\
-		if (CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, i)) > CSTL_DEQUE_RINGBUF_SIZE(Type)) {\
+		if (CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, i)) > Name##_RINGBUF_SIZE) {\
 			return 0;\
 		}\
 		count += CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, i));\
