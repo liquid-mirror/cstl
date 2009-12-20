@@ -303,6 +303,7 @@ Name##Iterator Name##_insert_ref(Name *self, Name##Iterator pos, Type const *dat
 	assert(pos && "List_insert_ref");\
 	assert((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_ref");\
 	assert(data && "List_insert_ref");\
+	(void) self;\
 	node = (Name *) malloc(sizeof(Name));\
 	if (!node) return 0;\
 	node->data = *data;\
@@ -402,6 +403,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	assert(pos != self && "List_erase");\
 	assert(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_erase");\
 	assert(!Name##_empty(self) && "List_erase");\
+	(void) self;\
 	node = pos->next;\
 	pos->prev->next = pos->next;\
 	pos->next->prev = pos->prev;\
@@ -487,6 +489,8 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 	assert(last && "List_splice");\
 	assert((first->magic == CSTL_LIST_MAGIC_ELEM(Name) || first->magic == x) && "List_splice");\
 	assert((last->magic == CSTL_LIST_MAGIC_ELEM(Name) || last->magic == x) && "List_splice");\
+	(void) self;\
+	(void) x;\
 	if (first == last || pos == last) return;\
 	pos->prev->next = first;\
 	tmp = first->prev;\

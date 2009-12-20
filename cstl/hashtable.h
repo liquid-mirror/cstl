@@ -506,6 +506,8 @@ Name##LocalIterator Name##_bucket_end(Name *self, size_t idx)\
 	assert(self && "Unordered(Set|Map)_bucket_end");\
 	assert(self->magic == self && "Unordered(Set|Map)_bucket_end");\
 	assert(idx < Name##_bucket_count(self) && "Unordered(Set|Map)_bucket_end");\
+	(void) self;\
+	(void) idx;\
 	return 0;\
 }\
 \
