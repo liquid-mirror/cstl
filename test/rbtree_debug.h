@@ -48,13 +48,13 @@ enum {
 static size_t Name##_max_depth;\
 static size_t Name##_min_depth;\
 \
-static char *Name##_str_color(int c)\
+static const char *Name##_str_color(int c)\
 {\
-	char *r = "(r)";\
-	char *b = "(b)";\
-	if (c == CSTL_RBTREE_RED) {\
+	const char *r = "(r)";\
+	const char *b = "(b)";\
+	if (c == Name##_COLOR_RED) {\
 		return r;\
-	} else if (c == CSTL_RBTREE_BLACK) {\
+	} else if (c == Name##_COLOR_BLACK) {\
 		return b;\
 	} else {\
 		assert(0);\
@@ -84,7 +84,7 @@ static void Name##RBTree_p(Name##RBTree *node, size_t depth)\
 				(void *) node, (void *) node->parent, (void *) node->left, (void *) node->right, node->key,\
 				Name##_str_color(node->color), depth);\
 		}\
-		if (CSTL_RBTREE_IS_ROOT(node)) {\
+		if (CSTL_RBTREE_IS_ROOT(node, Name)) {\
 			printf(", root");\
 		} else if (CSTL_RBTREE_IS_NIL(node->left, Name) && CSTL_RBTREE_IS_NIL(node->right, Name)) {\
 			printf(", leaf");\
@@ -119,7 +119,7 @@ static void Name##RBTree_print(Name##RBTree *node)\
 void Name##_print(Name *self)\
 {\
 	Name##RBTree *root;\
-	assert(CSTL_RBTREE_IS_HEAD(self->tree));\
+	assert(CSTL_RBTREE_IS_HEAD(self->tree, Name));\
 	root = Name##RBTree_get_root(self->tree);\
 	Name##_max_depth = 0;\
 	Name##_min_depth = UINT_MAX;\
@@ -134,7 +134,7 @@ static size_t Name##RBTree_black_count(Name##RBTree *t, Name##RBTree *root)\
 	if (CSTL_RBTREE_IS_NIL(t, Name)) {\
 		return 0;\
 	}\
-	count = t->color == CSTL_RBTREE_BLACK ? 1 : 0;\
+	count = t->color == Name##_COLOR_BLACK ? 1 : 0;\
 	if (t == root) {\
 		return count;\
 	} else {\
@@ -159,9 +159,9 @@ int Name##_verify(Name *self)\
 	for (pos = Name##RBTree_begin(tree); pos != Name##RBTree_end(tree); pos = Name##RBTree_next(pos)) {\
 		l = pos->left;\
 		r = pos->right;\
-		if (pos->color == CSTL_RBTREE_RED) {\
-			if ((!CSTL_RBTREE_IS_NIL(l, Name) && l->color == CSTL_RBTREE_RED) ||\
-				(!CSTL_RBTREE_IS_NIL(r, Name) && r->color == CSTL_RBTREE_RED)) {\
+		if (pos->color == Name##_COLOR_RED) {\
+			if ((!CSTL_RBTREE_IS_NIL(l, Name) && l->color == Name##_COLOR_RED) ||\
+				(!CSTL_RBTREE_IS_NIL(r, Name) && r->color == Name##_COLOR_RED)) {\
 				return 0;\
 			}\
 		}\

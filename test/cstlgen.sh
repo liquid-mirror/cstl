@@ -555,14 +555,7 @@ elif [ $lower = "string" ]; then
 	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
 	grep '#define CSTL_STRING_\(.*self\|DEFAULT_CAPACITY\)' "../cstl/string.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "set" -o $lower = "multiset" -o\
-	 $lower = "map" -o $lower = "multimap" ]; then
-echo "\
-enum {
-	CSTL_RBTREE_RED,
-	CSTL_RBTREE_BLACK,
-	CSTL_RBTREE_HEAD
-};
-" >> "$path"".c"
+	   $lower = "map" -o $lower = "multimap" ]; then
 	grep '#define CSTL_RBTREE_.*node' "../cstl/rbtree.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "unordered_set" -o $lower = "unordered_multiset" -o\
 	   $lower = "unordered_map" -o $lower = "unordered_multimap" ]; then
