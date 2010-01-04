@@ -36,14 +36,9 @@
 #define CSTL_HASHTABLE_H_INCLUDED
 
 #include <stdlib.h>
-#include <assert.h>
+#include "common.h"
 #include "vector.h"
 
-#ifdef NDEBUG
-#define CSTL_HASHTABLE_MAGIC(x)
-#else
-#define CSTL_HASHTABLE_MAGIC(x) x
-#endif
 
 #define CSTL_EQUAL_TO(x, y)		((x) == (y) ? 0 : 1)
 
@@ -172,7 +167,7 @@ static Name##Node *Name##Node_erase(Name##Node *list)\
 		return list;\
 	}\
 	tmp = list->next;\
-	CSTL_HASHTABLE_MAGIC(list->magic = 0);\
+	CSTL_MAGIC(list->magic = 0);\
 	free(list);\
 	return tmp;\
 }\
@@ -253,7 +248,7 @@ struct Name {\
 	size_t size;\
 	float max_load_factor;\
 	Name##Node end_node;\
-	CSTL_HASHTABLE_MAGIC(Name *magic;)\
+	CSTL_MAGIC(Name *magic;)\
 };\
 \
 static size_t Name##_next_prime(size_t n)\
@@ -288,20 +283,20 @@ Name *Name##_new_reserve(size_t n)\
 	self->end_node.next = 0;\
 	self->end_node.bucket = 0; /* end()判定に使用 */\
 	*Name##Node_Vector_back(self->buckets) = &self->end_node; /* end()の値 */\
-	CSTL_HASHTABLE_MAGIC(self->end_node.magic = self->buckets);\
+	CSTL_MAGIC(self->end_node.magic = self->buckets);\
 	self->size = 0;\
 	self->max_load_factor = Name##_default_mlf;\
-	CSTL_HASHTABLE_MAGIC(self->magic = self);\
+	CSTL_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
 void Name##_delete(Name *self)\
 {\
 	if (!self) return;\
-	assert(self->magic == self && "Unordered(Set|Map)_delete");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_delete");\
 	Name##_clear(self);\
 	Name##Node_Vector_delete(self->buckets);\
-	CSTL_HASHTABLE_MAGIC(self->magic = 0);\
+	CSTL_MAGIC(self->magic = 0);\
 	free(self);\
 }\
 \
@@ -309,8 +304,8 @@ void Name##_clear(Name *self)\
 {\
 	register size_t i;\
 	size_t bc;\
-	assert(self && "Unordered(Set|Map)_clear");\
-	assert(self->magic == self && "Unordered(Set|Map)_clear");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_clear");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_clear");\
 	if (self->size == 0) {\
 		return;\
 	}\
@@ -325,23 +320,23 @@ void Name##_clear(Name *self)\
 \
 int Name##_empty(Name *self)\
 {\
-	assert(self && "Unordered(Set|Map)_empty");\
-	assert(self->magic == self && "Unordered(Set|Map)_empty");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_empty");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_empty");\
 	return self->size == 0;\
 }\
 \
 size_t Name##_size(Name *self)\
 {\
-	assert(self && "Unordered(Set|Map)_size");\
-	assert(self->magic == self && "Unordered(Set|Map)_size");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_size");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_size");\
 	return self->size;\
 }\
 \
 Name##Iterator Name##_begin(Name *self)\
 {\
 	register size_t i;\
-	assert(self && "Unordered(Set|Map)_begin");\
-	assert(self->magic == self && "Unordered(Set|Map)_begin");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_begin");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_begin");\
 	if (self->size == 0) {\
 		return Name##_end(self);\
 	}\
@@ -353,23 +348,23 @@ Name##Iterator Name##_begin(Name *self)\
 		}\
 	}\
 	/* NOTREACHED */\
-	assert(0 && "Unordered(Set|Map)_begin");\
+	CSTL_ASSERT(0 && "Unordered(Set|Map)_begin");\
 	return 0;\
 }\
 \
 Name##Iterator Name##_end(Name *self)\
 {\
-	assert(self && "Unordered(Set|Map)_end");\
-	assert(self->magic == self && "Unordered(Set|Map)_end");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_end");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_end");\
 	return &self->end_node;\
 }\
 \
 Name##Iterator Name##_next(Name##Iterator pos)\
 {\
 	register size_t i;\
-	assert(pos && "Unordered(Set|Map)_next");\
-	assert(pos->magic && "Unordered(Set|Map)_next");\
-	assert(pos->bucket && "Unordered(Set|Map)_next"); /* pos != end() */\
+	CSTL_ASSERT(pos && "Unordered(Set|Map)_next");\
+	CSTL_ASSERT(pos->magic && "Unordered(Set|Map)_next");\
+	CSTL_ASSERT(pos->bucket && "Unordered(Set|Map)_next"); /* pos != end() */\
 	if (pos->next) {\
 		return pos->next;\
 	}\
@@ -379,7 +374,7 @@ Name##Iterator Name##_next(Name##Iterator pos)\
 		}\
 	}\
 	/* NOTREACHED */\
-	assert(0 && "Unordered(Set|Map)_next");\
+	CSTL_ASSERT(0 && "Unordered(Set|Map)_next");\
 	return 0;\
 }\
 \
@@ -399,8 +394,8 @@ static Name##Iterator Name##_find_node(Name *self, KeyType key, size_t idx)\
 Name##Iterator Name##_find(Name *self, KeyType key)\
 {\
 	size_t idx;\
-	assert(self && "Unordered(Set|Map)_find");\
-	assert(self->magic == self && "Unordered(Set|Map)_find");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_find");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_find");\
 	idx = Hasher(key) % Name##_bucket_count(self);\
 	return Name##_find_node(self, key, idx);\
 }\
@@ -409,10 +404,10 @@ void Name##_equal_range(Name *self, KeyType key, Name##Iterator *first, Name##It
 {\
 	register Name##Node *pos;\
 	Name##Node *end_pos;\
-	assert(self && "Unordered(Set|Map)_equal_range");\
-	assert(self->magic == self && "Unordered(Set|Map)_equal_range");\
-	assert(first && "Unordered(Set|Map)_equal_range");\
-	assert(last && "Unordered(Set|Map)_equal_range");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_equal_range");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_equal_range");\
+	CSTL_ASSERT(first && "Unordered(Set|Map)_equal_range");\
+	CSTL_ASSERT(last && "Unordered(Set|Map)_equal_range");\
 	*first = Name##_find(self, key);\
 	end_pos = Name##_end(self);\
 	if (*first == end_pos) {\
@@ -434,8 +429,8 @@ size_t Name##_count(Name *self, KeyType key)\
 	register size_t count = 0;\
 	Name##Node *first;\
 	Name##Node *last;\
-	assert(self && "Unordered(Set|Map)_count");\
-	assert(self->magic == self && "Unordered(Set|Map)_count");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_count");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_count");\
 	Name##_equal_range(self, key, &first, &last);\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
 		count++;\
@@ -448,10 +443,10 @@ void Name##_swap(Name *self, Name *x)\
 	Name##Node_Vector *tmp_buckets;\
 	size_t tmp_size;\
 	float tmp_max_load_factor;\
-	assert(self && "Unordered(Set|Map)_swap");\
-	assert(x && "Unordered(Set|Map)_swap");\
-	assert(self->magic == self && "Unordered(Set|Map)_swap");\
-	assert(x->magic == x && "Unordered(Set|Map)_swap");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_swap");\
+	CSTL_ASSERT(x && "Unordered(Set|Map)_swap");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_swap");\
+	CSTL_ASSERT(x->magic == x && "Unordered(Set|Map)_swap");\
 	tmp_buckets = self->buckets;\
 	tmp_size = self->size;\
 	tmp_max_load_factor = self->max_load_factor;\
@@ -461,82 +456,82 @@ void Name##_swap(Name *self, Name *x)\
 	x->buckets = tmp_buckets;\
 	x->size = tmp_size;\
 	x->max_load_factor = tmp_max_load_factor;\
-	assert(*Name##Node_Vector_back(self->buckets) == &x->end_node && "Unordered(Set|Map)_swap");\
-	assert(*Name##Node_Vector_back(x->buckets) == &self->end_node && "Unordered(Set|Map)_swap");\
+	CSTL_ASSERT(*Name##Node_Vector_back(self->buckets) == &x->end_node && "Unordered(Set|Map)_swap");\
+	CSTL_ASSERT(*Name##Node_Vector_back(x->buckets) == &self->end_node && "Unordered(Set|Map)_swap");\
 	*Name##Node_Vector_back(self->buckets) = &self->end_node;\
 	*Name##Node_Vector_back(x->buckets) = &x->end_node;\
-	assert(self->end_node.magic == x->buckets && "Unordered(Set|Map)_swap");\
-	assert(x->end_node.magic == self->buckets && "Unordered(Set|Map)_swap");\
-	CSTL_HASHTABLE_MAGIC(self->end_node.magic = self->buckets);\
-	CSTL_HASHTABLE_MAGIC(x->end_node.magic = x->buckets);\
+	CSTL_ASSERT(self->end_node.magic == x->buckets && "Unordered(Set|Map)_swap");\
+	CSTL_ASSERT(x->end_node.magic == self->buckets && "Unordered(Set|Map)_swap");\
+	CSTL_MAGIC(self->end_node.magic = self->buckets);\
+	CSTL_MAGIC(x->end_node.magic = x->buckets);\
 }\
 \
 size_t Name##_bucket_count(Name *self)\
 {\
-	assert(self && "Unordered(Set|Map)_bucket_count");\
-	assert(self->magic == self && "Unordered(Set|Map)_bucket_count");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_bucket_count");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_bucket_count");\
 	return Name##Node_Vector_size(self->buckets) - 1;\
 }\
 \
 size_t Name##_bucket_size(Name *self, size_t idx)\
 {\
-	assert(self && "Unordered(Set|Map)_bucket_size");\
-	assert(self->magic == self && "Unordered(Set|Map)_bucket_size");\
-	assert(idx < Name##_bucket_count(self) && "Unordered(Set|Map)_bucket_size");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_bucket_size");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_bucket_size");\
+	CSTL_ASSERT(idx < Name##_bucket_count(self) && "Unordered(Set|Map)_bucket_size");\
 	return Name##Node_size(*Name##Node_Vector_at(self->buckets, idx));\
 }\
 \
 size_t Name##_bucket(Name *self, KeyType key)\
 {\
-	assert(self && "Unordered(Set|Map)_bucket");\
-	assert(self->magic == self && "Unordered(Set|Map)_bucket");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_bucket");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_bucket");\
 	return Hasher(key) % Name##_bucket_count(self);\
 }\
 \
 Name##LocalIterator Name##_bucket_begin(Name *self, size_t idx)\
 {\
-	assert(self && "Unordered(Set|Map)_bucket_begin");\
-	assert(self->magic == self && "Unordered(Set|Map)_bucket_begin");\
-	assert(idx < Name##_bucket_count(self) && "Unordered(Set|Map)_bucket_begin");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_bucket_begin");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_bucket_begin");\
+	CSTL_ASSERT(idx < Name##_bucket_count(self) && "Unordered(Set|Map)_bucket_begin");\
 	return *Name##Node_Vector_at(self->buckets, idx);\
 }\
 \
 Name##LocalIterator Name##_bucket_end(Name *self, size_t idx)\
 {\
-	assert(self && "Unordered(Set|Map)_bucket_end");\
-	assert(self->magic == self && "Unordered(Set|Map)_bucket_end");\
-	assert(idx < Name##_bucket_count(self) && "Unordered(Set|Map)_bucket_end");\
-	(void) self;\
-	(void) idx;\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_bucket_end");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_bucket_end");\
+	CSTL_ASSERT(idx < Name##_bucket_count(self) && "Unordered(Set|Map)_bucket_end");\
+	CSTL_UNUSED_PARAM(self);\
+	CSTL_UNUSED_PARAM(idx);\
 	return 0;\
 }\
 \
 Name##LocalIterator Name##_bucket_next(Name##LocalIterator pos)\
 {\
-	assert(pos && "Unordered(Set|Map)_bucket_next");\
-	assert(pos->magic && "Unordered(Set|Map)_bucket_next");\
-	assert(pos->bucket && "Unordered(Set|Map)_bucket_next"); /* pos != end() */\
+	CSTL_ASSERT(pos && "Unordered(Set|Map)_bucket_next");\
+	CSTL_ASSERT(pos->magic && "Unordered(Set|Map)_bucket_next");\
+	CSTL_ASSERT(pos->bucket && "Unordered(Set|Map)_bucket_next"); /* pos != end() */\
 	return pos->next;\
 }\
 \
 float Name##_load_factor(Name *self)\
 {\
-	assert(self && "Unordered(Set|Map)_load_factor");\
-	assert(self->magic == self && "Unordered(Set|Map)_load_factor");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_load_factor");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_load_factor");\
 	return (float) self->size / (float) Name##_bucket_count(self);\
 }\
 \
 float Name##_get_max_load_factor(Name *self)\
 {\
-	assert(self && "Unordered(Set|Map)_get_max_load_factor");\
-	assert(self->magic == self && "Unordered(Set|Map)_get_max_load_factor");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_get_max_load_factor");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_get_max_load_factor");\
 	return self->max_load_factor;\
 }\
 \
 void Name##_set_max_load_factor(Name *self, float z)\
 {\
-	assert(self && "Unordered(Set|Map)_set_max_load_factor");\
-	assert(self->magic == self && "Unordered(Set|Map)_set_max_load_factor");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_set_max_load_factor");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_set_max_load_factor");\
 	self->max_load_factor = (z < Name##_minimum_mlf) ? Name##_minimum_mlf : z;\
 }\
 \
@@ -545,11 +540,11 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	Name##Node *ret;\
 	register Name##Node *i;\
 	register Name##Node *prev;\
-	assert(self && "Unordered(Set|Map)_erase");\
-	assert(self->magic == self && "Unordered(Set|Map)_erase");\
-	assert(pos && "Unordered(Set|Map)_erase");\
-	assert(pos->magic == self->buckets && "Unordered(Set|Map)_erase");\
-	assert(pos != Name##_end(self) && "Unordered(Set|Map)_erase");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_erase");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_erase");\
+	CSTL_ASSERT(pos && "Unordered(Set|Map)_erase");\
+	CSTL_ASSERT(pos->magic == self->buckets && "Unordered(Set|Map)_erase");\
+	CSTL_ASSERT(pos != Name##_end(self) && "Unordered(Set|Map)_erase");\
 	ret = Name##_next(pos);\
 	for (i = *pos->bucket, prev = 0; i != pos; prev = i, i = i->next) {\
 		;\
@@ -567,15 +562,15 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
 	register Name##Iterator pos;\
-	assert(self && "Unordered(Set|Map)_erase_range");\
-	assert(self->magic == self && "Unordered(Set|Map)_erase_range");\
-	assert(first && "Unordered(Set|Map)_erase_range");\
-	assert(last && "Unordered(Set|Map)_erase_range");\
-	assert((first->magic == self->buckets || first == Name##_end(self)) && "Unordered(Set|Map)_erase_range");\
-	assert((last->magic == self->buckets || last == Name##_end(self)) && "Unordered(Set|Map)_erase_range");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_erase_range");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_erase_range");\
+	CSTL_ASSERT(first && "Unordered(Set|Map)_erase_range");\
+	CSTL_ASSERT(last && "Unordered(Set|Map)_erase_range");\
+	CSTL_ASSERT((first->magic == self->buckets || first == Name##_end(self)) && "Unordered(Set|Map)_erase_range");\
+	CSTL_ASSERT((last->magic == self->buckets || last == Name##_end(self)) && "Unordered(Set|Map)_erase_range");\
 	pos = first;\
 	while (pos != last) {\
-		assert(!Name##_empty(self) && "Unordered(Set|Map)_erase_range");\
+		CSTL_ASSERT(!Name##_empty(self) && "Unordered(Set|Map)_erase_range");\
 		pos = Name##_erase(self, pos);\
 	}\
 	return pos;\
@@ -586,11 +581,11 @@ size_t Name##_erase_key(Name *self, KeyType key)\
 	register size_t count = 0;\
 	Name##Iterator pos;\
 	Name##Iterator last;\
-	assert(self && "Unordered(Set|Map)_erase_key");\
-	assert(self->magic == self && "Unordered(Set|Map)_erase_key");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_erase_key");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_erase_key");\
 	Name##_equal_range(self, key, &pos, &last);\
 	while (pos != last) {\
-		assert(!Name##_empty(self) && "Unordered(Set|(Set|Map))_erase");\
+		CSTL_ASSERT(!Name##_empty(self) && "Unordered(Set|(Set|Map))_erase");\
 		pos = Name##_erase(self, pos);\
 		count++;\
 	}\
@@ -606,8 +601,8 @@ int Name##_rehash(Name *self, size_t n)\
 	size_t nbuckets;\
 	Name##Node_Vector *new_buckets;\
 	Name##Node *end_pos;\
-	assert(self && "Unordered(Set|Map)_rehash");\
-	assert(self->magic == self && "Unordered(Set|Map)_rehash");\
+	CSTL_ASSERT(self && "Unordered(Set|Map)_rehash");\
+	CSTL_ASSERT(self->magic == self && "Unordered(Set|Map)_rehash");\
 	nbuckets = Name##_next_prime(n);\
 	if (nbuckets <= Name##_bucket_count(self)) {\
 		return 1;\
@@ -635,7 +630,7 @@ int Name##_rehash(Name *self, size_t n)\
 	}\
 	/* end()を指すポインタ */\
 	*Name##Node_Vector_back(new_buckets) = &self->end_node;\
-	assert(Name##_begin(self) == Name##_end(self) && "Unordered(Set|Map)_rehash");\
+	CSTL_ASSERT(Name##_begin(self) == Name##_end(self) && "Unordered(Set|Map)_rehash");\
 \
 	Name##Node_Vector_swap(self->buckets, new_buckets);\
 	Name##Node_Vector_delete(new_buckets);\
@@ -651,8 +646,8 @@ int Name##_rehash(Name *self, size_t n)\
 	size_t nbuckets;\
 	Name##Node_Vector *new_buckets;\
 	Name##Node *end_pos;\
-	assert(self && "UnorderedMulti(Set|Map)_rehash");\
-	assert(self->magic == self && "UnorderedMulti(Set|Map)_rehash");\
+	CSTL_ASSERT(self && "UnorderedMulti(Set|Map)_rehash");\
+	CSTL_ASSERT(self->magic == self && "UnorderedMulti(Set|Map)_rehash");\
 	nbuckets = Name##_next_prime(n);\
 	if (nbuckets <= Name##_bucket_count(self)) {\
 		return 1;\
@@ -695,7 +690,7 @@ next:\
 	}\
 	/* end()を指すポインタ */\
 	*Name##Node_Vector_back(new_buckets) = &self->end_node;\
-	assert(Name##_begin(self) == Name##_end(self) && "UnorderedMulti(Set|Map)_rehash");\
+	CSTL_ASSERT(Name##_begin(self) == Name##_end(self) && "UnorderedMulti(Set|Map)_rehash");\
 \
 	Name##Node_Vector_swap(self->buckets, new_buckets);\
 	Name##Node_Vector_delete(new_buckets);\

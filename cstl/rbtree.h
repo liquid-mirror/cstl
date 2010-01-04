@@ -36,13 +36,7 @@
 #define CSTL_RBTREE_H_INCLUDED
 
 #include <stdlib.h>
-#include <assert.h>
-
-#ifdef NDEBUG
-#define CSTL_RBTREE_MAGIC(x)
-#else
-#define CSTL_RBTREE_MAGIC(x) x
-#endif
+#include "common.h"
 
 
 #define CSTL_LESS(x, y)		((x) == (y) ? 0 : (x) < (y) ? -1 : 1)
@@ -107,7 +101,7 @@ static void Name##RBTree_balance_for_erase(Name##RBTree *n, Name##RBTree *p_of_n
 \
 static void Name##RBTree_set_left(Name##RBTree *node, Name##RBTree *t)\
 {\
-	assert(node && "RBTree_set_left");\
+	CSTL_ASSERT(node && "RBTree_set_left");\
 	node->left = t;\
 	if (!CSTL_RBTREE_IS_NIL(t, Name)) {\
 		t->parent = node;\
@@ -116,7 +110,7 @@ static void Name##RBTree_set_left(Name##RBTree *node, Name##RBTree *t)\
 \
 static void Name##RBTree_set_right(Name##RBTree *node, Name##RBTree *t)\
 {\
-	assert(node && "RBTree_set_right");\
+	CSTL_ASSERT(node && "RBTree_set_right");\
 	node->right = t;\
 	if (!CSTL_RBTREE_IS_NIL(t, Name)) {\
 		t->parent = node;\
@@ -125,13 +119,13 @@ static void Name##RBTree_set_right(Name##RBTree *node, Name##RBTree *t)\
 \
 static Name##RBTree *Name##RBTree_get_root(Name##RBTree *self)\
 {\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_get_root");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_get_root");\
 	return self->right;\
 }\
 \
 static void Name##RBTree_set_root(Name##RBTree *self, Name##RBTree *t)\
 {\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_set_root");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_set_root");\
 	self->right = t;\
 	if (!CSTL_RBTREE_IS_NIL(t, Name)) {\
 		t->parent = self;\
@@ -147,7 +141,7 @@ static Name##RBTree *Name##RBTree_new(void)\
 	self->right = (Name##RBTree *) &Name##RBTree_nil;\
 	self->parent = (Name##RBTree *) &Name##RBTree_nil;\
 	self->color = Name##_COLOR_HEAD;\
-	CSTL_RBTREE_MAGIC(self->magic = self);\
+	CSTL_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
@@ -155,7 +149,7 @@ static void Name##RBTree_clear(Name##RBTree *self)\
 {\
 	register Name##RBTree *t;\
 	register Name##RBTree *tmp;\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_clear");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_clear");\
 	t = Name##RBTree_get_root(self);\
 	if (CSTL_RBTREE_IS_NIL(t, Name)) return;\
 	while (1) {\
@@ -173,7 +167,7 @@ static void Name##RBTree_clear(Name##RBTree *self)\
 			t->parent->right = (Name##RBTree *) &Name##RBTree_nil;\
 		}\
 		tmp = t->parent;\
-		CSTL_RBTREE_MAGIC(t->magic = 0);\
+		CSTL_MAGIC(t->magic = 0);\
 		free(t);\
 		t = tmp;\
 		if (CSTL_RBTREE_IS_HEAD(t, Name)) break;\
@@ -182,15 +176,15 @@ static void Name##RBTree_clear(Name##RBTree *self)\
 \
 static void Name##RBTree_delete(Name##RBTree *self)\
 {\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_delete");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_delete");\
 	Name##RBTree_clear(self);\
-	CSTL_RBTREE_MAGIC(self->magic = 0);\
+	CSTL_MAGIC(self->magic = 0);\
 	free(self);\
 }\
 \
 static int Name##RBTree_empty(Name##RBTree *self)\
 {\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_empty");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_empty");\
 	return CSTL_RBTREE_IS_NIL(Name##RBTree_get_root(self), Name);\
 }\
 \
@@ -213,7 +207,7 @@ static Name##RBTree *Name##RBTree_find_node(Name##RBTree *t, KeyType key)\
 static Name##Iterator Name##RBTree_find(Name##RBTree *self, KeyType key)\
 {\
 	Name##RBTree *t;\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_find");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_find");\
 	t = Name##RBTree_find_node(Name##RBTree_get_root(self), key);\
 	return CSTL_RBTREE_IS_NIL(t, Name) ? Name##RBTree_end(self) : t;\
 }\
@@ -224,7 +218,7 @@ static size_t Name##RBTree_count(Name##RBTree *self, KeyType key)\
 	register Name##Iterator pos;\
 	register Name##Iterator first;\
 	register Name##Iterator last;\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_count");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_count");\
 	first = Name##RBTree_lower_bound(self, key);\
 	last = Name##RBTree_upper_bound(self, key);\
 	for (pos = first; pos != last; pos = Name##RBTree_next(pos)) {\
@@ -237,7 +231,7 @@ static Name##Iterator Name##RBTree_lower_bound(Name##RBTree *self, KeyType key)\
 {\
 	register Name##RBTree *t;\
 	register Name##RBTree *tmp;\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_lower_bound");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_lower_bound");\
 	tmp = Name##RBTree_end(self);\
 	t = Name##RBTree_get_root(self);\
 	while (!CSTL_RBTREE_IS_NIL(t, Name)) {\
@@ -255,7 +249,7 @@ static Name##Iterator Name##RBTree_upper_bound(Name##RBTree *self, KeyType key)\
 {\
 	register Name##RBTree *t;\
 	register Name##RBTree *tmp;\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_upper_bound");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_upper_bound");\
 	tmp = Name##RBTree_end(self);\
 	t = Name##RBTree_get_root(self);\
 	while (!CSTL_RBTREE_IS_NIL(t, Name)) {\
@@ -271,8 +265,8 @@ static Name##Iterator Name##RBTree_upper_bound(Name##RBTree *self, KeyType key)\
 \
 static Name##RBTree *Name##RBTree_replace_subtree(Name##RBTree *node, Name##RBTree *t)\
 {\
-	assert(!CSTL_RBTREE_IS_HEAD(node, Name) && "RBTree_replace_subtree");\
-	assert(!CSTL_RBTREE_IS_HEAD(t, Name) && "RBTree_replace_subtree");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(node, Name) && "RBTree_replace_subtree");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(t, Name) && "RBTree_replace_subtree");\
 	if (node->parent->left == node) {\
 		Name##RBTree_set_left(node->parent, t);\
 	} else {\
@@ -309,10 +303,10 @@ static void Name##RBTree_swap(Name##RBTree *s, Name##RBTree *t)\
 	Name##RBTree *tl;\
 	Name##RBTree *tr;\
 	int c;\
-	assert(!CSTL_RBTREE_IS_HEAD(s, Name) && "RBTree_swap");\
-	assert(!CSTL_RBTREE_IS_HEAD(t, Name) && "RBTree_swap");\
-	assert(!CSTL_RBTREE_IS_NIL(s, Name) && "RBTree_swap");\
-	assert(!CSTL_RBTREE_IS_NIL(t, Name) && "RBTree_swap");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(s, Name) && "RBTree_swap");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(t, Name) && "RBTree_swap");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(s, Name) && "RBTree_swap");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(t, Name) && "RBTree_swap");\
 	if (t->parent == s) {\
 		Name##RBTree_swap_parent_child(s, t);\
 	} else if (s->parent == t) {\
@@ -345,11 +339,11 @@ static void Name##RBTree_rotate_right(Name##RBTree *node)\
 {\
 	Name##RBTree *p;\
 	Name##RBTree *n;\
-	assert(!CSTL_RBTREE_IS_HEAD(node, Name) && "RBTree_rotate_right");\
-	assert(!CSTL_RBTREE_IS_NIL(node, Name) && "RBTree_rotate_right");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(node, Name) && "RBTree_rotate_right");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(node, Name) && "RBTree_rotate_right");\
 	p = node->parent;\
 	n = node->left;\
-	assert(!CSTL_RBTREE_IS_NIL(n, Name) && "RBTree_rotate_right");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(n, Name) && "RBTree_rotate_right");\
 	Name##RBTree_set_left(node, n->right);\
 	Name##RBTree_set_right(n, node);\
 	if (p->left == node) {\
@@ -363,11 +357,11 @@ static void Name##RBTree_rotate_left(Name##RBTree *node)\
 {\
 	Name##RBTree *p;\
 	Name##RBTree *n;\
-	assert(!CSTL_RBTREE_IS_HEAD(node, Name) && "RBTree_rotate_left");\
-	assert(!CSTL_RBTREE_IS_NIL(node, Name) && "RBTree_rotate_left");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(node, Name) && "RBTree_rotate_left");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(node, Name) && "RBTree_rotate_left");\
 	p = node->parent;\
 	n = node->right;\
-	assert(!CSTL_RBTREE_IS_NIL(n, Name) && "RBTree_rotate_left");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(n, Name) && "RBTree_rotate_left");\
 	Name##RBTree_set_right(node, n->left);\
 	Name##RBTree_set_left(n, node);\
 	if (p->left == node) {\
@@ -379,9 +373,9 @@ static void Name##RBTree_rotate_left(Name##RBTree *node)\
 \
 static Name##RBTree *Name##RBTree_get_sibling(Name##RBTree *node)\
 {\
-	assert(!CSTL_RBTREE_IS_HEAD(node, Name) && "RBTree_get_sibling");\
-	assert(!CSTL_RBTREE_IS_NIL(node, Name) && "RBTree_get_sibling");\
-	assert(!CSTL_RBTREE_IS_ROOT(node, Name) && "RBTree_get_sibling");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(node, Name) && "RBTree_get_sibling");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(node, Name) && "RBTree_get_sibling");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_ROOT(node, Name) && "RBTree_get_sibling");\
 	return (node->parent->left == node) ? \
 		node->parent->right : node->parent->left;\
 }\
@@ -389,13 +383,13 @@ static Name##RBTree *Name##RBTree_get_sibling(Name##RBTree *node)\
 static Name##RBTree *Name##RBTree_get_uncle(Name##RBTree *node)\
 {\
 	Name##RBTree *g;\
-	assert(!CSTL_RBTREE_IS_HEAD(node, Name) && "RBTree_get_uncle");\
-	assert(!CSTL_RBTREE_IS_NIL(node, Name) && "RBTree_get_uncle");\
-	assert(!CSTL_RBTREE_IS_ROOT(node, Name) && "RBTree_get_uncle");\
-	assert(!CSTL_RBTREE_IS_ROOT(node->parent, Name) && "RBTree_get_uncle");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(node, Name) && "RBTree_get_uncle");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(node, Name) && "RBTree_get_uncle");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_ROOT(node, Name) && "RBTree_get_uncle");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_ROOT(node->parent, Name) && "RBTree_get_uncle");\
 	g = node->parent->parent;\
-	assert(!CSTL_RBTREE_IS_NIL(g, Name) && "RBTree_get_uncle");\
-	assert(!CSTL_RBTREE_IS_HEAD(g, Name) && "RBTree_get_uncle");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(g, Name) && "RBTree_get_uncle");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(g, Name) && "RBTree_get_uncle");\
 	return (g->left == node->parent) ?\
 		g->right : g->left;\
 }\
@@ -452,7 +446,7 @@ static void Name##RBTree_balance_for_insert(Name##RBTree *n)\
 			/* case 5 right */\
 			Name##RBTree_rotate_left(g);\
 		} else {\
-			assert(0 && "RBTree_balance_for_insert");\
+			CSTL_ASSERT(0 && "RBTree_balance_for_insert");\
 		}\
 		p->color = Name##_COLOR_BLACK;\
 		g->color = Name##_COLOR_RED;\
@@ -464,8 +458,8 @@ static void Name##RBTree_insert(Name##RBTree *self, Name##RBTree *node)\
 {\
 	register Name##RBTree *n;\
 	register Name##RBTree *tmp;\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_insert");\
-	CSTL_RBTREE_MAGIC(node->magic = self);\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_insert");\
+	CSTL_MAGIC(node->magic = self);\
 	n = Name##RBTree_get_root(self);\
 	if (CSTL_RBTREE_IS_NIL(n, Name)) {\
 		/* rootになる */\
@@ -510,14 +504,14 @@ static void Name##RBTree_balance_for_erase(Name##RBTree *n, Name##RBTree *p_of_n
 			break;\
 		}\
 		if (CSTL_RBTREE_IS_NIL(n, Name)) {\
-			assert(!(CSTL_RBTREE_IS_NIL(p_of_n->left, Name) && CSTL_RBTREE_IS_NIL(p_of_n->right, Name)) && "RBTree_balance_for_erase");\
+			CSTL_ASSERT(!(CSTL_RBTREE_IS_NIL(p_of_n->left, Name) && CSTL_RBTREE_IS_NIL(p_of_n->right, Name)) && "RBTree_balance_for_erase");\
 			p = p_of_n;\
 			s = (n == p_of_n->left) ? p_of_n->right : p_of_n->left;\
 		} else {\
 			p = n->parent;\
 			s = Name##RBTree_get_sibling(n);\
 		}\
-		assert(!CSTL_RBTREE_IS_NIL(s, Name) && "RBTree_balance_for_erase");\
+		CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(s, Name) && "RBTree_balance_for_erase");\
 		if (s->color == Name##_COLOR_RED) {\
 			/* case 2 sが赤 */\
 			p->color = Name##_COLOR_RED;\
@@ -531,7 +525,7 @@ static void Name##RBTree_balance_for_erase(Name##RBTree *n, Name##RBTree *p_of_n
 			}\
 		}\
 		/* 以下、sは黒 */\
-		assert(!CSTL_RBTREE_IS_NIL(s, Name) && "RBTree_balance_for_erase");\
+		CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(s, Name) && "RBTree_balance_for_erase");\
 		sl = s->left;\
 		sr = s->right;\
 		if (p->color == Name##_COLOR_BLACK && sl->color == Name##_COLOR_BLACK && sr->color == Name##_COLOR_BLACK) {\
@@ -573,7 +567,7 @@ static void Name##RBTree_balance_for_erase(Name##RBTree *n, Name##RBTree *p_of_n
 			sl->color = Name##_COLOR_BLACK;\
 			Name##RBTree_rotate_right(p);\
 		} else {\
-			assert(0 && "RBTree_balance_for_erase");\
+			CSTL_ASSERT(0 && "RBTree_balance_for_erase");\
 		}\
 		c = p->color;\
 		p->color = s->color;\
@@ -586,10 +580,10 @@ static void Name##RBTree_erase(Name##RBTree *self, Name##Iterator pos)\
 {\
 	register Name##RBTree *n;\
 	register Name##RBTree *x;\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_erase");\
-	assert(!CSTL_RBTREE_IS_HEAD(pos, Name) && "RBTree_erase");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_erase");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "RBTree_erase");\
 	n = pos;\
-	assert(!CSTL_RBTREE_IS_NIL(n, Name) && "RBTree_erase");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(n, Name) && "RBTree_erase");\
 	if (CSTL_RBTREE_IS_NIL(n->left, Name) && CSTL_RBTREE_IS_NIL(n->right, Name)) {\
 		if (CSTL_RBTREE_IS_ROOT(n, Name)) {\
 			/* 最後の一つを削除 */\
@@ -605,7 +599,7 @@ static void Name##RBTree_erase(Name##RBTree *self, Name##Iterator pos)\
 	if (CSTL_RBTREE_IS_NIL(n->left, Name)) {\
 		n = Name##RBTree_replace_subtree(n, n->right);\
 		if (n->color == Name##_COLOR_BLACK) {\
-			assert(!CSTL_RBTREE_IS_NIL(n->right, Name) && "RBTree_erase");\
+			CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(n->right, Name) && "RBTree_erase");\
 			Name##RBTree_balance_for_erase(n->right, 0);\
 		}\
 		goto end;\
@@ -613,12 +607,12 @@ static void Name##RBTree_erase(Name##RBTree *self, Name##Iterator pos)\
 	if (CSTL_RBTREE_IS_NIL(n->right, Name)) {\
 		n = Name##RBTree_replace_subtree(n, n->left);\
 		if (n->color == Name##_COLOR_BLACK) {\
-			assert(!CSTL_RBTREE_IS_NIL(n->left, Name) && "RBTree_erase");\
+			CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(n->left, Name) && "RBTree_erase");\
 			Name##RBTree_balance_for_erase(n->left, 0);\
 		}\
 		goto end;\
 	}\
-	assert(!(CSTL_RBTREE_IS_NIL(n->left, Name) || CSTL_RBTREE_IS_NIL(n->right, Name)) && "RBTree_erase");\
+	CSTL_ASSERT(!(CSTL_RBTREE_IS_NIL(n->left, Name) || CSTL_RBTREE_IS_NIL(n->right, Name)) && "RBTree_erase");\
 	x = n->left;\
 	while (!CSTL_RBTREE_IS_NIL(x->right, Name)) {\
 		x = x->right;\
@@ -626,11 +620,11 @@ static void Name##RBTree_erase(Name##RBTree *self, Name##Iterator pos)\
 	Name##RBTree_swap(n, x);\
 	n = Name##RBTree_replace_subtree(n, n->left);\
 	if (n->color == Name##_COLOR_BLACK) {\
-		assert(!CSTL_RBTREE_IS_NIL(n, Name) && "RBTree_erase");\
+		CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(n, Name) && "RBTree_erase");\
 		Name##RBTree_balance_for_erase(n->left, n->parent);\
 	}\
 end:\
-	CSTL_RBTREE_MAGIC(n->magic = 0);\
+	CSTL_MAGIC(n->magic = 0);\
 	free(n);\
 }\
 \
@@ -638,7 +632,7 @@ static Name##Iterator Name##RBTree_begin(Name##RBTree *self)\
 {\
 	register Name##RBTree *t;\
 	register Name##RBTree *tmp;\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_begin");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_begin");\
 	tmp = Name##RBTree_end(self);\
 	t = Name##RBTree_get_root(self);\
 	while (!CSTL_RBTREE_IS_NIL(t, Name)) {\
@@ -650,7 +644,7 @@ static Name##Iterator Name##RBTree_begin(Name##RBTree *self)\
 \
 static Name##Iterator Name##RBTree_end(Name##RBTree *self)\
 {\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_end");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_end");\
 	return self;\
 }\
 \
@@ -658,7 +652,7 @@ static Name##Iterator Name##RBTree_rbegin(Name##RBTree *self)\
 {\
 	register Name##RBTree *t;\
 	register Name##RBTree *tmp;\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_rbegin");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_rbegin");\
 	tmp = Name##RBTree_rend(self);\
 	t = Name##RBTree_get_root(self);\
 	while (!CSTL_RBTREE_IS_NIL(t, Name)) {\
@@ -670,14 +664,14 @@ static Name##Iterator Name##RBTree_rbegin(Name##RBTree *self)\
 \
 static Name##Iterator Name##RBTree_rend(Name##RBTree *self)\
 {\
-	assert(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_rend");\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_rend");\
 	return self;\
 }\
 \
 static Name##Iterator Name##RBTree_next(Name##Iterator pos)\
 {\
-	assert(!CSTL_RBTREE_IS_HEAD(pos, Name) && "RBTree_next");\
-	assert(!CSTL_RBTREE_IS_NIL(pos, Name) && "RBTree_next");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "RBTree_next");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(pos, Name) && "RBTree_next");\
 	/* 下位検索 */\
 	if (!CSTL_RBTREE_IS_NIL(pos->right, Name)) {\
 		pos = pos->right;\
@@ -696,8 +690,8 @@ static Name##Iterator Name##RBTree_next(Name##Iterator pos)\
 \
 static Name##Iterator Name##RBTree_prev(Name##Iterator pos)\
 {\
-	assert(!CSTL_RBTREE_IS_HEAD(pos, Name) && "RBTree_prev");\
-	assert(!CSTL_RBTREE_IS_NIL(pos, Name) && "RBTree_prev");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "RBTree_prev");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(pos, Name) && "RBTree_prev");\
 	/* 下位検索 */\
 	if (!CSTL_RBTREE_IS_NIL(pos->left, Name)) {\
 		pos = pos->left;\
@@ -754,7 +748,7 @@ typedef struct Name##RBTree Name##RBTree;\
 struct Name {\
 	Name##RBTree *tree;\
 	size_t size;\
-	CSTL_RBTREE_MAGIC(Name *magic;)\
+	CSTL_MAGIC(Name *magic;)\
 };\
 \
 CSTL_RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare)\
@@ -770,49 +764,49 @@ Name *Name##_new(void)\
 		return 0;\
 	}\
 	self->size = 0;\
-	CSTL_RBTREE_MAGIC(self->magic = self);\
+	CSTL_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
 void Name##_delete(Name *self)\
 {\
 	if (!self) return;\
-	assert(self->magic == self && "(Set|Map)_delete");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_delete");\
 	Name##RBTree_delete(self->tree);\
-	CSTL_RBTREE_MAGIC(self->magic = 0);\
+	CSTL_MAGIC(self->magic = 0);\
 	free(self);\
 }\
 \
 void Name##_clear(Name *self)\
 {\
-	assert(self && "(Set|Map)_clear");\
-	assert(self->magic == self && "(Set|Map)_clear");\
+	CSTL_ASSERT(self && "(Set|Map)_clear");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_clear");\
 	Name##RBTree_clear(self->tree);\
 	self->size = 0;\
 }\
 \
 int Name##_empty(Name *self)\
 {\
-	assert(self && "(Set|Map)_empty");\
-	assert(self->magic == self && "(Set|Map)_empty");\
+	CSTL_ASSERT(self && "(Set|Map)_empty");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_empty");\
 	return Name##RBTree_empty(self->tree);\
 }\
 \
 size_t Name##_size(Name *self)\
 {\
-	assert(self && "(Set|Map)_size");\
-	assert(self->magic == self && "(Set|Map)_size");\
+	CSTL_ASSERT(self && "(Set|Map)_size");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_size");\
 	return self->size;\
 }\
 \
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 {\
 	Name##Iterator tmp;\
-	assert(self && "(Set|Map)_erase");\
-	assert(self->magic == self && "(Set|Map)_erase");\
-	assert(pos && "(Set|Map)_erase");\
-	assert(pos != self->tree && "(Set|Map)_erase");\
-	assert(pos->magic == self->tree && "(Set|Map)_erase");\
+	CSTL_ASSERT(self && "(Set|Map)_erase");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_erase");\
+	CSTL_ASSERT(pos && "(Set|Map)_erase");\
+	CSTL_ASSERT(pos != self->tree && "(Set|Map)_erase");\
+	CSTL_ASSERT(pos->magic == self->tree && "(Set|Map)_erase");\
 	tmp = Name##_next(pos);\
 	Name##RBTree_erase(self->tree, pos);\
 	self->size--;\
@@ -822,15 +816,15 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
 	register Name##Iterator pos;\
-	assert(self && "(Set|Map)_erase_range");\
-	assert(self->magic == self && "(Set|Map)_erase_range");\
-	assert(first && "(Set|Map)_erase_range");\
-	assert(last && "(Set|Map)_erase_range");\
-	assert(first->magic == self->tree && "(Set|Map)_erase_range");\
-	assert(last->magic == self->tree && "(Set|Map)_erase_range");\
+	CSTL_ASSERT(self && "(Set|Map)_erase_range");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_erase_range");\
+	CSTL_ASSERT(first && "(Set|Map)_erase_range");\
+	CSTL_ASSERT(last && "(Set|Map)_erase_range");\
+	CSTL_ASSERT(first->magic == self->tree && "(Set|Map)_erase_range");\
+	CSTL_ASSERT(last->magic == self->tree && "(Set|Map)_erase_range");\
 	pos = first;\
 	while (pos != last) {\
-		assert(!Name##_empty(self) && "(Set|Map)_erase_range");\
+		CSTL_ASSERT(!Name##_empty(self) && "(Set|Map)_erase_range");\
 		pos = Name##_erase(self, pos);\
 	}\
 	return pos;\
@@ -841,12 +835,12 @@ size_t Name##_erase_key(Name *self, KeyType key)\
 	register size_t count = 0;\
 	register Name##Iterator pos;\
 	register Name##Iterator last;\
-	assert(self && "(Set|Map)_erase_key");\
-	assert(self->magic == self && "(Set|Map)_erase_key");\
+	CSTL_ASSERT(self && "(Set|Map)_erase_key");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_erase_key");\
 	pos = Name##_lower_bound(self, key);\
 	last = Name##_upper_bound(self, key);\
 	while (pos != last) {\
-		assert(!Name##_empty(self) && "(Set|Map)_erase_key");\
+		CSTL_ASSERT(!Name##_empty(self) && "(Set|Map)_erase_key");\
 		pos = Name##_erase(self, pos);\
 		count++;\
 	}\
@@ -855,81 +849,81 @@ size_t Name##_erase_key(Name *self, KeyType key)\
 \
 size_t Name##_count(Name *self, KeyType key)\
 {\
-	assert(self && "(Set|Map)_count");\
-	assert(self->magic == self && "(Set|Map)_count");\
+	CSTL_ASSERT(self && "(Set|Map)_count");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_count");\
 	return Name##RBTree_count(self->tree, key);\
 }\
 \
 Name##Iterator Name##_find(Name *self, KeyType key)\
 {\
-	assert(self && "(Set|Map)_find");\
-	assert(self->magic == self && "(Set|Map)_find");\
+	CSTL_ASSERT(self && "(Set|Map)_find");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_find");\
 	return Name##RBTree_find(self->tree, key);\
 }\
 \
 Name##Iterator Name##_lower_bound(Name *self, KeyType key)\
 {\
-	assert(self && "(Set|Map)_lower_bound");\
-	assert(self->magic == self && "(Set|Map)_lower_bound");\
+	CSTL_ASSERT(self && "(Set|Map)_lower_bound");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_lower_bound");\
 	return Name##RBTree_lower_bound(self->tree, key);\
 }\
 \
 Name##Iterator Name##_upper_bound(Name *self, KeyType key)\
 {\
-	assert(self && "(Set|Map)_upper_bound");\
-	assert(self->magic == self && "(Set|Map)_upper_bound");\
+	CSTL_ASSERT(self && "(Set|Map)_upper_bound");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_upper_bound");\
 	return Name##RBTree_upper_bound(self->tree, key);\
 }\
 \
 void Name##_equal_range(Name *self, KeyType key, Name##Iterator *first, Name##Iterator *last)\
 {\
-	assert(self && "(Set|Map)_equal_range");\
-	assert(self->magic == self && "(Set|Map)_equal_range");\
-	assert(first && "(Set|Map)_equal_range");\
-	assert(last && "(Set|Map)_equal_range");\
+	CSTL_ASSERT(self && "(Set|Map)_equal_range");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_equal_range");\
+	CSTL_ASSERT(first && "(Set|Map)_equal_range");\
+	CSTL_ASSERT(last && "(Set|Map)_equal_range");\
 	*first = Name##RBTree_lower_bound(self->tree, key);\
 	*last = Name##RBTree_upper_bound(self->tree, key);\
 }\
 \
 Name##Iterator Name##_begin(Name *self)\
 {\
-	assert(self && "(Set|Map)_begin");\
-	assert(self->magic == self && "(Set|Map)_begin");\
+	CSTL_ASSERT(self && "(Set|Map)_begin");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_begin");\
 	return Name##RBTree_begin(self->tree);\
 }\
 \
 Name##Iterator Name##_end(Name *self)\
 {\
-	assert(self && "(Set|Map)_end");\
-	assert(self->magic == self && "(Set|Map)_end");\
+	CSTL_ASSERT(self && "(Set|Map)_end");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_end");\
 	return Name##RBTree_end(self->tree);\
 }\
 \
 Name##Iterator Name##_rbegin(Name *self)\
 {\
-	assert(self && "(Set|Map)_rbegin");\
-	assert(self->magic == self && "(Set|Map)_rbegin");\
+	CSTL_ASSERT(self && "(Set|Map)_rbegin");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_rbegin");\
 	return Name##RBTree_rbegin(self->tree);\
 }\
 \
 Name##Iterator Name##_rend(Name *self)\
 {\
-	assert(self && "(Set|Map)_rend");\
-	assert(self->magic == self && "(Set|Map)_rend");\
+	CSTL_ASSERT(self && "(Set|Map)_rend");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_rend");\
 	return Name##RBTree_rend(self->tree);\
 }\
 \
 Name##Iterator Name##_next(Name##Iterator pos)\
 {\
-	assert(pos && "(Set|Map)_next");\
-	assert(pos->magic && "(Set|Map)_next");\
+	CSTL_ASSERT(pos && "(Set|Map)_next");\
+	CSTL_ASSERT(pos->magic && "(Set|Map)_next");\
 	return Name##RBTree_next(pos);\
 }\
 \
 Name##Iterator Name##_prev(Name##Iterator pos)\
 {\
-	assert(pos && "(Set|Map)_prev");\
-	assert(pos->magic && "(Set|Map)_prev");\
+	CSTL_ASSERT(pos && "(Set|Map)_prev");\
+	CSTL_ASSERT(pos->magic && "(Set|Map)_prev");\
 	return Name##RBTree_prev(pos);\
 }\
 \
@@ -937,10 +931,10 @@ void Name##_swap(Name *self, Name *x)\
 {\
 	Name##RBTree *tmp_tree;\
 	size_t tmp_size;\
-	assert(self && "(Set|Map)_swap");\
-	assert(x && "(Set|Map)_swap");\
-	assert(self->magic == self && "(Set|Map)_swap");\
-	assert(x->magic == x && "(Set|Map)_swap");\
+	CSTL_ASSERT(self && "(Set|Map)_swap");\
+	CSTL_ASSERT(x && "(Set|Map)_swap");\
+	CSTL_ASSERT(self->magic == self && "(Set|Map)_swap");\
+	CSTL_ASSERT(x->magic == x && "(Set|Map)_swap");\
 	tmp_tree = self->tree;\
 	tmp_size = self->size;\
 	self->tree = x->tree;\

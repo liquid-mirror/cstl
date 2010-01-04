@@ -34,16 +34,8 @@
 #define CSTL_UNORDERED_SET_H_INCLUDED
 
 #include <stdlib.h>
-#include <assert.h>
+#include "common.h"
 #include "hashtable.h"
-
-#ifdef __cplusplus
-#define CSTL_UNORDERED_SET_BEGIN_EXTERN_C()		extern "C" {
-#define CSTL_UNORDERED_SET_END_EXTERN_C()		}
-#else
-#define CSTL_UNORDERED_SET_BEGIN_EXTERN_C()
-#define CSTL_UNORDERED_SET_END_EXTERN_C()
-#endif
 
 
 #define CSTL_COMMON_UNORDERED_SET_IMPLEMENT(Name, Type, Hasher, Compare)	\
@@ -56,7 +48,7 @@ struct Name##Node {\
 	struct Name##Node *next;\
 	struct Name##Node **bucket;\
 	Type key;\
-	CSTL_HASHTABLE_MAGIC(struct Name##Node_Vector *magic;)\
+	CSTL_MAGIC(struct Name##Node_Vector *magic;)\
 };\
 \
 static Name##Node *Name##Node_new(Type data)\
@@ -73,9 +65,9 @@ CSTL_HASHTABLE_IMPLEMENT(Name, Type, Type, Hasher, Compare)\
 \
 Type const *Name##_data(Name##Iterator pos)\
 {\
-	assert(pos && "UnorderedSet_data");\
-	assert(pos->magic && "UnorderedSet_data");\
-	assert(pos->bucket && "UnorderedSet_data"); /* pos != end() */\
+	CSTL_ASSERT(pos && "UnorderedSet_data");\
+	CSTL_ASSERT(pos->magic && "UnorderedSet_data");\
+	CSTL_ASSERT(pos->bucket && "UnorderedSet_data"); /* pos != end() */\
 	return &pos->key;\
 }\
 \
@@ -88,11 +80,11 @@ Type const *Name##_data(Name##Iterator pos)\
  * \param Type 要素の型
  */
 #define CSTL_UNORDERED_SET_INTERFACE(Name, Type)	\
-CSTL_UNORDERED_SET_BEGIN_EXTERN_C()\
+CSTL_EXTERN_C_BEGIN()\
 CSTL_HASHTABLE_INTERFACE(Name, Type, Type)\
 Name##Iterator Name##_insert(Name *self, Type data, int *success);\
 Type const *Name##_data(Name##Iterator pos);\
-CSTL_UNORDERED_SET_END_EXTERN_C()\
+CSTL_EXTERN_C_END()\
 
 /*! 
  * \brief 実装マクロ
@@ -113,8 +105,8 @@ Name##Iterator Name##_insert(Name *self, Type data, int *success)\
 	Name##Node *pos;\
 	size_t hash_val;\
 	size_t idx;\
-	assert(self && "UnorderedSet_insert");\
-	assert(self->magic == self && "UnorderedSet_insert");\
+	CSTL_ASSERT(self && "UnorderedSet_insert");\
+	CSTL_ASSERT(self->magic == self && "UnorderedSet_insert");\
 	hash_val = Hasher(data);\
 	idx = hash_val % Name##_bucket_count(self);\
 	pos = Name##_find_node(self, data, idx);\
@@ -140,7 +132,7 @@ Name##Iterator Name##_insert(Name *self, Type data, int *success)\
 	alias = Name##Node_Vector_at(self->buckets, idx);\
 	*alias = Name##Node_insert(*alias, node, alias);\
 	self->size++;\
-	CSTL_HASHTABLE_MAGIC(node->magic = self->buckets);\
+	CSTL_MAGIC(node->magic = self->buckets);\
 	if (success) *success = 1;\
 	return node;\
 }\
@@ -150,12 +142,12 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	Name##Node *list = 0;\
 	register Name##Node *pos;\
 	register size_t count = 0;\
-	assert(self && "UnorderedSet_insert_range");\
-	assert(self->magic == self && "UnorderedSet_insert_range");\
-	assert(first && "UnorderedSet_insert_range");\
-	assert(last && "UnorderedSet_insert_range");\
-	assert(first->magic && "UnorderedSet_insert_range");\
-	assert(last->magic && "UnorderedSet_insert_range");\
+	CSTL_ASSERT(self && "UnorderedSet_insert_range");\
+	CSTL_ASSERT(self->magic == self && "UnorderedSet_insert_range");\
+	CSTL_ASSERT(first && "UnorderedSet_insert_range");\
+	CSTL_ASSERT(last && "UnorderedSet_insert_range");\
+	CSTL_ASSERT(first->magic && "UnorderedSet_insert_range");\
+	CSTL_ASSERT(last->magic && "UnorderedSet_insert_range");\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
 		if (Name##_find(self, pos->key) == Name##_end(self)) {\
 			Name##Node *node;\
@@ -175,7 +167,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 			Name##Node_clear(list);\
 			return 0;\
 		}\
-		assert(self->size + count <= self->max_load_factor * Name##_bucket_count(self) && "UnorderedSet_insert_range");\
+		CSTL_ASSERT(self->size + count <= self->max_load_factor * Name##_bucket_count(self) && "UnorderedSet_insert_range");\
 	}\
 	for (pos = list; pos != 0; pos = list) {\
 		size_t idx;\
@@ -187,7 +179,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 		idx = Hasher(pos->key) % Name##_bucket_count(self);\
 		alias = Name##Node_Vector_at(self->buckets, idx);\
 		*alias = Name##Node_insert(*alias, pos, alias);\
-		CSTL_HASHTABLE_MAGIC(pos->magic = self->buckets);\
+		CSTL_MAGIC(pos->magic = self->buckets);\
 	}\
 	self->size += count;\
 	return 1;\
@@ -202,11 +194,11 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
  * \param Type 要素の型
  */
 #define CSTL_UNORDERED_MULTISET_INTERFACE(Name, Type)	\
-CSTL_UNORDERED_SET_BEGIN_EXTERN_C()\
+CSTL_EXTERN_C_BEGIN()\
 CSTL_HASHTABLE_INTERFACE(Name, Type, Type)\
 Name##Iterator Name##_insert(Name *self, Type data);\
 Type const *Name##_data(Name##Iterator pos);\
-CSTL_UNORDERED_SET_END_EXTERN_C()\
+CSTL_EXTERN_C_END()\
 
 /*! 
  * \brief 実装マクロ
@@ -228,8 +220,8 @@ Name##Iterator Name##_insert(Name *self, Type data)\
 	register Name##Node *prev;\
 	size_t hash_val;\
 	size_t idx;\
-	assert(self && "UnorderedMultiSet_insert");\
-	assert(self->magic == self && "UnorderedMultiSet_insert");\
+	CSTL_ASSERT(self && "UnorderedMultiSet_insert");\
+	CSTL_ASSERT(self->magic == self && "UnorderedMultiSet_insert");\
 	hash_val = Hasher(data);\
 	idx = hash_val % Name##_bucket_count(self);\
 	node = Name##Node_new(data);\
@@ -256,13 +248,13 @@ Name##Iterator Name##_insert(Name *self, Type data)\
 				*alias = pos;\
 			}\
 			self->size++;\
-			CSTL_HASHTABLE_MAGIC(node->magic = self->buckets);\
+			CSTL_MAGIC(node->magic = self->buckets);\
 			return node;\
 		}\
 	}\
 	*alias = Name##Node_insert(*alias, node, alias);\
 	self->size++;\
-	CSTL_HASHTABLE_MAGIC(node->magic = self->buckets);\
+	CSTL_MAGIC(node->magic = self->buckets);\
 	return node;\
 }\
 \
@@ -271,12 +263,12 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	Name##Node *list = 0;\
 	register Name##Node *pos;\
 	register size_t count = 0;\
-	assert(self && "UnorderedMultiSet_insert_range");\
-	assert(self->magic == self && "UnorderedMultiSet_insert_range");\
-	assert(first && "UnorderedMultiSet_insert_range");\
-	assert(last && "UnorderedMultiSet_insert_range");\
-	assert(first->magic && "UnorderedMultiSet_insert_range");\
-	assert(last->magic && "UnorderedMultiSet_insert_range");\
+	CSTL_ASSERT(self && "UnorderedMultiSet_insert_range");\
+	CSTL_ASSERT(self->magic == self && "UnorderedMultiSet_insert_range");\
+	CSTL_ASSERT(first && "UnorderedMultiSet_insert_range");\
+	CSTL_ASSERT(last && "UnorderedMultiSet_insert_range");\
+	CSTL_ASSERT(first->magic && "UnorderedMultiSet_insert_range");\
+	CSTL_ASSERT(last->magic && "UnorderedMultiSet_insert_range");\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
 		Name##Node *node;\
 		node = Name##Node_new(pos->key);\
@@ -294,7 +286,7 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 			Name##Node_clear(list);\
 			return 0;\
 		}\
-		assert(self->size + count <= self->max_load_factor * Name##_bucket_count(self) && "UnorderedMultiSet_insert_range");\
+		CSTL_ASSERT(self->size + count <= self->max_load_factor * Name##_bucket_count(self) && "UnorderedMultiSet_insert_range");\
 	}\
 	for (pos = list; pos != 0; pos = list) {\
 		register Name##Node *i;\
@@ -316,12 +308,12 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 				} else {\
 					*alias = i;\
 				}\
-				CSTL_HASHTABLE_MAGIC(pos->magic = self->buckets);\
+				CSTL_MAGIC(pos->magic = self->buckets);\
 				goto next;\
 			}\
 		}\
 		*alias = Name##Node_insert(*alias, pos, alias);\
-		CSTL_HASHTABLE_MAGIC(pos->magic = self->buckets);\
+		CSTL_MAGIC(pos->magic = self->buckets);\
 next:\
 		;\
 	}\

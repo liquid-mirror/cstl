@@ -34,21 +34,7 @@
 #define CSTL_RING_H_INCLUDED
 
 #include <stdlib.h>
-#include <assert.h>
-
-#ifdef __cplusplus
-#define CSTL_RING_BEGIN_EXTERN_C()	extern "C" {
-#define CSTL_RING_END_EXTERN_C()	}
-#else
-#define CSTL_RING_BEGIN_EXTERN_C()
-#define CSTL_RING_END_EXTERN_C()
-#endif
-
-#ifdef NDEBUG
-#define CSTL_RING_MAGIC(x)
-#else
-#define CSTL_RING_MAGIC(x) x
-#endif
+#include "common.h"
 
 
 #define CSTL_RING_ADVANCE_IDX(self, idx, n)		(((idx) + (n)) & ((self)->max_size - 1))
@@ -84,10 +70,10 @@ struct Name {\
 	size_t max_size;\
 	size_t size;\
 	Type *buf;\
-	CSTL_RING_MAGIC(Name *magic;)\
+	CSTL_MAGIC(Name *magic;)\
 };\
 \
-CSTL_RING_BEGIN_EXTERN_C()\
+CSTL_EXTERN_C_BEGIN()\
 Name *Name##_new(size_t n);\
 void Name##_init(Name *self, Type *buf, size_t n);\
 void Name##_delete(Name *self);\
@@ -110,7 +96,7 @@ int Name##_insert(Name *self, size_t idx, Type data);\
 int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n);\
 int Name##_resize(Name *self, size_t n, Type data);\
 void Name##_swap(Name *self, Name *x);\
-CSTL_RING_END_EXTERN_C()\
+CSTL_EXTERN_C_END()\
 
 
 #define CSTL_RING_IMPLEMENT_FOR_DEQUE(Name, Type)	\
@@ -133,23 +119,23 @@ Name *Name##_new(size_t n)\
 void Name##_delete(Name *self)\
 {\
 	if (!self) return;\
-	assert(self->magic == self && "Ring_delete");\
-	CSTL_RING_MAGIC(self->magic = 0);\
+	CSTL_ASSERT(self->magic == self && "Ring_delete");\
+	CSTL_MAGIC(self->magic = 0);\
 	free(self->buf);\
 	free(self);\
 }\
 \
 void Name##_init(Name *self, Type *buf, size_t n)\
 {\
-	assert(self && "Ring_init");\
-	assert(buf && "Ring_init");\
+	CSTL_ASSERT(self && "Ring_init");\
+	CSTL_ASSERT(buf && "Ring_init");\
 	self->begin = 0;\
 	self->end = 0;\
 	self->buf = buf;\
 	/* NOTE: max_sizeは必ず2の冪乗でなければならない */\
 	self->max_size = n;\
 	self->size = 0;\
-	CSTL_RING_MAGIC(self->magic = self);\
+	CSTL_MAGIC(self->magic = self);\
 }\
 \
 static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n)\
@@ -171,9 +157,9 @@ static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)
 \
 int Name##_push_back_ref(Name *self, Type const *data)\
 {\
-	assert(self && "Ring_push_back_ref");\
-	assert(self->magic == self && "Ring_push_back_ref");\
-	assert(data && "Ring_push_back_ref");\
+	CSTL_ASSERT(self && "Ring_push_back_ref");\
+	CSTL_ASSERT(self->magic == self && "Ring_push_back_ref");\
+	CSTL_ASSERT(data && "Ring_push_back_ref");\
 	if (CSTL_RING_FULL(self)) return 0;\
 	self->buf[self->end] = *data;\
 	self->end = CSTL_RING_NEXT_IDX(self, self->end);\
@@ -183,9 +169,9 @@ int Name##_push_back_ref(Name *self, Type const *data)\
 \
 int Name##_push_front_ref(Name *self, Type const *data)\
 {\
-	assert(self && "Ring_push_front_ref");\
-	assert(self->magic == self && "Ring_push_front_ref");\
-	assert(data && "Ring_push_front_ref");\
+	CSTL_ASSERT(self && "Ring_push_front_ref");\
+	CSTL_ASSERT(self->magic == self && "Ring_push_front_ref");\
+	CSTL_ASSERT(data && "Ring_push_front_ref");\
 	if (CSTL_RING_FULL(self)) return 0;\
 	self->begin = CSTL_RING_PREV_IDX(self, self->begin);\
 	self->buf[self->begin] = *data;\
@@ -195,18 +181,18 @@ int Name##_push_front_ref(Name *self, Type const *data)\
 \
 void Name##_pop_front(Name *self)\
 {\
-	assert(self && "Ring_pop_front");\
-	assert(self->magic == self && "Ring_pop_front");\
-	assert(!CSTL_RING_EMPTY(self) && "Ring_pop_front");\
+	CSTL_ASSERT(self && "Ring_pop_front");\
+	CSTL_ASSERT(self->magic == self && "Ring_pop_front");\
+	CSTL_ASSERT(!CSTL_RING_EMPTY(self) && "Ring_pop_front");\
 	self->begin = CSTL_RING_NEXT_IDX(self, self->begin);\
 	self->size--;\
 }\
 \
 void Name##_pop_back(Name *self)\
 {\
-	assert(self && "Ring_pop_back");\
-	assert(self->magic == self && "Ring_pop_back");\
-	assert(!CSTL_RING_EMPTY(self) && "Ring_pop_back");\
+	CSTL_ASSERT(self && "Ring_pop_back");\
+	CSTL_ASSERT(self->magic == self && "Ring_pop_back");\
+	CSTL_ASSERT(!CSTL_RING_EMPTY(self) && "Ring_pop_back");\
 	self->end = CSTL_RING_PREV_IDX(self, self->end);\
 	self->size--;\
 }\
@@ -215,11 +201,11 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 {\
 	size_t pos1;\
 	size_t pos2;\
-	assert(self && "Ring_erase");\
-	assert(self->magic == self && "Ring_erase");\
-	assert(CSTL_RING_SIZE(self) >= idx + n && "Ring_erase");\
-	assert(CSTL_RING_SIZE(self) >= n && "Ring_erase");\
-	assert(CSTL_RING_SIZE(self) > idx && "Ring_erase");\
+	CSTL_ASSERT(self && "Ring_erase");\
+	CSTL_ASSERT(self->magic == self && "Ring_erase");\
+	CSTL_ASSERT(CSTL_RING_SIZE(self) >= idx + n && "Ring_erase");\
+	CSTL_ASSERT(CSTL_RING_SIZE(self) >= n && "Ring_erase");\
+	CSTL_ASSERT(CSTL_RING_SIZE(self) > idx && "Ring_erase");\
 	pos1 = CSTL_RING_ADVANCE_IDX(self, self->begin, idx);\
 	pos2 = CSTL_RING_ADVANCE_IDX(self, pos1, n);\
 	if (CSTL_RING_DISTANCE(self, self->begin, pos1) >= \
@@ -249,82 +235,82 @@ CSTL_RING_IMPLEMENT_FOR_DEQUE(Name, Type)\
 \
 int Name##_push_back(Name *self, Type data)\
 {\
-	assert(self && "Ring_push_back");\
-	assert(self->magic == self && "Ring_push_back");\
+	CSTL_ASSERT(self && "Ring_push_back");\
+	CSTL_ASSERT(self->magic == self && "Ring_push_back");\
 	return Name##_push_back_ref(self, &data);\
 }\
 \
 int Name##_push_front(Name *self, Type data)\
 {\
-	assert(self && "Ring_push_front");\
-	assert(self->magic == self && "Ring_push_front");\
+	CSTL_ASSERT(self && "Ring_push_front");\
+	CSTL_ASSERT(self->magic == self && "Ring_push_front");\
 	return Name##_push_front_ref(self, &data);\
 }\
 \
 size_t Name##_size(Name *self)\
 {\
-	assert(self && "Ring_size");\
-	assert(self->magic == self && "Ring_size");\
+	CSTL_ASSERT(self && "Ring_size");\
+	CSTL_ASSERT(self->magic == self && "Ring_size");\
 	return CSTL_RING_SIZE(self);\
 }\
 \
 size_t Name##_max_size(Name *self)\
 {\
-	assert(self && "Ring_max_size");\
-	assert(self->magic == self && "Ring_max_size");\
+	CSTL_ASSERT(self && "Ring_max_size");\
+	CSTL_ASSERT(self->magic == self && "Ring_max_size");\
 	return CSTL_RING_MAX_SIZE(self);\
 }\
 \
 int Name##_empty(Name *self)\
 {\
-	assert(self && "Ring_empty");\
-	assert(self->magic == self && "Ring_empty");\
+	CSTL_ASSERT(self && "Ring_empty");\
+	CSTL_ASSERT(self->magic == self && "Ring_empty");\
 	return CSTL_RING_EMPTY(self);\
 }\
 \
 int Name##_full(Name *self)\
 {\
-	assert(self && "Ring_full");\
-	assert(self->magic == self && "Ring_full");\
+	CSTL_ASSERT(self && "Ring_full");\
+	CSTL_ASSERT(self->magic == self && "Ring_full");\
 	return CSTL_RING_FULL(self);\
 }\
 \
 void Name##_clear(Name *self)\
 {\
-	assert(self && "Ring_clear");\
-	assert(self->magic == self && "Ring_clear");\
+	CSTL_ASSERT(self && "Ring_clear");\
+	CSTL_ASSERT(self->magic == self && "Ring_clear");\
 	CSTL_RING_CLEAR(self);\
 }\
 \
 Type *Name##_at(Name *self, size_t idx)\
 {\
-	assert(self && "Ring_at");\
-	assert(self->magic == self && "Ring_at");\
-	assert(CSTL_RING_SIZE(self) > idx && "Ring_at");\
+	CSTL_ASSERT(self && "Ring_at");\
+	CSTL_ASSERT(self->magic == self && "Ring_at");\
+	CSTL_ASSERT(CSTL_RING_SIZE(self) > idx && "Ring_at");\
 	return &CSTL_RING_AT(self, idx);\
 }\
 \
 Type *Name##_front(Name *self)\
 {\
-	assert(self && "Ring_front");\
-	assert(self->magic == self && "Ring_front");\
-	assert(!CSTL_RING_EMPTY(self) && "Ring_front");\
+	CSTL_ASSERT(self && "Ring_front");\
+	CSTL_ASSERT(self->magic == self && "Ring_front");\
+	CSTL_ASSERT(!CSTL_RING_EMPTY(self) && "Ring_front");\
 	return &CSTL_RING_FRONT(self);\
 }\
 \
 Type *Name##_back(Name *self)\
 {\
-	assert(self && "Ring_back");\
-	assert(self->magic == self && "Ring_back");\
-	assert(!CSTL_RING_EMPTY(self) && "Ring_back");\
+	CSTL_ASSERT(self && "Ring_back");\
+	CSTL_ASSERT(self->magic == self && "Ring_back");\
+	CSTL_ASSERT(!CSTL_RING_EMPTY(self) && "Ring_back");\
 	return &CSTL_RING_BACK(self);\
 }\
 \
 int Name##_insert(Name *self, size_t idx, Type data)\
 {\
-	assert(self && "Ring_insert");\
-	assert(self->magic == self && "Ring_insert");\
-	assert(CSTL_RING_SIZE(self) >= idx && "Ring_insert");\
+	CSTL_ASSERT(self && "Ring_insert");\
+	CSTL_ASSERT(self->magic == self && "Ring_insert");\
+	CSTL_ASSERT(CSTL_RING_SIZE(self) >= idx && "Ring_insert");\
 	return Name##_insert_array(self, idx, &data, 1);\
 }\
 \
@@ -332,10 +318,10 @@ int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 {\
 	size_t i, j;\
 	size_t pos;\
-	assert(self && "Ring_insert_array");\
-	assert(self->magic == self && "Ring_insert_array");\
-	assert(CSTL_RING_SIZE(self) >= idx && "Ring_insert_array");\
-	assert(data && "Ring_insert_array");\
+	CSTL_ASSERT(self && "Ring_insert_array");\
+	CSTL_ASSERT(self->magic == self && "Ring_insert_array");\
+	CSTL_ASSERT(CSTL_RING_SIZE(self) >= idx && "Ring_insert_array");\
+	CSTL_ASSERT(data && "Ring_insert_array");\
 	if (CSTL_RING_SIZE(self) + n > CSTL_RING_MAX_SIZE(self)) return 0;\
 	pos = CSTL_RING_ADVANCE_IDX(self, self->begin, idx);\
 	if (CSTL_RING_SIZE(self) / 2 < idx) {\
@@ -358,8 +344,8 @@ int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 int Name##_resize(Name *self, size_t n, Type data)\
 {\
 	size_t size;\
-	assert(self && "Ring_resize");\
-	assert(self->magic == self && "Ring_resize");\
+	CSTL_ASSERT(self && "Ring_resize");\
+	CSTL_ASSERT(self->magic == self && "Ring_resize");\
 	size = CSTL_RING_SIZE(self);\
 	if (size >= n) {\
 		self->end = CSTL_RING_RETREAT_IDX(self, self->end, size - n);\
@@ -383,10 +369,10 @@ void Name##_swap(Name *self, Name *x)\
 	size_t tmp_max_size;\
 	size_t tmp_size;\
 	Type *tmp_buf;\
-	assert(self && "Ring_swap");\
-	assert(x && "Ring_swap");\
-	assert(self->magic == self && "Ring_swap");\
-	assert(x->magic == x && "Ring_swap");\
+	CSTL_ASSERT(self && "Ring_swap");\
+	CSTL_ASSERT(x && "Ring_swap");\
+	CSTL_ASSERT(self->magic == self && "Ring_swap");\
+	CSTL_ASSERT(x->magic == x && "Ring_swap");\
 	tmp_begin = self->begin;\
 	tmp_end = self->end;\
 	tmp_max_size = self->max_size;\

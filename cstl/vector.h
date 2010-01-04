@@ -34,21 +34,8 @@
 #define CSTL_VECTOR_H_INCLUDED
 
 #include <stdlib.h>
-#include <assert.h>
+#include "common.h"
 
-#ifdef __cplusplus
-#define CSTL_VECTOR_BEGIN_EXTERN_C()	extern "C" {
-#define CSTL_VECTOR_END_EXTERN_C()		}
-#else
-#define CSTL_VECTOR_BEGIN_EXTERN_C()
-#define CSTL_VECTOR_END_EXTERN_C()
-#endif
-
-#ifdef NDEBUG
-#define CSTL_VECTOR_MAGIC(x)
-#else
-#define CSTL_VECTOR_MAGIC(x) x
-#endif
 
 #ifndef CSTL_ALGORITHM_INTERFACE
 #define CSTL_ALGORITHM_INTERFACE(Name, Type)
@@ -76,7 +63,7 @@
 #define CSTL_VECTOR_INTERFACE(Name, Type)	\
 typedef struct Name Name;\
 \
-CSTL_VECTOR_BEGIN_EXTERN_C()\
+CSTL_EXTERN_C_BEGIN()\
 Name *Name##_new(void);\
 Name *Name##_new_reserve(size_t n);\
 void Name##_delete(Name *self);\
@@ -102,7 +89,7 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);
 void Name##_erase(Name *self, size_t idx, size_t n);\
 void Name##_swap(Name *self, Name *x);\
 CSTL_ALGORITHM_INTERFACE(Name, Type)\
-CSTL_VECTOR_END_EXTERN_C()\
+CSTL_EXTERN_C_END()\
 
 
 
@@ -114,7 +101,7 @@ struct Name {\
 	size_t size;\
 	size_t capacity;\
 	Type *buf;\
-	CSTL_VECTOR_MAGIC(Name *magic;)\
+	CSTL_MAGIC(Name *magic;)\
 };\
 \
 Name *Name##_new(void)\
@@ -125,7 +112,7 @@ Name *Name##_new(void)\
 	self->capacity = 0;\
 	self->size = 0;\
 	self->buf = 0;\
-	CSTL_VECTOR_MAGIC(self->magic = self);\
+	CSTL_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
@@ -144,8 +131,8 @@ Name *Name##_new_reserve(size_t n)\
 void Name##_delete(Name *self)\
 {\
 	if (!self) return;\
-	assert(self->magic == self && "Vector_delete");\
-	CSTL_VECTOR_MAGIC(self->magic = 0);\
+	CSTL_ASSERT(self->magic == self && "Vector_delete");\
+	CSTL_MAGIC(self->magic = 0);\
 	free(self->buf);\
 	free(self);\
 }\
@@ -155,16 +142,16 @@ void Name##_delete(Name *self)\
 #define CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name, Type)	\
 int Name##_push_back(Name *self, Type data)\
 {\
-	assert(self && "Vector_push_back");\
-	assert(self->magic == self && "Vector_push_back");\
+	CSTL_ASSERT(self && "Vector_push_back");\
+	CSTL_ASSERT(self->magic == self && "Vector_push_back");\
 	return Name##_push_back_ref(self, &data);\
 }\
 \
 int Name##_push_back_ref(Name *self, Type const *data)\
 {\
-	assert(self && "Vector_push_back_ref");\
-	assert(self->magic == self && "Vector_push_back_ref");\
-	assert(data && "Vector_push_back_ref");\
+	CSTL_ASSERT(self && "Vector_push_back_ref");\
+	CSTL_ASSERT(self->magic == self && "Vector_push_back_ref");\
+	CSTL_ASSERT(data && "Vector_push_back_ref");\
 	if (!Name##_expand(self, CSTL_VECTOR_SIZE(self) + 1)) return 0;\
 	self->buf[self->size] = *data;\
 	self->size++;\
@@ -175,9 +162,9 @@ int Name##_push_back_ref(Name *self, Type const *data)\
 #define CSTL_VECTOR_IMPLEMENT_POP_BACK(Name, Type)	\
 void Name##_pop_back(Name *self)\
 {\
-	assert(self && "Vector_pop_back");\
-	assert(self->magic == self && "Vector_pop_back");\
-	assert(!CSTL_VECTOR_EMPTY(self) && "Vector_pop_back");\
+	CSTL_ASSERT(self && "Vector_pop_back");\
+	CSTL_ASSERT(self->magic == self && "Vector_pop_back");\
+	CSTL_ASSERT(!CSTL_VECTOR_EMPTY(self) && "Vector_pop_back");\
 	self->size--;\
 }\
 \
@@ -185,8 +172,8 @@ void Name##_pop_back(Name *self)\
 #define CSTL_VECTOR_IMPLEMENT_SIZE(Name, Type)	\
 size_t Name##_size(Name *self)\
 {\
-	assert(self && "Vector_size");\
-	assert(self->magic == self && "Vector_size");\
+	CSTL_ASSERT(self && "Vector_size");\
+	CSTL_ASSERT(self->magic == self && "Vector_size");\
 	return CSTL_VECTOR_SIZE(self);\
 }\
 \
@@ -194,8 +181,8 @@ size_t Name##_size(Name *self)\
 #define CSTL_VECTOR_IMPLEMENT_CAPACITY(Name, Type)	\
 size_t Name##_capacity(Name *self)\
 {\
-	assert(self && "Vector_capacity");\
-	assert(self->magic == self && "Vector_capacity");\
+	CSTL_ASSERT(self && "Vector_capacity");\
+	CSTL_ASSERT(self->magic == self && "Vector_capacity");\
 	return CSTL_VECTOR_CAPACITY(self);\
 }\
 \
@@ -203,8 +190,8 @@ size_t Name##_capacity(Name *self)\
 #define CSTL_VECTOR_IMPLEMENT_EMPTY(Name, Type)	\
 int Name##_empty(Name *self)\
 {\
-	assert(self && "Vector_empty");\
-	assert(self->magic == self && "Vector_empty");\
+	CSTL_ASSERT(self && "Vector_empty");\
+	CSTL_ASSERT(self->magic == self && "Vector_empty");\
 	return CSTL_VECTOR_EMPTY(self);\
 }\
 \
@@ -212,8 +199,8 @@ int Name##_empty(Name *self)\
 #define CSTL_VECTOR_IMPLEMENT_CLEAR(Name, Type)	\
 void Name##_clear(Name *self)\
 {\
-	assert(self && "Vector_clear");\
-	assert(self->magic == self && "Vector_clear");\
+	CSTL_ASSERT(self && "Vector_clear");\
+	CSTL_ASSERT(self->magic == self && "Vector_clear");\
 	CSTL_VECTOR_CLEAR(self);\
 }\
 \
@@ -230,8 +217,8 @@ static int Name##_expand(Name *self, size_t size)\
 int Name##_reserve(Name *self, size_t n)\
 {\
 	Type *newbuf;\
-	assert(self && "Vector_reserve");\
-	assert(self->magic == self && "Vector_reserve");\
+	CSTL_ASSERT(self && "Vector_reserve");\
+	CSTL_ASSERT(self->magic == self && "Vector_reserve");\
 	if (n <= CSTL_VECTOR_CAPACITY(self)) return 1;\
 	if (n > ((size_t) -1) / sizeof(Type)) {\
 		/* sizeof(Type)*n がオーバーフローする */\
@@ -249,8 +236,8 @@ int Name##_reserve(Name *self, size_t n)\
 void Name##_shrink(Name *self, size_t n)\
 {\
 	Type *newbuf;\
-	assert(self && "Vector_shrink");\
-	assert(self->magic == self && "Vector_shrink");\
+	CSTL_ASSERT(self && "Vector_shrink");\
+	CSTL_ASSERT(self->magic == self && "Vector_shrink");\
 	if (n >= CSTL_VECTOR_CAPACITY(self)) return;\
 	if (n < CSTL_VECTOR_SIZE(self)) {\
 		n = CSTL_VECTOR_SIZE(self);\
@@ -272,8 +259,8 @@ void Name##_shrink(Name *self, size_t n)\
 int Name##_resize(Name *self, size_t n, Type data)\
 {\
 	size_t size;\
-	assert(self && "Vector_resize");\
-	assert(self->magic == self && "Vector_resize");\
+	CSTL_ASSERT(self && "Vector_resize");\
+	CSTL_ASSERT(self->magic == self && "Vector_resize");\
 	size = CSTL_VECTOR_SIZE(self);\
 	if (size >= n) {\
 		self->size = n;\
@@ -293,9 +280,9 @@ int Name##_resize(Name *self, size_t n, Type data)\
 #define CSTL_VECTOR_IMPLEMENT_AT(Name, Type)	\
 Type *Name##_at(Name *self, size_t idx)\
 {\
-	assert(self && "Vector_at");\
-	assert(self->magic == self && "Vector_at");\
-	assert(CSTL_VECTOR_SIZE(self) > idx && "Vector_at");\
+	CSTL_ASSERT(self && "Vector_at");\
+	CSTL_ASSERT(self->magic == self && "Vector_at");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) > idx && "Vector_at");\
 	return &CSTL_VECTOR_AT(self, idx);\
 }\
 \
@@ -303,9 +290,9 @@ Type *Name##_at(Name *self, size_t idx)\
 #define CSTL_VECTOR_IMPLEMENT_FRONT(Name, Type)	\
 Type *Name##_front(Name *self)\
 {\
-	assert(self && "Vector_front");\
-	assert(self->magic == self && "Vector_front");\
-	assert(!CSTL_VECTOR_EMPTY(self) && "Vector_front");\
+	CSTL_ASSERT(self && "Vector_front");\
+	CSTL_ASSERT(self->magic == self && "Vector_front");\
+	CSTL_ASSERT(!CSTL_VECTOR_EMPTY(self) && "Vector_front");\
 	return &self->buf[0];\
 }\
 \
@@ -313,9 +300,9 @@ Type *Name##_front(Name *self)\
 #define CSTL_VECTOR_IMPLEMENT_BACK(Name, Type)	\
 Type *Name##_back(Name *self)\
 {\
-	assert(self && "Vector_back");\
-	assert(self->magic == self && "Vector_back");\
-	assert(!CSTL_VECTOR_EMPTY(self) && "Vector_back");\
+	CSTL_ASSERT(self && "Vector_back");\
+	CSTL_ASSERT(self->magic == self && "Vector_back");\
+	CSTL_ASSERT(!CSTL_VECTOR_EMPTY(self) && "Vector_back");\
 	return &self->buf[self->size - 1];\
 }\
 \
@@ -353,18 +340,18 @@ static int Name##_insert_n_no_data(Name *self, size_t idx, size_t n)\
 #define CSTL_VECTOR_IMPLEMENT_INSERT(Name, Type)	\
 int Name##_insert(Name *self, size_t idx, Type data)\
 {\
-	assert(self && "Vector_insert");\
-	assert(self->magic == self && "Vector_insert");\
-	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert");\
+	CSTL_ASSERT(self && "Vector_insert");\
+	CSTL_ASSERT(self->magic == self && "Vector_insert");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert");\
 	return Name##_insert_array(self, idx, &data, 1);\
 }\
 \
 int Name##_insert_ref(Name *self, size_t idx, Type const *data)\
 {\
-	assert(self && "Vector_insert_ref");\
-	assert(self->magic == self && "Vector_insert_ref");\
-	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_ref");\
-	assert(data && "Vector_insert_ref");\
+	CSTL_ASSERT(self && "Vector_insert_ref");\
+	CSTL_ASSERT(self->magic == self && "Vector_insert_ref");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_ref");\
+	CSTL_ASSERT(data && "Vector_insert_ref");\
 	return Name##_insert_array(self, idx, data, 1);\
 }\
 \
@@ -372,19 +359,19 @@ int Name##_insert_ref(Name *self, size_t idx, Type const *data)\
 #define CSTL_VECTOR_IMPLEMENT_INSERT_N(Name, Type)	\
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type data)\
 {\
-	assert(self && "Vector_insert_n");\
-	assert(self->magic == self && "Vector_insert_n");\
-	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n");\
+	CSTL_ASSERT(self && "Vector_insert_n");\
+	CSTL_ASSERT(self->magic == self && "Vector_insert_n");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n");\
 	return Name##_insert_n_ref(self, idx, n, &data);\
 }\
 \
 int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data)\
 {\
 	register size_t i;\
-	assert(self && "Vector_insert_n_ref");\
-	assert(self->magic == self && "Vector_insert_n_ref");\
-	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n_ref");\
-	assert(data && "Vector_insert_n_ref");\
+	CSTL_ASSERT(self && "Vector_insert_n_ref");\
+	CSTL_ASSERT(self->magic == self && "Vector_insert_n_ref");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n_ref");\
+	CSTL_ASSERT(data && "Vector_insert_n_ref");\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
@@ -399,10 +386,10 @@ int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data)\
 int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 {\
 	register size_t i;\
-	assert(self && "Vector_insert_array");\
-	assert(self->magic == self && "Vector_insert_array");\
-	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_array");\
-	assert(data && "Vector_insert_array");\
+	CSTL_ASSERT(self && "Vector_insert_array");\
+	CSTL_ASSERT(self->magic == self && "Vector_insert_array");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_array");\
+	CSTL_ASSERT(data && "Vector_insert_array");\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
@@ -417,14 +404,14 @@ int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 {\
 	register size_t i;\
-	assert(self && "Vector_insert_range");\
-	assert(self->magic == self && "Vector_insert_range");\
-	assert(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_range");\
-	assert(x && "Vector_insert_range");\
-	assert(x->magic == x && "Vector_insert_range");\
-	assert(CSTL_VECTOR_SIZE(x) >= xidx + n && "Vector_insert_range");\
-	assert(CSTL_VECTOR_SIZE(x) >= n && "Vector_insert_range");\
-	assert(CSTL_VECTOR_SIZE(x) > xidx && "Vector_insert_range");\
+	CSTL_ASSERT(self && "Vector_insert_range");\
+	CSTL_ASSERT(self->magic == self && "Vector_insert_range");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_range");\
+	CSTL_ASSERT(x && "Vector_insert_range");\
+	CSTL_ASSERT(x->magic == x && "Vector_insert_range");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(x) >= xidx + n && "Vector_insert_range");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(x) >= n && "Vector_insert_range");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(x) > xidx && "Vector_insert_range");\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
@@ -457,11 +444,11 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 #define CSTL_VECTOR_IMPLEMENT_ERASE(Name, Type)	\
 void Name##_erase(Name *self, size_t idx, size_t n)\
 {\
-	assert(self && "Vector_erase");\
-	assert(self->magic == self && "Vector_erase");\
-	assert(CSTL_VECTOR_SIZE(self) >= idx + n && "Vector_erase");\
-	assert(CSTL_VECTOR_SIZE(self) >= n && "Vector_erase");\
-	assert(CSTL_VECTOR_SIZE(self) > idx && "Vector_erase");\
+	CSTL_ASSERT(self && "Vector_erase");\
+	CSTL_ASSERT(self->magic == self && "Vector_erase");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx + n && "Vector_erase");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= n && "Vector_erase");\
+	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) > idx && "Vector_erase");\
 	Name##_move_forward(self, idx + n, self->size, n);\
 	self->size -= n;\
 }\
@@ -473,10 +460,10 @@ void Name##_swap(Name *self, Name *x)\
 	size_t tmp_size;\
 	size_t tmp_capacity;\
 	Type *tmp_buf;\
-	assert(self && "Vector_swap");\
-	assert(x && "Vector_swap");\
-	assert(self->magic == self && "Vector_swap");\
-	assert(x->magic == x && "Vector_swap");\
+	CSTL_ASSERT(self && "Vector_swap");\
+	CSTL_ASSERT(x && "Vector_swap");\
+	CSTL_ASSERT(self->magic == self && "Vector_swap");\
+	CSTL_ASSERT(x->magic == x && "Vector_swap");\
 	tmp_size = self->size;\
 	tmp_capacity = self->capacity;\
 	tmp_buf = self->buf;\

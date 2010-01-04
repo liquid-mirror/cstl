@@ -34,16 +34,8 @@
 #define CSTL_SET_H_INCLUDED
 
 #include <stdlib.h>
-#include <assert.h>
+#include "common.h"
 #include "rbtree.h"
-
-#ifdef __cplusplus
-#define CSTL_SET_BEGIN_EXTERN_C()	extern "C" {
-#define CSTL_SET_END_EXTERN_C()		}
-#else
-#define CSTL_SET_BEGIN_EXTERN_C()
-#define CSTL_SET_END_EXTERN_C()
-#endif
 
 
 #define CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)	\
@@ -56,7 +48,7 @@ struct Name##RBTree {\
 	struct Name##RBTree *right;\
 	int color;\
 	Type key;\
-	CSTL_RBTREE_MAGIC(struct Name##RBTree *magic;)\
+	CSTL_MAGIC(struct Name##RBTree *magic;)\
 };\
 \
 CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare)\
@@ -76,9 +68,9 @@ static Name##RBTree *Name##RBTree_new_node(Type data, int color)\
 \
 Type const *Name##_data(Name##Iterator pos)\
 {\
-	assert(pos && "Set_data");\
-	assert(pos->magic && "Set_data");\
-	assert(!CSTL_RBTREE_IS_HEAD(pos, Name) && "Set_data");\
+	CSTL_ASSERT(pos && "Set_data");\
+	CSTL_ASSERT(pos->magic && "Set_data");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "Set_data");\
 	return &pos->key;\
 }\
 \
@@ -92,11 +84,11 @@ Type const *Name##_data(Name##Iterator pos)\
  */
 #define CSTL_SET_INTERFACE(Name, Type)	\
 \
-CSTL_SET_BEGIN_EXTERN_C()\
+CSTL_EXTERN_C_BEGIN()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
 Name##Iterator Name##_insert(Name *self, Type data, int *success);\
 Type const *Name##_data(Name##Iterator pos);\
-CSTL_SET_END_EXTERN_C()\
+CSTL_EXTERN_C_END()\
 
 /*! 
  * \brief 実装マクロ
@@ -111,8 +103,8 @@ CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 Name##Iterator Name##_insert(Name *self, Type data, int *success)\
 {\
 	Name##Iterator pos;\
-	assert(self && "Set_insert");\
-	assert(self->magic == self && "Set_insert");\
+	CSTL_ASSERT(self && "Set_insert");\
+	CSTL_ASSERT(self->magic == self && "Set_insert");\
 	pos = Name##RBTree_find(self->tree, data);\
 	if (pos == Name##RBTree_end(self->tree)) {\
 		pos = Name##RBTree_new_node(data, Name##_COLOR_RED);\
@@ -135,12 +127,12 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	register Name##Iterator tmp;\
 	Name##RBTree head;\
 	register size_t count = 0;\
-	assert(self && "Set_insert_range");\
-	assert(self->magic == self && "Set_insert_range");\
-	assert(first && "Set_insert_range");\
-	assert(last && "Set_insert_range");\
-	assert(first->magic && "Set_insert_range");\
-	assert(last->magic && "Set_insert_range");\
+	CSTL_ASSERT(self && "Set_insert_range");\
+	CSTL_ASSERT(self->magic == self && "Set_insert_range");\
+	CSTL_ASSERT(first && "Set_insert_range");\
+	CSTL_ASSERT(last && "Set_insert_range");\
+	CSTL_ASSERT(first->magic && "Set_insert_range");\
+	CSTL_ASSERT(last->magic && "Set_insert_range");\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
@@ -176,11 +168,11 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
  */
 #define CSTL_MULTISET_INTERFACE(Name, Type)	\
 \
-CSTL_SET_BEGIN_EXTERN_C()\
+CSTL_EXTERN_C_BEGIN()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
 Name##Iterator Name##_insert(Name *self, Type data);\
 Type const *Name##_data(Name##Iterator pos);\
-CSTL_SET_END_EXTERN_C()\
+CSTL_EXTERN_C_END()\
 
 /*! 
  * \brief 実装マクロ
@@ -195,8 +187,8 @@ CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 Name##Iterator Name##_insert(Name *self, Type data)\
 {\
 	Name##Iterator pos;\
-	assert(self && "MultiSet_insert");\
-	assert(self->magic == self && "MultiSet_insert");\
+	CSTL_ASSERT(self && "MultiSet_insert");\
+	CSTL_ASSERT(self->magic == self && "MultiSet_insert");\
 	pos = Name##RBTree_new_node(data, Name##_COLOR_RED);\
 	if (pos) {\
 		Name##RBTree_insert(self->tree, pos);\
@@ -211,12 +203,12 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	register Name##Iterator tmp;\
 	Name##RBTree head;\
 	register size_t count = 0;\
-	assert(self && "MultiSet_insert_range");\
-	assert(self->magic == self && "MultiSet_insert_range");\
-	assert(first && "MultiSet_insert_range");\
-	assert(last && "MultiSet_insert_range");\
-	assert(first->magic && "MultiSet_insert_range");\
-	assert(last->magic && "MultiSet_insert_range");\
+	CSTL_ASSERT(self && "MultiSet_insert_range");\
+	CSTL_ASSERT(self->magic == self && "MultiSet_insert_range");\
+	CSTL_ASSERT(first && "MultiSet_insert_range");\
+	CSTL_ASSERT(last && "MultiSet_insert_range");\
+	CSTL_ASSERT(first->magic && "MultiSet_insert_range");\
+	CSTL_ASSERT(last->magic && "MultiSet_insert_range");\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\

@@ -33,6 +33,9 @@
 #ifndef CSTL_ALGORITHM_H_INCLUDED
 #define CSTL_ALGORITHM_H_INCLUDED
 
+#include <stdlib.h>
+#include "common.h"
+
 
 #define CSTL_ALGORITHM_SWAP(i, j, tmp)	\
 	tmp = *i;\
@@ -89,12 +92,12 @@ void Name##_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, con
 	register size_t sp;\
 	register size_t i, j;\
 	Type tmp;\
-	assert(self && "sort");\
-	assert(self->magic == self && "sort");\
-	assert(Name##_size(self) >= idx + n && "sort");\
-	assert(Name##_size(self) >= n && "sort");\
-	assert(Name##_size(self) > idx && "sort");\
-	assert(comp && "sort");\
+	CSTL_ASSERT(self && "sort");\
+	CSTL_ASSERT(self->magic == self && "sort");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "sort");\
+	CSTL_ASSERT(Name##_size(self) >= n && "sort");\
+	CSTL_ASSERT(Name##_size(self) > idx && "sort");\
+	CSTL_ASSERT(comp && "sort");\
 	low[0] = idx;\
 	high[0] = idx + n - 1;\
 	sp = 1;\
@@ -319,12 +322,12 @@ static void Name##_merge_sort(Name *self, size_t first, size_t last, Type *buf, 
 void Name##_stable_sort(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
 {\
 	Type *buf;\
-	assert(self && "stable_sort");\
-	assert(self->magic == self && "stable_sort");\
-	assert(Name##_size(self) >= idx + n && "stable_sort");\
-	assert(Name##_size(self) >= n && "stable_sort");\
-	assert(Name##_size(self) > idx && "stable_sort");\
-	assert(comp && "stable_sort");\
+	CSTL_ASSERT(self && "stable_sort");\
+	CSTL_ASSERT(self->magic == self && "stable_sort");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "stable_sort");\
+	CSTL_ASSERT(Name##_size(self) >= n && "stable_sort");\
+	CSTL_ASSERT(Name##_size(self) > idx && "stable_sort");\
+	CSTL_ASSERT(comp && "stable_sort");\
 	if (n < CSTL_ALGORITHM_SWITCH_INSERTION_SORT) {\
 		Name##_insertion_sort(self, idx, n, comp);\
 		return;\
@@ -339,12 +342,12 @@ size_t Name##_lower_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	register size_t first;\
 	register size_t last;\
 	register size_t middle;\
-	assert(self && "lower_bound");\
-	assert(self->magic == self && "lower_bound");\
-	assert(Name##_size(self) >= idx + n && "lower_bound");\
-	assert(Name##_size(self) >= n && "lower_bound");\
-	assert(Name##_size(self) > idx && "lower_bound");\
-	assert(comp && "lower_bound");\
+	CSTL_ASSERT(self && "lower_bound");\
+	CSTL_ASSERT(self->magic == self && "lower_bound");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "lower_bound");\
+	CSTL_ASSERT(Name##_size(self) >= n && "lower_bound");\
+	CSTL_ASSERT(Name##_size(self) > idx && "lower_bound");\
+	CSTL_ASSERT(comp && "lower_bound");\
 	first = idx;\
 	last = idx + n;\
 	while (first < last) {\
@@ -363,12 +366,12 @@ size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 	register size_t first;\
 	register size_t last;\
 	register size_t middle;\
-	assert(self && "upper_bound");\
-	assert(self->magic == self && "upper_bound");\
-	assert(Name##_size(self) >= idx + n && "upper_bound");\
-	assert(Name##_size(self) >= n && "upper_bound");\
-	assert(Name##_size(self) > idx && "upper_bound");\
-	assert(comp && "upper_bound");\
+	CSTL_ASSERT(self && "upper_bound");\
+	CSTL_ASSERT(self->magic == self && "upper_bound");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "upper_bound");\
+	CSTL_ASSERT(Name##_size(self) >= n && "upper_bound");\
+	CSTL_ASSERT(Name##_size(self) > idx && "upper_bound");\
+	CSTL_ASSERT(comp && "upper_bound");\
 	first = idx;\
 	last = idx + n;\
 	while (first < last) {\
@@ -385,12 +388,12 @@ size_t Name##_upper_bound(Name *self, size_t idx, size_t n, Type value, int (*co
 size_t Name##_binary_search(Name *self, size_t idx, size_t n, Type value, int (*comp)(const void *, const void *))\
 {\
 	size_t i;\
-	assert(self && "binary_search");\
-	assert(self->magic == self && "binary_search");\
-	assert(Name##_size(self) >= idx + n && "binary_search");\
-	assert(Name##_size(self) >= n && "binary_search");\
-	assert(Name##_size(self) > idx && "binary_search");\
-	assert(comp && "binary_search");\
+	CSTL_ASSERT(self && "binary_search");\
+	CSTL_ASSERT(self->magic == self && "binary_search");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "binary_search");\
+	CSTL_ASSERT(Name##_size(self) >= n && "binary_search");\
+	CSTL_ASSERT(Name##_size(self) > idx && "binary_search");\
+	CSTL_ASSERT(comp && "binary_search");\
 	i = Name##_lower_bound(self, idx, n, value, comp);\
 	if (i == idx + n) {\
 		return i;\
@@ -406,11 +409,11 @@ void Name##_reverse(Name *self, size_t idx, size_t n)\
 	register size_t first;\
 	register size_t last;\
 	Type tmp;\
-	assert(self && "reverse");\
-	assert(self->magic == self && "reverse");\
-	assert(Name##_size(self) >= idx + n && "reverse");\
-	assert(Name##_size(self) >= n && "reverse");\
-	assert(Name##_size(self) > idx && "reverse");\
+	CSTL_ASSERT(self && "reverse");\
+	CSTL_ASSERT(self->magic == self && "reverse");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "reverse");\
+	CSTL_ASSERT(Name##_size(self) >= n && "reverse");\
+	CSTL_ASSERT(Name##_size(self) > idx && "reverse");\
 	first = idx;\
 	last = idx + n - 1;\
 	while (first < last) {\
@@ -424,11 +427,11 @@ void Name##_reverse(Name *self, size_t idx, size_t n)\
 \
 void Name##_rotate(Name *self, size_t first, size_t middle, size_t last)\
 {\
-	assert(self && "rotate");\
-	assert(self->magic == self && "rotate");\
-	assert(first <= middle && "rotate");\
-	assert(middle <= last && "rotate");\
-	assert(Name##_size(self) >= last && "rotate");\
+	CSTL_ASSERT(self && "rotate");\
+	CSTL_ASSERT(self->magic == self && "rotate");\
+	CSTL_ASSERT(first <= middle && "rotate");\
+	CSTL_ASSERT(middle <= last && "rotate");\
+	CSTL_ASSERT(Name##_size(self) >= last && "rotate");\
 	Name##_rotate_aux(self, first, middle, last);\
 }\
 \
@@ -436,22 +439,22 @@ int Name##_merge(Name *self, size_t idx, \
 		Name *x, size_t xidx, size_t xn, Name *y, size_t yidx, size_t yn, int (*comp)(const void *, const void *))\
 {\
 	register size_t i, j, k;\
-	assert(self && "merge");\
-	assert(self->magic == self && "merge");\
-	assert(Name##_size(self) >= idx && "merge");\
-	assert(self != x && "merge");\
-	assert(self != y && "merge");\
-	assert(x && "merge");\
-	assert(x->magic == x && "merge");\
-	assert(Name##_size(x) >= xidx + xn && "merge");\
-	assert(Name##_size(x) >= xn && "merge");\
-	assert(Name##_size(x) > xidx && "merge");\
-	assert(y && "merge");\
-	assert(y->magic == y && "merge");\
-	assert(Name##_size(y) >= yidx + yn && "merge");\
-	assert(Name##_size(y) >= yn && "merge");\
-	assert(Name##_size(y) > yidx && "merge");\
-	assert(comp && "merge");\
+	CSTL_ASSERT(self && "merge");\
+	CSTL_ASSERT(self->magic == self && "merge");\
+	CSTL_ASSERT(Name##_size(self) >= idx && "merge");\
+	CSTL_ASSERT(self != x && "merge");\
+	CSTL_ASSERT(self != y && "merge");\
+	CSTL_ASSERT(x && "merge");\
+	CSTL_ASSERT(x->magic == x && "merge");\
+	CSTL_ASSERT(Name##_size(x) >= xidx + xn && "merge");\
+	CSTL_ASSERT(Name##_size(x) >= xn && "merge");\
+	CSTL_ASSERT(Name##_size(x) > xidx && "merge");\
+	CSTL_ASSERT(y && "merge");\
+	CSTL_ASSERT(y->magic == y && "merge");\
+	CSTL_ASSERT(Name##_size(y) >= yidx + yn && "merge");\
+	CSTL_ASSERT(Name##_size(y) >= yn && "merge");\
+	CSTL_ASSERT(Name##_size(y) > yidx && "merge");\
+	CSTL_ASSERT(comp && "merge");\
 	if (!Name##_insert_n_no_data(self, idx, xn + yn)) {\
 		return 0;\
 	}\
@@ -487,12 +490,12 @@ int Name##_merge(Name *self, size_t idx, \
 void Name##_inplace_merge(Name *self, size_t first, size_t middle, size_t last, int (*comp)(const void *, const void *))\
 {\
 	Type *buf;\
-	assert(self && "inplace_merge");\
-	assert(self->magic == self && "inplace_merge");\
-	assert(first <= middle && "inplace_merge");\
-	assert(middle <= last && "inplace_merge");\
-	assert(Name##_size(self) >= last && "inplace_merge");\
-	assert(comp && "inplace_merge");\
+	CSTL_ASSERT(self && "inplace_merge");\
+	CSTL_ASSERT(self->magic == self && "inplace_merge");\
+	CSTL_ASSERT(first <= middle && "inplace_merge");\
+	CSTL_ASSERT(middle <= last && "inplace_merge");\
+	CSTL_ASSERT(Name##_size(self) >= last && "inplace_merge");\
+	CSTL_ASSERT(comp && "inplace_merge");\
 	if (first == middle || middle == last) {\
 		return;\
 	}\
@@ -546,12 +549,12 @@ static void Name##_down_heap(Name *self, size_t top_idx, size_t hi_from, size_t 
 \
 void Name##_push_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
 {\
-	assert(self && "push_heap");\
-	assert(self->magic == self && "push_heap");\
-	assert(Name##_size(self) >= idx + n && "push_heap");\
-	assert(Name##_size(self) >= n && "push_heap");\
-	assert(Name##_size(self) > idx && "push_heap");\
-	assert(comp && "push_heap");\
+	CSTL_ASSERT(self && "push_heap");\
+	CSTL_ASSERT(self->magic == self && "push_heap");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "push_heap");\
+	CSTL_ASSERT(Name##_size(self) >= n && "push_heap");\
+	CSTL_ASSERT(Name##_size(self) > idx && "push_heap");\
+	CSTL_ASSERT(comp && "push_heap");\
 	Name##_up_heap(self, idx, n, comp);\
 }\
 \
@@ -560,13 +563,13 @@ void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *,
 	Type tmp;\
 	Type *alias1;\
 	Type *alias2;\
-	assert(self && "pop_heap");\
-	assert(self->magic == self && "pop_heap");\
-	assert(Name##_size(self) >= idx + n && "pop_heap");\
-	assert(Name##_size(self) >= n && "pop_heap");\
-	assert(Name##_size(self) > idx && "pop_heap");\
-	assert(comp && "pop_heap");\
-	assert(n > 0 && "pop_heap");\
+	CSTL_ASSERT(self && "pop_heap");\
+	CSTL_ASSERT(self->magic == self && "pop_heap");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "pop_heap");\
+	CSTL_ASSERT(Name##_size(self) >= n && "pop_heap");\
+	CSTL_ASSERT(Name##_size(self) > idx && "pop_heap");\
+	CSTL_ASSERT(comp && "pop_heap");\
+	CSTL_ASSERT(n > 0 && "pop_heap");\
 	alias1 = &DIRECT_ACCESS(self, idx);\
 	alias2 = &DIRECT_ACCESS(self, idx + n - 1);\
 	CSTL_ALGORITHM_SWAP(alias1, alias2, tmp);\
@@ -576,12 +579,12 @@ void Name##_pop_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *,
 void Name##_make_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *, const void *))\
 {\
 	register size_t i;\
-	assert(self && "make_heap");\
-	assert(self->magic == self && "make_heap");\
-	assert(Name##_size(self) >= idx + n && "make_heap");\
-	assert(Name##_size(self) >= n && "make_heap");\
-	assert(Name##_size(self) > idx && "make_heap");\
-	assert(comp && "make_heap");\
+	CSTL_ASSERT(self && "make_heap");\
+	CSTL_ASSERT(self->magic == self && "make_heap");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "make_heap");\
+	CSTL_ASSERT(Name##_size(self) >= n && "make_heap");\
+	CSTL_ASSERT(Name##_size(self) > idx && "make_heap");\
+	CSTL_ASSERT(comp && "make_heap");\
 	for (i = n / 2; i > 0; i--) {\
 		Name##_down_heap(self, idx, i, n, comp);\
 	}\
@@ -591,12 +594,12 @@ void Name##_sort_heap(Name *self, size_t idx, size_t n, int (*comp)(const void *
 {\
 	register size_t i;\
 	Type tmp;\
-	assert(self && "sort_heap");\
-	assert(self->magic == self && "sort_heap");\
-	assert(Name##_size(self) >= idx + n && "sort_heap");\
-	assert(Name##_size(self) >= n && "sort_heap");\
-	assert(Name##_size(self) > idx && "sort_heap");\
-	assert(comp && "sort_heap");\
+	CSTL_ASSERT(self && "sort_heap");\
+	CSTL_ASSERT(self->magic == self && "sort_heap");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "sort_heap");\
+	CSTL_ASSERT(Name##_size(self) >= n && "sort_heap");\
+	CSTL_ASSERT(Name##_size(self) > idx && "sort_heap");\
+	CSTL_ASSERT(comp && "sort_heap");\
 	for (i = n; i > 1; i--) {\
 		Type *alias1 = &DIRECT_ACCESS(self, idx);\
 		Type *alias2 = &DIRECT_ACCESS(self, idx + i - 1);\
@@ -609,13 +612,13 @@ void Name##_partial_sort(Name *self, size_t idx, size_t sort_n, size_t n, int (*
 {\
 	register size_t i;\
 	Type tmp;\
-	assert(self && "partial_sort");\
-	assert(self->magic == self && "partial_sort");\
-	assert(Name##_size(self) >= idx + n && "partial_sort");\
-	assert(Name##_size(self) >= n && "partial_sort");\
-	assert(Name##_size(self) > idx && "partial_sort");\
-	assert(sort_n <= n && "partial_sort");\
-	assert(comp && "partial_sort");\
+	CSTL_ASSERT(self && "partial_sort");\
+	CSTL_ASSERT(self->magic == self && "partial_sort");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "partial_sort");\
+	CSTL_ASSERT(Name##_size(self) >= n && "partial_sort");\
+	CSTL_ASSERT(Name##_size(self) > idx && "partial_sort");\
+	CSTL_ASSERT(sort_n <= n && "partial_sort");\
+	CSTL_ASSERT(comp && "partial_sort");\
 	Name##_make_heap(self, idx, sort_n, comp);\
 	for (i = idx + sort_n; i < idx + n; i++) {\
 		if (comp(&DIRECT_ACCESS(self, idx), &DIRECT_ACCESS(self, i)) > 0) {\

@@ -34,20 +34,10 @@
 #define CSTL_LIST_H_INCLUDED
 
 #include <stdlib.h>
-#include <assert.h>
+#include "common.h"
 
-#ifdef __cplusplus
-#define CSTL_LIST_BEGIN_EXTERN_C()	extern "C" {
-#define CSTL_LIST_END_EXTERN_C()	}
-#else
-#define CSTL_LIST_BEGIN_EXTERN_C()
-#define CSTL_LIST_END_EXTERN_C()
-#endif
 
-#ifdef NDEBUG
-#define CSTL_LIST_MAGIC(x)
-#else
-#define CSTL_LIST_MAGIC(x) x
+#if !defined(NDEBUG) && defined(CSTL_DEBUG)
 #define CSTL_LIST_MAGIC_ELEM(Name) ((Name *) -1)
 #endif
 
@@ -71,7 +61,7 @@ typedef struct Name Name;\
  */\
 typedef struct Name *Name##Iterator;\
 \
-CSTL_LIST_BEGIN_EXTERN_C()\
+CSTL_EXTERN_C_BEGIN()\
 Name *Name##_new(void);\
 void Name##_delete(Name *self);\
 int Name##_push_back(Name *self, Type data);\
@@ -106,7 +96,7 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 void Name##_sort(Name *self, int (*comp)(const void *, const void *));\
 void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *));\
 void Name##_reverse(Name *self);\
-CSTL_LIST_END_EXTERN_C()\
+CSTL_EXTERN_C_END()\
 
 
 /*! 
@@ -123,7 +113,7 @@ struct Name {\
 	Name *prev;\
 	Name *next;\
 	Type data;\
-	CSTL_LIST_MAGIC(Name *magic;)\
+	CSTL_MAGIC(Name *magic;)\
 };\
 \
 Name *Name##_new(void)\
@@ -133,69 +123,69 @@ Name *Name##_new(void)\
 	if (!self) return 0;\
 	self->next = self;\
 	self->prev = self;\
-	CSTL_LIST_MAGIC(self->magic = self);\
+	CSTL_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
 void Name##_delete(Name *self)\
 {\
 	if (!self) return;\
-	assert(self->magic == self && "List_delete");\
+	CSTL_ASSERT(self->magic == self && "List_delete");\
 	Name##_clear(self);\
-	CSTL_LIST_MAGIC(self->magic = 0);\
+	CSTL_MAGIC(self->magic = 0);\
 	free(self);\
 }\
 \
 int Name##_push_back(Name *self, Type data)\
 {\
-	assert(self && "List_push_back");\
-	assert(self->magic == self && "List_push_back");\
+	CSTL_ASSERT(self && "List_push_back");\
+	CSTL_ASSERT(self->magic == self && "List_push_back");\
 	return Name##_insert_ref(self, CSTL_LIST_END(self), &data) ? 1 : 0;\
 }\
 \
 int Name##_push_front(Name *self, Type data)\
 {\
-	assert(self && "List_push_front");\
-	assert(self->magic == self && "List_push_front");\
+	CSTL_ASSERT(self && "List_push_front");\
+	CSTL_ASSERT(self->magic == self && "List_push_front");\
 	return Name##_insert_ref(self, CSTL_LIST_BEGIN(self), &data) ? 1 : 0;\
 }\
 \
 int Name##_push_back_ref(Name *self, Type const *data)\
 {\
-	assert(self && "List_push_back_ref");\
-	assert(self->magic == self && "List_push_back_ref");\
-	assert(data && "List_push_back_ref");\
+	CSTL_ASSERT(self && "List_push_back_ref");\
+	CSTL_ASSERT(self->magic == self && "List_push_back_ref");\
+	CSTL_ASSERT(data && "List_push_back_ref");\
 	return Name##_insert_ref(self, CSTL_LIST_END(self), data) ? 1 : 0;\
 }\
 \
 int Name##_push_front_ref(Name *self, Type const *data)\
 {\
-	assert(self && "List_push_front_ref");\
-	assert(self->magic == self && "List_push_front_ref");\
-	assert(data && "List_push_front_ref");\
+	CSTL_ASSERT(self && "List_push_front_ref");\
+	CSTL_ASSERT(self->magic == self && "List_push_front_ref");\
+	CSTL_ASSERT(data && "List_push_front_ref");\
 	return Name##_insert_ref(self, CSTL_LIST_BEGIN(self), data) ? 1 : 0;\
 }\
 \
 void Name##_pop_front(Name *self)\
 {\
-	assert(self && "List_pop_front");\
-	assert(self->magic == self && "List_pop_front");\
-	assert(!Name##_empty(self) && "List_pop_front");\
+	CSTL_ASSERT(self && "List_pop_front");\
+	CSTL_ASSERT(self->magic == self && "List_pop_front");\
+	CSTL_ASSERT(!Name##_empty(self) && "List_pop_front");\
 	Name##_erase(self, CSTL_LIST_BEGIN(self));\
 }\
 \
 void Name##_pop_back(Name *self)\
 {\
-	assert(self && "List_pop_back");\
-	assert(self->magic == self && "List_pop_back");\
-	assert(!Name##_empty(self) && "List_pop_back");\
+	CSTL_ASSERT(self && "List_pop_back");\
+	CSTL_ASSERT(self->magic == self && "List_pop_back");\
+	CSTL_ASSERT(!Name##_empty(self) && "List_pop_back");\
 	Name##_erase(self, CSTL_LIST_RBEGIN(self));\
 }\
 \
 int Name##_empty(Name *self)\
 {\
-	assert(self && "List_empty");\
-	assert(self->magic == self && "List_empty");\
+	CSTL_ASSERT(self && "List_empty");\
+	CSTL_ASSERT(self->magic == self && "List_empty");\
 	return self->next == self;\
 }\
 \
@@ -203,8 +193,8 @@ size_t Name##_size(Name *self)\
 {\
 	register Name##Iterator pos;\
 	register size_t count = 0;\
-	assert(self && "List_size");\
-	assert(self->magic == self && "List_size");\
+	CSTL_ASSERT(self && "List_size");\
+	CSTL_ASSERT(self->magic == self && "List_size");\
 	for (pos = CSTL_LIST_BEGIN(self); pos != CSTL_LIST_END(self); pos = pos->next) {\
 		count++;\
 	}\
@@ -213,97 +203,97 @@ size_t Name##_size(Name *self)\
 \
 void Name##_clear(Name *self)\
 {\
-	assert(self && "List_clear");\
-	assert(self->magic == self && "List_clear");\
+	CSTL_ASSERT(self && "List_clear");\
+	CSTL_ASSERT(self->magic == self && "List_clear");\
 	Name##_erase_range(self, CSTL_LIST_BEGIN(self), CSTL_LIST_END(self));\
 }\
 \
 Type *Name##_data(Name##Iterator pos)\
 {\
-	assert(pos && "List_data");\
-	assert(pos->magic && "List_data");\
-	assert(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_data");\
+	CSTL_ASSERT(pos && "List_data");\
+	CSTL_ASSERT(pos->magic && "List_data");\
+	CSTL_ASSERT(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_data");\
 	return &pos->data;\
 }\
 \
 Type *Name##_front(Name *self)\
 {\
-	assert(self && "List_front");\
-	assert(self->magic == self && "List_front");\
-	assert(!Name##_empty(self) && "List_front");\
+	CSTL_ASSERT(self && "List_front");\
+	CSTL_ASSERT(self->magic == self && "List_front");\
+	CSTL_ASSERT(!Name##_empty(self) && "List_front");\
 	return &CSTL_LIST_BEGIN(self)->data;\
 }\
 \
 Type *Name##_back(Name *self)\
 {\
-	assert(self && "List_back");\
-	assert(self->magic == self && "List_back");\
-	assert(!Name##_empty(self) && "List_back");\
+	CSTL_ASSERT(self && "List_back");\
+	CSTL_ASSERT(self->magic == self && "List_back");\
+	CSTL_ASSERT(!Name##_empty(self) && "List_back");\
 	return &CSTL_LIST_RBEGIN(self)->data;\
 }\
 \
 Name##Iterator Name##_begin(Name *self)\
 {\
-	assert(self && "List_begin");\
-	assert(self->magic == self && "List_begin");\
+	CSTL_ASSERT(self && "List_begin");\
+	CSTL_ASSERT(self->magic == self && "List_begin");\
 	return CSTL_LIST_BEGIN(self);\
 }\
 \
 Name##Iterator Name##_end(Name *self)\
 {\
-	assert(self && "List_end");\
-	assert(self->magic == self && "List_end");\
+	CSTL_ASSERT(self && "List_end");\
+	CSTL_ASSERT(self->magic == self && "List_end");\
 	return CSTL_LIST_END(self);\
 }\
 \
 Name##Iterator Name##_rbegin(Name *self)\
 {\
-	assert(self && "List_rbegin");\
-	assert(self->magic == self && "List_rbegin");\
+	CSTL_ASSERT(self && "List_rbegin");\
+	CSTL_ASSERT(self->magic == self && "List_rbegin");\
 	return CSTL_LIST_RBEGIN(self);\
 }\
 \
 Name##Iterator Name##_rend(Name *self)\
 {\
-	assert(self && "List_rend");\
-	assert(self->magic == self && "List_rend");\
+	CSTL_ASSERT(self && "List_rend");\
+	CSTL_ASSERT(self->magic == self && "List_rend");\
 	return CSTL_LIST_REND(self);\
 }\
 \
 Name##Iterator Name##_next(Name##Iterator pos)\
 {\
-	assert(pos && "List_next");\
-	assert(pos->magic && "List_next");\
-	assert(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_next");\
+	CSTL_ASSERT(pos && "List_next");\
+	CSTL_ASSERT(pos->magic && "List_next");\
+	CSTL_ASSERT(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_next");\
 	return pos->next;\
 }\
 \
 Name##Iterator Name##_prev(Name##Iterator pos)\
 {\
-	assert(pos && "List_prev");\
-	assert(pos->magic && "List_prev");\
-	assert(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_prev");\
+	CSTL_ASSERT(pos && "List_prev");\
+	CSTL_ASSERT(pos->magic && "List_prev");\
+	CSTL_ASSERT(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_prev");\
 	return pos->prev;\
 }\
 \
 Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type data)\
 {\
-	assert(self && "List_insert");\
-	assert(self->magic == self && "List_insert");\
-	assert(pos && "List_insert");\
-	assert((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert");\
+	CSTL_ASSERT(self && "List_insert");\
+	CSTL_ASSERT(self->magic == self && "List_insert");\
+	CSTL_ASSERT(pos && "List_insert");\
+	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert");\
 	return Name##_insert_ref(self, pos, &data);\
 }\
 \
 Name##Iterator Name##_insert_ref(Name *self, Name##Iterator pos, Type const *data)\
 {\
 	Name *node;\
-	assert(self && "List_insert_ref");\
-	assert(self->magic == self && "List_insert_ref");\
-	assert(pos && "List_insert_ref");\
-	assert((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_ref");\
-	assert(data && "List_insert_ref");\
-	(void) self;\
+	CSTL_ASSERT(self && "List_insert_ref");\
+	CSTL_ASSERT(self->magic == self && "List_insert_ref");\
+	CSTL_ASSERT(pos && "List_insert_ref");\
+	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_ref");\
+	CSTL_ASSERT(data && "List_insert_ref");\
+	CSTL_UNUSED_PARAM(self);\
 	node = (Name *) malloc(sizeof(Name));\
 	if (!node) return 0;\
 	node->data = *data;\
@@ -311,16 +301,16 @@ Name##Iterator Name##_insert_ref(Name *self, Name##Iterator pos, Type const *dat
 	node->prev = pos->prev;\
 	pos->prev = node;\
 	node->prev->next = node;\
-	CSTL_LIST_MAGIC(node->magic = CSTL_LIST_MAGIC_ELEM(Name));\
+	CSTL_MAGIC(node->magic = CSTL_LIST_MAGIC_ELEM(Name));\
 	return node;\
 }\
 \
 int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type data)\
 {\
-	assert(self && "List_insert_n");\
-	assert(self->magic == self && "List_insert_n");\
-	assert(pos && "List_insert_n");\
-	assert((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_n");\
+	CSTL_ASSERT(self && "List_insert_n");\
+	CSTL_ASSERT(self->magic == self && "List_insert_n");\
+	CSTL_ASSERT(pos && "List_insert_n");\
+	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_n");\
 	return Name##_insert_n_ref(self, pos, n, &data);\
 }\
 \
@@ -328,14 +318,14 @@ int Name##_insert_n_ref(Name *self, Name##Iterator pos, size_t n, Type const *da
 {\
 	Name x;\
 	register size_t i;\
-	assert(self && "List_insert_n_ref");\
-	assert(self->magic == self && "List_insert_n_ref");\
-	assert(pos && "List_insert_n_ref");\
-	assert((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_n_ref");\
-	assert(data && "List_insert_n_ref");\
+	CSTL_ASSERT(self && "List_insert_n_ref");\
+	CSTL_ASSERT(self->magic == self && "List_insert_n_ref");\
+	CSTL_ASSERT(pos && "List_insert_n_ref");\
+	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_n_ref");\
+	CSTL_ASSERT(data && "List_insert_n_ref");\
 	x.next = &x;\
 	x.prev = &x;\
-	CSTL_LIST_MAGIC(x.magic = &x);\
+	CSTL_MAGIC(x.magic = &x);\
 	for (i = 0; i < n; i++) {\
 		if (!Name##_insert_ref(&x, CSTL_LIST_END(&x), data)) {\
 			Name##_clear(&x);\
@@ -350,14 +340,14 @@ int Name##_insert_array(Name *self, Name##Iterator pos, Type const *data, size_t
 {\
 	Name x;\
 	register size_t i;\
-	assert(self && "List_insert_array");\
-	assert(self->magic == self && "List_insert_array");\
-	assert(pos && "List_insert_array");\
-	assert((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_array");\
-	assert(data && "List_insert_array");\
+	CSTL_ASSERT(self && "List_insert_array");\
+	CSTL_ASSERT(self->magic == self && "List_insert_array");\
+	CSTL_ASSERT(pos && "List_insert_array");\
+	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_array");\
+	CSTL_ASSERT(data && "List_insert_array");\
 	x.next = &x;\
 	x.prev = &x;\
-	CSTL_LIST_MAGIC(x.magic = &x);\
+	CSTL_MAGIC(x.magic = &x);\
 	for (i = 0; i < n; i++) {\
 		if (!Name##_insert_ref(&x, CSTL_LIST_END(&x), &data[i])) {\
 			Name##_clear(&x);\
@@ -372,19 +362,19 @@ int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Na
 {\
 	Name x;\
 	register Name##Iterator i;\
-	assert(self && "List_insert_range");\
-	assert(self->magic == self && "List_insert_range");\
-	assert(pos && "List_insert_range");\
-	assert((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_range");\
-	assert(first && "List_insert_range");\
-	assert(last && "List_insert_range");\
-	assert(first->magic && "List_insert_range");\
-	assert(last->magic && "List_insert_range");\
+	CSTL_ASSERT(self && "List_insert_range");\
+	CSTL_ASSERT(self->magic == self && "List_insert_range");\
+	CSTL_ASSERT(pos && "List_insert_range");\
+	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_range");\
+	CSTL_ASSERT(first && "List_insert_range");\
+	CSTL_ASSERT(last && "List_insert_range");\
+	CSTL_ASSERT(first->magic && "List_insert_range");\
+	CSTL_ASSERT(last->magic && "List_insert_range");\
 	x.next = &x;\
 	x.prev = &x;\
-	CSTL_LIST_MAGIC(x.magic = &x);\
+	CSTL_MAGIC(x.magic = &x);\
 	for (i = first; i != last; i = i->next) {\
-		assert(i->magic && "List_insert_range");\
+		CSTL_ASSERT(i->magic && "List_insert_range");\
 		if (!Name##_insert_ref(&x, CSTL_LIST_END(&x), &i->data)) {\
 			Name##_clear(&x);\
 			return 0;\
@@ -397,17 +387,17 @@ int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Na
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 {\
 	Name *node;\
-	assert(self && "List_erase");\
-	assert(self->magic == self && "List_erase");\
-	assert(pos && "List_erase");\
-	assert(pos != self && "List_erase");\
-	assert(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_erase");\
-	assert(!Name##_empty(self) && "List_erase");\
-	(void) self;\
+	CSTL_ASSERT(self && "List_erase");\
+	CSTL_ASSERT(self->magic == self && "List_erase");\
+	CSTL_ASSERT(pos && "List_erase");\
+	CSTL_ASSERT(pos != self && "List_erase");\
+	CSTL_ASSERT(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_erase");\
+	CSTL_ASSERT(!Name##_empty(self) && "List_erase");\
+	CSTL_UNUSED_PARAM(self);\
 	node = pos->next;\
 	pos->prev->next = pos->next;\
 	pos->next->prev = pos->prev;\
-	CSTL_LIST_MAGIC(pos->magic = 0);\
+	CSTL_MAGIC(pos->magic = 0);\
 	free(pos);\
 	return node;\
 }\
@@ -415,15 +405,15 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
 	register Name##Iterator pos;\
-	assert(self && "List_erase_range");\
-	assert(self->magic == self && "List_erase_range");\
-	assert(first && "List_erase_range");\
-	assert(last && "List_erase_range");\
-	assert((first->magic == CSTL_LIST_MAGIC_ELEM(Name) || first->magic == self) && "List_erase_range");\
-	assert((last->magic == CSTL_LIST_MAGIC_ELEM(Name) || last->magic == self) && "List_erase_range");\
+	CSTL_ASSERT(self && "List_erase_range");\
+	CSTL_ASSERT(self->magic == self && "List_erase_range");\
+	CSTL_ASSERT(first && "List_erase_range");\
+	CSTL_ASSERT(last && "List_erase_range");\
+	CSTL_ASSERT((first->magic == CSTL_LIST_MAGIC_ELEM(Name) || first->magic == self) && "List_erase_range");\
+	CSTL_ASSERT((last->magic == CSTL_LIST_MAGIC_ELEM(Name) || last->magic == self) && "List_erase_range");\
 	pos = first;\
 	while (pos != last) {\
-		assert(!Name##_empty(self) && "List_erase_range");\
+		CSTL_ASSERT(!Name##_empty(self) && "List_erase_range");\
 		pos = Name##_erase(self, pos);\
 	}\
 	return pos;\
@@ -433,8 +423,8 @@ int Name##_resize(Name *self, size_t n, Type data)\
 {\
 	register size_t i;\
 	size_t size;\
-	assert(self && "List_resize");\
-	assert(self->magic == self && "List_resize");\
+	CSTL_ASSERT(self && "List_resize");\
+	CSTL_ASSERT(self->magic == self && "List_resize");\
 	size = Name##_size(self);\
 	if (size >= n) {\
 		for (i = 0; i < size - n; i++) {\
@@ -444,7 +434,7 @@ int Name##_resize(Name *self, size_t n, Type data)\
 		Name x;\
 		x.next = &x;\
 		x.prev = &x;\
-		CSTL_LIST_MAGIC(x.magic = &x);\
+		CSTL_MAGIC(x.magic = &x);\
 		for (i = 0; i < n - size; i++) {\
 			if (!Name##_insert_ref(&x, CSTL_LIST_END(&x), &data)) {\
 				Name##_clear(&x);\
@@ -460,10 +450,10 @@ void Name##_swap(Name *self, Name *x)\
 {\
 	Name *tmp_next;\
 	Name *tmp_prev;\
-	assert(self && "List_swap");\
-	assert(x && "List_swap");\
-	assert(self->magic == self && "List_swap");\
-	assert(x->magic == x && "List_swap");\
+	CSTL_ASSERT(self && "List_swap");\
+	CSTL_ASSERT(x && "List_swap");\
+	CSTL_ASSERT(self->magic == self && "List_swap");\
+	CSTL_ASSERT(x->magic == x && "List_swap");\
 	self->next->prev = x;\
 	self->prev->next = x;\
 	x->next->prev = self;\
@@ -479,18 +469,18 @@ void Name##_swap(Name *self, Name *x)\
 void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first, Name##Iterator last)\
 {\
 	Name *tmp;\
-	assert(self && "List_splice");\
-	assert(self->magic == self && "List_splice");\
-	assert(pos && "List_splice");\
-	assert((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_splice");\
-	assert(x && "List_splice");\
-	assert(x->magic == x && "List_splice");\
-	assert(first && "List_splice");\
-	assert(last && "List_splice");\
-	assert((first->magic == CSTL_LIST_MAGIC_ELEM(Name) || first->magic == x) && "List_splice");\
-	assert((last->magic == CSTL_LIST_MAGIC_ELEM(Name) || last->magic == x) && "List_splice");\
-	(void) self;\
-	(void) x;\
+	CSTL_ASSERT(self && "List_splice");\
+	CSTL_ASSERT(self->magic == self && "List_splice");\
+	CSTL_ASSERT(pos && "List_splice");\
+	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_splice");\
+	CSTL_ASSERT(x && "List_splice");\
+	CSTL_ASSERT(x->magic == x && "List_splice");\
+	CSTL_ASSERT(first && "List_splice");\
+	CSTL_ASSERT(last && "List_splice");\
+	CSTL_ASSERT((first->magic == CSTL_LIST_MAGIC_ELEM(Name) || first->magic == x) && "List_splice");\
+	CSTL_ASSERT((last->magic == CSTL_LIST_MAGIC_ELEM(Name) || last->magic == x) && "List_splice");\
+	CSTL_UNUSED_PARAM(self);\
+	CSTL_UNUSED_PARAM(x);\
 	if (first == last || pos == last) return;\
 	pos->prev->next = first;\
 	tmp = first->prev;\
@@ -568,9 +558,9 @@ void Name##_sort(Name *self, int (*comp)(const void *, const void *))\
 {\
 	Name *first;\
 	Name *last;\
-	assert(self && "List_sort");\
-	assert(self->magic == self && "List_sort");\
-	assert(comp && "List_sort");\
+	CSTL_ASSERT(self && "List_sort");\
+	CSTL_ASSERT(self->magic == self && "List_sort");\
+	CSTL_ASSERT(comp && "List_sort");\
 	if (Name##_empty(self)) {\
 		return;\
 	}\
@@ -593,11 +583,11 @@ void Name##_merge(Name *self, Name *x, int (*comp)(const void *, const void *))\
 	Name *last1;\
 	Name *first2;\
 	Name *last2;\
-	assert(self && "List_merge");\
-	assert(self->magic == self && "List_merge");\
-	assert(x && "List_merge");\
-	assert(x->magic == x && "List_merge");\
-	assert(comp && "List_merge");\
+	CSTL_ASSERT(self && "List_merge");\
+	CSTL_ASSERT(self->magic == self && "List_merge");\
+	CSTL_ASSERT(x && "List_merge");\
+	CSTL_ASSERT(x->magic == x && "List_merge");\
+	CSTL_ASSERT(comp && "List_merge");\
 	if (self == x || Name##_empty(x)) return;\
 	if (Name##_empty(self)) {\
 		Name##_splice(self, CSTL_LIST_END(self), x, CSTL_LIST_BEGIN(x), CSTL_LIST_END(x));\
@@ -626,8 +616,8 @@ void Name##_reverse(Name *self)\
 {\
 	register Name *p;\
 	register Name *tmp;\
-	assert(self && "List_reverse");\
-	assert(self->magic == self && "List_reverse");\
+	CSTL_ASSERT(self && "List_reverse");\
+	CSTL_ASSERT(self->magic == self && "List_reverse");\
 	p = self;\
 	do {\
 		tmp = p->next;\

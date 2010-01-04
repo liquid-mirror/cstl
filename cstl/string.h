@@ -34,22 +34,9 @@
 #define CSTL_STRING_H_INCLUDED
 
 #include <stdlib.h>
-#include <assert.h>
+#include "common.h"
 #include "vector.h"
 
-#ifdef __cplusplus
-#define CSTL_STRING_BEGIN_EXTERN_C()	extern "C" {
-#define CSTL_STRING_END_EXTERN_C()		}
-#else
-#define CSTL_STRING_BEGIN_EXTERN_C()
-#define CSTL_STRING_END_EXTERN_C()
-#endif
-
-#ifdef NDEBUG
-#define CSTL_STRING_MAGIC(x)
-#else
-#define CSTL_STRING_MAGIC(x) x
-#endif
 
 #ifndef CSTL_ALGORITHM_INTERFACE
 #define CSTL_ALGORITHM_INTERFACE(Name, Type)
@@ -59,10 +46,12 @@
 #define CSTL_ALGORITHM_IMPLEMENT(Name, Type, DIRECT_ACCESS)
 #endif
 
+
 /*! 
  * \brief 検索失敗用インデックス
  */
 #define CSTL_NPOS	((size_t)-1)
+
 
 #define CSTL_STRING_AT(self, idx)	CSTL_VECTOR_AT((self)->data, (idx))
 #define CSTL_STRING_DEFAULT_CAPACITY	(32 - 1)
@@ -77,7 +66,7 @@
 #define CSTL_STRING_INTERFACE(Name, Type)	\
 typedef struct Name Name;\
 \
-CSTL_STRING_BEGIN_EXTERN_C()\
+CSTL_EXTERN_C_BEGIN()\
 Name *Name##_new(void);\
 Name *Name##_new_reserve(size_t n);\
 Name *Name##_new_assign(const Type *cstr);\
@@ -131,7 +120,7 @@ size_t Name##_find_last_not_of(Name *self, const Type *cstr, size_t idx);\
 size_t Name##_find_last_not_of_len(Name *self, const Type *chars, size_t idx, size_t chars_len);\
 size_t Name##_find_last_not_of_c(Name *self, Type c, size_t idx);\
 CSTL_ALGORITHM_INTERFACE(Name, Type)\
-CSTL_STRING_END_EXTERN_C()\
+CSTL_EXTERN_C_END()\
 
 
 /*! 
@@ -184,7 +173,7 @@ CSTL_VECTOR_IMPLEMENT_ERASE(Name##_CharVector, Type)\
  */\
 struct Name {\
 	Name##_CharVector *data;\
-	CSTL_STRING_MAGIC(Name *magic;)\
+	CSTL_MAGIC(Name *magic;)\
 };\
 \
 static int Name##_expand(Name *self, size_t n)\
@@ -208,20 +197,20 @@ Name *Name##_new_reserve(size_t n)\
 		return 0;\
 	}\
 	Name##_CharVector_push_back(self->data, '\0');\
-	CSTL_STRING_MAGIC(self->magic = self);\
+	CSTL_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
 Name *Name##_new_assign(const Type *cstr)\
 {\
-	assert(cstr && "String_new_assign");\
+	CSTL_ASSERT(cstr && "String_new_assign");\
 	return Name##_new_assign_len(cstr, CSTL_NPOS);\
 }\
 \
 Name *Name##_new_assign_len(const Type *chars, size_t chars_len)\
 {\
 	Name *self;\
-	assert(chars && "String_new_assign_len");\
+	CSTL_ASSERT(chars && "String_new_assign_len");\
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\
@@ -241,59 +230,59 @@ Name *Name##_new_assign_c(size_t n, Type c)\
 void Name##_delete(Name *self)\
 {\
 	if (!self) return;\
-	assert(self->magic == self && "String_delete");\
-	CSTL_STRING_MAGIC(self->magic = 0);\
+	CSTL_ASSERT(self->magic == self && "String_delete");\
+	CSTL_MAGIC(self->magic = 0);\
 	Name##_CharVector_delete(self->data);\
 	free(self);\
 }\
 \
 void Name##_clear(Name *self)\
 {\
-	assert(self && "String_clear");\
-	assert(self->magic == self && "String_clear");\
+	CSTL_ASSERT(self && "String_clear");\
+	CSTL_ASSERT(self->magic == self && "String_clear");\
 	CSTL_VECTOR_CLEAR(self->data);\
 	Name##_CharVector_push_back(self->data, '\0');\
 }\
 \
 size_t Name##_size(Name *self)\
 {\
-	assert(self && "String_size");\
-	assert(self->magic == self && "String_size");\
+	CSTL_ASSERT(self && "String_size");\
+	CSTL_ASSERT(self->magic == self && "String_size");\
 	return CSTL_VECTOR_SIZE(self->data) - 1;\
 }\
 \
 size_t Name##_length(Name *self)\
 {\
-	assert(self && "String_length");\
-	assert(self->magic == self && "String_length");\
+	CSTL_ASSERT(self && "String_length");\
+	CSTL_ASSERT(self->magic == self && "String_length");\
 	return CSTL_VECTOR_SIZE(self->data) - 1;\
 }\
 \
 size_t Name##_capacity(Name *self)\
 {\
-	assert(self && "String_capacity");\
-	assert(self->magic == self && "String_capacity");\
+	CSTL_ASSERT(self && "String_capacity");\
+	CSTL_ASSERT(self->magic == self && "String_capacity");\
 	return CSTL_VECTOR_CAPACITY(self->data) - 1;\
 }\
 \
 int Name##_reserve(Name *self, size_t n)\
 {\
-	assert(self && "String_reserve");\
-	assert(self->magic == self && "String_reserve");\
+	CSTL_ASSERT(self && "String_reserve");\
+	CSTL_ASSERT(self->magic == self && "String_reserve");\
 	return Name##_CharVector_reserve(self->data, n + 1);\
 }\
 \
 void Name##_shrink(Name *self, size_t n)\
 {\
-	assert(self && "String_shrink");\
-	assert(self->magic == self && "String_shrink");\
+	CSTL_ASSERT(self && "String_shrink");\
+	CSTL_ASSERT(self->magic == self && "String_shrink");\
 	Name##_CharVector_shrink(self->data, n + 1);\
 }\
 \
 int Name##_empty(Name *self)\
 {\
-	assert(self && "String_empty");\
-	assert(self->magic == self && "String_empty");\
+	CSTL_ASSERT(self && "String_empty");\
+	CSTL_ASSERT(self->magic == self && "String_empty");\
 	return CSTL_VECTOR_SIZE(self->data) == 1;\
 }\
 \
@@ -301,10 +290,10 @@ int Name##_compare(Name *self, Name *x)\
 {\
 	size_t len, xlen;\
 	int ret;\
-	assert(self && "String_compare");\
-	assert(x && "String_compare");\
-	assert(self->magic == self && "String_compare");\
-	assert(x->magic == x && "String_compare");\
+	CSTL_ASSERT(self && "String_compare");\
+	CSTL_ASSERT(x && "String_compare");\
+	CSTL_ASSERT(self->magic == self && "String_compare");\
+	CSTL_ASSERT(x->magic == x && "String_compare");\
 	len = Name##_size(self);\
 	xlen = Name##_size(x);\
 	ret = Name##_mymemcmp(Name##_c_str(self), Name##_c_str(x), (len > xlen) ? xlen : len);\
@@ -321,32 +310,32 @@ int Name##_compare(Name *self, Name *x)\
 \
 Type *Name##_at(Name *self, size_t idx)\
 {\
-	assert(self && "String_at");\
-	assert(self->magic == self && "String_at");\
-	assert(Name##_size(self) > idx && "String_at");\
+	CSTL_ASSERT(self && "String_at");\
+	CSTL_ASSERT(self->magic == self && "String_at");\
+	CSTL_ASSERT(Name##_size(self) > idx && "String_at");\
 	return &CSTL_VECTOR_AT(self->data, idx);\
 }\
 \
 const Type *Name##_c_str(Name *self)\
 {\
-	assert(self && "String_c_str");\
-	assert(self->magic == self && "String_c_str");\
+	CSTL_ASSERT(self && "String_c_str");\
+	CSTL_ASSERT(self->magic == self && "String_c_str");\
 	return &CSTL_VECTOR_AT(self->data, 0);\
 }\
 \
 const Type *Name##_data(Name *self)\
 {\
-	assert(self && "String_data");\
-	assert(self->magic == self && "String_data");\
+	CSTL_ASSERT(self && "String_data");\
+	CSTL_ASSERT(self->magic == self && "String_data");\
 	return &CSTL_VECTOR_AT(self->data, 0);\
 }\
 \
 Name *Name##_erase(Name *self, size_t idx, size_t len)\
 {\
 	size_t size;\
-	assert(self && "String_erase");\
-	assert(self->magic == self && "String_erase");\
-	assert(Name##_size(self) > idx && "String_erase");\
+	CSTL_ASSERT(self && "String_erase");\
+	CSTL_ASSERT(self->magic == self && "String_erase");\
+	CSTL_ASSERT(Name##_size(self) > idx && "String_erase");\
 	size = Name##_size(self);\
 	if (len > size - idx) {\
 		len = size - idx;\
@@ -358,9 +347,9 @@ Name *Name##_erase(Name *self, size_t idx, size_t len)\
 void Name##_pop_back(Name *self)\
 {\
 	size_t size;\
-	assert(self && "String_pop_back");\
-	assert(self->magic == self && "String_pop_back");\
-	assert(!Name##_empty(self) && "String_pop_back");\
+	CSTL_ASSERT(self && "String_pop_back");\
+	CSTL_ASSERT(self->magic == self && "String_pop_back");\
+	CSTL_ASSERT(!Name##_empty(self) && "String_pop_back");\
 	size = Name##_size(self);\
 	Name##_CharVector_erase(self->data, size - 1, 1);\
 }\
@@ -368,8 +357,8 @@ void Name##_pop_back(Name *self)\
 int Name##_resize(Name *self, size_t n, Type c)\
 {\
 	size_t num;\
-	assert(self && "String_resize");\
-	assert(self->magic == self && "String_resize");\
+	CSTL_ASSERT(self && "String_resize");\
+	CSTL_ASSERT(self->magic == self && "String_resize");\
 	num = CSTL_VECTOR_SIZE(self->data) - 1;\
 	if (!Name##_CharVector_resize(self->data, n + 1, c)) {\
 		return 0;\
@@ -385,10 +374,10 @@ int Name##_resize(Name *self, size_t n, Type c)\
 void Name##_swap(Name *self, Name *x)\
 {\
 	Name##_CharVector *tmp_data;\
-	assert(self && "String_swap");\
-	assert(x && "String_swap");\
-	assert(self->magic == self && "String_swap");\
-	assert(x->magic == x && "String_swap");\
+	CSTL_ASSERT(self && "String_swap");\
+	CSTL_ASSERT(x && "String_swap");\
+	CSTL_ASSERT(self->magic == self && "String_swap");\
+	CSTL_ASSERT(x->magic == x && "String_swap");\
 	tmp_data = self->data;\
 	self->data = x->data;\
 	x->data = tmp_data;\
@@ -396,17 +385,17 @@ void Name##_swap(Name *self, Name *x)\
 \
 Name *Name##_assign(Name *self, const Type *cstr)\
 {\
-	assert(self && "String_assign");\
-	assert(self->magic == self && "String_assign");\
-	assert(cstr && "String_assign");\
+	CSTL_ASSERT(self && "String_assign");\
+	CSTL_ASSERT(self->magic == self && "String_assign");\
+	CSTL_ASSERT(cstr && "String_assign");\
 	return Name##_assign_len(self, cstr, CSTL_NPOS);\
 }\
 \
 Name *Name##_assign_len(Name *self, const Type *chars, size_t chars_len)\
 {\
-	assert(self && "String_assign_len");\
-	assert(self->magic == self && "String_assign_len");\
-	assert(chars && "String_assign_len");\
+	CSTL_ASSERT(self && "String_assign_len");\
+	CSTL_ASSERT(self->magic == self && "String_assign_len");\
+	CSTL_ASSERT(chars && "String_assign_len");\
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\
@@ -423,8 +412,8 @@ Name *Name##_assign_len(Name *self, const Type *chars, size_t chars_len)\
 \
 Name *Name##_assign_c(Name *self, size_t n, Type c)\
 {\
-	assert(self && "String_assign_c");\
-	assert(self->magic == self && "String_assign_c");\
+	CSTL_ASSERT(self && "String_assign_c");\
+	CSTL_ASSERT(self->magic == self && "String_assign_c");\
 	if (!Name##_expand(self, n)) {\
 		return 0;\
 	}\
@@ -434,17 +423,17 @@ Name *Name##_assign_c(Name *self, size_t n, Type c)\
 \
 Name *Name##_append(Name *self, const Type *cstr)\
 {\
-	assert(self && "String_append");\
-	assert(self->magic == self && "String_append");\
-	assert(cstr && "String_append");\
+	CSTL_ASSERT(self && "String_append");\
+	CSTL_ASSERT(self->magic == self && "String_append");\
+	CSTL_ASSERT(cstr && "String_append");\
 	return Name##_append_len(self, cstr, CSTL_NPOS);\
 }\
 \
 Name *Name##_append_len(Name *self, const Type *chars, size_t chars_len)\
 {\
-	assert(self && "String_append_len");\
-	assert(self->magic == self && "String_append_len");\
-	assert(chars && "String_append_len");\
+	CSTL_ASSERT(self && "String_append_len");\
+	CSTL_ASSERT(self->magic == self && "String_append_len");\
+	CSTL_ASSERT(chars && "String_append_len");\
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\
@@ -453,15 +442,15 @@ Name *Name##_append_len(Name *self, const Type *chars, size_t chars_len)\
 \
 Name *Name##_append_c(Name *self, size_t n, Type c)\
 {\
-	assert(self && "String_append_c");\
-	assert(self->magic == self && "String_append_c");\
+	CSTL_ASSERT(self && "String_append_c");\
+	CSTL_ASSERT(self->magic == self && "String_append_c");\
 	return Name##_insert_c(self, Name##_size(self), n, c);\
 }\
 \
 Name *Name##_push_back(Name *self, Type c)\
 {\
-	assert(self && "String_push_back");\
-	assert(self->magic == self && "String_push_back");\
+	CSTL_ASSERT(self && "String_push_back");\
+	CSTL_ASSERT(self->magic == self && "String_push_back");\
 	return Name##_insert_c(self, Name##_size(self), 1, c);\
 }\
 \
@@ -472,10 +461,10 @@ static int Name##_insert_n_no_data(Name *self, size_t idx, size_t n)\
 \
 Name *Name##_insert(Name *self, size_t idx, const Type *cstr)\
 {\
-	assert(self && "String_insert");\
-	assert(self->magic == self && "String_insert");\
-	assert(Name##_size(self) >= idx && "String_insert");\
-	assert(cstr && "String_insert");\
+	CSTL_ASSERT(self && "String_insert");\
+	CSTL_ASSERT(self->magic == self && "String_insert");\
+	CSTL_ASSERT(Name##_size(self) >= idx && "String_insert");\
+	CSTL_ASSERT(cstr && "String_insert");\
 	return Name##_insert_len(self, idx, cstr, CSTL_NPOS);\
 }\
 \
@@ -483,11 +472,11 @@ Name *Name##_insert_len(Name *self, size_t idx, const Type *chars, size_t chars_
 {\
 	register size_t i;\
 	size_t size;\
-	assert(self && "String_insert_len");\
-	assert(self->magic == self && "String_insert_len");\
-	assert(chars && "String_insert_len");\
+	CSTL_ASSERT(self && "String_insert_len");\
+	CSTL_ASSERT(self->magic == self && "String_insert_len");\
+	CSTL_ASSERT(chars && "String_insert_len");\
 	size = Name##_size(self);\
-	assert(size >= idx && "String_insert_len");\
+	CSTL_ASSERT(size >= idx && "String_insert_len");\
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\
@@ -545,9 +534,9 @@ Name *Name##_insert_len(Name *self, size_t idx, const Type *chars, size_t chars_
 Name *Name##_insert_c(Name *self, size_t idx, size_t n, Type c)\
 {\
 	register size_t i;\
-	assert(self && "String_insert_c");\
-	assert(self->magic == self && "String_insert_c");\
-	assert(Name##_size(self) >= idx && "String_insert_c");\
+	CSTL_ASSERT(self && "String_insert_c");\
+	CSTL_ASSERT(self->magic == self && "String_insert_c");\
+	CSTL_ASSERT(Name##_size(self) >= idx && "String_insert_c");\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
@@ -559,10 +548,10 @@ Name *Name##_insert_c(Name *self, size_t idx, size_t n, Type c)\
 \
 Name *Name##_replace(Name *self, size_t idx, size_t len, const Type *cstr)\
 {\
-	assert(self && "String_replace");\
-	assert(self->magic == self && "String_replace");\
-	assert(cstr && "String_replace");\
-	assert(Name##_size(self) >= idx && "String_replace");\
+	CSTL_ASSERT(self && "String_replace");\
+	CSTL_ASSERT(self->magic == self && "String_replace");\
+	CSTL_ASSERT(cstr && "String_replace");\
+	CSTL_ASSERT(Name##_size(self) >= idx && "String_replace");\
 	return Name##_replace_len(self, idx, len, cstr, CSTL_NPOS);\
 }\
 \
@@ -570,11 +559,11 @@ Name *Name##_replace_len(Name *self, size_t idx, size_t len, const Type *chars, 
 {\
 	register size_t i;\
 	size_t size;\
-	assert(self && "String_replace_len");\
-	assert(self->magic == self && "String_replace_len");\
-	assert(chars && "String_replace_len");\
+	CSTL_ASSERT(self && "String_replace_len");\
+	CSTL_ASSERT(self->magic == self && "String_replace_len");\
+	CSTL_ASSERT(chars && "String_replace_len");\
 	size = Name##_size(self);\
-	assert(size >= idx && "String_replace_len");\
+	CSTL_ASSERT(size >= idx && "String_replace_len");\
 	if (len > size - idx) {\
 		len = size - idx;\
 	}\
@@ -659,9 +648,9 @@ Name *Name##_replace_c(Name *self, size_t idx, size_t len, size_t n, Type c)\
 {\
 	register size_t i;\
 	size_t size;\
-	assert(self && "String_replace_c");\
-	assert(self->magic == self && "String_replace_c");\
-	assert(Name##_size(self) >= idx && "String_replace_c");\
+	CSTL_ASSERT(self && "String_replace_c");\
+	CSTL_ASSERT(self->magic == self && "String_replace_c");\
+	CSTL_ASSERT(Name##_size(self) >= idx && "String_replace_c");\
 	size = Name##_size(self);\
 	if (len > size - idx) {\
 		len = size - idx;\
@@ -722,9 +711,9 @@ static size_t Name##_brute_force_search_r(const Type *str, size_t str_len, const
 \
 size_t Name##_find(Name *self, const Type *cstr, size_t idx)\
 {\
-	assert(self && "String_find");\
-	assert(self->magic == self && "String_find");\
-	assert(cstr && "String_find");\
+	CSTL_ASSERT(self && "String_find");\
+	CSTL_ASSERT(self->magic == self && "String_find");\
+	CSTL_ASSERT(cstr && "String_find");\
 	return Name##_find_len(self, cstr, idx, CSTL_NPOS);\
 }\
 \
@@ -732,9 +721,9 @@ size_t Name##_find_len(Name *self, const Type *chars, size_t idx, size_t chars_l
 {\
 	size_t i;\
 	size_t size;\
-	assert(self && "String_find_len");\
-	assert(self->magic == self && "String_find_len");\
-	assert(chars && "String_find_len");\
+	CSTL_ASSERT(self && "String_find_len");\
+	CSTL_ASSERT(self->magic == self && "String_find_len");\
+	CSTL_ASSERT(chars && "String_find_len");\
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\
@@ -750,25 +739,25 @@ size_t Name##_find_len(Name *self, const Type *chars, size_t idx, size_t chars_l
 \
 size_t Name##_find_c(Name *self, Type c, size_t idx)\
 {\
-	assert(self && "String_find_c");\
-	assert(self->magic == self && "String_find_c");\
+	CSTL_ASSERT(self && "String_find_c");\
+	CSTL_ASSERT(self->magic == self && "String_find_c");\
 	return Name##_find_len(self, &c, idx, 1);\
 }\
 \
 size_t Name##_rfind(Name *self, const Type *cstr, size_t idx)\
 {\
-	assert(self && "String_rfind");\
-	assert(self->magic == self && "String_rfind");\
-	assert(cstr && "String_rfind");\
+	CSTL_ASSERT(self && "String_rfind");\
+	CSTL_ASSERT(self->magic == self && "String_rfind");\
+	CSTL_ASSERT(cstr && "String_rfind");\
 	return Name##_rfind_len(self, cstr, idx, CSTL_NPOS);\
 }\
 \
 size_t Name##_rfind_len(Name *self, const Type *chars, size_t idx, size_t chars_len)\
 {\
 	size_t size;\
-	assert(self && "String_rfind_len");\
-	assert(self->magic == self && "String_rfind_len");\
-	assert(chars && "String_rfind_len");\
+	CSTL_ASSERT(self && "String_rfind_len");\
+	CSTL_ASSERT(self->magic == self && "String_rfind_len");\
+	CSTL_ASSERT(chars && "String_rfind_len");\
 	if (chars_len == CSTL_NPOS) {\
 		chars_len = Name##_mystrlen(chars);\
 	}\
@@ -784,16 +773,16 @@ size_t Name##_rfind_len(Name *self, const Type *chars, size_t idx, size_t chars_
 \
 size_t Name##_rfind_c(Name *self, Type c, size_t idx)\
 {\
-	assert(self && "String_rfind_c");\
-	assert(self->magic == self && "String_rfind_c");\
+	CSTL_ASSERT(self && "String_rfind_c");\
+	CSTL_ASSERT(self->magic == self && "String_rfind_c");\
 	return Name##_rfind_len(self, &c, idx, 1);\
 }\
 \
 size_t Name##_find_first_of(Name *self, const Type *cstr, size_t idx)\
 {\
-	assert(self && "String_find_first_of");\
-	assert(self->magic == self && "String_find_first_of");\
-	assert(cstr && "String_find_first_of");\
+	CSTL_ASSERT(self && "String_find_first_of");\
+	CSTL_ASSERT(self->magic == self && "String_find_first_of");\
+	CSTL_ASSERT(cstr && "String_find_first_of");\
 	return Name##_find_first_of_len(self, cstr, idx, CSTL_NPOS);\
 }\
 \
@@ -802,9 +791,9 @@ size_t Name##_find_first_of_len(Name *self, const Type *chars, size_t idx, size_
 	register size_t i, j;\
 	size_t size;\
 	const Type *p;\
-	assert(self && "String_find_first_of_len");\
-	assert(self->magic == self && "String_find_first_of_len");\
-	assert(chars && "String_find_first_of_len");\
+	CSTL_ASSERT(self && "String_find_first_of_len");\
+	CSTL_ASSERT(self->magic == self && "String_find_first_of_len");\
+	CSTL_ASSERT(chars && "String_find_first_of_len");\
 	size = Name##_size(self);\
 	if (size <= idx) return CSTL_NPOS;\
 	if (chars_len == CSTL_NPOS) {\
@@ -823,16 +812,16 @@ size_t Name##_find_first_of_len(Name *self, const Type *chars, size_t idx, size_
 \
 size_t Name##_find_first_of_c(Name *self, Type c, size_t idx)\
 {\
-	assert(self && "String_find_first_of_c");\
-	assert(self->magic == self && "String_find_first_of_c");\
+	CSTL_ASSERT(self && "String_find_first_of_c");\
+	CSTL_ASSERT(self->magic == self && "String_find_first_of_c");\
 	return Name##_find_first_of_len(self, &c, idx, 1);\
 }\
 \
 size_t Name##_find_last_of(Name *self, const Type *cstr, size_t idx)\
 {\
-	assert(self && "String_find_last_of");\
-	assert(self->magic == self && "String_find_last_of");\
-	assert(cstr && "String_find_last_of");\
+	CSTL_ASSERT(self && "String_find_last_of");\
+	CSTL_ASSERT(self->magic == self && "String_find_last_of");\
+	CSTL_ASSERT(cstr && "String_find_last_of");\
 	return Name##_find_last_of_len(self, cstr, idx, CSTL_NPOS);\
 }\
 \
@@ -841,9 +830,9 @@ size_t Name##_find_last_of_len(Name *self, const Type *chars, size_t idx, size_t
 	register size_t i, j;\
 	size_t size;\
 	const Type *p;\
-	assert(self && "String_find_last_of_len");\
-	assert(self->magic == self && "String_find_last_of_len");\
-	assert(chars && "String_find_last_of_len");\
+	CSTL_ASSERT(self && "String_find_last_of_len");\
+	CSTL_ASSERT(self->magic == self && "String_find_last_of_len");\
+	CSTL_ASSERT(chars && "String_find_last_of_len");\
 	size = Name##_size(self);\
 	if (!size) {\
 		return CSTL_NPOS;\
@@ -867,16 +856,16 @@ size_t Name##_find_last_of_len(Name *self, const Type *chars, size_t idx, size_t
 \
 size_t Name##_find_last_of_c(Name *self, Type c, size_t idx)\
 {\
-	assert(self && "String_find_last_of_c");\
-	assert(self->magic == self && "String_find_last_of_c");\
+	CSTL_ASSERT(self && "String_find_last_of_c");\
+	CSTL_ASSERT(self->magic == self && "String_find_last_of_c");\
 	return Name##_find_last_of_len(self, &c, idx, 1);\
 }\
 \
 size_t Name##_find_first_not_of(Name *self, const Type *cstr, size_t idx)\
 {\
-	assert(self && "String_find_first_not_of");\
-	assert(self->magic == self && "String_find_first_not_of");\
-	assert(cstr && "String_find_first_not_of");\
+	CSTL_ASSERT(self && "String_find_first_not_of");\
+	CSTL_ASSERT(self->magic == self && "String_find_first_not_of");\
+	CSTL_ASSERT(cstr && "String_find_first_not_of");\
 	return Name##_find_first_not_of_len(self, cstr, idx, CSTL_NPOS);\
 }\
 \
@@ -885,9 +874,9 @@ size_t Name##_find_first_not_of_len(Name *self, const Type *chars, size_t idx, s
 	register size_t i, j;\
 	size_t size;\
 	const Type *p;\
-	assert(self && "String_find_first_not_of_len");\
-	assert(self->magic == self && "String_find_first_not_of_len");\
-	assert(chars && "String_find_first_not_of_len");\
+	CSTL_ASSERT(self && "String_find_first_not_of_len");\
+	CSTL_ASSERT(self->magic == self && "String_find_first_not_of_len");\
+	CSTL_ASSERT(chars && "String_find_first_not_of_len");\
 	size = Name##_size(self);\
 	if (size <= idx) return CSTL_NPOS;\
 	if (chars_len == CSTL_NPOS) {\
@@ -911,16 +900,16 @@ size_t Name##_find_first_not_of_len(Name *self, const Type *chars, size_t idx, s
 \
 size_t Name##_find_first_not_of_c(Name *self, Type c, size_t idx)\
 {\
-	assert(self && "String_find_first_not_of_c");\
-	assert(self->magic == self && "String_find_first_not_of_c");\
+	CSTL_ASSERT(self && "String_find_first_not_of_c");\
+	CSTL_ASSERT(self->magic == self && "String_find_first_not_of_c");\
 	return Name##_find_first_not_of_len(self, &c, idx, 1);\
 }\
 \
 size_t Name##_find_last_not_of(Name *self, const Type *cstr, size_t idx)\
 {\
-	assert(self && "String_find_last_not_of");\
-	assert(self->magic == self && "String_find_last_not_of");\
-	assert(cstr && "String_find_last_not_of");\
+	CSTL_ASSERT(self && "String_find_last_not_of");\
+	CSTL_ASSERT(self->magic == self && "String_find_last_not_of");\
+	CSTL_ASSERT(cstr && "String_find_last_not_of");\
 	return Name##_find_last_not_of_len(self, cstr, idx, CSTL_NPOS);\
 }\
 \
@@ -929,9 +918,9 @@ size_t Name##_find_last_not_of_len(Name *self, const Type *chars, size_t idx, si
 	register size_t i, j;\
 	size_t size;\
 	const Type *p;\
-	assert(self && "String_find_last_not_of_len");\
-	assert(self->magic == self && "String_find_last_not_of_len");\
-	assert(chars && "String_find_last_not_of_len");\
+	CSTL_ASSERT(self && "String_find_last_not_of_len");\
+	CSTL_ASSERT(self->magic == self && "String_find_last_not_of_len");\
+	CSTL_ASSERT(chars && "String_find_last_not_of_len");\
 	size = Name##_size(self);\
 	if (!size) {\
 		return CSTL_NPOS;\
@@ -960,8 +949,8 @@ size_t Name##_find_last_not_of_len(Name *self, const Type *chars, size_t idx, si
 \
 size_t Name##_find_last_not_of_c(Name *self, Type c, size_t idx)\
 {\
-	assert(self && "String_find_last_not_of_c");\
-	assert(self->magic == self && "String_find_last_not_of_c");\
+	CSTL_ASSERT(self && "String_find_last_not_of_c");\
+	CSTL_ASSERT(self->magic == self && "String_find_last_not_of_c");\
 	return Name##_find_last_not_of_len(self, &c, idx, 1);\
 }\
 \

@@ -34,23 +34,10 @@
 #define CSTL_DEQUE_H_INCLUDED
 
 #include <stdlib.h>
-#include <assert.h>
+#include "common.h"
 #include "ring.h"
 #include "vector.h"
 
-#ifdef __cplusplus
-#define CSTL_DEQUE_BEGIN_EXTERN_C()	extern "C" {
-#define CSTL_DEQUE_END_EXTERN_C()	}
-#else
-#define CSTL_DEQUE_BEGIN_EXTERN_C()
-#define CSTL_DEQUE_END_EXTERN_C()
-#endif
-
-#ifdef NDEBUG
-#define CSTL_DEQUE_MAGIC(x)
-#else
-#define CSTL_DEQUE_MAGIC(x) x
-#endif
 
 #ifndef CSTL_ALGORITHM_INTERFACE
 #define CSTL_ALGORITHM_INTERFACE(Name, Type)
@@ -60,7 +47,9 @@
 #define CSTL_ALGORITHM_IMPLEMENT(Name, Type, DIRECT_ACCESS)
 #endif
 
+
 #define CSTL_DEQUE_SIZE(self)			(self)->size
+
 
 /*! 
  * \brief インターフェイスマクロ
@@ -71,7 +60,7 @@
 #define CSTL_DEQUE_INTERFACE(Name, Type)	\
 typedef struct Name Name;\
 \
-CSTL_DEQUE_BEGIN_EXTERN_C()\
+CSTL_EXTERN_C_BEGIN()\
 Name *Name##_new(void);\
 void Name##_delete(Name *self);\
 int Name##_push_back(Name *self, Type data);\
@@ -96,7 +85,7 @@ void Name##_erase(Name *self, size_t idx, size_t n);\
 int Name##_resize(Name *self, size_t n, Type data);\
 void Name##_swap(Name *self, Name *x);\
 CSTL_ALGORITHM_INTERFACE(Name, Type)\
-CSTL_DEQUE_END_EXTERN_C()\
+CSTL_EXTERN_C_END()\
 
 
 /*! 
@@ -145,7 +134,7 @@ struct Name {\
 	size_t size;\
 	Name##_RingVector *map;\
 	Name##_RingVector *pool;\
-	CSTL_DEQUE_MAGIC(Name *magic;)\
+	CSTL_MAGIC(Name *magic;)\
 };\
 \
 static void Name##_coordinate(Name *self, size_t idx, size_t *map_idx, size_t *ring_idx)\
@@ -212,7 +201,7 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 		} else {\
 			/* mapをずらす */\
 			size_t slide = ((expand - self->begin) + (CSTL_VECTOR_SIZE(self->map) - e)) / 2;\
-			assert(e + slide <= CSTL_VECTOR_SIZE(self->map) && "Deque_expand_begin_side");\
+			CSTL_ASSERT(e + slide <= CSTL_VECTOR_SIZE(self->map) && "Deque_expand_begin_side");\
 			Name##_RingVector_move_backward(self->map, b, e, slide);\
 			for (i = b; i < b + slide; i++) {\
 				CSTL_VECTOR_AT(self->map, i) = 0;\
@@ -222,7 +211,7 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 		}\
 	}\
 	for (i = self->begin - expand; i < self->begin; i++) {\
-		assert(!CSTL_VECTOR_AT(self->map, i) && "Deque_expand_begin_side");\
+		CSTL_ASSERT(!CSTL_VECTOR_AT(self->map, i) && "Deque_expand_begin_side");\
 		CSTL_VECTOR_AT(self->map, i) = Name##_pop_ring(self);\
 		if (!CSTL_VECTOR_AT(self->map, i)) {\
 			return 0;\
@@ -255,7 +244,7 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 		} else {\
 			/* mapをずらす */\
 			size_t slide = ((expand - (CSTL_VECTOR_SIZE(self->map) - self->end)) + b) / 2;\
-			assert(b >= slide && "Deque_expand_end_side");\
+			CSTL_ASSERT(b >= slide && "Deque_expand_end_side");\
 			Name##_RingVector_move_forward(self->map, b, e, slide);\
 			for (i = e - slide; i < e; i++) {\
 				CSTL_VECTOR_AT(self->map, i) = 0;\
@@ -265,7 +254,7 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 		}\
 	}\
 	for (i = self->end; i < self->end + expand; i++) {\
-		assert(!CSTL_VECTOR_AT(self->map, i) && "Deque_expand_end_side");\
+		CSTL_ASSERT(!CSTL_VECTOR_AT(self->map, i) && "Deque_expand_end_side");\
 		CSTL_VECTOR_AT(self->map, i) = Name##_pop_ring(self);\
 		if (!CSTL_VECTOR_AT(self->map, i)) {\
 			return 0;\
@@ -296,7 +285,7 @@ static void Name##_push_front_n_no_data(Name *self, size_t n)\
 	for (i = 0; i < n; i++) {\
 		if (!Name##_Ring_push_front_no_data(CSTL_VECTOR_AT(self->map, self->begin))) {\
 			self->begin--;\
-			assert(CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->begin)) && "Deque_push_front_n_no_data");\
+			CSTL_ASSERT(CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->begin)) && "Deque_push_front_n_no_data");\
 			Name##_Ring_push_front_no_data(CSTL_VECTOR_AT(self->map, self->begin));\
 		}\
 	}\
@@ -309,7 +298,7 @@ static void Name##_push_back_n_no_data(Name *self, size_t n)\
 	for (i = 0; i < n; i++) {\
 		if (!Name##_Ring_push_back_no_data(CSTL_VECTOR_AT(self->map, self->end - 1))) {\
 			self->end++;\
-			assert(CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->end - 1)) && "Deque_push_back_n_no_data");\
+			CSTL_ASSERT(CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->end - 1)) && "Deque_push_back_n_no_data");\
 			Name##_Ring_push_back_no_data(CSTL_VECTOR_AT(self->map, self->end - 1));\
 		}\
 	}\
@@ -359,7 +348,7 @@ Name *Name##_new(void)\
 		free(self);\
 		return 0;\
 	}\
-	CSTL_DEQUE_MAGIC(self->magic = self);\
+	CSTL_MAGIC(self->magic = self);\
 	return self;\
 }\
 \
@@ -367,7 +356,7 @@ void Name##_delete(Name *self)\
 {\
 	register size_t i;\
 	if (!self) return;\
-	assert(self->magic == self && "Deque_delete");\
+	CSTL_ASSERT(self->magic == self && "Deque_delete");\
 	for (i = 0; i < CSTL_VECTOR_SIZE(self->map); i++) {\
 		if (CSTL_VECTOR_AT(self->map, i)) {\
 			Name##_Ring_delete(CSTL_VECTOR_AT(self->map, i));\
@@ -379,29 +368,29 @@ void Name##_delete(Name *self)\
 	}\
 	Name##_RingVector_delete(self->map);\
 	Name##_RingVector_delete(self->pool);\
-	CSTL_DEQUE_MAGIC(self->magic = 0);\
+	CSTL_MAGIC(self->magic = 0);\
 	free(self);\
 }\
 \
 int Name##_push_back(Name *self, Type data)\
 {\
-	assert(self && "Deque_push_back");\
-	assert(self->magic == self && "Deque_push_back");\
+	CSTL_ASSERT(self && "Deque_push_back");\
+	CSTL_ASSERT(self->magic == self && "Deque_push_back");\
 	return Name##_push_back_ref(self, &data);\
 }\
 \
 int Name##_push_front(Name *self, Type data)\
 {\
-	assert(self && "Deque_push_front");\
-	assert(self->magic == self && "Deque_push_front");\
+	CSTL_ASSERT(self && "Deque_push_front");\
+	CSTL_ASSERT(self->magic == self && "Deque_push_front");\
 	return Name##_push_front_ref(self, &data);\
 }\
 \
 int Name##_push_back_ref(Name *self, Type const *data)\
 {\
-	assert(self && "Deque_push_back_ref");\
-	assert(self->magic == self && "Deque_push_back_ref");\
-	assert(data && "Deque_push_back_ref");\
+	CSTL_ASSERT(self && "Deque_push_back_ref");\
+	CSTL_ASSERT(self->magic == self && "Deque_push_back_ref");\
+	CSTL_ASSERT(data && "Deque_push_back_ref");\
 	if (CSTL_RING_FULL(CSTL_VECTOR_AT(self->map, self->end - 1))) {\
 		if (!Name##_expand_end_side(self, 1)) {\
 			return 0;\
@@ -415,9 +404,9 @@ int Name##_push_back_ref(Name *self, Type const *data)\
 \
 int Name##_push_front_ref(Name *self, Type const *data)\
 {\
-	assert(self && "Deque_push_back_ref");\
-	assert(self->magic == self && "Deque_push_back_ref");\
-	assert(data && "Deque_push_back_ref");\
+	CSTL_ASSERT(self && "Deque_push_back_ref");\
+	CSTL_ASSERT(self->magic == self && "Deque_push_back_ref");\
+	CSTL_ASSERT(data && "Deque_push_back_ref");\
 	if (CSTL_RING_FULL(CSTL_VECTOR_AT(self->map, self->begin))) {\
 		if (!Name##_expand_begin_side(self, 1)) {\
 			return 0;\
@@ -431,53 +420,53 @@ int Name##_push_front_ref(Name *self, Type const *data)\
 \
 void Name##_pop_front(Name *self)\
 {\
-	assert(self && "Deque_pop_front");\
-	assert(self->magic == self && "Deque_pop_front");\
-	assert(!Name##_empty(self) && "Deque_pop_front");\
+	CSTL_ASSERT(self && "Deque_pop_front");\
+	CSTL_ASSERT(self->magic == self && "Deque_pop_front");\
+	CSTL_ASSERT(!Name##_empty(self) && "Deque_pop_front");\
 	Name##_Ring_pop_front(CSTL_VECTOR_AT(self->map, self->begin));\
 	self->size--;\
 	if (CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->begin)) && self->size > 0) {\
 		Name##_push_ring(self, CSTL_VECTOR_AT(self->map, self->begin));\
 		CSTL_VECTOR_AT(self->map, self->begin) = 0;\
 		self->begin++;\
-		assert(self->begin < self->end && "Deque_pop_front");\
+		CSTL_ASSERT(self->begin < self->end && "Deque_pop_front");\
 	}\
 }\
 \
 void Name##_pop_back(Name *self)\
 {\
-	assert(self && "Deque_pop_back");\
-	assert(self->magic == self && "Deque_pop_back");\
-	assert(!Name##_empty(self) && "Deque_pop_back");\
+	CSTL_ASSERT(self && "Deque_pop_back");\
+	CSTL_ASSERT(self->magic == self && "Deque_pop_back");\
+	CSTL_ASSERT(!Name##_empty(self) && "Deque_pop_back");\
 	Name##_Ring_pop_back(CSTL_VECTOR_AT(self->map, self->end - 1));\
 	self->size--;\
 	if (CSTL_RING_EMPTY(CSTL_VECTOR_AT(self->map, self->end - 1)) && self->size > 0) {\
 		Name##_push_ring(self, CSTL_VECTOR_AT(self->map, self->end - 1));\
 		CSTL_VECTOR_AT(self->map, self->end - 1) = 0;\
 		self->end--;\
-		assert(self->begin < self->end && "Deque_pop_back");\
+		CSTL_ASSERT(self->begin < self->end && "Deque_pop_back");\
 	}\
 }\
 \
 size_t Name##_size(Name *self)\
 {\
-	assert(self && "Deque_size");\
-	assert(self->magic == self && "Deque_size");\
+	CSTL_ASSERT(self && "Deque_size");\
+	CSTL_ASSERT(self->magic == self && "Deque_size");\
 	return CSTL_DEQUE_SIZE(self);\
 }\
 \
 int Name##_empty(Name *self)\
 {\
-	assert(self && "Deque_empty");\
-	assert(self->magic == self && "Deque_empty");\
+	CSTL_ASSERT(self && "Deque_empty");\
+	CSTL_ASSERT(self->magic == self && "Deque_empty");\
 	return (self->size == 0);\
 }\
 \
 void Name##_clear(Name *self)\
 {\
 	register size_t i;\
-	assert(self && "Deque_clear");\
-	assert(self->magic == self && "Deque_clear");\
+	CSTL_ASSERT(self && "Deque_clear");\
+	CSTL_ASSERT(self->magic == self && "Deque_clear");\
 	self->end = self->begin + 1;\
 	self->size = 0;\
 	CSTL_RING_CLEAR(CSTL_VECTOR_AT(self->map, self->begin));\
@@ -490,43 +479,43 @@ void Name##_clear(Name *self)\
 Type *Name##_at(Name *self, size_t idx)\
 {\
 	size_t m, n;\
-	assert(self && "Deque_at");\
-	assert(self->magic == self && "Deque_at");\
-	assert(Name##_size(self) > idx && "Deque_at");\
+	CSTL_ASSERT(self && "Deque_at");\
+	CSTL_ASSERT(self->magic == self && "Deque_at");\
+	CSTL_ASSERT(Name##_size(self) > idx && "Deque_at");\
 	Name##_coordinate(self, idx, &m, &n);\
 	return &CSTL_RING_AT(CSTL_VECTOR_AT(self->map, m), n);\
 }\
 \
 Type *Name##_front(Name *self)\
 {\
-	assert(self && "Deque_front");\
-	assert(self->magic == self && "Deque_front");\
-	assert(!Name##_empty(self) && "Deque_front");\
+	CSTL_ASSERT(self && "Deque_front");\
+	CSTL_ASSERT(self->magic == self && "Deque_front");\
+	CSTL_ASSERT(!Name##_empty(self) && "Deque_front");\
 	return &CSTL_RING_FRONT(CSTL_VECTOR_AT(self->map, self->begin));\
 }\
 \
 Type *Name##_back(Name *self)\
 {\
-	assert(self && "Deque_back");\
-	assert(self->magic == self && "Deque_back");\
-	assert(!Name##_empty(self) && "Deque_back");\
+	CSTL_ASSERT(self && "Deque_back");\
+	CSTL_ASSERT(self->magic == self && "Deque_back");\
+	CSTL_ASSERT(!Name##_empty(self) && "Deque_back");\
 	return &CSTL_RING_BACK(CSTL_VECTOR_AT(self->map, self->end - 1));\
 }\
 \
 int Name##_insert(Name *self, size_t idx, Type data)\
 {\
-	assert(self && "Deque_insert");\
-	assert(self->magic == self && "Deque_insert");\
-	assert(Name##_size(self) >= idx && "Deque_insert");\
+	CSTL_ASSERT(self && "Deque_insert");\
+	CSTL_ASSERT(self->magic == self && "Deque_insert");\
+	CSTL_ASSERT(Name##_size(self) >= idx && "Deque_insert");\
 	return Name##_insert_array(self, idx, &data, 1);\
 }\
 \
 int Name##_insert_ref(Name *self, size_t idx, Type const *data)\
 {\
-	assert(self && "Deque_insert_ref");\
-	assert(self->magic == self && "Deque_insert_ref");\
-	assert(Name##_size(self) >= idx && "Deque_insert_ref");\
-	assert(data && "Deque_insert_ref");\
+	CSTL_ASSERT(self && "Deque_insert_ref");\
+	CSTL_ASSERT(self->magic == self && "Deque_insert_ref");\
+	CSTL_ASSERT(Name##_size(self) >= idx && "Deque_insert_ref");\
+	CSTL_ASSERT(data && "Deque_insert_ref");\
 	return Name##_insert_array(self, idx, data, 1);\
 }\
 \
@@ -553,19 +542,19 @@ static int Name##_insert_n_no_data(Name *self, size_t idx, size_t n)\
 \
 int Name##_insert_n(Name *self, size_t idx, size_t n, Type data)\
 {\
-	assert(self && "Deque_insert_n");\
-	assert(self->magic == self && "Deque_insert_n");\
-	assert(Name##_size(self) >= idx && "Deque_insert_n");\
+	CSTL_ASSERT(self && "Deque_insert_n");\
+	CSTL_ASSERT(self->magic == self && "Deque_insert_n");\
+	CSTL_ASSERT(Name##_size(self) >= idx && "Deque_insert_n");\
 	return Name##_insert_n_ref(self, idx, n, &data);\
 }\
 \
 int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data)\
 {\
 	register size_t i;\
-	assert(self && "Deque_insert_n_ref");\
-	assert(self->magic == self && "Deque_insert_n_ref");\
-	assert(Name##_size(self) >= idx && "Deque_insert_n_ref");\
-	assert(data && "Deque_insert_n_ref");\
+	CSTL_ASSERT(self && "Deque_insert_n_ref");\
+	CSTL_ASSERT(self->magic == self && "Deque_insert_n_ref");\
+	CSTL_ASSERT(Name##_size(self) >= idx && "Deque_insert_n_ref");\
+	CSTL_ASSERT(data && "Deque_insert_n_ref");\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
@@ -578,10 +567,10 @@ int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data)\
 int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 {\
 	register size_t i;\
-	assert(self && "Deque_insert_array");\
-	assert(self->magic == self && "Deque_insert_array");\
-	assert(Name##_size(self) >= idx && "Deque_insert_array");\
-	assert(data && "Deque_insert_array");\
+	CSTL_ASSERT(self && "Deque_insert_array");\
+	CSTL_ASSERT(self->magic == self && "Deque_insert_array");\
+	CSTL_ASSERT(Name##_size(self) >= idx && "Deque_insert_array");\
+	CSTL_ASSERT(data && "Deque_insert_array");\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
@@ -594,14 +583,14 @@ int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 {\
 	register size_t i;\
-	assert(self && "Deque_insert_range");\
-	assert(self->magic == self && "Deque_insert_range");\
-	assert(Name##_size(self) >= idx && "Deque_insert_range");\
-	assert(x && "Deque_insert_range");\
-	assert(x->magic == x && "Deque_insert_range");\
-	assert(Name##_size(x) >= xidx + n && "Deque_insert_range");\
-	assert(Name##_size(x) >= n && "Deque_insert_range");\
-	assert(Name##_size(x) > xidx && "Deque_insert_range");\
+	CSTL_ASSERT(self && "Deque_insert_range");\
+	CSTL_ASSERT(self->magic == self && "Deque_insert_range");\
+	CSTL_ASSERT(Name##_size(self) >= idx && "Deque_insert_range");\
+	CSTL_ASSERT(x && "Deque_insert_range");\
+	CSTL_ASSERT(x->magic == x && "Deque_insert_range");\
+	CSTL_ASSERT(Name##_size(x) >= xidx + n && "Deque_insert_range");\
+	CSTL_ASSERT(Name##_size(x) >= n && "Deque_insert_range");\
+	CSTL_ASSERT(Name##_size(x) > xidx && "Deque_insert_range");\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
@@ -635,18 +624,18 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 	size_t i, j;\
 	register size_t k;\
 	size_t size;\
-	assert(self && "Deque_erase");\
-	assert(self->magic == self && "Deque_erase");\
-	assert(Name##_size(self) >= idx + n && "Deque_erase");\
-	assert(Name##_size(self) >= n && "Deque_erase");\
-	assert(Name##_size(self) > idx && "Deque_erase");\
+	CSTL_ASSERT(self && "Deque_erase");\
+	CSTL_ASSERT(self->magic == self && "Deque_erase");\
+	CSTL_ASSERT(Name##_size(self) >= idx + n && "Deque_erase");\
+	CSTL_ASSERT(Name##_size(self) >= n && "Deque_erase");\
+	CSTL_ASSERT(Name##_size(self) > idx && "Deque_erase");\
 	if (!n) return;\
 	size = CSTL_DEQUE_SIZE(self);\
 	if (idx >= size - (idx + n)) {\
 		/* end側を移動 */\
 		Name##_move_forward(self, idx + n, size, n);\
 		Name##_coordinate(self, size - n, &i, &j);\
-		assert(i >= self->begin && "Deque_erase");\
+		CSTL_ASSERT(i >= self->begin && "Deque_erase");\
 		if (i == self->begin || j != 0) {\
 			Name##_Ring_erase(CSTL_VECTOR_AT(self->map, i), j, \
 					CSTL_RING_SIZE(CSTL_VECTOR_AT(self->map, i)) - j);\
@@ -654,7 +643,7 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 		} else {\
 			self->end = i;\
 		}\
-		assert(self->begin < self->end && "Deque_erase1");\
+		CSTL_ASSERT(self->begin < self->end && "Deque_erase1");\
 		for (k = self->end; k < CSTL_VECTOR_SIZE(self->map) && CSTL_VECTOR_AT(self->map, k); k++) {\
 			Name##_push_ring(self, CSTL_VECTOR_AT(self->map, k));\
 			CSTL_VECTOR_AT(self->map, k) = 0;\
@@ -665,7 +654,7 @@ void Name##_erase(Name *self, size_t idx, size_t n)\
 		Name##_coordinate(self, n, &i, &j);\
 		self->begin = i;\
 		Name##_Ring_erase(CSTL_VECTOR_AT(self->map, i), 0, j);\
-		assert(self->begin < self->end && "Deque_erase2");\
+		CSTL_ASSERT(self->begin < self->end && "Deque_erase2");\
 		for (k = self->begin; k > 0 && CSTL_VECTOR_AT(self->map, k - 1); k--) {\
 			Name##_push_ring(self, CSTL_VECTOR_AT(self->map, k - 1));\
 			CSTL_VECTOR_AT(self->map, k - 1) = 0;\
@@ -678,8 +667,8 @@ int Name##_resize(Name *self, size_t n, Type data)\
 {\
 	register size_t i;\
 	size_t size;\
-	assert(self && "Deque_resize");\
-	assert(self->magic == self && "Deque_resize");\
+	CSTL_ASSERT(self && "Deque_resize");\
+	CSTL_ASSERT(self->magic == self && "Deque_resize");\
 	size = CSTL_DEQUE_SIZE(self);\
 	if (size >= n) {\
 		Name##_erase(self, n, size - n);\
@@ -701,10 +690,10 @@ void Name##_swap(Name *self, Name *x)\
 	size_t tmp_size;\
 	Name##_RingVector *tmp_map;\
 	Name##_RingVector *tmp_pool;\
-	assert(self && "Deque_swap");\
-	assert(x && "Deque_swap");\
-	assert(self->magic == self && "Deque_swap");\
-	assert(x->magic == x && "Deque_swap");\
+	CSTL_ASSERT(self && "Deque_swap");\
+	CSTL_ASSERT(x && "Deque_swap");\
+	CSTL_ASSERT(self->magic == self && "Deque_swap");\
+	CSTL_ASSERT(x->magic == x && "Deque_swap");\
 	tmp_begin = self->begin;\
 	tmp_end = self->end;\
 	tmp_size = self->size;\

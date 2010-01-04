@@ -34,16 +34,8 @@
 #define CSTL_MAP_H_INCLUDED
 
 #include <stdlib.h>
-#include <assert.h>
+#include "common.h"
 #include "rbtree.h"
-
-#ifdef __cplusplus
-#define CSTL_MAP_BEGIN_EXTERN_C()	extern "C" {
-#define CSTL_MAP_END_EXTERN_C()		}
-#else
-#define CSTL_MAP_BEGIN_EXTERN_C()
-#define CSTL_MAP_END_EXTERN_C()
-#endif
 
 
 #define CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
@@ -57,7 +49,7 @@ struct Name##RBTree {\
 	int color;\
 	KeyType key;\
 	ValueType value;\
-	CSTL_RBTREE_MAGIC(struct Name##RBTree *magic;)\
+	CSTL_MAGIC(struct Name##RBTree *magic;)\
 };\
 \
 CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)\
@@ -78,17 +70,17 @@ static Name##RBTree *Name##RBTree_new_node(KeyType key, ValueType const *value, 
 \
 KeyType const *Name##_key(Name##Iterator pos)\
 {\
-	assert(pos && "Map_key");\
-	assert(pos->magic && "Map_key");\
-	assert(!CSTL_RBTREE_IS_HEAD(pos, Name) && "Map_key");\
+	CSTL_ASSERT(pos && "Map_key");\
+	CSTL_ASSERT(pos->magic && "Map_key");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "Map_key");\
 	return &pos->key;\
 }\
 \
 ValueType *Name##_value(Name##Iterator pos)\
 {\
-	assert(pos && "Map_value");\
-	assert(pos->magic && "Map_value");\
-	assert(!CSTL_RBTREE_IS_HEAD(pos, Name) && "Map_value");\
+	CSTL_ASSERT(pos && "Map_value");\
+	CSTL_ASSERT(pos->magic && "Map_value");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "Map_value");\
 	return &pos->value;\
 }\
 \
@@ -102,14 +94,14 @@ ValueType *Name##_value(Name##Iterator pos)\
  * \param ValueType 要素の値の型
  */
 #define CSTL_MAP_INTERFACE(Name, KeyType, ValueType)	\
-CSTL_MAP_BEGIN_EXTERN_C()\
+CSTL_EXTERN_C_BEGIN()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success);\
 Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value, int *success);\
 KeyType const *Name##_key(Name##Iterator pos);\
 ValueType *Name##_value(Name##Iterator pos);\
 ValueType *Name##_at(Name *self, KeyType key);\
-CSTL_MAP_END_EXTERN_C()\
+CSTL_EXTERN_C_END()\
 
 /*! 
  * \brief 実装マクロ
@@ -125,17 +117,17 @@ CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success)\
 {\
-	assert(self && "Map_insert");\
-	assert(self->magic == self && "Map_insert");\
+	CSTL_ASSERT(self && "Map_insert");\
+	CSTL_ASSERT(self->magic == self && "Map_insert");\
 	return Name##_insert_ref(self, key, &value, success);\
 }\
 \
 Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value, int *success)\
 {\
 	Name##Iterator pos;\
-	assert(self && "Map_insert_ref");\
-	assert(self->magic == self && "Map_insert_ref");\
-	assert(value && "Map_insert_ref");\
+	CSTL_ASSERT(self && "Map_insert_ref");\
+	CSTL_ASSERT(self->magic == self && "Map_insert_ref");\
+	CSTL_ASSERT(value && "Map_insert_ref");\
 	pos = Name##RBTree_find(self->tree, key);\
 	if (pos == Name##RBTree_end(self->tree)) {\
 		pos = Name##RBTree_new_node(key, value, Name##_COLOR_RED);\
@@ -158,12 +150,12 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	register Name##Iterator tmp;\
 	Name##RBTree head;\
 	register size_t count = 0;\
-	assert(self && "Map_insert_range");\
-	assert(self->magic == self && "Map_insert_range");\
-	assert(first && "Map_insert_range");\
-	assert(last && "Map_insert_range");\
-	assert(first->magic && "Map_insert_range");\
-	assert(last->magic && "Map_insert_range");\
+	CSTL_ASSERT(self && "Map_insert_range");\
+	CSTL_ASSERT(self->magic == self && "Map_insert_range");\
+	CSTL_ASSERT(first && "Map_insert_range");\
+	CSTL_ASSERT(last && "Map_insert_range");\
+	CSTL_ASSERT(first->magic && "Map_insert_range");\
+	CSTL_ASSERT(last->magic && "Map_insert_range");\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
@@ -192,8 +184,8 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 ValueType *Name##_at(Name *self, KeyType key)\
 {\
 	Name##Iterator pos;\
-	assert(self && "Map_at");\
-	assert(self->magic == self && "Map_at");\
+	CSTL_ASSERT(self && "Map_at");\
+	CSTL_ASSERT(self->magic == self && "Map_at");\
 	pos = Name##RBTree_find(self->tree, key);\
 	if (pos == Name##RBTree_end(self->tree)) {\
 		/* 新しい要素の値にはnilの値を使用 */\
@@ -203,7 +195,7 @@ ValueType *Name##_at(Name *self, KeyType key)\
 			self->size++;\
 		} else {\
 			/* メモリ不足 */\
-			assert(0 && "Map_at");\
+			CSTL_ASSERT(0 && "Map_at");\
 			return 0;\
 		}\
 	}\
@@ -220,13 +212,13 @@ ValueType *Name##_at(Name *self, KeyType key)\
  * \param ValueType 要素の値の型
  */
 #define CSTL_MULTIMAP_INTERFACE(Name, KeyType, ValueType)	\
-CSTL_MAP_BEGIN_EXTERN_C()\
+CSTL_EXTERN_C_BEGIN()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value);\
 Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value);\
 KeyType const *Name##_key(Name##Iterator pos);\
 ValueType *Name##_value(Name##Iterator pos);\
-CSTL_MAP_END_EXTERN_C()\
+CSTL_EXTERN_C_END()\
 
 /*! 
  * \brief 実装マクロ
@@ -242,17 +234,17 @@ CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
 {\
-	assert(self && "MultiMap_insert");\
-	assert(self->magic == self && "MultiMap_insert");\
+	CSTL_ASSERT(self && "MultiMap_insert");\
+	CSTL_ASSERT(self->magic == self && "MultiMap_insert");\
 	return Name##_insert_ref(self, key, &value);\
 }\
 \
 Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value)\
 {\
 	Name##Iterator pos;\
-	assert(self && "MultiMap_insert_ref");\
-	assert(self->magic == self && "MultiMap_insert_ref");\
-	assert(value && "MultiMap_insert_ref");\
+	CSTL_ASSERT(self && "MultiMap_insert_ref");\
+	CSTL_ASSERT(self->magic == self && "MultiMap_insert_ref");\
+	CSTL_ASSERT(value && "MultiMap_insert_ref");\
 	pos = Name##RBTree_new_node(key, value, Name##_COLOR_RED);\
 	if (pos) {\
 		Name##RBTree_insert(self->tree, pos);\
@@ -267,12 +259,12 @@ int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
 	register Name##Iterator tmp;\
 	Name##RBTree head;\
 	register size_t count = 0;\
-	assert(self && "MultiMap_insert_range");\
-	assert(self->magic == self && "MultiMap_insert_range");\
-	assert(first && "MultiMap_insert_range");\
-	assert(last && "MultiMap_insert_range");\
-	assert(first->magic && "MultiMap_insert_range");\
-	assert(last->magic && "MultiMap_insert_range");\
+	CSTL_ASSERT(self && "MultiMap_insert_range");\
+	CSTL_ASSERT(self->magic == self && "MultiMap_insert_range");\
+	CSTL_ASSERT(first && "MultiMap_insert_range");\
+	CSTL_ASSERT(last && "MultiMap_insert_range");\
+	CSTL_ASSERT(first->magic && "MultiMap_insert_range");\
+	CSTL_ASSERT(last->magic && "MultiMap_insert_range");\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\

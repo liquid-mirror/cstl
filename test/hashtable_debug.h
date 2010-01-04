@@ -81,7 +81,7 @@ int Name##_verify(Name *self)\
 	register size_t i;\
 	size_t bc = Name##_bucket_count(self);\
 	Name##Node_Vector *v = Name##Node_Vector_new_reserve(1024);\
-	assert(v && "Unordered(Set|Map)_verify");\
+	CSTL_ASSERT(v && "Unordered(Set|Map)_verify");\
 	for (i = 0; i < bc; i++) {\
 		Name##Node **alias;\
 		register Name##Iterator pos;\
@@ -96,7 +96,7 @@ int Name##_verify(Name *self)\
 				goto end;\
 			}\
 			ret = Name##Node_Vector_push_back(v, pos);\
-			assert(ret && "Unordered(Set|Map)_verify");\
+			CSTL_ASSERT(ret && "Unordered(Set|Map)_verify");\
 		}\
 		v_size = Name##Node_Vector_size(v);\
 		for (j = 0; j < v_size; j++) {\

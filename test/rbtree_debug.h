@@ -57,7 +57,7 @@ static const char *Name##_str_color(int c)\
 	} else if (c == Name##_COLOR_BLACK) {\
 		return b;\
 	} else {\
-		assert(0);\
+		CSTL_ASSERT(0);\
 		return 0;\
 	}\
 }\
@@ -119,7 +119,7 @@ static void Name##RBTree_print(Name##RBTree *node)\
 void Name##_print(Name *self)\
 {\
 	Name##RBTree *root;\
-	assert(CSTL_RBTREE_IS_HEAD(self->tree, Name));\
+	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self->tree, Name));\
 	root = Name##RBTree_get_root(self->tree);\
 	Name##_max_depth = 0;\
 	Name##_min_depth = UINT_MAX;\

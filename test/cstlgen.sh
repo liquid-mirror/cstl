@@ -232,12 +232,7 @@ ${list_debug}
 ${deque_debug}
 ${rbtree_debug}
 ${hashtable_debug}
-#undef CSTL_VECTOR_MAGIC
-#undef CSTL_RING_MAGIC
-#undef CSTL_DEQUE_MAGIC
-#undef CSTL_LIST_MAGIC
-#undef CSTL_STRING_MAGIC
-#undef CSTL_HASHTABLE_MAGIC
+#undef CSTL_MAGIC
 "
 if [ "$algo" != "false" ]; then
 	hdr=${hdr}"#include \"../cstl/algorithm.h\"
@@ -273,7 +268,6 @@ ${list_debug}
 ${deque_debug}
 ${rbtree_debug}
 ${hashtable_debug}
-#undef assert
 "
 
 tmp=`grep -h '#define CSTL_' ../cstl/*.h | \
@@ -384,10 +378,10 @@ if [ $lower = "string" ]; then
 fi
 if [ $lower = "ring" ]; then
 echo "\
-#ifdef NDEBUG
-#define CSTL_${upper}_MAGIC(x)
+#if !defined(NDEBUG) && defined(CSTL_DEBUG)
+#define CSTL_MAGIC(x)	x
 #else
-#define CSTL_${upper}_MAGIC(x) x
+#define CSTL_MAGIC(x)
 #endif
 " >> "$path"".h"
 fi
@@ -411,6 +405,10 @@ echo "\
 #ifdef __cplusplus
 }
 #endif" >> "$path"".h"
+if [ $lower = "ring" ]; then
+echo "
+#undef CSTL_MAGIC" >> "$path"".h"
+fi
 echo "
 #endif /* $included */" >> "$path"".h"
 
@@ -458,70 +456,35 @@ if [ "$rbdebug" != "" -o "$hashdebug" != "" -o "$debug" != "" ]; then
 		echo "#include <math.h>" >> "$path"".c"
 	fi
 fi
-echo "#include <assert.h>" >> "$path"".c"
 echo "#include \"$name.h\"
 " >> "$path"".c"
-if [ $lower != "ring" ]; then
-if [ $lower = "deque" ]; then
+if [ $lower = "list" ]; then
 echo "\
-#ifdef NDEBUG
-#define CSTL_${upper}_MAGIC(x)
-#define CSTL_VECTOR_MAGIC(x)
-#define CSTL_RING_MAGIC(x)
-#else
-#define CSTL_${upper}_MAGIC(x) x
-#define CSTL_VECTOR_MAGIC(x) x
-#define CSTL_RING_MAGIC(x) x
-#endif
-" >> "$path"".c"
-elif [ $lower = "string" ]; then
-echo "\
-#ifdef NDEBUG
-#define CSTL_${upper}_MAGIC(x)
-#define CSTL_VECTOR_MAGIC(x)
-#else
-#define CSTL_${upper}_MAGIC(x) x
-#define CSTL_VECTOR_MAGIC(x) x
-#endif
-" >> "$path"".c"
-elif [ $lower = "list" ]; then
-echo "\
-#ifdef NDEBUG
-#define CSTL_${upper}_MAGIC(x)
-#else
-#define CSTL_${upper}_MAGIC(x) x
+#if !defined(NDEBUG) && defined(CSTL_DEBUG)
+#include <assert.h>
+#define CSTL_MAGIC(x)	x
+#define CSTL_ASSERT(x)	assert(x)
 #define CSTL_LIST_MAGIC_ELEM(Name) ((Name *) -1)
-#endif
-" >> "$path"".c"
-elif [ $lower = "set" -o $lower = "multiset" -o\
-	   $lower = "map" -o $lower = "multimap" ]; then
-echo "\
-#ifdef NDEBUG
-#define CSTL_RBTREE_MAGIC(x)
 #else
-#define CSTL_RBTREE_MAGIC(x) x
+#define CSTL_MAGIC(x)
+#define CSTL_ASSERT(x)
 #endif
-" >> "$path"".c"
-elif [ $lower = "unordered_set" -o $lower = "unordered_multiset" -o\
-	   $lower = "unordered_map" -o $lower = "unordered_multimap" ]; then
-echo "\
-#ifdef NDEBUG
-#define CSTL_HASHTABLE_MAGIC(x)
-#define CSTL_VECTOR_MAGIC(x)
-#else
-#define CSTL_HASHTABLE_MAGIC(x) x
-#define CSTL_VECTOR_MAGIC(x) x
-#endif
+
+#define CSTL_UNUSED_PARAM(x)	(void) x
 " >> "$path"".c"
 else
 echo "\
-#ifdef NDEBUG
-#define CSTL_${upper}_MAGIC(x)
+#if !defined(NDEBUG) && defined(CSTL_DEBUG)
+#include <assert.h>
+#define CSTL_MAGIC(x)	x
+#define CSTL_ASSERT(x)	assert(x)
 #else
-#define CSTL_${upper}_MAGIC(x) x
+#define CSTL_MAGIC(x)
+#define CSTL_ASSERT(x)
 #endif
+
+#define CSTL_UNUSED_PARAM(x)	(void) x
 " >> "$path"".c"
-fi
 fi
 if [ "$alloc" != "" ]; then
 if [ "$alloc" = "gc" ]; then
@@ -579,9 +542,9 @@ echo "$src" | cpp -CC -I.. | grep "$name" \
 
 # コンパイル確認
 if [ "$nocompile" = "" ]; then
-	gcc -Wall -ansi -pedantic-errors "$path"".c" -c -DNDEBUG
+	gcc -Wall -ansi -pedantic-errors "$path"".c" -c -DCSTL_DEBUG
 	gcc -Wall -ansi -pedantic-errors "$path"".c" -c
-	g++ -Wall -ansi -pedantic-errors "$path"".c" -c -DNDEBUG
+	g++ -Wall -ansi -pedantic-errors "$path"".c" -c -DCSTL_DEBUG
 	g++ -Wall -ansi -pedantic-errors "$path"".c" -c
 	rm "$path"".o"
 fi
