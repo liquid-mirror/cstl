@@ -406,11 +406,9 @@ int Name##_push_back_ref(Name *self, Type const *data)\
 		if (!Name##_expand_end_side(self, 1)) {\
 			return 0;\
 		}\
-		Name##_Ring_push_back_ref(CSTL_VECTOR_AT(self->map, self->end), data);\
 		self->end++;\
-	} else {\
-		Name##_Ring_push_back_ref(CSTL_VECTOR_AT(self->map, self->end - 1), data);\
 	}\
+	Name##_Ring_push_back_ref(CSTL_VECTOR_AT(self->map, self->end - 1), data);\
 	self->size++;\
 	return 1;\
 }\
@@ -424,11 +422,9 @@ int Name##_push_front_ref(Name *self, Type const *data)\
 		if (!Name##_expand_begin_side(self, 1)) {\
 			return 0;\
 		}\
-		Name##_Ring_push_front_ref(CSTL_VECTOR_AT(self->map, self->begin - 1), data);\
 		self->begin--;\
-	} else {\
-		Name##_Ring_push_front_ref(CSTL_VECTOR_AT(self->map, self->begin), data);\
 	}\
+	Name##_Ring_push_front_ref(CSTL_VECTOR_AT(self->map, self->begin), data);\
 	self->size++;\
 	return 1;\
 }\
