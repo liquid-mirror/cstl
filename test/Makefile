@@ -1,7 +1,7 @@
 CC=gcc
 # MEMORY=-DPOOL_DEBUG -DMY_MALLOC
 # CSTLGEN=-DCSTLGEN
-CFLAGS=-Wall -g $(MEMORY) #-fprofile-arcs -ftest-coverage
+CFLAGS=-Wall -g -DCSTL_DEBUG $(MEMORY) #-fprofile-arcs -ftest-coverage
 ifneq ($(MEMORY),)
 	POOL="pool"
 endif
@@ -97,9 +97,9 @@ ifneq ($(CSTLGEN),)
 	sh cstlgen.sh unordered_set UIntUSet "unsigned int" UIntUSet_hash_uint CSTL_EQUAL_TO false '%d' . $(POOL)
 	sh cstlgen.sh unordered_set HogeUSet "Hoge" HOGE_HASH HOGE_COMP hoge.h '%d' . $(POOL)
 	sh cstlgen.sh unordered_set HogepUSet "Hoge*" HOGEP_HASH HOGEP_COMP hoge.h '%p' . $(POOL)
-	$(CC) $(CFLAGS) -o $@.exe unordered_set_test.c Pool.o IntUSet.c IntUMSet.c StrUSet.c UIntUSet.c $(CSTLGEN)
+	$(CC) $(CFLAGS) -o $@.exe unordered_set_test.c Pool.o IntUSet.c IntUMSet.c StrUSet.c UIntUSet.c $(CSTLGEN) -lm
 else
-	$(CC) $(CFLAGS) -o $@.exe unordered_set_test.c Pool.o
+	$(CC) $(CFLAGS) -o $@.exe unordered_set_test.c Pool.o -lm
 endif
 	./$@.exe
 
@@ -109,9 +109,9 @@ ifneq ($(CSTLGEN),)
 	sh cstlgen.sh unordered_map HogeIntUMap "Hoge" "int" HOGE_HASH HOGE_COMP hoge.h '%d' '%d' . $(POOL)
 	sh cstlgen.sh unordered_map HogepIntUMap "Hoge*" "int" HOGEP_HASH HOGEP_COMP hoge.h '%p' '%d' . $(POOL)
 	sh cstlgen.sh unordered_multimap IntIntUMMap "int" "int" IntIntUMMap_hash_int CSTL_EQUAL_TO false '%d' '%d' . $(POOL)
-	$(CC) $(CFLAGS) -o $@.exe unordered_map_test.c Pool.o IntIntUMap.c IntIntUMMap.c $(CSTLGEN)
+	$(CC) $(CFLAGS) -o $@.exe unordered_map_test.c Pool.o IntIntUMap.c IntIntUMMap.c $(CSTLGEN) -lm
 else
-	$(CC) $(CFLAGS) -o $@.exe unordered_map_test.c Pool.o
+	$(CC) $(CFLAGS) -o $@.exe unordered_map_test.c Pool.o -lm
 endif
 	./$@.exe
 
