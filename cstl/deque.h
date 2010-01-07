@@ -507,7 +507,7 @@ int Name##_insert(Name *self, size_t idx, Type data)\
 	CSTL_ASSERT(self && "Deque_insert");\
 	CSTL_ASSERT(self->magic == self && "Deque_insert");\
 	CSTL_ASSERT(Name##_size(self) >= idx && "Deque_insert");\
-	return Name##_insert_array(self, idx, &data, 1);\
+	return Name##_insert_n_ref(self, idx, 1, &data);\
 }\
 \
 int Name##_insert_ref(Name *self, size_t idx, Type const *data)\
@@ -516,7 +516,7 @@ int Name##_insert_ref(Name *self, size_t idx, Type const *data)\
 	CSTL_ASSERT(self->magic == self && "Deque_insert_ref");\
 	CSTL_ASSERT(Name##_size(self) >= idx && "Deque_insert_ref");\
 	CSTL_ASSERT(data && "Deque_insert_ref");\
-	return Name##_insert_array(self, idx, data, 1);\
+	return Name##_insert_n_ref(self, idx, 1, data);\
 }\
 \
 static int Name##_insert_n_no_data(Name *self, size_t idx, size_t n)\

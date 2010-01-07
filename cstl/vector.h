@@ -343,7 +343,7 @@ int Name##_insert(Name *self, size_t idx, Type data)\
 	CSTL_ASSERT(self && "Vector_insert");\
 	CSTL_ASSERT(self->magic == self && "Vector_insert");\
 	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert");\
-	return Name##_insert_array(self, idx, &data, 1);\
+	return Name##_insert_n_ref(self, idx, 1, &data);\
 }\
 \
 int Name##_insert_ref(Name *self, size_t idx, Type const *data)\
@@ -352,7 +352,7 @@ int Name##_insert_ref(Name *self, size_t idx, Type const *data)\
 	CSTL_ASSERT(self->magic == self && "Vector_insert_ref");\
 	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_ref");\
 	CSTL_ASSERT(data && "Vector_insert_ref");\
-	return Name##_insert_array(self, idx, data, 1);\
+	return Name##_insert_n_ref(self, idx, 1, data);\
 }\
 \
 
