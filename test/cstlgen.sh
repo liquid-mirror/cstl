@@ -447,7 +447,10 @@ elif [ $lower = "unordered_set" -o $lower = "unordered_multiset" -o\
 fi
 echo " */" >> "$path"".c"
 echo "#include <stdlib.h>" >> "$path"".c"
-if [ "$comp" = "strcmp" ]; then
+if [ "$comp" = "strcmp" -o\
+		$lower = "vector" -o $lower = "deque" -o $lower = "string" -o\
+		$lower = "unordered_set" -o $lower = "unordered_multiset" -o\
+		$lower = "unordered_map" -o $lower = "unordered_multimap" ]; then
 	echo "#include <string.h>" >> "$path"".c"
 fi
 if [ "$rbdebug" != "" -o "$hashdebug" != "" -o "$debug" != "" ]; then

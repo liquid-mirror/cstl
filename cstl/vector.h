@@ -34,6 +34,7 @@
 #define CSTL_VECTOR_H_INCLUDED
 
 #include <stdlib.h>
+#include <string.h>
 #include "common.h"
 
 
@@ -310,20 +311,14 @@ Type *Name##_back(Name *self)\
 #define CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)	\
 static void Name##_move_backward(Name *self, size_t first, size_t last, size_t n)\
 {\
-	register size_t i;\
-	for (i = last; i > first; i--) {\
-		self->buf[i - 1 + n] = self->buf[i - 1];\
-	}\
+	memmove(&self->buf[first + n], &self->buf[first], sizeof(Type) * (last - first));\
 }\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)	\
 static void Name##_move_forward(Name *self, size_t first, size_t last, size_t n)\
 {\
-	register size_t i;\
-	for (i = first; i < last; i++) {\
-		self->buf[i - n] = self->buf[i];\
-	}\
+	memmove(&self->buf[first - n], &self->buf[first], sizeof(Type) * (last - first));\
 }\
 \
 
@@ -385,7 +380,6 @@ int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data)\
 #define CSTL_VECTOR_IMPLEMENT_INSERT_ARRAY(Name, Type)	\
 int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 {\
-	register size_t i;\
 	CSTL_ASSERT(self && "Vector_insert_array");\
 	CSTL_ASSERT(self->magic == self && "Vector_insert_array");\
 	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_array");\
@@ -393,9 +387,7 @@ int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
 		return 0;\
 	}\
-	for (i = 0; i < n; i++) {\
-		self->buf[idx + i] = data[i];\
-	}\
+	memcpy(&self->buf[idx], data, sizeof(Type) * n);\
 	return 1;\
 }\
 \
@@ -403,7 +395,6 @@ int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 #define CSTL_VECTOR_IMPLEMENT_INSERT_RANGE(Name, Type)	\
 int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 {\
-	register size_t i;\
 	CSTL_ASSERT(self && "Vector_insert_range");\
 	CSTL_ASSERT(self->magic == self && "Vector_insert_range");\
 	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_range");\
@@ -417,25 +408,15 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 	}\
 	if (self == x) {\
 		if (idx <= xidx) {\
-			for (i = 0; i < n; i++) {\
-				CSTL_VECTOR_AT(self, idx + i) = CSTL_VECTOR_AT(self, xidx + n + i);\
-			}\
+			memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(self, xidx + n), sizeof(Type) * n);\
 		} else if (xidx < idx && idx < xidx + n) {\
-			for (i = 0; i < idx - xidx; i++) {\
-				CSTL_VECTOR_AT(self, idx + i) = CSTL_VECTOR_AT(self, xidx + i);\
-			}\
-			for (i = 0; i < n - (idx - xidx); i++) {\
-				CSTL_VECTOR_AT(self, idx + (idx - xidx) + i) = CSTL_VECTOR_AT(self, idx + n + i);\
-			}\
+			memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(self, xidx), sizeof(Type) * (idx - xidx));\
+			memcpy(&CSTL_VECTOR_AT(self, idx + (idx - xidx)), &CSTL_VECTOR_AT(self, idx + n), sizeof(Type) * (n - (idx - xidx)));\
 		} else {\
-			for (i = 0; i < n; i++) {\
-				CSTL_VECTOR_AT(self, idx + i) = CSTL_VECTOR_AT(self, xidx + i);\
-			}\
+			memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(self, xidx), sizeof(Type) * n);\
 		}\
 	} else {\
-		for (i = 0; i < n; i++) {\
-			CSTL_VECTOR_AT(self, idx + i) = CSTL_VECTOR_AT(x, xidx + i);\
-		}\
+		memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(x, xidx), sizeof(Type) * n);\
 	}\
 	return 1;\
 }\
