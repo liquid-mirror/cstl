@@ -34,6 +34,7 @@
 #define CSTL_DEQUE_H_INCLUDED
 
 #include <stdlib.h>
+#include <string.h>
 #include "common.h"
 #include "ring.h"
 #include "vector.h"
@@ -172,6 +173,7 @@ static void Name##_push_ring(Name *self, Name##_Ring *ring)\
 	}\
 }\
 \
+/* n個の要素をbegin側から挿入するために、mapの拡張とringの確保をする */\
 static int Name##_expand_begin_side(Name *self, size_t n)\
 {\
 	size_t m;\
@@ -182,44 +184,45 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 	if (n <= m) {\
 		return 1;\
 	}\
+	/* 追加しなければならないringの数 */\
 	expand = 1 + (n - m - 1) / Name##_RINGBUF_SIZE;\
 	if (self->begin < expand) {\
-		size_t b, e;\
-		b = self->begin;\
-		e = self->end;\
-		if (CSTL_VECTOR_SIZE(self->map) - e + self->begin < expand) {\
-			size_t j = (CSTL_VECTOR_SIZE(self->map) > expand) ? CSTL_VECTOR_SIZE(self->map) : expand;\
+		if (CSTL_VECTOR_SIZE(self->map) - self->end + self->begin < expand) {\
 			/* mapを拡張する */\
-			if (!Name##_RingVector_insert_n_no_data(self->map, 0, j)) {\
+			size_t map_expand = (CSTL_VECTOR_SIZE(self->map) > expand) ? CSTL_VECTOR_SIZE(self->map) : expand;\
+			if (!Name##_RingVector_insert_n_no_data(self->map, 0, map_expand)) {\
 				return 0;\
 			}\
-			for (i = 0; i < j; i++) {\
-				CSTL_VECTOR_AT(self->map, i) = 0;\
-			}\
-			self->begin += j;\
-			self->end += j;\
+			memset(&CSTL_VECTOR_AT(self->map, 0), 0, sizeof(Name##_Ring *) * map_expand);\
+			self->begin += map_expand;\
+			self->end += map_expand;\
 		} else {\
 			/* mapをずらす */\
-			size_t slide = ((expand - self->begin) + (CSTL_VECTOR_SIZE(self->map) - e)) / 2;\
-			CSTL_ASSERT(e + slide <= CSTL_VECTOR_SIZE(self->map) && "Deque_expand_begin_side");\
-			Name##_RingVector_move_backward(self->map, b, e, slide);\
-			for (i = b; i < b + slide; i++) {\
-				CSTL_VECTOR_AT(self->map, i) = 0;\
-			}\
+			size_t slide = ((expand - self->begin) + (CSTL_VECTOR_SIZE(self->map) - self->end)) / 2;\
+			CSTL_ASSERT(self->end + slide <= CSTL_VECTOR_SIZE(self->map) && "Deque_expand_begin_side");\
+			Name##_RingVector_move_backward(self->map, self->begin, self->end, slide);\
+			memset(&CSTL_VECTOR_AT(self->map, self->begin), 0, sizeof(Name##_Ring *) * slide);\
 			self->begin += slide;\
 			self->end += slide;\
 		}\
 	}\
+	/* expand分のringの確保をしておく。この関数を出た後、必ずself->beginの調整をする。 */\
 	for (i = self->begin - expand; i < self->begin; i++) {\
 		CSTL_ASSERT(!CSTL_VECTOR_AT(self->map, i) && "Deque_expand_begin_side");\
 		CSTL_VECTOR_AT(self->map, i) = Name##_pop_ring(self);\
 		if (!CSTL_VECTOR_AT(self->map, i)) {\
+			register size_t j;\
+			for (j = self->begin - expand; j < i; j++) {\
+				Name##_push_ring(self, CSTL_VECTOR_AT(self->map, j));\
+				CSTL_VECTOR_AT(self->map, j) = 0;\
+			}\
 			return 0;\
 		}\
 	}\
 	return 1;\
 }\
 \
+/* n個の要素をend側から挿入するために、mapの拡張とringの確保をする */\
 static int Name##_expand_end_side(Name *self, size_t n)\
 {\
 	size_t m;\
@@ -230,33 +233,37 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 	if (n <= m) {\
 		return 1;\
 	}\
+	/* 追加しなければならないringの数 */\
 	expand = 1 + (n - m - 1) / Name##_RINGBUF_SIZE;\
 	if (CSTL_VECTOR_SIZE(self->map) - self->end < expand) {\
-		size_t b, e;\
-		b = self->begin;\
-		e = self->end;\
-		if (CSTL_VECTOR_SIZE(self->map) - self->end + b < expand) {\
-			size_t j = (CSTL_VECTOR_SIZE(self->map) > expand) ? CSTL_VECTOR_SIZE(self->map) : expand;\
+		if (CSTL_VECTOR_SIZE(self->map) - self->end + self->begin < expand) {\
 			/* mapを拡張する */\
-			if (!Name##_RingVector_resize(self->map, self->end + j, 0)) {\
+			size_t map_size = CSTL_VECTOR_SIZE(self->map);\
+			size_t map_expand = (CSTL_VECTOR_SIZE(self->map) > expand) ? CSTL_VECTOR_SIZE(self->map) : expand;\
+			if (!Name##_RingVector_insert_n_no_data(self->map, CSTL_VECTOR_SIZE(self->map), map_expand)) {\
 				return 0;\
 			}\
+			memset(&CSTL_VECTOR_AT(self->map, map_size), 0, sizeof(Name##_Ring *) * map_expand);\
 		} else {\
 			/* mapをずらす */\
-			size_t slide = ((expand - (CSTL_VECTOR_SIZE(self->map) - self->end)) + b) / 2;\
-			CSTL_ASSERT(b >= slide && "Deque_expand_end_side");\
-			Name##_RingVector_move_forward(self->map, b, e, slide);\
-			for (i = e - slide; i < e; i++) {\
-				CSTL_VECTOR_AT(self->map, i) = 0;\
-			}\
+			size_t slide = ((expand - (CSTL_VECTOR_SIZE(self->map) - self->end)) + self->begin) / 2;\
+			CSTL_ASSERT(self->begin >= slide && "Deque_expand_end_side");\
+			Name##_RingVector_move_forward(self->map, self->begin, self->end, slide);\
+			memset(&CSTL_VECTOR_AT(self->map, self->end - slide), 0, sizeof(Name##_Ring *) * slide);\
 			self->begin -= slide;\
 			self->end -= slide;\
 		}\
 	}\
+	/* expand分のringの確保をしておく。この関数を出た後、必ずself->endの調整をする。 */\
 	for (i = self->end; i < self->end + expand; i++) {\
 		CSTL_ASSERT(!CSTL_VECTOR_AT(self->map, i) && "Deque_expand_end_side");\
 		CSTL_VECTOR_AT(self->map, i) = Name##_pop_ring(self);\
 		if (!CSTL_VECTOR_AT(self->map, i)) {\
+			register size_t j;\
+			for (j = self->end; j < i; j++) {\
+				Name##_push_ring(self, CSTL_VECTOR_AT(self->map, j));\
+				CSTL_VECTOR_AT(self->map, j) = 0;\
+			}\
 			return 0;\
 		}\
 	}\
