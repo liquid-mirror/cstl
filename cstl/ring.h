@@ -105,6 +105,8 @@ Name *Name##_new(size_t n)\
 {\
 	Name *self;\
 	Type *buf;\
+	/* NOTE: nは必ず2の冪乗でなければならない */\
+	CSTL_ASSERT(n > 0 && (n & (n - 1)) == 0 && "Ring_new");\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
 	buf = (Type *) malloc(sizeof(Type) * n);\
@@ -132,7 +134,6 @@ void Name##_init(Name *self, Type *buf, size_t n)\
 	self->begin = 0;\
 	self->end = 0;\
 	self->buf = buf;\
-	/* NOTE: max_sizeは必ず2の冪乗でなければならない */\
 	self->max_size = n;\
 	self->size = 0;\
 	CSTL_MAGIC(self->magic = self);\
