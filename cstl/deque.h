@@ -34,7 +34,6 @@
 #define CSTL_DEQUE_H_INCLUDED
 
 #include <stdlib.h>
-#include <string.h>
 #include "common.h"
 #include "ring.h"
 #include "vector.h"
@@ -49,7 +48,7 @@
 #endif
 
 
-#define CSTL_DEQUE_SIZE(self)			(self)->size
+#define CSTL_DEQUE_SIZE(self)	(self)->size
 
 
 /*! 
@@ -193,7 +192,9 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 			if (!Name##_RingVector_insert_n_no_data(self->map, 0, map_expand)) {\
 				return 0;\
 			}\
-			memset(&CSTL_VECTOR_AT(self->map, 0), 0, sizeof(Name##_Ring *) * map_expand);\
+			for (i = 0; i < map_expand; i++) {\
+				CSTL_VECTOR_AT(self->map, i) = 0;\
+			}\
 			self->begin += map_expand;\
 			self->end += map_expand;\
 		} else {\
@@ -201,7 +202,9 @@ static int Name##_expand_begin_side(Name *self, size_t n)\
 			size_t slide = ((expand - self->begin) + (CSTL_VECTOR_SIZE(self->map) - self->end)) / 2;\
 			CSTL_ASSERT(self->end + slide <= CSTL_VECTOR_SIZE(self->map) && "Deque_expand_begin_side");\
 			Name##_RingVector_move_backward(self->map, self->begin, self->end, slide);\
-			memset(&CSTL_VECTOR_AT(self->map, self->begin), 0, sizeof(Name##_Ring *) * slide);\
+			for (i = self->begin; i < self->begin + slide; i++) {\
+				CSTL_VECTOR_AT(self->map, i) = 0;\
+			}\
 			self->begin += slide;\
 			self->end += slide;\
 		}\
@@ -239,17 +242,21 @@ static int Name##_expand_end_side(Name *self, size_t n)\
 		if (CSTL_VECTOR_SIZE(self->map) - self->end + self->begin < expand) {\
 			/* mapを拡張する */\
 			size_t map_size = CSTL_VECTOR_SIZE(self->map);\
-			size_t map_expand = (CSTL_VECTOR_SIZE(self->map) > expand) ? CSTL_VECTOR_SIZE(self->map) : expand;\
-			if (!Name##_RingVector_insert_n_no_data(self->map, CSTL_VECTOR_SIZE(self->map), map_expand)) {\
+			size_t map_expand = (map_size > expand) ? map_size : expand;\
+			if (!Name##_RingVector_insert_n_no_data(self->map, map_size, map_expand)) {\
 				return 0;\
 			}\
-			memset(&CSTL_VECTOR_AT(self->map, map_size), 0, sizeof(Name##_Ring *) * map_expand);\
+			for (i = map_size; i < map_size + map_expand; i++) {\
+				CSTL_VECTOR_AT(self->map, i) = 0;\
+			}\
 		} else {\
 			/* mapをずらす */\
 			size_t slide = ((expand - (CSTL_VECTOR_SIZE(self->map) - self->end)) + self->begin) / 2;\
 			CSTL_ASSERT(self->begin >= slide && "Deque_expand_end_side");\
 			Name##_RingVector_move_forward(self->map, self->begin, self->end, slide);\
-			memset(&CSTL_VECTOR_AT(self->map, self->end - slide), 0, sizeof(Name##_Ring *) * slide);\
+			for (i = self->end - slide; i < self->end; i++) {\
+				CSTL_VECTOR_AT(self->map, i) = 0;\
+			}\
 			self->begin -= slide;\
 			self->end -= slide;\
 		}\
