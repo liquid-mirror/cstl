@@ -51,6 +51,7 @@ typedef struct Name##Node *Name##LocalIterator;\
 size_t Name##_hash_string(register const char *str);\
 size_t Name##_hash_wstring(register const wchar_t *str);\
 size_t Name##_hash_char(char n);\
+size_t Name##_hash_schar(signed char n);\
 size_t Name##_hash_uchar(unsigned char n);\
 size_t Name##_hash_short(short n);\
 size_t Name##_hash_ushort(unsigned short n);\
@@ -59,7 +60,7 @@ size_t Name##_hash_uint(unsigned int n);\
 size_t Name##_hash_long(long n);\
 size_t Name##_hash_ulong(unsigned long n);\
 Name *Name##_new(void);\
-Name *Name##_new_reserve(size_t n);\
+Name *Name##_new_rehash(size_t n);\
 void Name##_delete(Name *self);\
 void Name##_clear(Name *self);\
 int Name##_empty(Name *self);\
@@ -97,7 +98,7 @@ size_t Name##_hash_string(register const char *str)\
 	while ((c = *str++) != '\0') {\
 		val = val * 997 + c;\
 	}\
-	return val + (val >> 5);\
+	return (size_t) (val + (val >> 5));\
 }\
 \
 size_t Name##_hash_wstring(register const wchar_t *str)\
@@ -107,47 +108,52 @@ size_t Name##_hash_wstring(register const wchar_t *str)\
 	while ((c = *str++) != '\0') {\
 		val = val * 997 + c;\
 	}\
-	return val + (val >> 5);\
+	return (size_t) (val + (val >> 5));\
 }\
 \
 size_t Name##_hash_char(char n)\
 {\
-    return n;\
+    return (size_t) n;\
+}\
+\
+size_t Name##_hash_schar(signed char n)\
+{\
+    return (size_t) n;\
 }\
 \
 size_t Name##_hash_uchar(unsigned char n)\
 {\
-    return n;\
+    return (size_t) n;\
 }\
 \
 size_t Name##_hash_short(short n)\
 {\
-    return n;\
+    return (size_t) n;\
 }\
 \
 size_t Name##_hash_ushort(unsigned short n)\
 {\
-    return n;\
+    return (size_t) n;\
 }\
 \
 size_t Name##_hash_int(int n)\
 {\
-    return n;\
+    return (size_t) n;\
 }\
 \
 size_t Name##_hash_uint(unsigned int n)\
 {\
-    return n;\
+    return (size_t) n;\
 }\
 \
 size_t Name##_hash_long(long n)\
 {\
-    return n;\
+    return (size_t) n;\
 }\
 \
 size_t Name##_hash_ulong(unsigned long n)\
 {\
-    return n;\
+    return (size_t) n;\
 }\
 \
 static Name##Node *Name##Node_insert(Name##Node *list, Name##Node *node, Name##Node **bucket)\
@@ -264,10 +270,10 @@ static size_t Name##_next_prime(size_t n)\
 \
 Name *Name##_new(void)\
 {\
-	return Name##_new_reserve(0);\
+	return Name##_new_rehash(0);\
 }\
 \
-Name *Name##_new_reserve(size_t n)\
+Name *Name##_new_rehash(size_t n)\
 {\
 	size_t nbuckets;\
 	Name *self;\
