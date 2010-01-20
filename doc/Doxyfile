@@ -90,6 +90,7 @@ INPUT                  = vector \
                          list \
                          set \
                          map \
+                         unordered_map \
                          string \
                          algorithm
 INPUT_ENCODING         = UTF-8

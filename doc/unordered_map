@@ -1,0 +1,716 @@
+/*! 
+\file unordered_map
+
+unordered_mapはmapと同様に、キーと値のペアを要素とする連想コンテナである。
+mapは二分木で実装されるのに対し、unordered_mapはハッシュテーブルで実装される。
+同じキーの要素を2個以上挿入することはできない。
+挿入した要素のキーは読み出し専用となる。
+要素の挿入・削除・キーの検索の計算量は大抵の場合O(1)であるが、最悪の場合O(N)となる。
+
+unordered_multimapはキーの重複が許されることと、キーとペアになる値の直接アクセスが不可能であることを除き、unordered_mapと同じである。
+
+ハッシュテーブルの実装において、ハッシュ値の衝突はチェイン法によって解決する。
+チェイン法で使われるリンクリストをバケットと呼ぶこととする。
+
+unordered_map/unordered_multimapを使うには、<cstl/unordered_map.h>をインクルードし、以下のマクロを用いてコードを展開する必要がある。
+
+\code
+#include <cstl/unordered_map.h>
+
+#define CSTL_UNORDERED_MAP_INTERFACE(Name, KeyType, ValueType)
+#define CSTL_UNORDERED_MAP_IMPLEMENT(Name, KeyType, ValueType, Hasher, Compare)
+
+#define CSTL_UNORDERED_MULTIMAP_INTERFACE(Name, KeyType, ValueType)
+#define CSTL_UNORDERED_MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Hasher, Compare)
+\endcode
+
+\b CSTL_UNORDERED_MAP_INTERFACE() は任意の名前と要素の型のunordered_mapのインターフェイスを展開する。
+\b CSTL_UNORDERED_MAP_IMPLEMENT() はその実装を展開する。
+
+\b CSTL_UNORDERED_MULTIMAP_INTERFACE() は任意の名前と要素の型のunordered_multimapのインターフェイスを展開する。
+\b CSTL_UNORDERED_MULTIMAP_IMPLEMENT() はその実装を展開する。
+
+\par 使用例:
+\include unordered_map_example.c
+
+\attention 以下に説明する型定義・関数は、
+\b CSTL_UNORDERED_MAP_INTERFACE(Name, KeyType, ValueType) , \b CSTL_UNORDERED_MULTIMAP_INTERFACE(Name, KeyType, ValueType) 
+の\a Name に\b UnorderedMap , \a KeyType に\b KeyT , \a ValueType に\b ValueT を仮に指定した場合のものである。
+実際に使用する際には、使用例のように適切な引数を指定すること。
+\attention また、unordered_map専用/unordered_multimap専用と記した関数以外の関数は、unordered_map/unordered_multimap共通の関数である。
+
+ */
+
+
+
+/*! 
+ * \brief unordered_map用インターフェイスマクロ
+ *
+ * 任意の名前と要素の型のunordered_mapのインターフェイスを展開する。
+ *
+ * \param Name 既存の型と重複しない任意の名前。unordered_mapの型名と関数のプレフィックスになる
+ * \param KeyType 任意の要素のキーの型
+ * \param ValueType 任意の要素の値の型
+ * \attention 引数は CSTL_UNORDERED_MAP_IMPLEMENT() の引数と同じものを指定すること。
+ * \attention \a KeyType , \a ValueType を括弧で括らないこと。
+ * \note \a KeyType に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
+ */
+#define CSTL_UNORDERED_MAP_INTERFACE(Name, KeyType, ValueType)
+
+/*! 
+ * \brief unordered_map用実装マクロ
+ *
+ * CSTL_UNORDERED_MAP_INTERFACE()で展開したインターフェイスの実装を展開する。
+ *
+ * \param Name 既存の型と重複しない任意の名前。unordered_mapの型名と関数のプレフィックスになる
+ * \param KeyType 任意の要素のキーの型
+ * \param ValueType 任意の要素の値の型
+ * \param Hasher ハッシュ関数
+ * \param Compare 要素のキーを比較する関数またはマクロ
+ *
+ * - \a KeyType が整数型の場合、
+ *   CSTL_EQUAL_TO を\a Compare に指定する。
+ *   \a Hasher には以下のハッシュ関数を指定する(ハッシュ関数の\b Name は引数に指定した\a Name に置き換えること)。
+ *     - \a KeyType がcharの場合、\b Name_hash_char。
+ *     - \a KeyType がsigned charの場合、\b Name_hash_schar。
+ *     - \a KeyType がunsigned charの場合、\b Name_hash_uchar。
+ *     - \a KeyType がshortの場合、\b Name_hash_short。
+ *     - \a KeyType がunsigned shortの場合、\b Name_hash_ushort。
+ *     - \a KeyType がintの場合、\b Name_hash_int。
+ *     - \a KeyType がunsigned intの場合、\b Name_hash_uint。
+ *     - \a KeyType がlongの場合、\b Name_hash_long。
+ *     - \a KeyType がunsigned longの場合、\b Name_hash_ulong。
+ *
+ * - \a KeyType が文字列型(const char *)の場合、
+ *   strcmp を\a Compare に指定する。
+ *   \b Name_hash_string を\a Hasher に指定する。
+ *
+ * - \a KeyType がワイド文字列型(const wchar_t *)の場合、
+ *   wcscmp を\a Compare に指定する。
+ *   \b Name_hash_wstring を\a Hasher に指定する。
+ *
+ * - \a KeyType がその他の型の場合、
+ *   \code
+ *   int comp(KeyType x, KeyType y);
+ *   \endcode
+ *   のような引数と戻り値を持ち、
+ *   x == yならば0を、x != yならば非0の整数を返す比較関数またはマクロを\a Compare に指定する。
+ *   \code
+ *   size_t hash(KeyType x);
+ *   \endcode
+ *   のような引数と戻り値を持つハッシュ関数を\a Hasher に指定する。
+ *
+ * \attention \a Hasher と \a Compare 以外の引数は CSTL_UNORDERED_MAP_INTERFACE() の引数と同じものを指定すること。
+ * \attention \a KeyType , \a ValueType を括弧で括らないこと。
+ * \note \a KeyType に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
+ */
+#define CSTL_UNORDERED_MAP_IMPLEMENT(Name, KeyType, ValueType, Hasher, Compare)
+
+/*! 
+ * \brief unordered_multimap用インターフェイスマクロ
+ *
+ * 任意の名前と要素の型のunordered_multimapのインターフェイスを展開する。
+ *
+ * 使用方法は CSTL_UNORDERED_MAP_INTERFACE()と同じである。
+ */
+#define CSTL_UNORDERED_MULTIMAP_INTERFACE(Name, KeyType, ValueType)
+
+/*! 
+ * \brief unordered_multimap用実装マクロ
+ *
+ * CSTL_UNORDERED_MULTIMAP_INTERFACE()で展開したインターフェイスの実装を展開する。
+ *
+ * 使用方法は CSTL_UNORDERED_MAP_IMPLEMENT()と同じである。
+ */
+#define CSTL_UNORDERED_MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
+
+
+/*! 
+ * \brief 整数比較
+ * 
+ * キーに整数型を指定した場合、 CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_INTERFACE() の \a Compare 引数に指定する。
+ *
+ * \param x 1つ目のキー
+ * \param y 2つ目のキー
+ * 
+ * \retval 0 \a x == \a y の場合
+ * \retval 非0 \a x != \a y の場合
+ */
+#define CSTL_EQUAL_TO(x, y)		((x) == (y) ? 0 : 1)
+
+
+
+/*! 
+ * \brief unordered_map/unordered_multimapの型
+ *
+ * 抽象データ型となっており、内部データメンバは非公開である。
+ *
+ * 以下、 UnorderedMap_new*() から返されたUnorderedMap構造体へのポインタをunordered_mapオブジェクトという。
+ */
+typedef struct UnorderedMap UnorderedMap;
+
+/*! 
+ * \brief イテレータの型
+ *
+ * 要素の位置を示す。
+ *
+ * 以下、関数から返されたイテレータを有効なイテレータという。
+ * 宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
+ */
+typedef struct UnorderedMapNode *UnorderedMapIterator;
+
+/*! 
+ * \brief ローカルイテレータ
+ *
+ * 一つのバケットの中の要素を巡回するためのイテレータ。
+ * 複数のバケットにまたがって巡回することはできない。
+ */
+typedef struct UnorderedMapNode *UnorderedMapLocalIterator;
+
+/*! 
+ * \brief 生成
+ *
+ * 要素数が0のunordered_map/unordered_multimapを生成する。
+ * 
+ * \return 生成に成功した場合、unordered_mapオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ */
+UnorderedMap *UnorderedMap_new(void);
+
+/*! 
+ * \brief バケット数を指定して生成
+ *
+ * \a n 個 \b 以上 のバケットを確保し、
+ * 要素数が0のunordered_map/unordered_multimapを生成する。
+ * 
+ * \param n バケット数
+ *
+ * \return 生成に成功した場合、unordered_mapオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ */
+UnorderedMap *UnorderedMap_new_rehash(size_t n);
+
+/*! 
+ * \brief 破棄
+ * 
+ * \a self のすべての要素を削除し、\a self を破棄する。
+ * \a self がNULLの場合、何もしない。
+ *
+ * \param self unordered_mapオブジェクト
+ */
+void UnorderedMap_delete(UnorderedMap *self);
+
+/*! 
+ * \brief 要素数を取得
+ * 
+ * \param self unordered_mapオブジェクト
+ * 
+ * \return \a self の要素数
+ */
+size_t UnorderedMap_size(UnorderedMap *self);
+
+/*! 
+ * \brief 空チェック
+ * 
+ * \param self unordered_mapオブジェクト
+ * 
+ * \return \a self の要素数が0の場合、非0を返す。
+ * \return \a self の要素数が1以上の場合、0を返す。
+ */
+int UnorderedMap_empty(UnorderedMap *self);
+
+/*! 
+ * \brief 最初の要素のイテレータ
+ * 
+ * \param self unordered_mapオブジェクト
+ * 
+ * \return \a self の最初の要素のイテレータ
+ */
+UnorderedMapIterator UnorderedMap_begin(UnorderedMap *self);
+
+/*! 
+ * \brief 最後の要素の次のイテレータ
+ * 
+ * \param self unordered_mapオブジェクト
+ * 
+ * \return \a self の最後の要素の次のイテレータ
+ */
+UnorderedMapIterator UnorderedMap_end(UnorderedMap *self);
+
+/*! 
+ * \brief 次のイテレータ
+ * 
+ * \param pos イテレータ
+ * 
+ * \return \a pos が示す位置の要素の次のイテレータ
+ *
+ * \pre \a pos が有効なイテレータであること。
+ * \pre \a pos が UnorderedMap_end() でないこと。
+ */
+UnorderedMapIterator UnorderedMap_next(UnorderedMapIterator pos);
+
+/*! 
+ * \brief イテレータによる要素のキーのアクセス
+ * 
+ * \param pos イテレータ。\a pos の型は UnorderedMapLocalIterator でもよい。
+ * 
+ * \return \a pos が示す位置の要素のキーへのポインタ
+ *
+ * \pre \a pos が有効なイテレータであること。
+ * \pre \a pos が UnorderedMap_end() または UnorderedMap_bucket_end() でないこと。
+ *
+ * \attention 戻り値のポインタの参照先はconstである。
+ */
+KeyT const *UnorderedMap_key(UnorderedMapIterator pos);
+
+/*! 
+ * \brief イテレータによる要素の値のアクセス
+ * 
+ * \param pos イテレータ。\a pos の型は UnorderedMapLocalIterator でもよい。
+ * 
+ * \return \a pos が示す位置の要素の値へのポインタ
+ *
+ * \pre \a pos が有効なイテレータであること。
+ * \pre \a pos が UnorderedMap_end() または UnorderedMap_bucket_end() でないこと。
+ */
+ValueT *UnorderedMap_value(UnorderedMapIterator pos);
+
+/*! 
+ * \brief キーとペアになる値のアクセス(unordered_map専用)
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param key キー
+ *
+ * \return \a self の\a key というキーの要素の値へのポインタを返す。
+ * \return \a self が\a key というキーの要素を持っていない場合、\a key というキーの新しい要素(値は不定)を挿入し、その要素の値へのポインタを返す。
+ * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
+ *
+ * \attention この関数はunordered_mapのみで提供される。
+ * \attention メモリ不足の場合、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義済みならばアサーションに失敗する。
+ */
+ValueT *UnorderedMap_at(UnorderedMap *self, KeyT key);
+
+/*! 
+ * \brief 要素を挿入(unordered_map専用)
+ *
+ * \a key と\a value のコピーのペアを要素として\a self に挿入する。
+ *
+ * \param self unordered_mapオブジェクト
+ * \param key 挿入する要素のキー
+ * \param value 挿入する要素の値
+ * \param success 成否を格納する変数へのポインタ。ただし、NULLを指定した場合はアクセスしない。
+ * 
+ * \return 挿入に成功した場合、*\a success に非0の値を格納し、新しい要素のイテレータを返す。
+ * \return \a self が既に\a key というキーの要素を持っている場合、挿入を行わず、*\a success に0を格納し、その要素のイテレータを返す。
+ * \return メモリ不足の場合、*\a success に0を格納し、\a self の変更を行わず0を返す。
+ *
+ * \attention この関数はunordered_mapのみで提供される。
+ */
+UnorderedMapIterator UnorderedMap_insert(UnorderedMap *self, KeyT key, ValueT value, int *success);
+
+/*! 
+ * \brief 参照渡しで要素を挿入(unordered_map専用)
+ *
+ * \a key と*\a value のコピーのペアを要素として\a self に挿入する。
+ *
+ * \param self unordered_mapオブジェクト
+ * \param key 挿入する要素のキー
+ * \param value 挿入する要素の値へのポインタ
+ * \param success 成否を格納する変数へのポインタ。ただし、NULLを指定した場合はアクセスしない。
+ * 
+ * \return 挿入に成功した場合、*\a success に非0の値を格納し、新しい要素のイテレータを返す。
+ * \return \a self が既に\a key というキーの要素を持っている場合、挿入を行わず、*\a success に0を格納し、その要素のイテレータを返す。
+ * \return メモリ不足の場合、*\a success に0を格納し、\a self の変更を行わず0を返す。
+ *
+ * \pre \a value がNULLでないこと。
+ * \attention この関数はunordered_mapのみで提供される。
+ * \note ValueT が構造体型の場合、 UnorderedMap_insert() よりも呼び出しコストが低い。
+ */
+UnorderedMapIterator UnorderedMap_insert_ref(UnorderedMap *self, KeyT key, ValueT const *value, int *success);
+
+/*! 
+ * \brief 要素を挿入(unordered_multimap専用)
+ *
+ * \a key と\a value のコピーのペアを要素として\a self に挿入する。
+ * \a self が既に\a key というキーの要素を持っている場合、その要素と同じバケットに挿入される。
+ *
+ * \param self unordered_mapオブジェクト
+ * \param key 挿入する要素のキー
+ * \param value 挿入する要素の値
+ * 
+ * \return 挿入に成功した場合、新しい要素のイテレータを返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \attention この関数はunordered_multimapのみで提供される。
+ */
+UnorderedMapIterator UnorderedMap_insert(UnorderedMap *self, KeyT key, ValueT value);
+
+/*! 
+ * \brief 参照渡しで要素を挿入(unordered_multimap専用)
+ *
+ * \a key と*\a value のコピーのペアを要素として\a self に挿入する。
+ * \a self が既に\a key というキーの要素を持っている場合、その要素と同じバケットに挿入される。
+ *
+ * \param self unordered_mapオブジェクト
+ * \param key 挿入する要素のキー
+ * \param value 挿入する要素の値へのポインタ
+ * 
+ * \return 挿入に成功した場合、新しい要素のイテレータを返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre \a value がNULLでないこと。
+ * \attention この関数はunordered_multimapのみで提供される。
+ * \note ValueT が構造体型の場合、 UnorderedMap_insert() よりも呼び出しコストが低い。
+ */
+UnorderedMapIterator UnorderedMap_insert_ref(UnorderedMap *self, KeyT key, ValueT const *value);
+
+/*! 
+ * \brief 指定範囲の要素を挿入
+ * 
+ * [\a first, \a last)の範囲の要素のコピーを\a self に挿入する。
+ * unordered_multimapの場合、[\a first, \a last)の要素は\a self が持つ要素でもよい。
+ *
+ * \param self unordered_mapオブジェクト
+ * \param first コピー元の範囲の開始位置
+ * \param last コピー元の範囲の終了位置
+ * 
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre [\a first, \a last)が有効なイテレータであること。
+ */
+int UnorderedMap_insert_range(UnorderedMap *self, UnorderedMapIterator first, UnorderedMapIterator last);
+
+/*! 
+ * \brief 要素を削除
+ * 
+ * \a self の\a pos が示す位置の要素を削除する。
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param pos 削除する要素の位置
+ * 
+ * \return 削除した要素の次のイテレータ
+ *
+ * \pre \a pos が\a self の有効なイテレータであること。
+ * \pre \a pos が UnorderedMap_end() でないこと。
+ */
+UnorderedMapIterator UnorderedMap_erase(UnorderedMap *self, UnorderedMapIterator pos);
+
+/*! 
+ * \brief 指定範囲の要素を削除
+ * 
+ * \a self の[\a first, \a last)の範囲の要素を削除する。
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param first 削除する範囲の開始位置
+ * \param last 削除する範囲の終了位置
+ * 
+ * \return \a last
+ *
+ * \pre [\a first, \a last)が\a self の有効なイテレータであること。
+ */
+UnorderedMapIterator UnorderedMap_erase_range(UnorderedMap *self, UnorderedMapIterator first, UnorderedMapIterator last);
+
+/*! 
+ * \brief 指定キーの要素を削除
+ * 
+ * \a self の\a key というキーの要素をすべて削除する。
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param key 削除する要素のキー
+ * 
+ * \return 削除した数
+ */
+size_t UnorderedMap_erase_key(UnorderedMap *self, KeyT key);
+
+/*! 
+ * \brief 全要素を削除
+ *
+ * \a self のすべての要素を削除する。
+ * 
+ * \param self unordered_mapオブジェクト
+ */
+void UnorderedMap_clear(UnorderedMap *self);
+
+/*! 
+ * \brief 交換
+ *
+ * \a self と\a x の内容を交換する。
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param x \a self と内容を交換するunordered_mapオブジェクト
+ */
+void UnorderedMap_swap(UnorderedMap *self, UnorderedMap *x);
+
+/*! 
+ * \brief 指定キーの要素をカウント
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param key カウントする要素のキー
+ * 
+ * \return \a self の\a key というキーの要素の数
+ */
+size_t UnorderedMap_count(UnorderedMap *self, KeyT key);
+
+/*! 
+ * \brief 指定キーの要素を検索
+ * 
+ * \a self の\a key というキーの最初の要素を検索する。
+ *
+ * \param self unordered_mapオブジェクト
+ * \param key 検索する要素のキー
+ * 
+ * \return 見つかった場合、その要素のイテレータを返す。
+ * \return 見つからない場合、 UnorderedMap_end(\a self) を返す。
+ */
+UnorderedMapIterator UnorderedMap_find(UnorderedMap *self, KeyT key);
+
+/*! 
+ * \brief 指定キーの要素の範囲を取得
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param key 検索する要素のキー
+ * \param first \a key というキーの最初の要素のイテレータを格納する変数へのポインタ
+ * \param last \a key というキーの最後の要素の次のイテレータを格納する変数へのポインタ
+ *
+ * \pre \a first がNULLでないこと。
+ * \pre \a last がNULLでないこと。
+ * \note \a self が\a key というキーの要素を持たない場合、*\a first , *\a last ともにUnorderedMap_end(self)が格納される。
+ */
+void UnorderedMap_equal_range(UnorderedMap *self, KeyT key, UnorderedMapIterator *first, UnorderedMapIterator *last);
+
+/*! 
+ * \brief バケット数を取得
+ * 
+ * \param self unordered_mapオブジェクト
+ * 
+ * \return \a self のバケット数
+ */
+size_t UnorderedMap_bucket_count(UnorderedMap *self);
+
+/*! 
+ * \brief 一つのバケットの中の要素数を取得
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param idx バケットのインデックス
+ * 
+ * \return \a idx 番目のバケットの中の要素数
+ *
+ * \pre \a idx が UnorderedMap_bucket_count(self) より小さいこと。
+ */
+size_t UnorderedMap_bucket_size(UnorderedMap *self, size_t idx);
+
+/*! 
+ * \brief バケットのインデックスを取得
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param key 要素のキー
+ * 
+ * \return \a key というキーが挿入されるバケットのインデックス
+ */
+size_t UnorderedMap_bucket(UnorderedMap *self, KeyT key);
+
+/*! 
+ * \brief 一つのバケットの中の最初の要素のローカルイテレータ
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param idx バケットのインデックス
+ * 
+ * \return \a idx 番目のバケットの中の最初の要素のローカルイテレータ
+ *
+ * \pre \a idx が UnorderedMap_bucket_count(self) より小さいこと。
+ */
+UnorderedMapLocalIterator UnorderedMap_bucket_begin(UnorderedMap *self, size_t idx);
+
+/*! 
+ * \brief 一つのバケットの中の最後の要素の次のローカルイテレータ
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param idx バケットのインデックス
+ * 
+ * \return \a idx 番目のバケットの中の最後の要素の次のローカルイテレータ
+ *
+ * \pre \a idx が UnorderedMap_bucket_count(self) より小さいこと。
+ */
+UnorderedMapLocalIterator UnorderedMap_bucket_end(UnorderedMap *self, size_t idx);
+
+/*! 
+ * \brief 次のローカルイテレータ
+ * 
+ * \param pos ローカルイテレータ
+ * 
+ * \return \a pos が示す位置の要素の次のローカルイテレータ
+ *
+ * \pre \a pos が有効なローカルイテレータであること。
+ * \pre \a pos が UnorderedMap_end() または UnorderedMap_bucket_end() でないこと。
+ */
+UnorderedMapLocalIterator UnorderedMap_bucket_next(UnorderedMapLocalIterator pos);
+
+/*! 
+ * \brief ロードファクター
+ * 
+ * 全バケットの要素数の平均値(UnorderedMap_size(self) / UnorderedMap_bucket_count(self))をロードファクターと呼ぶ。
+ *
+ * \param self unordered_mapオブジェクト
+ * 
+ * \return \a self のロードファクター
+ */
+float UnorderedMap_load_factor(UnorderedMap *self);
+
+/*! 
+ * \brief ロードファクターの上限を取得
+ * 
+ * unordered_mapオブジェクトにはロードファクターの上限が設定されている。
+ * 要素挿入後のロードファクターが、設定されているロードファクターの上限を超える場合、
+ * バケットを拡張して再ハッシュされる。
+ *
+ * \param self unordered_mapオブジェクト
+ * 
+ * \return ロードファクターの上限
+ */
+float UnorderedMap_get_max_load_factor(UnorderedMap *self);
+
+/*! 
+ * \brief ロードファクターの上限を設定
+ * 
+ * \param self unordered_mapオブジェクト
+ * \param z 設定するロードファクターの上限
+ */
+void UnorderedMap_set_max_load_factor(UnorderedMap *self, float z);
+
+/*! 
+ * \brief バケットを拡張して再ハッシュ
+ *
+ * バケット数を\a n 個 \b 以上 に拡張し、全要素をハッシュ関数によって再び振り分ける。
+ *
+ * \param self unordered_mapオブジェクト
+ * \param n バケット数
+ *
+ * \return バケットの拡張に成功した場合、非0を返す。
+ * \return \a n が\a self の現在のバケット数以下の場合、\a self の変更を行わず非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ */
+int UnorderedMap_rehash(UnorderedMap *self, size_t n);
+
+/*! 
+ * \brief 文字列用ハッシュ関数
+ *
+ * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に const char * を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param key キー
+ * \return ハッシュ値
+ */
+size_t UnorderedMap_hash_string(const char *key);
+
+/*! 
+ * \brief ワイド文字列用ハッシュ関数
+ *
+ * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に const wchar_t * を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param key キー
+ * \return ハッシュ値
+ */
+size_t UnorderedMap_hash_wstring(const wchar_t *key);
+
+/*! 
+ * \brief char用ハッシュ関数
+ *
+ * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に char を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param key キー
+ * \return ハッシュ値
+ */
+size_t UnorderedMap_hash_char(char key);
+
+/*! 
+ * \brief signed char用ハッシュ関数
+ *
+ * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に signed char を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param key キー
+ * \return ハッシュ値
+ */
+size_t UnorderedMap_hash_schar(signed char key);
+
+/*! 
+ * \brief unsigned char用ハッシュ関数
+ *
+ * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に unsigned char を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param key キー
+ * \return ハッシュ値
+ */
+size_t UnorderedMap_hash_uchar(unsigned char key);
+
+/*! 
+ * \brief short用ハッシュ関数
+ *
+ * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に short を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param key キー
+ * \return ハッシュ値
+ */
+size_t UnorderedMap_hash_short(short key);
+
+/*! 
+ * \brief unsigned short用ハッシュ関数
+ *
+ * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に unsigned short を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param key キー
+ * \return ハッシュ値
+ */
+size_t UnorderedMap_hash_ushort(unsigned short key);
+
+/*! 
+ * \brief int用ハッシュ関数
+ *
+ * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に int を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param key キー
+ * \return ハッシュ値
+ */
+size_t UnorderedMap_hash_int(int key);
+
+/*! 
+ * \brief unsigned int用ハッシュ関数
+ *
+ * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に unsigned int を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param key キー
+ * \return ハッシュ値
+ */
+size_t UnorderedMap_hash_uint(unsigned int key);
+
+/*! 
+ * \brief long用ハッシュ関数
+ *
+ * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に long を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param key キー
+ * \return ハッシュ値
+ */
+size_t UnorderedMap_hash_long(long key);
+
+/*! 
+ * \brief unsigned long用ハッシュ関数
+ *
+ * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に unsigned long を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param key キー
+ * \return ハッシュ値
+ */
+size_t UnorderedMap_hash_ulong(unsigned long key);
+
+/* vim:set ts=4 sts=4 sw=4 ft=c: */

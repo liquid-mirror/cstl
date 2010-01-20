@@ -12,7 +12,7 @@ CSTLは以下の特長を持つ。
 
 \section s2 インストール
 - 手動でコピーする方法\n
-  <a href="http://sourceforge.jp/projects/cstl/files/">SourceForge.jp</a>
+  <a href="http://sourceforge.jp/projects/cstl/files/">SourceForge.JP</a>
   からtarballをダウンロードする。
   tarballを展開し、cstlディレクトリをインクルードパスの通ったディレクトリにコピーする。
 
@@ -44,11 +44,17 @@ CSTLは以下のコンテナを提供する。
 - <a href="list.html">list</a>\n
   双方向リンクリスト。任意の位置での要素の挿入・削除が高速だが、要素のランダムアクセスはできない。
 
-- <a href="set.html">set/multiset</a>\n
-  要素が値によって自動的にソートされるコンテナ。multisetは要素の重複を許す。
+- <a href="set.html">set / multiset</a>\n
+  集合。要素は値によって自動的にソートされる。multisetは要素の重複を許す。
 
-- <a href="map.html">map/multimap</a>\n
-  キーと値のペアを要素とするコンテナ。要素はキーによって自動的にソートされる。multimapは要素のキーの重複を許す。
+- <a href="map.html">map / multimap</a>\n
+  キーと値のペアを要素とする連想コンテナ。要素はキーによって自動的にソートされる。multimapは要素のキーの重複を許す。
+
+- <a href="unordered__set.html">unordered_set / unordered_multiset</a>\n
+  ハッシュテーブルを用いたset。要素はソートされない。unordered_multisetは要素の重複を許す。
+
+- <a href="unordered__map.html">unordered_map / unordered_multimap</a>\n
+  ハッシュテーブルを用いたmap。要素はソートされない。unordered_multimapは要素のキーの重複を許す。
 
 - <a href="string.html">string</a>\n
   文字列処理に有用な機能を持つコンテナ。
