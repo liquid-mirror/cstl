@@ -37,7 +37,7 @@ stringを使うには、<cstl/string.h>をインクルードし、以下のマ�
  * \param Name 既存の型と重複しない任意の名前。stringの型名と関数のプレフィックスになる
  * \param Type 任意の文字の型
  * \attention 引数は CSTL_STRING_IMPLEMENT()の引数と同じものを指定すること。
- * \attention \a Type に括弧を付けないこと。
+ * \attention \a Type を括弧で括らないこと。
  */
 #define CSTL_STRING_INTERFACE(Name, Type)
 
@@ -49,7 +49,7 @@ stringを使うには、<cstl/string.h>をインクルードし、以下のマ�
  * \param Name 既存の型と重複しない任意の名前。stringの型名と関数のプレフィックスになる
  * \param Type 任意の文字の型
  * \attention 引数は CSTL_STRING_INTERFACE()の引数と同じものを指定すること。
- * \attention \a Type に括弧を付けないこと。
+ * \attention \a Type を括弧で括らないこと。
  */
 #define CSTL_STRING_IMPLEMENT(Name, Type)
 

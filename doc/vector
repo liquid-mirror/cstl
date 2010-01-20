@@ -37,7 +37,7 @@ vectorを使うには、<cstl/vector.h>をインクルードし、以下のマ�
  * \param Name 既存の型と重複しない任意の名前。vectorの型名と関数のプレフィックスになる
  * \param Type 任意の要素の型
  * \attention 引数は CSTL_VECTOR_IMPLEMENT()の引数と同じものを指定すること。
- * \attention \a Type に括弧を付けないこと。
+ * \attention \a Type を括弧で括らないこと。
  */
 #define CSTL_VECTOR_INTERFACE(Name, Type)
 
@@ -49,7 +49,7 @@ vectorを使うには、<cstl/vector.h>をインクルードし、以下のマ�
  * \param Name 既存の型と重複しない任意の名前。vectorの型名と関数のプレフィックスになる
  * \param Type 任意の要素の型
  * \attention 引数は CSTL_VECTOR_INTERFACE()の引数と同じものを指定すること。
- * \attention \a Type に括弧を付けないこと。
+ * \attention \a Type を括弧で括らないこと。
  */
 #define CSTL_VECTOR_IMPLEMENT(Name, Type)
 

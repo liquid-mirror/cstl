@@ -36,7 +36,7 @@ dequeを使うには、<cstl/deque.h>をインクルードし、以下のマク�
  * \param Name 既存の型と重複しない任意の名前。dequeの型名と関数のプレフィックスになる
  * \param Type 任意の要素の型
  * \attention 引数は CSTL_DEQUE_IMPLEMENT()の引数と同じものを指定すること。
- * \attention \a Type に括弧を付けないこと。
+ * \attention \a Type を括弧で括らないこと。
  */
 #define CSTL_DEQUE_INTERFACE(Name, Type)
 
@@ -48,7 +48,7 @@ dequeを使うには、<cstl/deque.h>をインクルードし、以下のマク�
  * \param Name 既存の型と重複しない任意の名前。dequeの型名と関数のプレフィックスになる
  * \param Type 任意の要素の型
  * \attention 引数は CSTL_DEQUE_INTERFACE()の引数と同じものを指定すること。
- * \attention \a Type に括弧を付けないこと。
+ * \attention \a Type を括弧で括らないこと。
  */
 #define CSTL_DEQUE_IMPLEMENT(Name, Type)
 
