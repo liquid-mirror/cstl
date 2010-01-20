@@ -1,13 +1,12 @@
 /*! 
 \file map
 
-mapはキーと値のペアを要素とするコンテナである。
+mapはキーと値のペアを要素とする連想コンテナである。
 要素を挿入すると、キーによって自動的にソートされる。同じキーの要素を2個以上挿入することはできない。
 挿入した要素のキーは読み出し専用となる。
-キーによる要素のランダムアクセスが可能。
-要素の挿入・削除・キーの検索・キーによる要素のランダムアクセスの計算量はO(log N)である。
+要素の挿入・削除・キーの検索の計算量はO(log N)である。
 
-multimapはキーの重複が許されることと、キーによる要素のランダムアクセスが不可能であることを除き、mapと同じである。
+multimapはキーの重複が許されることと、キーとペアになる値の直接アクセスが不可能であることを除き、mapと同じである。
 
 map/multimapを使うには、<cstl/map.h>をインクルードし、以下のマクロを用いてコードを展開する必要がある。
 
@@ -49,7 +48,8 @@ map/multimapを使うには、<cstl/map.h>をインクルードし、以下の�
  * \param KeyType 任意の要素のキーの型
  * \param ValueType 任意の要素の値の型
  * \attention 引数は CSTL_MAP_IMPLEMENT()の引数と同じものを指定すること。
- * \attention \a KeyType , \a ValueType に括弧を付けないこと。
+ * \attention \a KeyType , \a ValueType を括弧で括らないこと。
+ * \note \a KeyType に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
  */
 #define CSTL_MAP_INTERFACE(Name, KeyType, ValueType)
 
@@ -58,8 +58,19 @@ map/multimapを使うには、<cstl/map.h>をインクルードし、以下の�
  *
  * CSTL_MAP_INTERFACE()で展開したインターフェイスの実装を展開する。
  *
- * - \a KeyType が整数型、小数型、ポインタ型など、2つの値を演算子(==, <, >)で比較できる型の場合、
+ * \param Name 既存の型と重複しない任意の名前。mapの型名と関数のプレフィックスになる
+ * \param KeyType 任意の要素のキーの型
+ * \param ValueType 任意の要素の値の型
+ * \param Compare 要素のキーを比較する関数またはマクロ
+ *
+ * - \a KeyType が整数型の場合、
  *   要素のソートの順序を昇順にするならば CSTL_LESS を、降順にするならば CSTL_GREATER を\a Compare に指定する。
+ *
+ * - \a KeyType が文字列型(const char *)の場合、
+ *   strcmp を\a Compare に指定する。
+ *
+ * - \a KeyType がワイド文字列型(const wchar_t *)の場合、
+ *   wcscmp を\a Compare に指定する。
  *
  * - \a KeyType がその他の型の場合、
  *   \code
@@ -68,14 +79,10 @@ map/multimapを使うには、<cstl/map.h>をインクルードし、以下の�
  *   のような引数と戻り値を持ち、
  *   x == yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
  *   返す比較関数またはマクロを\a Compare に指定する。
- *   尚、\a KeyType が文字列型(const char *)ならば、C標準関数のstrcmpが指定可能である。
  *
- * \param Name 既存の型と重複しない任意の名前。mapの型名と関数のプレフィックスになる
- * \param KeyType 任意の要素のキーの型
- * \param ValueType 任意の要素の値の型
- * \param Compare 要素のキーを比較する関数またはマクロ
  * \attention \a Compare 以外の引数は CSTL_MAP_INTERFACE()の引数と同じものを指定すること。
- * \attention \a KeyType , \a ValueType , \a Compare に括弧を付けないこと。
+ * \attention \a KeyType , \a ValueType を括弧で括らないこと。
+ * \note \a KeyType に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
  */
 #define CSTL_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
 
@@ -272,7 +279,7 @@ KeyT const *Map_key(MapIterator pos);
 ValueT *Map_value(MapIterator pos);
 
 /*! 
- * \brief キーによる要素のアクセス(map専用)
+ * \brief キーとペアになる値のアクセス(map専用)
  * 
  * \param self mapオブジェクト
  * \param key キー
@@ -282,7 +289,7 @@ ValueT *Map_value(MapIterator pos);
  * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
  *
  * \attention この関数はmapのみで提供される。
- * \attention メモリ不足の場合、NDEBUGマクロが未定義ならばアサーションに失敗する。
+ * \attention メモリ不足の場合、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義済みならばアサーションに失敗する。
  */
 ValueT *Map_at(Map *self, KeyT key);
 

@@ -1,7 +1,7 @@
 /*! 
 \file set
 
-setは要素が値によって自動的にソートされるコンテナである。
+setは要素が値によって自動的にソートされる連想コンテナである。
 同じ値の要素を2個以上挿入することはできない。
 挿入した要素は読み出し専用となる。
 要素の挿入・削除・検索の計算量はO(log N)である。
@@ -47,7 +47,8 @@ set/multisetを使うには、<cstl/set.h>をインクルードし、以下の�
  * \param Name 既存の型と重複しない任意の名前。setの型名と関数のプレフィックスになる
  * \param Type 任意の要素の型
  * \attention 引数は CSTL_SET_IMPLEMENT()の引数と同じものを指定すること。
- * \attention \a Type に括弧を付けないこと。
+ * \attention \a Type を括弧で括らないこと。
+ * \note \a Type に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
  */
 #define CSTL_SET_INTERFACE(Name, Type)
 
@@ -56,8 +57,18 @@ set/multisetを使うには、<cstl/set.h>をインクルードし、以下の�
  *
  * CSTL_SET_INTERFACE()で展開したインターフェイスの実装を展開する。
  *
- * - \a Type が整数型、小数型、ポインタ型など、2つの値を演算子(==, <, >)で比較できる型の場合、
+ * \param Name 既存の型と重複しない任意の名前。setの型名と関数のプレフィックスになる
+ * \param Type 任意の要素の型
+ * \param Compare 要素を比較する関数またはマクロ
+ *
+ * - \a Type が整数型の場合、
  *   要素のソートの順序を昇順にするならば CSTL_LESS を、降順にするならば CSTL_GREATER を\a Compare に指定する。
+ *
+ * - \a Type が文字列型(const char *)の場合、
+ *   strcmp を\a Compare に指定する。
+ *
+ * - \a Type がワイド文字列型(const wchar_t *)の場合、
+ *   wcscmp を\a Compare に指定する。
  *
  * - \a Type がその他の型の場合、
  *   \code
@@ -66,13 +77,10 @@ set/multisetを使うには、<cstl/set.h>をインクルードし、以下の�
  *   のような引数と戻り値を持ち、
  *   x == yならば0を、x < yならば正または負の整数を、x > yならばx < yの場合と逆の符号の整数を
  *   返す比較関数またはマクロを\a Compare に指定する。
- *   尚、\a Type が文字列型(const char *)ならば、C標準関数のstrcmpが指定可能である。
  *
- * \param Name 既存の型と重複しない任意の名前。setの型名と関数のプレフィックスになる
- * \param Type 任意の要素の型
- * \param Compare 要素を比較する関数またはマクロ
  * \attention \a Compare 以外の引数は CSTL_SET_INTERFACE()の引数と同じものを指定すること。
- * \attention \a Type に括弧を付けないこと。
+ * \attention \a Type を括弧で括らないこと。
+ * \note \a Type に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
  */
 #define CSTL_SET_IMPLEMENT(Name, Type, Compare)
 

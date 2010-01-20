@@ -20,7 +20,7 @@ int main(void)
 		/* 要素を挿入 */
 		StrIntMap_insert(map, "aaa", 1, NULL);
 		StrIntMap_insert(map, "bbb", 2, NULL);
-		/* キーによる要素の読み書き */
+		/* キーによる値の読み書き */
 		printf("%d\n", *StrIntMap_at(map, "aaa"));
 		*StrIntMap_at(map, "bbb") = 3;
 		*StrIntMap_at(map, "ccc") = 4; /* 存在しないキーの要素は自動的に挿入 */
