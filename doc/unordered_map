@@ -263,7 +263,7 @@ UnorderedMapIterator UnorderedMap_next(UnorderedMapIterator pos);
  * \pre \a pos が有効なイテレータであること。
  * \pre \a pos が UnorderedMap_end() または UnorderedMap_bucket_end() でないこと。
  *
- * \attention 戻り値のポインタの参照先はconstである。
+ * \note 戻り値のポインタの参照先はconstである。
  */
 KeyT const *UnorderedMap_key(UnorderedMapIterator pos);
 
@@ -289,8 +289,8 @@ ValueT *UnorderedMap_value(UnorderedMapIterator pos);
  * \return \a self が\a key というキーの要素を持っていない場合、\a key というキーの新しい要素(値は不定)を挿入し、その要素の値へのポインタを返す。
  * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
  *
- * \attention この関数はunordered_mapのみで提供される。
- * \attention メモリ不足の場合、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義済みならばアサーションに失敗する。
+ * \note この関数はunordered_mapのみで提供される。
+ * \note メモリ不足の場合、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義済みならばアサーションに失敗する。
  */
 ValueT *UnorderedMap_at(UnorderedMap *self, KeyT key);
 
@@ -308,7 +308,7 @@ ValueT *UnorderedMap_at(UnorderedMap *self, KeyT key);
  * \return \a self が既に\a key というキーの要素を持っている場合、挿入を行わず、*\a success に0を格納し、その要素のイテレータを返す。
  * \return メモリ不足の場合、*\a success に0を格納し、\a self の変更を行わず0を返す。
  *
- * \attention この関数はunordered_mapのみで提供される。
+ * \note この関数はunordered_mapのみで提供される。
  */
 UnorderedMapIterator UnorderedMap_insert(UnorderedMap *self, KeyT key, ValueT value, int *success);
 
@@ -327,7 +327,7 @@ UnorderedMapIterator UnorderedMap_insert(UnorderedMap *self, KeyT key, ValueT va
  * \return メモリ不足の場合、*\a success に0を格納し、\a self の変更を行わず0を返す。
  *
  * \pre \a value がNULLでないこと。
- * \attention この関数はunordered_mapのみで提供される。
+ * \note この関数はunordered_mapのみで提供される。
  * \note ValueT が構造体型の場合、 UnorderedMap_insert() よりも呼び出しコストが低い。
  */
 UnorderedMapIterator UnorderedMap_insert_ref(UnorderedMap *self, KeyT key, ValueT const *value, int *success);
@@ -345,7 +345,7 @@ UnorderedMapIterator UnorderedMap_insert_ref(UnorderedMap *self, KeyT key, Value
  * \return 挿入に成功した場合、新しい要素のイテレータを返す。
  * \return メモリ不足の場合、\a self の変更を行わず0を返す。
  *
- * \attention この関数はunordered_multimapのみで提供される。
+ * \note この関数はunordered_multimapのみで提供される。
  */
 UnorderedMapIterator UnorderedMap_insert(UnorderedMap *self, KeyT key, ValueT value);
 
@@ -363,7 +363,7 @@ UnorderedMapIterator UnorderedMap_insert(UnorderedMap *self, KeyT key, ValueT va
  * \return メモリ不足の場合、\a self の変更を行わず0を返す。
  *
  * \pre \a value がNULLでないこと。
- * \attention この関数はunordered_multimapのみで提供される。
+ * \note この関数はunordered_multimapのみで提供される。
  * \note ValueT が構造体型の場合、 UnorderedMap_insert() よりも呼び出しコストが低い。
  */
 UnorderedMapIterator UnorderedMap_insert_ref(UnorderedMap *self, KeyT key, ValueT const *value);

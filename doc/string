@@ -241,7 +241,7 @@ int String_compare(String *self, String *x);
  *
  * \pre \a idx が\a self の文字数より小さい値であること。
  *
- * \attention 戻り値は\a self の変更により無効となる。
+ * \note 戻り値は\a self の変更により無効となる。
  */
 CharT *String_at(String *self, size_t idx);
 
@@ -252,7 +252,7 @@ CharT *String_at(String *self, size_t idx);
  *
  * \return \a self の文字列を0で終端したC の文字列として返す。
  *
- * \attention 戻り値は\a self の変更により無効となる。
+ * \note 戻り値は\a self の変更により無効となる。
  */
 const CharT *String_c_str(String *self);
 
@@ -263,8 +263,8 @@ const CharT *String_c_str(String *self);
  *
  * \return \a self の文字列を文字の配列として返す。
  *
- * \attention 戻り値の配列が0で終端することは保証されない。
- * \attention 戻り値は\a self の変更により無効となる。
+ * \note 戻り値の配列が0で終端することは保証されない。
+ * \note 戻り値は\a self の変更により無効となる。
  */
 const CharT *String_data(String *self);
 

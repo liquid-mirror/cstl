@@ -111,7 +111,7 @@ int Deque_empty(Deque *self);
  *
  * \pre \a idx が\a self の要素数より小さい値であること。
  *
- * \attention 戻り値は\a self の変更により無効となる。
+ * \note 戻り値は\a self の変更により無効となる。
  */
 T *Deque_at(Deque *self, size_t idx);
 
@@ -124,7 +124,7 @@ T *Deque_at(Deque *self, size_t idx);
  *
  * \pre \a self が空でないこと。
  *
- * \attention 戻り値は\a self の変更により無効となる。
+ * \note 戻り値は\a self の変更により無効となる。
  */
 T *Deque_front(Deque *self);
 
@@ -137,7 +137,7 @@ T *Deque_front(Deque *self);
  *
  * \pre \a self が空でないこと。
  *
- * \attention 戻り値は\a self の変更により無効となる。
+ * \note 戻り値は\a self の変更により無効となる。
  */
 T *Deque_back(Deque *self);
 

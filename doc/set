@@ -262,7 +262,7 @@ SetIterator Set_prev(SetIterator pos);
  * \pre \a pos が有効なイテレータであること。
  * \pre \a pos が Set_end() または Set_rend() でないこと。
  *
- * \attention 戻り値のポインタの参照先はconstである。
+ * \note 戻り値のポインタの参照先はconstである。
  */
 T const *Set_data(SetIterator pos);
 
@@ -279,7 +279,7 @@ T const *Set_data(SetIterator pos);
  * \return \a self が既に\a data という値の要素を持っている場合、挿入を行わず、*\a success に0を格納し、その要素のイテレータを返す。
  * \return メモリ不足の場合、*\a success に0を格納し、\a self の変更を行わず0を返す。
  *
- * \attention この関数はsetのみで提供される。
+ * \note この関数はsetのみで提供される。
  */
 SetIterator Set_insert(Set *self, T data, int *success);
 
@@ -295,7 +295,7 @@ SetIterator Set_insert(Set *self, T data, int *success);
  * \return 挿入に成功した場合、新しい要素のイテレータを返す。
  * \return メモリ不足の場合、\a self の変更を行わず0を返す。
  *
- * \attention この関数はmultisetのみで提供される。
+ * \note この関数はmultisetのみで提供される。
  */
 SetIterator Set_insert(Set *self, T data);
 

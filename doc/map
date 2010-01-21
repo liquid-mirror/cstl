@@ -264,7 +264,7 @@ MapIterator Map_prev(MapIterator pos);
  * \pre \a pos が有効なイテレータであること。
  * \pre \a pos が Map_end() または Map_rend() でないこと。
  *
- * \attention 戻り値のポインタの参照先はconstである。
+ * \note 戻り値のポインタの参照先はconstである。
  */
 KeyT const *Map_key(MapIterator pos);
 
@@ -290,8 +290,8 @@ ValueT *Map_value(MapIterator pos);
  * \return \a self が\a key というキーの要素を持っていない場合、\a key というキーの新しい要素(値は不定)を挿入し、その要素の値へのポインタを返す。
  * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
  *
- * \attention この関数はmapのみで提供される。
- * \attention メモリ不足の場合、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義済みならばアサーションに失敗する。
+ * \note この関数はmapのみで提供される。
+ * \note メモリ不足の場合、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義済みならばアサーションに失敗する。
  */
 ValueT *Map_at(Map *self, KeyT key);
 
@@ -309,7 +309,7 @@ ValueT *Map_at(Map *self, KeyT key);
  * \return \a self が既に\a key というキーの要素を持っている場合、挿入を行わず、*\a success に0を格納し、その要素のイテレータを返す。
  * \return メモリ不足の場合、*\a success に0を格納し、\a self の変更を行わず0を返す。
  *
- * \attention この関数はmapのみで提供される。
+ * \note この関数はmapのみで提供される。
  */
 MapIterator Map_insert(Map *self, KeyT key, ValueT value, int *success);
 
@@ -328,7 +328,7 @@ MapIterator Map_insert(Map *self, KeyT key, ValueT value, int *success);
  * \return メモリ不足の場合、*\a success に0を格納し、\a self の変更を行わず0を返す。
  *
  * \pre \a value がNULLでないこと。
- * \attention この関数はmapのみで提供される。
+ * \note この関数はmapのみで提供される。
  * \note ValueT が構造体型の場合、 Map_insert() よりも呼び出しコストが低い。
  */
 MapIterator Map_insert_ref(Map *self, KeyT key, ValueT const *value, int *success);
@@ -346,7 +346,7 @@ MapIterator Map_insert_ref(Map *self, KeyT key, ValueT const *value, int *succes
  * \return 挿入に成功した場合、新しい要素のイテレータを返す。
  * \return メモリ不足の場合、\a self の変更を行わず0を返す。
  *
- * \attention この関数はmultimapのみで提供される。
+ * \note この関数はmultimapのみで提供される。
  */
 MapIterator Map_insert(Map *self, KeyT key, ValueT value);
 
@@ -364,7 +364,7 @@ MapIterator Map_insert(Map *self, KeyT key, ValueT value);
  * \return メモリ不足の場合、\a self の変更を行わず0を返す。
  *
  * \pre \a value がNULLでないこと。
- * \attention この関数はmultimapのみで提供される。
+ * \note この関数はmultimapのみで提供される。
  * \note ValueT が構造体型の場合、 Map_insert() よりも呼び出しコストが低い。
  */
 MapIterator Map_insert_ref(Map *self, KeyT key, ValueT const *value);

@@ -161,7 +161,7 @@ void Vector_shrink(Vector *self, size_t n);
  *
  * \pre \a idx が\a self の要素数より小さい値であること。
  *
- * \attention 戻り値は\a self の変更により無効となる。
+ * \note 戻り値は\a self の変更により無効となる。
  */
 T *Vector_at(Vector *self, size_t idx);
 
@@ -174,7 +174,7 @@ T *Vector_at(Vector *self, size_t idx);
  *
  * \pre \a self が空でないこと。
  *
- * \attention 戻り値は\a self の変更により無効となる。
+ * \note 戻り値は\a self の変更により無効となる。
  */
 T *Vector_front(Vector *self);
 
@@ -187,7 +187,7 @@ T *Vector_front(Vector *self);
  *
  * \pre \a self が空でないこと。
  *
- * \attention 戻り値は\a self の変更により無効となる。
+ * \note 戻り値は\a self の変更により無効となる。
  */
 T *Vector_back(Vector *self);
 
