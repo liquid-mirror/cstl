@@ -1,8 +1,8 @@
 /*! 
 \file set
 
-setは要素が値によって自動的にソートされる連想コンテナである。
-同じ値の要素を2個以上挿入することはできない。
+setは要素の集合を実現する連想コンテナである。
+要素を挿入すると、自動的にソートされる。同じ値の要素を2個以上挿入することはできない。
 挿入した要素は読み出し専用となる。
 要素の挿入・削除・検索の計算量はO(log N)である。
 
@@ -48,7 +48,7 @@ set/multisetを使うには、<cstl/set.h>をインクルードし、以下の�
  * \param Type 任意の要素の型
  * \attention 引数は CSTL_SET_IMPLEMENT()の引数と同じものを指定すること。
  * \attention \a Type を括弧で括らないこと。
- * \note \a Type に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
+ * \note \a Type に構造体型を指定することは、構造体コピーによってパフォーマンスが低下する可能性があるため推奨されない。
  */
 #define CSTL_SET_INTERFACE(Name, Type)
 
@@ -80,7 +80,7 @@ set/multisetを使うには、<cstl/set.h>をインクルードし、以下の�
  *
  * \attention \a Compare 以外の引数は CSTL_SET_INTERFACE()の引数と同じものを指定すること。
  * \attention \a Type を括弧で括らないこと。
- * \note \a Type に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
+ * \note \a Type に構造体型を指定することは、構造体コピーによってパフォーマンスが低下する可能性があるため推奨されない。
  */
 #define CSTL_SET_IMPLEMENT(Name, Type, Compare)
 
@@ -142,14 +142,16 @@ set/multisetを使うには、<cstl/set.h>をインクルードし、以下の�
 typedef struct Set Set;
 
 /*! 
- * \brief イテレータの型
+ * \brief イテレータ
  *
  * 要素の位置を示す。
  *
  * 以下、関数から返されたイテレータを有効なイテレータという。
  * 宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
+ *
+ * PRIVATE_TYPEは非公開の型である。
  */
-typedef struct SetRBTree *SetIterator;
+typedef PRIVATE_TYPE *SetIterator;
 
 /*! 
  * \brief 生成

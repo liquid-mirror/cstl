@@ -1,0 +1,652 @@
+/*! 
+\file unordered_set
+
+unordered_setはsetと同様に、要素の集合を実現する連想コンテナである。
+setは二分木で実装されるのに対し、unordered_setはハッシュテーブルで実装される。
+同じ値の要素を2個以上挿入することはできない。
+挿入した要素は読み出し専用となる。
+要素の挿入・削除・検索の計算量は大抵の場合O(1)であるが、最悪の場合O(N)となる。
+
+unordered_multisetは要素の重複が許されることを除き、unordered_setと同じである。
+
+ハッシュテーブルの実装において、ハッシュ値の衝突はチェイン法によって解決する。
+チェイン法で使われるリンクリストをバケットと呼ぶこととする。
+
+unordered_set/unordered_multisetを使うには、<cstl/unordered_set.h>をインクルードし、以下のマクロを用いてコードを展開する必要がある。
+
+\code
+#include <cstl/unordered_set.h>
+
+#define CSTL_UNORDERED_SET_INTERFACE(Name, Type)
+#define CSTL_UNORDERED_SET_IMPLEMENT(Name, Type, Haser, Compare)
+
+#define CSTL_UNORDERED_MULTISET_INTERFACE(Name, Type)
+#define CSTL_UNORDERED_MULTISET_IMPLEMENT(Name, Type, Haser, Compare)
+\endcode
+
+\b CSTL_UNORDERED_SET_INTERFACE() は任意の名前と要素の型のunordered_setのインターフェイスを展開する。
+\b CSTL_UNORDERED_SET_IMPLEMENT() はその実装を展開する。
+
+\b CSTL_UNORDERED_MULTISET_INTERFACE() は任意の名前と要素の型のunordered_multisetのインターフェイスを展開する。
+\b CSTL_UNORDERED_MULTISET_IMPLEMENT() はその実装を展開する。
+
+\par 使用例:
+\include unordered_set_example.c
+
+\attention 以下に説明する型定義・関数は、
+\b CSTL_UNORDERED_SET_INTERFACE(Name, Type) , \b CSTL_UNORDERED_MULTISET_INTERFACE(Name, Type) 
+の\a Name に\b UnorderedSet , \a Type に\b T を仮に指定した場合のものである。
+実際に使用する際には、使用例のように適切な引数を指定すること。
+\attention また、unordered_set専用/unordered_multiset専用と記した関数以外の関数は、unordered_set/unordered_multiset共通の関数である。
+
+ */
+
+
+
+/*! 
+ * \brief unordered_set用インターフェイスマクロ
+ *
+ * 任意の名前と要素の型のunordered_setのインターフェイスを展開する。
+ *
+ * \param Name 既存の型と重複しない任意の名前。unordered_setの型名と関数のプレフィックスになる
+ * \param Type 任意の要素の型
+ * \attention 引数は CSTL_UNORDERED_SET_IMPLEMENT()の引数と同じものを指定すること。
+ * \attention \a Type を括弧で括らないこと。
+ * \note \a Type に構造体型を指定することは、構造体コピーによってパフォーマンスが低下する可能性があるため推奨されない。
+ */
+#define CSTL_UNORDERED_SET_INTERFACE(Name, Type)
+
+/*! 
+ * \brief unordered_set用実装マクロ
+ *
+ * CSTL_UNORDERED_SET_INTERFACE()で展開したインターフェイスの実装を展開する。
+ *
+ * \param Name 既存の型と重複しない任意の名前。unordered_setの型名と関数のプレフィックスになる
+ * \param Type 任意の要素の型
+ * \param Hasher ハッシュ関数
+ * \param Compare 要素を比較する関数またはマクロ
+ *
+ * - \a Type が整数型の場合、
+ *   CSTL_EQUAL_TO を\a Compare に指定する。
+ *   \a Hasher には以下のハッシュ関数を指定する(ハッシュ関数の\b Name は引数に指定した\a Name に置き換えること)。
+ *     - \a Type がcharの場合、\b Name_hash_char。
+ *     - \a Type がsigned charの場合、\b Name_hash_schar。
+ *     - \a Type がunsigned charの場合、\b Name_hash_uchar。
+ *     - \a Type がshortの場合、\b Name_hash_short。
+ *     - \a Type がunsigned shortの場合、\b Name_hash_ushort。
+ *     - \a Type がintの場合、\b Name_hash_int。
+ *     - \a Type がunsigned intの場合、\b Name_hash_uint。
+ *     - \a Type がlongの場合、\b Name_hash_long。
+ *     - \a Type がunsigned longの場合、\b Name_hash_ulong。
+ *
+ * - \a Type が文字列型(const char *)の場合、
+ *   strcmp を\a Compare に指定する。
+ *   \b Name_hash_string を\a Hasher に指定する。
+ *
+ * - \a Type がワイド文字列型(const wchar_t *)の場合、
+ *   wcscmp を\a Compare に指定する。
+ *   \b Name_hash_wstring を\a Hasher に指定する。
+ *
+ * - \a Type がその他の型の場合、
+ *   \code
+ *   int comp(Type x, Type y);
+ *   \endcode
+ *   のような引数と戻り値を持ち、
+ *   x == yならば0を、x != yならば非0の整数を返す比較関数またはマクロを\a Compare に指定する。
+ *   \code
+ *   size_t hash(Type x);
+ *   \endcode
+ *   のような引数と戻り値を持つハッシュ関数を\a Hasher に指定する。
+ *
+ * \attention \a Hasher と \a Compare 以外の引数は CSTL_UNORDERED_SET_INTERFACE() の引数と同じものを指定すること。
+ * \attention \a Type を括弧で括らないこと。
+ * \note \a Type に構造体型を指定することは、構造体コピーによってパフォーマンスが低下する可能性があるため推奨されない。
+ */
+#define CSTL_UNORDERED_SET_IMPLEMENT(Name, Type, Hasher, Compare)
+
+/*! 
+ * \brief unordered_multiset用インターフェイスマクロ
+ *
+ * 任意の名前と要素の型のunordered_multisetのインターフェイスを展開する。
+ *
+ * 使用方法は CSTL_UNORDERED_SET_INTERFACE()と同じである。
+ */
+#define CSTL_UNORDERED_MULTISET_INTERFACE(Name, Type)
+
+/*! 
+ * \brief unordered_multiset用実装マクロ
+ *
+ * CSTL_UNORDERED_MULTISET_INTERFACE()で展開したインターフェイスの実装を展開する。
+ *
+ * 使用方法は CSTL_UNORDERED_SET_IMPLEMENT()と同じである。
+ */
+#define CSTL_UNORDERED_MULTISET_IMPLEMENT(Name, Type, Hasher, Compare)
+
+
+/*! 
+ * \brief 整数比較
+ * 
+ * 要素の値に整数型を指定した場合、 CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_INTERFACE() の \a Compare 引数に指定する。
+ *
+ * \param x 1つ目の値
+ * \param y 2つ目の値
+ * 
+ * \retval 0 \a x == \a y の場合
+ * \retval 非0 \a x != \a y の場合
+ */
+#define CSTL_EQUAL_TO(x, y)		((x) == (y) ? 0 : 1)
+
+
+
+/*! 
+ * \brief unordered_set/unordered_multisetの型
+ *
+ * 抽象データ型となっており、内部データメンバは非公開である。
+ *
+ * 以下、 UnorderedSet_new*() から返されたUnorderedSet構造体へのポインタをunordered_setオブジェクトという。
+ */
+typedef struct UnorderedSet UnorderedSet;
+
+/*! 
+ * \brief イテレータ
+ *
+ * 要素の位置を示す。
+ *
+ * 以下、関数から返されたイテレータを有効なイテレータという。
+ * 宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
+ *
+ * PRIVATE_TYPEは非公開の型である。
+ */
+typedef PRIVATE_TYPE *UnorderedSetIterator;
+
+/*! 
+ * \brief ローカルイテレータ
+ *
+ * 一つのバケットの中の要素を巡回するためのイテレータ。
+ * 複数のバケットにまたがって巡回することはできない。
+ *
+ * PRIVATE_TYPEは非公開の型である。
+ */
+typedef PRIVATE_TYPE *UnorderedSetLocalIterator;
+
+/*! 
+ * \brief 生成
+ *
+ * 要素数が0のunordered_set/unordered_multisetを生成する。
+ * 
+ * \return 生成に成功した場合、unordered_setオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ */
+UnorderedSet *UnorderedSet_new(void);
+
+/*! 
+ * \brief バケット数を指定して生成
+ *
+ * \a n 個 \b 以上 のバケットを確保し、
+ * 要素数が0のunordered_set/unordered_multisetを生成する。
+ * 
+ * \param n バケット数
+ *
+ * \return 生成に成功した場合、unordered_setオブジェクトを返す。
+ * \return メモリ不足の場合、NULLを返す。
+ */
+UnorderedSet *UnorderedSet_new_rehash(size_t n);
+
+/*! 
+ * \brief 破棄
+ * 
+ * \a self のすべての要素を削除し、\a self を破棄する。
+ * \a self がNULLの場合、何もしない。
+ *
+ * \param self unordered_setオブジェクト
+ */
+void UnorderedSet_delete(UnorderedSet *self);
+
+/*! 
+ * \brief 要素数を取得
+ * 
+ * \param self unordered_setオブジェクト
+ * 
+ * \return \a self の要素数
+ */
+size_t UnorderedSet_size(UnorderedSet *self);
+
+/*! 
+ * \brief 空チェック
+ * 
+ * \param self unordered_setオブジェクト
+ * 
+ * \return \a self の要素数が0の場合、非0を返す。
+ * \return \a self の要素数が1以上の場合、0を返す。
+ */
+int UnorderedSet_empty(UnorderedSet *self);
+
+/*! 
+ * \brief 最初の要素のイテレータ
+ * 
+ * \param self unordered_setオブジェクト
+ * 
+ * \return \a self の最初の要素のイテレータ
+ */
+UnorderedSetIterator UnorderedSet_begin(UnorderedSet *self);
+
+/*! 
+ * \brief 最後の要素の次のイテレータ
+ * 
+ * \param self unordered_setオブジェクト
+ * 
+ * \return \a self の最後の要素の次のイテレータ
+ */
+UnorderedSetIterator UnorderedSet_end(UnorderedSet *self);
+
+/*! 
+ * \brief 次のイテレータ
+ * 
+ * \param pos イテレータ
+ * 
+ * \return \a pos が示す位置の要素の次のイテレータ
+ *
+ * \pre \a pos が有効なイテレータであること。
+ * \pre \a pos が UnorderedSet_end() でないこと。
+ */
+UnorderedSetIterator UnorderedSet_next(UnorderedSetIterator pos);
+
+/*! 
+ * \brief イテレータによる要素のアクセス
+ * 
+ * \param pos イテレータ。\a pos の型は UnorderedSetLocalIterator でもよい。
+ * 
+ * \return \a pos が示す位置の要素へのポインタ
+ *
+ * \pre \a pos が有効なイテレータであること。
+ * \pre \a pos が UnorderedSet_end() または UnorderedSet_bucket_end() でないこと。
+ *
+ * \attention 戻り値のポインタの参照先はconstである。
+ */
+T const *UnorderedSet_data(UnorderedSetIterator pos);
+
+/*! 
+ * \brief 要素を挿入(unordered_set専用)
+ *
+ * \a data のコピーを\a self に挿入する。
+ *
+ * \param self unordered_setオブジェクト
+ * \param data 挿入するデータ
+ * \param success 成否を格納する変数へのポインタ。ただし、NULLを指定した場合はアクセスしない。
+ * 
+ * \return 挿入に成功した場合、*\a success に非0の値を格納し、新しい要素のイテレータを返す。
+ * \return \a self が既に\a data という値の要素を持っている場合、挿入を行わず、*\a success に0を格納し、その要素のイテレータを返す。
+ * \return メモリ不足の場合、*\a success に0を格納し、\a self の変更を行わず0を返す。
+ *
+ * \attention この関数はunordered_setのみで提供される。
+ */
+UnorderedSetIterator UnorderedSet_insert(UnorderedSet *self, T data, int *success);
+
+/*! 
+ * \brief 要素を挿入(unordered_multiset専用)
+ *
+ * \a data のコピーを\a self に挿入する。
+ * \a self が既に\a data という値の要素を持っている場合、その要素と同じバケットに挿入される。
+ *
+ * \param self unordered_setオブジェクト
+ * \param data 挿入するデータ
+ * 
+ * \return 挿入に成功した場合、新しい要素のイテレータを返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \attention この関数はunordered_multisetのみで提供される。
+ */
+UnorderedSetIterator UnorderedSet_insert(UnorderedSet *self, T data);
+
+/*! 
+ * \brief 指定範囲の要素を挿入
+ * 
+ * [\a first, \a last)の範囲の要素のコピーを\a self に挿入する。
+ * unordered_multisetの場合、[\a first, \a last)の要素は\a self が持つ要素でもよい。
+ *
+ * \param self unordered_setオブジェクト
+ * \param first コピー元の範囲の開始位置
+ * \param last コピー元の範囲の終了位置
+ * 
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre [\a first, \a last)が有効なイテレータであること。
+ */
+int UnorderedSet_insert_range(UnorderedSet *self, UnorderedSetIterator first, UnorderedSetIterator last);
+
+/*! 
+ * \brief 要素を削除
+ * 
+ * \a self の\a pos が示す位置の要素を削除する。
+ * 
+ * \param self unordered_setオブジェクト
+ * \param pos 削除する要素の位置
+ * 
+ * \return 削除した要素の次のイテレータ
+ *
+ * \pre \a pos が\a self の有効なイテレータであること。
+ * \pre \a pos が UnorderedSet_end() でないこと。
+ */
+UnorderedSetIterator UnorderedSet_erase(UnorderedSet *self, UnorderedSetIterator pos);
+
+/*! 
+ * \brief 指定範囲の要素を削除
+ * 
+ * \a self の[\a first, \a last)の範囲の要素を削除する。
+ * 
+ * \param self unordered_setオブジェクト
+ * \param first 削除する範囲の開始位置
+ * \param last 削除する範囲の終了位置
+ * 
+ * \return \a last
+ *
+ * \pre [\a first, \a last)が\a self の有効なイテレータであること。
+ */
+UnorderedSetIterator UnorderedSet_erase_range(UnorderedSet *self, UnorderedSetIterator first, UnorderedSetIterator last);
+
+/*! 
+ * \brief 指定した値の要素を削除
+ * 
+ * \a self の\a data という値の要素をすべて削除する。
+ * 
+ * \param self unordered_setオブジェクト
+ * \param data 削除する要素の値
+ * 
+ * \return 削除した数
+ */
+size_t UnorderedSet_erase_key(UnorderedSet *self, T data);
+
+/*! 
+ * \brief 全要素を削除
+ *
+ * \a self のすべての要素を削除する。
+ * 
+ * \param self unordered_setオブジェクト
+ */
+void UnorderedSet_clear(UnorderedSet *self);
+
+/*! 
+ * \brief 交換
+ *
+ * \a self と\a x の内容を交換する。
+ * 
+ * \param self unordered_setオブジェクト
+ * \param x \a self と内容を交換するunordered_setオブジェクト
+ */
+void UnorderedSet_swap(UnorderedSet *self, UnorderedSet *x);
+
+/*! 
+ * \brief 指定した値の要素をカウント
+ * 
+ * \param self unordered_setオブジェクト
+ * \param data カウントする要素の値
+ * 
+ * \return \a self の\a data という値の要素の数
+ */
+size_t UnorderedSet_count(UnorderedSet *self, T data);
+
+/*! 
+ * \brief 指定した値の要素を検索
+ * 
+ * \a self の\a data という値の最初の要素を検索する。
+ *
+ * \param self unordered_setオブジェクト
+ * \param data 検索する要素の値
+ * 
+ * \return 見つかった場合、その要素のイテレータを返す。
+ * \return 見つからない場合、 UnorderedSet_end(\a self) を返す。
+ */
+UnorderedSetIterator UnorderedSet_find(UnorderedSet *self, T data);
+
+/*! 
+ * \brief 指定した値の要素の範囲を取得
+ * 
+ * \param self unordered_setオブジェクト
+ * \param data 検索する要素の値
+ * \param first \a data という値の最初の要素のイテレータを格納する変数へのポインタ
+ * \param last \a data という値の最後の要素の次のイテレータを格納する変数へのポインタ
+ *
+ * \pre \a first がNULLでないこと。
+ * \pre \a last がNULLでないこと。
+ * \note \a self が\a data という値の要素を持たない場合、*\a first , *\a last ともにUnorderedSet_end(\a self)が格納される。
+ */
+void UnorderedSet_equal_range(UnorderedSet *self, T data, UnorderedSetIterator *first, UnorderedSetIterator *last);
+
+/*! 
+ * \brief バケット数を取得
+ * 
+ * \param self unordered_setオブジェクト
+ * 
+ * \return \a self のバケット数
+ */
+size_t UnorderedSet_bucket_count(UnorderedSet *self);
+
+/*! 
+ * \brief 一つのバケットの中の要素数を取得
+ * 
+ * \param self unordered_setオブジェクト
+ * \param idx バケットのインデックス
+ * 
+ * \return \a idx 番目のバケットの中の要素数
+ *
+ * \pre \a idx が UnorderedSet_bucket_count(\a self) より小さいこと。
+ */
+size_t UnorderedSet_bucket_size(UnorderedSet *self, size_t idx);
+
+/*! 
+ * \brief バケットのインデックスを取得
+ * 
+ * \param self unordered_setオブジェクト
+ * \param data 要素の値
+ * 
+ * \return \a data という値が挿入されるバケットのインデックス
+ */
+size_t UnorderedSet_bucket(UnorderedSet *self, T data);
+
+/*! 
+ * \brief 一つのバケットの中の最初の要素のローカルイテレータ
+ * 
+ * \param self unordered_setオブジェクト
+ * \param idx バケットのインデックス
+ * 
+ * \return \a idx 番目のバケットの中の最初の要素のローカルイテレータ
+ *
+ * \pre \a idx が UnorderedSet_bucket_count(\a self) より小さいこと。
+ */
+UnorderedSetLocalIterator UnorderedSet_bucket_begin(UnorderedSet *self, size_t idx);
+
+/*! 
+ * \brief 一つのバケットの中の最後の要素の次のローカルイテレータ
+ * 
+ * \param self unordered_setオブジェクト
+ * \param idx バケットのインデックス
+ * 
+ * \return \a idx 番目のバケットの中の最後の要素の次のローカルイテレータ
+ *
+ * \pre \a idx が UnorderedSet_bucket_count(\a self) より小さいこと。
+ */
+UnorderedSetLocalIterator UnorderedSet_bucket_end(UnorderedSet *self, size_t idx);
+
+/*! 
+ * \brief 次のローカルイテレータ
+ * 
+ * \param pos ローカルイテレータ
+ * 
+ * \return \a pos が示す位置の要素の次のローカルイテレータ
+ *
+ * \pre \a pos が有効なローカルイテレータであること。
+ * \pre \a pos が UnorderedSet_end() または UnorderedSet_bucket_end() でないこと。
+ */
+UnorderedSetLocalIterator UnorderedSet_bucket_next(UnorderedSetLocalIterator pos);
+
+/*! 
+ * \brief ロードファクター
+ * 
+ * 全バケットの要素数の平均値(UnorderedSet_size(\a self) / UnorderedSet_bucket_count(\a self))をロードファクターと呼ぶ。
+ *
+ * \param self unordered_setオブジェクト
+ * 
+ * \return \a self のロードファクター
+ */
+float UnorderedSet_load_factor(UnorderedSet *self);
+
+/*! 
+ * \brief ロードファクターの上限を取得
+ * 
+ * unordered_setオブジェクトにはロードファクターの上限が設定されている。
+ * 要素挿入後のロードファクターが、設定されているロードファクターの上限を超える場合、
+ * バケットを拡張して再ハッシュされる。
+ *
+ * \param self unordered_setオブジェクト
+ * 
+ * \return ロードファクターの上限
+ */
+float UnorderedSet_get_max_load_factor(UnorderedSet *self);
+
+/*! 
+ * \brief ロードファクターの上限を設定
+ * 
+ * \param self unordered_setオブジェクト
+ * \param z 設定するロードファクターの上限
+ */
+void UnorderedSet_set_max_load_factor(UnorderedSet *self, float z);
+
+/*! 
+ * \brief バケットを拡張して再ハッシュ
+ *
+ * バケット数を\a n 個 \b 以上 に拡張し、全要素をハッシュ関数によって再び振り分ける。
+ *
+ * \param self unordered_setオブジェクト
+ * \param n バケット数
+ *
+ * \return バケットの拡張に成功した場合、非0を返す。
+ * \return \a n が\a self の現在のバケット数以下の場合、\a self の変更を行わず非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ */
+int UnorderedSet_rehash(UnorderedSet *self, size_t n);
+
+/*! 
+ * \brief 文字列用ハッシュ関数
+ *
+ * CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_IMPLEMENT() の引数\a Type に const char * を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param data 要素の値
+ * \return ハッシュ値
+ */
+size_t UnorderedSet_hash_string(const char *data);
+
+/*! 
+ * \brief ワイド文字列用ハッシュ関数
+ *
+ * CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_IMPLEMENT() の引数\a Type に const wchar_t * を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param data 要素の値
+ * \return ハッシュ値
+ */
+size_t UnorderedSet_hash_wstring(const wchar_t *data);
+
+/*! 
+ * \brief char用ハッシュ関数
+ *
+ * CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_IMPLEMENT() の引数\a Type に char を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param data 要素の値
+ * \return ハッシュ値
+ */
+size_t UnorderedSet_hash_char(char data);
+
+/*! 
+ * \brief signed char用ハッシュ関数
+ *
+ * CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_IMPLEMENT() の引数\a Type に signed char を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param data 要素の値
+ * \return ハッシュ値
+ */
+size_t UnorderedSet_hash_schar(signed char data);
+
+/*! 
+ * \brief unsigned char用ハッシュ関数
+ *
+ * CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_IMPLEMENT() の引数\a Type に unsigned char を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param data 要素の値
+ * \return ハッシュ値
+ */
+size_t UnorderedSet_hash_uchar(unsigned char data);
+
+/*! 
+ * \brief short用ハッシュ関数
+ *
+ * CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_IMPLEMENT() の引数\a Type に short を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param data 要素の値
+ * \return ハッシュ値
+ */
+size_t UnorderedSet_hash_short(short data);
+
+/*! 
+ * \brief unsigned short用ハッシュ関数
+ *
+ * CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_IMPLEMENT() の引数\a Type に unsigned short を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param data 要素の値
+ * \return ハッシュ値
+ */
+size_t UnorderedSet_hash_ushort(unsigned short data);
+
+/*! 
+ * \brief int用ハッシュ関数
+ *
+ * CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_IMPLEMENT() の引数\a Type に int を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param data 要素の値
+ * \return ハッシュ値
+ */
+size_t UnorderedSet_hash_int(int data);
+
+/*! 
+ * \brief unsigned int用ハッシュ関数
+ *
+ * CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_IMPLEMENT() の引数\a Type に unsigned int を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param data 要素の値
+ * \return ハッシュ値
+ */
+size_t UnorderedSet_hash_uint(unsigned int data);
+
+/*! 
+ * \brief long用ハッシュ関数
+ *
+ * CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_IMPLEMENT() の引数\a Type に long を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param data 要素の値
+ * \return ハッシュ値
+ */
+size_t UnorderedSet_hash_long(long data);
+
+/*! 
+ * \brief unsigned long用ハッシュ関数
+ *
+ * CSTL_UNORDERED_SET_IMPLEMENT() , CSTL_UNORDERED_MULTISET_IMPLEMENT() の引数\a Type に unsigned long を指定した場合、
+ * 引数\a Hasher にこの関数を指定する。
+ *
+ * \param data 要素の値
+ * \return ハッシュ値
+ */
+size_t UnorderedSet_hash_ulong(unsigned long data);
+
+
+
+/* vim:set ts=4 sts=4 sw=4 ft=c: */

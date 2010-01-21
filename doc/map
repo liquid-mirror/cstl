@@ -49,7 +49,7 @@ map/multimapを使うには、<cstl/map.h>をインクルードし、以下の�
  * \param ValueType 任意の要素の値の型
  * \attention 引数は CSTL_MAP_IMPLEMENT()の引数と同じものを指定すること。
  * \attention \a KeyType , \a ValueType を括弧で括らないこと。
- * \note \a KeyType に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
+ * \note \a KeyType に構造体型を指定することは、構造体コピーによってパフォーマンスが低下する可能性があるため推奨されない。
  */
 #define CSTL_MAP_INTERFACE(Name, KeyType, ValueType)
 
@@ -82,7 +82,7 @@ map/multimapを使うには、<cstl/map.h>をインクルードし、以下の�
  *
  * \attention \a Compare 以外の引数は CSTL_MAP_INTERFACE()の引数と同じものを指定すること。
  * \attention \a KeyType , \a ValueType を括弧で括らないこと。
- * \note \a KeyType に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
+ * \note \a KeyType に構造体型を指定することは、構造体コピーによってパフォーマンスが低下する可能性があるため推奨されない。
  */
 #define CSTL_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
 
@@ -144,14 +144,16 @@ map/multimapを使うには、<cstl/map.h>をインクルードし、以下の�
 typedef struct Map Map;
 
 /*! 
- * \brief イテレータの型
+ * \brief イテレータ
  *
  * 要素の位置を示す。
  *
  * 以下、関数から返されたイテレータを有効なイテレータという。
  * 宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
+ *
+ * PRIVATE_TYPEは非公開の型である。
  */
-typedef struct MapRBTree *MapIterator;
+typedef PRIVATE_TYPE *MapIterator;
 
 /*! 
  * \brief 生成
@@ -312,6 +314,26 @@ ValueT *Map_at(Map *self, KeyT key);
 MapIterator Map_insert(Map *self, KeyT key, ValueT value, int *success);
 
 /*! 
+ * \brief 参照渡しで要素を挿入(map専用)
+ *
+ * \a key と*\a value のコピーのペアを要素として\a self に挿入する。
+ *
+ * \param self mapオブジェクト
+ * \param key 挿入する要素のキー
+ * \param value 挿入する要素の値へのポインタ
+ * \param success 成否を格納する変数へのポインタ。ただし、NULLを指定した場合はアクセスしない。
+ * 
+ * \return 挿入に成功した場合、*\a success に非0の値を格納し、新しい要素のイテレータを返す。
+ * \return \a self が既に\a key というキーの要素を持っている場合、挿入を行わず、*\a success に0を格納し、その要素のイテレータを返す。
+ * \return メモリ不足の場合、*\a success に0を格納し、\a self の変更を行わず0を返す。
+ *
+ * \pre \a value がNULLでないこと。
+ * \attention この関数はmapのみで提供される。
+ * \note ValueT が構造体型の場合、 Map_insert() よりも呼び出しコストが低い。
+ */
+MapIterator Map_insert_ref(Map *self, KeyT key, ValueT const *value, int *success);
+
+/*! 
  * \brief 要素を挿入(multimap専用)
  *
  * \a key と\a value のコピーのペアを要素として\a self に挿入する。
@@ -327,6 +349,25 @@ MapIterator Map_insert(Map *self, KeyT key, ValueT value, int *success);
  * \attention この関数はmultimapのみで提供される。
  */
 MapIterator Map_insert(Map *self, KeyT key, ValueT value);
+
+/*! 
+ * \brief 参照渡しで要素を挿入(multimap専用)
+ *
+ * \a key と*\a value のコピーのペアを要素として\a self に挿入する。
+ * \a self が既に\a key というキーの要素を持っている場合、そのキーの一番最後の位置に挿入される。
+ *
+ * \param self mapオブジェクト
+ * \param key 挿入する要素のキー
+ * \param value 挿入する要素の値へのポインタ
+ * 
+ * \return 挿入に成功した場合、新しい要素のイテレータを返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre \a value がNULLでないこと。
+ * \attention この関数はmultimapのみで提供される。
+ * \note ValueT が構造体型の場合、 Map_insert() よりも呼び出しコストが低い。
+ */
+MapIterator Map_insert_ref(Map *self, KeyT key, ValueT const *value);
 
 /*! 
  * \brief 指定範囲の要素を挿入

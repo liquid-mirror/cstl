@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = CSTL
-PROJECT_NUMBER         = 0.6.2
+PROJECT_NUMBER         = 0.7.0
 OUTPUT_DIRECTORY       = 
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = Japanese
@@ -90,6 +90,7 @@ INPUT                  = vector \
                          list \
                          set \
                          map \
+                         unordered_set \
                          unordered_map \
                          string \
                          algorithm

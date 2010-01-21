@@ -62,14 +62,16 @@ listを使うには、<cstl/list.h>をインクルードし、以下のマクロ
 typedef struct List List;
 
 /*! 
- * \brief イテレータの型
+ * \brief イテレータ
  *
  * 要素の位置を示す。
  *
  * 以下、関数から返されたイテレータを有効なイテレータという。
  * 宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
+ *
+ * PRIVATE_TYPEは非公開の型である。
  */
-typedef struct List *ListIterator;
+typedef PRIVATE_TYPE *ListIterator;
 
 /*! 
  * \brief 生成

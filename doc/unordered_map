@@ -53,7 +53,7 @@ unordered_map/unordered_multimapを使うには、<cstl/unordered_map.h>をイ�
  * \param ValueType 任意の要素の値の型
  * \attention 引数は CSTL_UNORDERED_MAP_IMPLEMENT() の引数と同じものを指定すること。
  * \attention \a KeyType , \a ValueType を括弧で括らないこと。
- * \note \a KeyType に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
+ * \note \a KeyType に構造体型を指定することは、構造体コピーによってパフォーマンスが低下する可能性があるため推奨されない。
  */
 #define CSTL_UNORDERED_MAP_INTERFACE(Name, KeyType, ValueType)
 
@@ -102,7 +102,7 @@ unordered_map/unordered_multimapを使うには、<cstl/unordered_map.h>をイ�
  *
  * \attention \a Hasher と \a Compare 以外の引数は CSTL_UNORDERED_MAP_INTERFACE() の引数と同じものを指定すること。
  * \attention \a KeyType , \a ValueType を括弧で括らないこと。
- * \note \a KeyType に構造体型を指定することは、構造体コピーによるパフォーマンス低下のため推奨されない。
+ * \note \a KeyType に構造体型を指定することは、構造体コピーによってパフォーマンスが低下する可能性があるため推奨されない。
  */
 #define CSTL_UNORDERED_MAP_IMPLEMENT(Name, KeyType, ValueType, Hasher, Compare)
 
@@ -122,7 +122,7 @@ unordered_map/unordered_multimapを使うには、<cstl/unordered_map.h>をイ�
  *
  * 使用方法は CSTL_UNORDERED_MAP_IMPLEMENT()と同じである。
  */
-#define CSTL_UNORDERED_MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare)
+#define CSTL_UNORDERED_MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Hasher, Compare)
 
 
 /*! 
@@ -150,22 +150,26 @@ unordered_map/unordered_multimapを使うには、<cstl/unordered_map.h>をイ�
 typedef struct UnorderedMap UnorderedMap;
 
 /*! 
- * \brief イテレータの型
+ * \brief イテレータ
  *
  * 要素の位置を示す。
  *
  * 以下、関数から返されたイテレータを有効なイテレータという。
  * 宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
+ *
+ * PRIVATE_TYPEは非公開の型である。
  */
-typedef struct UnorderedMapNode *UnorderedMapIterator;
+typedef PRIVATE_TYPE *UnorderedMapIterator;
 
 /*! 
  * \brief ローカルイテレータ
  *
  * 一つのバケットの中の要素を巡回するためのイテレータ。
  * 複数のバケットにまたがって巡回することはできない。
+ *
+ * PRIVATE_TYPEは非公開の型である。
  */
-typedef struct UnorderedMapNode *UnorderedMapLocalIterator;
+typedef PRIVATE_TYPE *UnorderedMapLocalIterator;
 
 /*! 
  * \brief 生成
@@ -475,7 +479,7 @@ UnorderedMapIterator UnorderedMap_find(UnorderedMap *self, KeyT key);
  *
  * \pre \a first がNULLでないこと。
  * \pre \a last がNULLでないこと。
- * \note \a self が\a key というキーの要素を持たない場合、*\a first , *\a last ともにUnorderedMap_end(self)が格納される。
+ * \note \a self が\a key というキーの要素を持たない場合、*\a first , *\a last ともにUnorderedMap_end(\a self)が格納される。
  */
 void UnorderedMap_equal_range(UnorderedMap *self, KeyT key, UnorderedMapIterator *first, UnorderedMapIterator *last);
 
@@ -496,7 +500,7 @@ size_t UnorderedMap_bucket_count(UnorderedMap *self);
  * 
  * \return \a idx 番目のバケットの中の要素数
  *
- * \pre \a idx が UnorderedMap_bucket_count(self) より小さいこと。
+ * \pre \a idx が UnorderedMap_bucket_count(\a self) より小さいこと。
  */
 size_t UnorderedMap_bucket_size(UnorderedMap *self, size_t idx);
 
@@ -518,7 +522,7 @@ size_t UnorderedMap_bucket(UnorderedMap *self, KeyT key);
  * 
  * \return \a idx 番目のバケットの中の最初の要素のローカルイテレータ
  *
- * \pre \a idx が UnorderedMap_bucket_count(self) より小さいこと。
+ * \pre \a idx が UnorderedMap_bucket_count(\a self) より小さいこと。
  */
 UnorderedMapLocalIterator UnorderedMap_bucket_begin(UnorderedMap *self, size_t idx);
 
@@ -530,7 +534,7 @@ UnorderedMapLocalIterator UnorderedMap_bucket_begin(UnorderedMap *self, size_t i
  * 
  * \return \a idx 番目のバケットの中の最後の要素の次のローカルイテレータ
  *
- * \pre \a idx が UnorderedMap_bucket_count(self) より小さいこと。
+ * \pre \a idx が UnorderedMap_bucket_count(\a self) より小さいこと。
  */
 UnorderedMapLocalIterator UnorderedMap_bucket_end(UnorderedMap *self, size_t idx);
 
@@ -549,7 +553,7 @@ UnorderedMapLocalIterator UnorderedMap_bucket_next(UnorderedMapLocalIterator pos
 /*! 
  * \brief ロードファクター
  * 
- * 全バケットの要素数の平均値(UnorderedMap_size(self) / UnorderedMap_bucket_count(self))をロードファクターと呼ぶ。
+ * 全バケットの要素数の平均値(UnorderedMap_size(\a self) / UnorderedMap_bucket_count(\a self))をロードファクターと呼ぶ。
  *
  * \param self unordered_mapオブジェクト
  * 
@@ -595,7 +599,7 @@ int UnorderedMap_rehash(UnorderedMap *self, size_t n);
 /*! 
  * \brief 文字列用ハッシュ関数
  *
- * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に const char * を指定した場合、
+ * CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_IMPLEMENT() の引数\a KeyType に const char * を指定した場合、
  * 引数\a Hasher にこの関数を指定する。
  *
  * \param key キー
@@ -606,7 +610,7 @@ size_t UnorderedMap_hash_string(const char *key);
 /*! 
  * \brief ワイド文字列用ハッシュ関数
  *
- * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に const wchar_t * を指定した場合、
+ * CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_IMPLEMENT() の引数\a KeyType に const wchar_t * を指定した場合、
  * 引数\a Hasher にこの関数を指定する。
  *
  * \param key キー
@@ -617,7 +621,7 @@ size_t UnorderedMap_hash_wstring(const wchar_t *key);
 /*! 
  * \brief char用ハッシュ関数
  *
- * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に char を指定した場合、
+ * CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_IMPLEMENT() の引数\a KeyType に char を指定した場合、
  * 引数\a Hasher にこの関数を指定する。
  *
  * \param key キー
@@ -628,7 +632,7 @@ size_t UnorderedMap_hash_char(char key);
 /*! 
  * \brief signed char用ハッシュ関数
  *
- * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に signed char を指定した場合、
+ * CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_IMPLEMENT() の引数\a KeyType に signed char を指定した場合、
  * 引数\a Hasher にこの関数を指定する。
  *
  * \param key キー
@@ -639,7 +643,7 @@ size_t UnorderedMap_hash_schar(signed char key);
 /*! 
  * \brief unsigned char用ハッシュ関数
  *
- * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に unsigned char を指定した場合、
+ * CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_IMPLEMENT() の引数\a KeyType に unsigned char を指定した場合、
  * 引数\a Hasher にこの関数を指定する。
  *
  * \param key キー
@@ -650,7 +654,7 @@ size_t UnorderedMap_hash_uchar(unsigned char key);
 /*! 
  * \brief short用ハッシュ関数
  *
- * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に short を指定した場合、
+ * CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_IMPLEMENT() の引数\a KeyType に short を指定した場合、
  * 引数\a Hasher にこの関数を指定する。
  *
  * \param key キー
@@ -661,7 +665,7 @@ size_t UnorderedMap_hash_short(short key);
 /*! 
  * \brief unsigned short用ハッシュ関数
  *
- * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に unsigned short を指定した場合、
+ * CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_IMPLEMENT() の引数\a KeyType に unsigned short を指定した場合、
  * 引数\a Hasher にこの関数を指定する。
  *
  * \param key キー
@@ -672,7 +676,7 @@ size_t UnorderedMap_hash_ushort(unsigned short key);
 /*! 
  * \brief int用ハッシュ関数
  *
- * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に int を指定した場合、
+ * CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_IMPLEMENT() の引数\a KeyType に int を指定した場合、
  * 引数\a Hasher にこの関数を指定する。
  *
  * \param key キー
@@ -683,7 +687,7 @@ size_t UnorderedMap_hash_int(int key);
 /*! 
  * \brief unsigned int用ハッシュ関数
  *
- * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に unsigned int を指定した場合、
+ * CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_IMPLEMENT() の引数\a KeyType に unsigned int を指定した場合、
  * 引数\a Hasher にこの関数を指定する。
  *
  * \param key キー
@@ -694,7 +698,7 @@ size_t UnorderedMap_hash_uint(unsigned int key);
 /*! 
  * \brief long用ハッシュ関数
  *
- * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に long を指定した場合、
+ * CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_IMPLEMENT() の引数\a KeyType に long を指定した場合、
  * 引数\a Hasher にこの関数を指定する。
  *
  * \param key キー
@@ -705,7 +709,7 @@ size_t UnorderedMap_hash_long(long key);
 /*! 
  * \brief unsigned long用ハッシュ関数
  *
- * CSTL_UNORDERED_MAP_IMPLEMENT() の引数\a KeyType に unsigned long を指定した場合、
+ * CSTL_UNORDERED_MAP_IMPLEMENT() , CSTL_UNORDERED_MULTIMAP_IMPLEMENT() の引数\a KeyType に unsigned long を指定した場合、
  * 引数\a Hasher にこの関数を指定する。
  *
  * \param key キー
