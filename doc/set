@@ -426,5 +426,19 @@ SetIterator Set_lower_bound(Set *self, T data);
  */
 SetIterator Set_upper_bound(Set *self, T data);
 
+/*! 
+ * \brief 指定した値の要素の範囲を取得
+ * 
+ * \param self setオブジェクト
+ * \param data 検索する要素の値
+ * \param first \a data という値の最初の要素のイテレータを格納する変数へのポインタ
+ * \param last \a data という値の最後の要素の次のイテレータを格納する変数へのポインタ
+ *
+ * \pre \a first がNULLでないこと。
+ * \pre \a last がNULLでないこと。
+ * \note \a self が\a data という値の要素を持たない場合、*\a first , *\a last ともにSet_end(\a self)が格納される。
+ */
+void Set_equal_range(Set *self, T data, SetIterator *first, SetIterator *last);
+
 
 /* vim:set ts=4 sts=4 sw=4 ft=c: */

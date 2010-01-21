@@ -496,5 +496,19 @@ MapIterator Map_lower_bound(Map *self, KeyT key);
  */
 MapIterator Map_upper_bound(Map *self, KeyT key);
 
+/*! 
+ * \brief 指定キーの要素の範囲を取得
+ * 
+ * \param self mapオブジェクト
+ * \param key 検索する要素のキー
+ * \param first \a key というキーの最初の要素のイテレータを格納する変数へのポインタ
+ * \param last \a key というキーの最後の要素の次のイテレータを格納する変数へのポインタ
+ *
+ * \pre \a first がNULLでないこと。
+ * \pre \a last がNULLでないこと。
+ * \note \a self が\a key というキーの要素を持たない場合、*\a first , *\a last ともにMap_end(\a self)が格納される。
+ */
+void Map_equal_range(Map *self, KeyT key, MapIterator *first, MapIterator *last);
+
 
 /* vim:set ts=4 sts=4 sw=4 ft=c: */
