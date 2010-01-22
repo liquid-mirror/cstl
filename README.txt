@@ -24,6 +24,7 @@ SourceForge.JP CSTL
     unordered_map.h     unordered_map/unordered_multimap
     string.h            string
     algorithm.h         アルゴリズム
+    common.h            共通マクロ定義
   doc/                CSTLのドキュメント
     html/               ドキュメントをDoxygenでhtml化したもの(tarballのみに同梱)
     Doxyfile            Doxygen用設定ファイル
@@ -38,7 +39,7 @@ SourceForge.JP CSTL
 
 
 単体テストについて
-  gcc3.4.4で動作確認をしています。testディレクトリでmakeを実行すればビルドから
+  gcc-3.4.4で動作確認をしています。testディレクトリでmakeを実行すればビルドから
   テスト実行までを行います。
 
 
