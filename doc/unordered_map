@@ -153,9 +153,10 @@ typedef struct UnorderedMap UnorderedMap;
  * \brief イテレータ
  *
  * 要素の位置を示す。
+ * イテレータ同士の比較は、 == , != が使用できる。< , > , <= , >= は使用できない。
  *
  * 以下、関数から返されたイテレータを有効なイテレータという。
- * 宣言されただけのイテレータ、または削除された要素のイテレータを無効なイテレータという。
+ * 宣言されただけのイテレータ、または削除された要素のイテレータ、または値が0のイテレータを無効なイテレータという。
  *
  * PRIVATE_TYPEは非公開の型である。
  */
@@ -289,8 +290,8 @@ ValueT *UnorderedMap_value(UnorderedMapIterator pos);
  * \return \a self が\a key というキーの要素を持っていない場合、\a key というキーの新しい要素(値は不定)を挿入し、その要素の値へのポインタを返す。
  * \return メモリ不足の場合、\a self の変更を行わずNULLを返す。
  *
+ * \attention 新しい要素を挿入しようとしてメモリ不足で失敗した場合、戻り値のNULLポインタを逆参照しないように注意すること。
  * \note この関数はunordered_mapのみで提供される。
- * \note メモリ不足の場合、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義済みならばアサーションに失敗する。
  */
 ValueT *UnorderedMap_at(UnorderedMap *self, KeyT key);
 

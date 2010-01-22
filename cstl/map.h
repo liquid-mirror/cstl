@@ -195,7 +195,6 @@ ValueType *Name##_at(Name *self, KeyType key)\
 			self->size++;\
 		} else {\
 			/* メモリ不足 */\
-			CSTL_ASSERT(0 && "Map_at");\
 			return 0;\
 		}\
 	}\

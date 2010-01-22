@@ -229,7 +229,6 @@ ValueType *Name##_at(Name *self, KeyType key)\
 				if (!Name##_rehash(self, s)) {\
 					Name##Node_erase(pos);\
 					/* メモリ不足 */\
-					CSTL_ASSERT(0 && "UnorderedMap_at() 1");\
 					return 0;\
 				}\
 				idx = hash_val % Name##_bucket_count(self);\
@@ -240,7 +239,6 @@ ValueType *Name##_at(Name *self, KeyType key)\
 			CSTL_MAGIC(pos->magic = self->buckets);\
 		} else {\
 			/* メモリ不足 */\
-			CSTL_ASSERT(0 && "UnorderedMap_at() 2");\
 			return 0;\
 		}\
 	}\
