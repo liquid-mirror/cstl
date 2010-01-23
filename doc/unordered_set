@@ -40,7 +40,10 @@ unordered_set/unordered_multisetを使うには、<cstl/unordered_set.h>をイ�
 \b CSTL_UNORDERED_SET_INTERFACE(Name, Type) , \b CSTL_UNORDERED_MULTISET_INTERFACE(Name, Type) 
 の\a Name に\b UnorderedSet , \a Type に\b T を仮に指定した場合のものである。
 実際に使用する際には、使用例のように適切な引数を指定すること。
-\attention また、unordered_set専用/unordered_multiset専用と記した関数以外の関数は、unordered_set/unordered_multiset共通の関数である。
+
+\note unordered_set専用/unordered_multiset専用と記した関数以外の関数は、unordered_set/unordered_multiset共通の関数である。
+\note コンパイラオプションによって、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義されているならば、
+assertマクロが有効になり、関数の事前条件に違反するとプログラムの実行を停止する。
 
  */
 

@@ -33,7 +33,10 @@ set/multisetを使うには、<cstl/set.h>をインクルードし、以下の�
 \b CSTL_SET_INTERFACE(Name, Type) , \b CSTL_MULTISET_INTERFACE(Name, Type) 
 の\a Name に\b Set , \a Type に\b T を仮に指定した場合のものである。
 実際に使用する際には、使用例のように適切な引数を指定すること。
-\attention また、set専用/multiset専用と記した関数以外の関数は、set/multiset共通の関数である。
+
+\note set専用/multiset専用と記した関数以外の関数は、set/multiset共通の関数である。
+\note コンパイラオプションによって、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義されているならば、
+assertマクロが有効になり、関数の事前条件に違反するとプログラムの実行を停止する。
 
  */
 

@@ -40,7 +40,10 @@ unordered_map/unordered_multimapを使うには、<cstl/unordered_map.h>をイ�
 \b CSTL_UNORDERED_MAP_INTERFACE(Name, KeyType, ValueType) , \b CSTL_UNORDERED_MULTIMAP_INTERFACE(Name, KeyType, ValueType) 
 の\a Name に\b UnorderedMap , \a KeyType に\b KeyT , \a ValueType に\b ValueT を仮に指定した場合のものである。
 実際に使用する際には、使用例のように適切な引数を指定すること。
-\attention また、unordered_map専用/unordered_multimap専用と記した関数以外の関数は、unordered_map/unordered_multimap共通の関数である。
+
+\note unordered_map専用/unordered_multimap専用と記した関数以外の関数は、unordered_map/unordered_multimap共通の関数である。
+\note コンパイラオプションによって、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義されているならば、
+assertマクロが有効になり、関数の事前条件に違反するとプログラムの実行を停止する。
 
  */
 

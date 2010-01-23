@@ -23,6 +23,9 @@ listを使うには、<cstl/list.h>をインクルードし、以下のマクロ
 \b CSTL_LIST_INTERFACE(Name, Type) の\a Name に\b List , \a Type に\b T を仮に指定した場合のものである。
 実際に使用する際には、使用例のように適切な引数を指定すること。
 
+\note コンパイラオプションによって、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義されているならば、
+assertマクロが有効になり、関数の事前条件に違反するとプログラムの実行を停止する。
+
  */
 
 

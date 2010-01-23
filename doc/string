@@ -27,6 +27,9 @@ stringを使うには、<cstl/string.h>をインクルードし、以下のマ�
 \b CSTL_STRING_INTERFACE(Name, Type) の\a Name に\b String , \a Type に\b CharT を仮に指定した場合のものである。
 実際に使用する際には、使用例のように適切な引数を指定すること。
 
+\note コンパイラオプションによって、NDEBUGマクロが未定義かつCSTL_DEBUGマクロが定義されているならば、
+assertマクロが有効になり、関数の事前条件に違反するとプログラムの実行を停止する。
+
  */
 
 /*! 
