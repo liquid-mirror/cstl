@@ -10,7 +10,10 @@ mapは二分木で実装されるのに対し、unordered_mapはハッシュテ�
 unordered_multimapはキーの重複が許されることと、キーとペアになる値の直接アクセスが不可能であることを除き、unordered_mapと同じである。
 
 ハッシュテーブルの実装において、ハッシュ値の衝突はチェイン法によって解決する。
-チェイン法で使われるリンクリストをバケットと呼ぶこととする。
+チェイン法で使われるリンクリストを\b バケット と呼ぶこととする。
+また、バケットの平均要素数(全要素数 / バケット数)を\b ロードファクター と呼ぶ。
+要素挿入後のロードファクターが、設定されているロードファクターの上限を超える場合、
+自動的にバケットを拡張して再ハッシュが行われる。
 
 unordered_map/unordered_multimapを使うには、<cstl/unordered_map.h>をインクルードし、以下のマクロを用いてコードを展開する必要がある。
 
@@ -552,9 +555,9 @@ UnorderedMapLocalIterator UnorderedMap_bucket_end(UnorderedMap *self, size_t idx
 UnorderedMapLocalIterator UnorderedMap_bucket_next(UnorderedMapLocalIterator pos);
 
 /*! 
- * \brief ロードファクター
+ * \brief ロードファクターを取得
  * 
- * 全バケットの要素数の平均値(UnorderedMap_size(\a self) / UnorderedMap_bucket_count(\a self))をロードファクターと呼ぶ。
+ * バケットの平均要素数(全要素数 / バケット数)をロードファクターと呼ぶ。
  *
  * \param self unordered_mapオブジェクト
  * 
@@ -565,10 +568,6 @@ float UnorderedMap_load_factor(UnorderedMap *self);
 /*! 
  * \brief ロードファクターの上限を取得
  * 
- * unordered_mapオブジェクトにはロードファクターの上限が設定されている。
- * 要素挿入後のロードファクターが、設定されているロードファクターの上限を超える場合、
- * バケットを拡張して再ハッシュされる。
- *
  * \param self unordered_mapオブジェクト
  * 
  * \return ロードファクターの上限
