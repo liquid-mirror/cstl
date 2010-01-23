@@ -329,7 +329,7 @@ UnorderedMapIterator UnorderedMap_insert(UnorderedMap *self, KeyT key, ValueT va
  *
  * \pre \a value がNULLでないこと。
  * \note この関数はunordered_mapのみで提供される。
- * \note ValueT が構造体型の場合、 UnorderedMap_insert() よりも呼び出しコストが低い。
+ * \note ValueT が構造体型の場合、 UnorderedMap_insert() よりも速い。
  */
 UnorderedMapIterator UnorderedMap_insert_ref(UnorderedMap *self, KeyT key, ValueT const *value, int *success);
 
@@ -365,7 +365,7 @@ UnorderedMapIterator UnorderedMap_insert(UnorderedMap *self, KeyT key, ValueT va
  *
  * \pre \a value がNULLでないこと。
  * \note この関数はunordered_multimapのみで提供される。
- * \note ValueT が構造体型の場合、 UnorderedMap_insert() よりも呼び出しコストが低い。
+ * \note ValueT が構造体型の場合、 UnorderedMap_insert() よりも速い。
  */
 UnorderedMapIterator UnorderedMap_insert_ref(UnorderedMap *self, KeyT key, ValueT const *value);
 

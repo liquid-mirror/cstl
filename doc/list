@@ -224,6 +224,24 @@ T *List_back(List *self);
 ListIterator List_insert(List *self, ListIterator pos, T data);
 
 /*! 
+ * \brief 参照渡しで要素を挿入
+ *
+ * \a self の\a pos が示す位置に、*\a data のコピーを挿入する。
+ *
+ * \param self listオブジェクト
+ * \param pos 挿入する位置
+ * \param data 挿入するデータへのポインタ
+ * 
+ * \return 挿入に成功した場合、新しい要素のイテレータを返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre \a pos が\a self の有効なイテレータであること。
+ * \pre \a data がNULLでないこと。
+ * \note T が構造体型の場合、 List_insert() よりも速い。
+ */
+ListIterator List_insert_ref(List *self, ListIterator pos, T const *data);
+
+/*! 
  * \brief 複数個の要素を挿入
  *
  * \a self の\a pos が示す位置に、\a data のコピーを\a n 個挿入する。
@@ -239,6 +257,25 @@ ListIterator List_insert(List *self, ListIterator pos, T data);
  * \pre \a pos が\a self の有効なイテレータであること。
  */
 int List_insert_n(List *self, ListIterator pos, size_t n, T data);
+
+/*! 
+ * \brief 参照渡しで複数個の要素を挿入
+ *
+ * \a self の\a pos が示す位置に、*\a data のコピーを\a n 個挿入する。
+ * 
+ * \param self listオブジェクト
+ * \param pos 挿入する位置
+ * \param n 挿入するデータの個数
+ * \param data 挿入するデータへのポインタ
+ * 
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre \a pos が\a self の有効なイテレータであること。
+ * \pre \a data がNULLでないこと。
+ * \note T が構造体型の場合、 List_insert_n() よりも速い。
+ */
+int List_insert_n_ref(List *self, ListIterator pos, size_t n, T const *data);
 
 /*! 
  * \brief 配列の要素を挿入
@@ -293,6 +330,22 @@ int List_insert_range(List *self, ListIterator pos, ListIterator first,
 int List_push_front(List *self, T data);
 
 /*! 
+ * \brief 参照渡しで先頭に要素を挿入
+ * 
+ * *\a data のコピーを\a self の最初の要素として挿入する。
+ *
+ * \param self listオブジェクト
+ * \param data 挿入するデータへのポインタ
+ * 
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre \a data がNULLでないこと。
+ * \note T が構造体型の場合、 List_push_front() よりも速い。
+ */
+int List_push_front_ref(List *self, T const *data);
+
+/*! 
  * \brief 末尾に要素を挿入
  * 
  * \a data のコピーを\a self の最後の要素として挿入する。
@@ -304,6 +357,22 @@ int List_push_front(List *self, T data);
  * \return メモリ不足の場合、\a self の変更を行わず0を返す。
  */
 int List_push_back(List *self, T data);
+
+/*! 
+ * \brief 参照渡しで末尾に要素を挿入
+ * 
+ * *\a data のコピーを\a self の最後の要素として挿入する。
+ *
+ * \param self listオブジェクト
+ * \param data 挿入するデータへのポインタ
+ * 
+ * \return 挿入に成功した場合、非0を返す。
+ * \return メモリ不足の場合、\a self の変更を行わず0を返す。
+ *
+ * \pre \a data がNULLでないこと。
+ * \note T が構造体型の場合、 List_push_back() よりも速い。
+ */
+int List_push_back_ref(List *self, T const *data);
 
 /*! 
  * \brief 要素を削除

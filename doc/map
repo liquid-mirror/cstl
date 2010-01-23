@@ -330,7 +330,7 @@ MapIterator Map_insert(Map *self, KeyT key, ValueT value, int *success);
  *
  * \pre \a value がNULLでないこと。
  * \note この関数はmapのみで提供される。
- * \note ValueT が構造体型の場合、 Map_insert() よりも呼び出しコストが低い。
+ * \note ValueT が構造体型の場合、 Map_insert() よりも速い。
  */
 MapIterator Map_insert_ref(Map *self, KeyT key, ValueT const *value, int *success);
 
@@ -366,7 +366,7 @@ MapIterator Map_insert(Map *self, KeyT key, ValueT value);
  *
  * \pre \a value がNULLでないこと。
  * \note この関数はmultimapのみで提供される。
- * \note ValueT が構造体型の場合、 Map_insert() よりも呼び出しコストが低い。
+ * \note ValueT が構造体型の場合、 Map_insert() よりも速い。
  */
 MapIterator Map_insert_ref(Map *self, KeyT key, ValueT const *value);
 
