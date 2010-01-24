@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2006-2009, KATO Noriaki
+ * Copyright (c) 2006-2010, KATO Noriaki
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
