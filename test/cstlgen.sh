@@ -473,14 +473,13 @@ if [ $lower = "list" ]; then
 echo "\
 #if !defined(NDEBUG) && defined(CSTL_DEBUG)
 #include <assert.h>
+#define CSTL_MAGIC_LIST(Name)	((Name *) -1)
 #define CSTL_MAGIC(x)	x
 #define CSTL_ASSERT(x)	assert(x)
-#define CSTL_LIST_MAGIC_ELEM(Name) ((Name *) -1)
 #else
 #define CSTL_MAGIC(x)
 #define CSTL_ASSERT(x)
 #endif
-
 #define CSTL_UNUSED_PARAM(x)	(void) x
 " >> "$path"".c"
 else
@@ -493,7 +492,6 @@ echo "\
 #define CSTL_MAGIC(x)
 #define CSTL_ASSERT(x)
 #endif
-
 #define CSTL_UNUSED_PARAM(x)	(void) x
 " >> "$path"".c"
 fi

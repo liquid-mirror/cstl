@@ -38,7 +38,7 @@
 
 
 #if !defined(NDEBUG) && defined(CSTL_DEBUG)
-#define CSTL_LIST_MAGIC_ELEM(Name) ((Name *) -1)
+#define CSTL_MAGIC_LIST(Name)	((Name *) -1)
 #endif
 
 
@@ -212,7 +212,7 @@ Type *Name##_data(Name##Iterator pos)\
 {\
 	CSTL_ASSERT(pos && "List_data");\
 	CSTL_ASSERT(pos->magic && "List_data");\
-	CSTL_ASSERT(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_data");\
+	CSTL_ASSERT(pos->magic == CSTL_MAGIC_LIST(Name) && "List_data");\
 	return &pos->data;\
 }\
 \
@@ -264,7 +264,7 @@ Name##Iterator Name##_next(Name##Iterator pos)\
 {\
 	CSTL_ASSERT(pos && "List_next");\
 	CSTL_ASSERT(pos->magic && "List_next");\
-	CSTL_ASSERT(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_next");\
+	CSTL_ASSERT(pos->magic == CSTL_MAGIC_LIST(Name) && "List_next");\
 	return pos->next;\
 }\
 \
@@ -272,7 +272,7 @@ Name##Iterator Name##_prev(Name##Iterator pos)\
 {\
 	CSTL_ASSERT(pos && "List_prev");\
 	CSTL_ASSERT(pos->magic && "List_prev");\
-	CSTL_ASSERT(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_prev");\
+	CSTL_ASSERT(pos->magic == CSTL_MAGIC_LIST(Name) && "List_prev");\
 	return pos->prev;\
 }\
 \
@@ -281,7 +281,7 @@ Name##Iterator Name##_insert(Name *self, Name##Iterator pos, Type data)\
 	CSTL_ASSERT(self && "List_insert");\
 	CSTL_ASSERT(self->magic == self && "List_insert");\
 	CSTL_ASSERT(pos && "List_insert");\
-	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert");\
+	CSTL_ASSERT((pos->magic == CSTL_MAGIC_LIST(Name) || pos->magic == self) && "List_insert");\
 	return Name##_insert_ref(self, pos, &data);\
 }\
 \
@@ -291,7 +291,7 @@ Name##Iterator Name##_insert_ref(Name *self, Name##Iterator pos, Type const *dat
 	CSTL_ASSERT(self && "List_insert_ref");\
 	CSTL_ASSERT(self->magic == self && "List_insert_ref");\
 	CSTL_ASSERT(pos && "List_insert_ref");\
-	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_ref");\
+	CSTL_ASSERT((pos->magic == CSTL_MAGIC_LIST(Name) || pos->magic == self) && "List_insert_ref");\
 	CSTL_ASSERT(data && "List_insert_ref");\
 	CSTL_UNUSED_PARAM(self);\
 	node = (Name *) malloc(sizeof(Name));\
@@ -301,7 +301,7 @@ Name##Iterator Name##_insert_ref(Name *self, Name##Iterator pos, Type const *dat
 	node->prev = pos->prev;\
 	pos->prev = node;\
 	node->prev->next = node;\
-	CSTL_MAGIC(node->magic = CSTL_LIST_MAGIC_ELEM(Name));\
+	CSTL_MAGIC(node->magic = CSTL_MAGIC_LIST(Name));\
 	return node;\
 }\
 \
@@ -310,7 +310,7 @@ int Name##_insert_n(Name *self, Name##Iterator pos, size_t n, Type data)\
 	CSTL_ASSERT(self && "List_insert_n");\
 	CSTL_ASSERT(self->magic == self && "List_insert_n");\
 	CSTL_ASSERT(pos && "List_insert_n");\
-	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_n");\
+	CSTL_ASSERT((pos->magic == CSTL_MAGIC_LIST(Name) || pos->magic == self) && "List_insert_n");\
 	return Name##_insert_n_ref(self, pos, n, &data);\
 }\
 \
@@ -321,7 +321,7 @@ int Name##_insert_n_ref(Name *self, Name##Iterator pos, size_t n, Type const *da
 	CSTL_ASSERT(self && "List_insert_n_ref");\
 	CSTL_ASSERT(self->magic == self && "List_insert_n_ref");\
 	CSTL_ASSERT(pos && "List_insert_n_ref");\
-	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_n_ref");\
+	CSTL_ASSERT((pos->magic == CSTL_MAGIC_LIST(Name) || pos->magic == self) && "List_insert_n_ref");\
 	CSTL_ASSERT(data && "List_insert_n_ref");\
 	x.next = &x;\
 	x.prev = &x;\
@@ -343,7 +343,7 @@ int Name##_insert_array(Name *self, Name##Iterator pos, Type const *data, size_t
 	CSTL_ASSERT(self && "List_insert_array");\
 	CSTL_ASSERT(self->magic == self && "List_insert_array");\
 	CSTL_ASSERT(pos && "List_insert_array");\
-	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_array");\
+	CSTL_ASSERT((pos->magic == CSTL_MAGIC_LIST(Name) || pos->magic == self) && "List_insert_array");\
 	CSTL_ASSERT(data && "List_insert_array");\
 	x.next = &x;\
 	x.prev = &x;\
@@ -365,7 +365,7 @@ int Name##_insert_range(Name *self, Name##Iterator pos, Name##Iterator first, Na
 	CSTL_ASSERT(self && "List_insert_range");\
 	CSTL_ASSERT(self->magic == self && "List_insert_range");\
 	CSTL_ASSERT(pos && "List_insert_range");\
-	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_insert_range");\
+	CSTL_ASSERT((pos->magic == CSTL_MAGIC_LIST(Name) || pos->magic == self) && "List_insert_range");\
 	CSTL_ASSERT(first && "List_insert_range");\
 	CSTL_ASSERT(last && "List_insert_range");\
 	CSTL_ASSERT(first->magic && "List_insert_range");\
@@ -391,7 +391,7 @@ Name##Iterator Name##_erase(Name *self, Name##Iterator pos)\
 	CSTL_ASSERT(self->magic == self && "List_erase");\
 	CSTL_ASSERT(pos && "List_erase");\
 	CSTL_ASSERT(pos != self && "List_erase");\
-	CSTL_ASSERT(pos->magic == CSTL_LIST_MAGIC_ELEM(Name) && "List_erase");\
+	CSTL_ASSERT(pos->magic == CSTL_MAGIC_LIST(Name) && "List_erase");\
 	CSTL_ASSERT(!Name##_empty(self) && "List_erase");\
 	CSTL_UNUSED_PARAM(self);\
 	node = pos->next;\
@@ -409,8 +409,8 @@ Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterat
 	CSTL_ASSERT(self->magic == self && "List_erase_range");\
 	CSTL_ASSERT(first && "List_erase_range");\
 	CSTL_ASSERT(last && "List_erase_range");\
-	CSTL_ASSERT((first->magic == CSTL_LIST_MAGIC_ELEM(Name) || first->magic == self) && "List_erase_range");\
-	CSTL_ASSERT((last->magic == CSTL_LIST_MAGIC_ELEM(Name) || last->magic == self) && "List_erase_range");\
+	CSTL_ASSERT((first->magic == CSTL_MAGIC_LIST(Name) || first->magic == self) && "List_erase_range");\
+	CSTL_ASSERT((last->magic == CSTL_MAGIC_LIST(Name) || last->magic == self) && "List_erase_range");\
 	pos = first;\
 	while (pos != last) {\
 		CSTL_ASSERT(!Name##_empty(self) && "List_erase_range");\
@@ -472,13 +472,13 @@ void Name##_splice(Name *self, Name##Iterator pos, Name *x, Name##Iterator first
 	CSTL_ASSERT(self && "List_splice");\
 	CSTL_ASSERT(self->magic == self && "List_splice");\
 	CSTL_ASSERT(pos && "List_splice");\
-	CSTL_ASSERT((pos->magic == CSTL_LIST_MAGIC_ELEM(Name) || pos->magic == self) && "List_splice");\
+	CSTL_ASSERT((pos->magic == CSTL_MAGIC_LIST(Name) || pos->magic == self) && "List_splice");\
 	CSTL_ASSERT(x && "List_splice");\
 	CSTL_ASSERT(x->magic == x && "List_splice");\
 	CSTL_ASSERT(first && "List_splice");\
 	CSTL_ASSERT(last && "List_splice");\
-	CSTL_ASSERT((first->magic == CSTL_LIST_MAGIC_ELEM(Name) || first->magic == x) && "List_splice");\
-	CSTL_ASSERT((last->magic == CSTL_LIST_MAGIC_ELEM(Name) || last->magic == x) && "List_splice");\
+	CSTL_ASSERT((first->magic == CSTL_MAGIC_LIST(Name) || first->magic == x) && "List_splice");\
+	CSTL_ASSERT((last->magic == CSTL_MAGIC_LIST(Name) || last->magic == x) && "List_splice");\
 	CSTL_UNUSED_PARAM(self);\
 	CSTL_UNUSED_PARAM(x);\
 	if (first == last || pos == last) return;\
