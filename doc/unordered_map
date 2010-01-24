@@ -191,7 +191,7 @@ UnorderedMap *UnorderedMap_new(void);
 /*! 
  * \brief バケット数を指定して生成
  *
- * \a n 個 \b 以上 のバケットを確保し、
+ * 少なくとも \a n 個のバケットを確保し、
  * 要素数が0のunordered_map/unordered_multimapを生成する。
  * 
  * \param n バケット数
@@ -588,7 +588,7 @@ void UnorderedMap_set_max_load_factor(UnorderedMap *self, float z);
 /*! 
  * \brief バケットを拡張して再ハッシュ
  *
- * バケット数を\a n 個 \b 以上 に拡張し、全要素をハッシュ関数によって再び振り分ける。
+ * バケット数を 少なくとも \a n 個に拡張し、全要素をハッシュ関数によって再び振り分ける。
  *
  * \param self unordered_mapオブジェクト
  * \param n バケット数
