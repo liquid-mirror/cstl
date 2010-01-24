@@ -10,6 +10,8 @@ bm: bm_vector\
 	bm_list\
 	bm_set\
 	bm_map\
+	bm_uset\
+	bm_umap\
 	$(NULL)
 	
 
@@ -27,4 +29,10 @@ bm_set: benchmark_set.cpp ../cstl/set.h ../cstl/rbtree.h
 
 bm_map: benchmark_map.cpp ../cstl/map.h ../cstl/rbtree.h
 	$(CXX) $(CFLAGS) $< -o $@.exe
+
+bm_uset: benchmark_set.cpp ../cstl/unordered_set.h ../cstl/hashtable.h
+	$(CXX) $(CFLAGS) -DUNORDERED $< -o $@.exe
+
+bm_umap: benchmark_map.cpp ../cstl/unordered_map.h ../cstl/hashtable.h
+	$(CXX) $(CFLAGS) -DUNORDERED $< -o $@.exe
 

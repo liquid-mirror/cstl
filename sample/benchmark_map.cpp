@@ -8,13 +8,19 @@
 #include <sys/time.h>
 #endif
 #include <cstl/map.h>
+#include <cstl/unordered_map.h>
 #include <map>
 
 //#define malloc(s) ::operator new(s)
 //#define free(p) ::operator delete(p)
 
+#ifndef UNORDERED
 CSTL_MAP_INTERFACE(IntIntMap, int, int)
 CSTL_MAP_IMPLEMENT(IntIntMap, int, int, CSTL_LESS)
+#else
+CSTL_UNORDERED_MAP_INTERFACE(IntIntMap, int, int)
+CSTL_UNORDERED_MAP_IMPLEMENT(IntIntMap, int, int, IntIntMap_hash_int, CSTL_EQUAL_TO)
+#endif
 
 using namespace std;
 

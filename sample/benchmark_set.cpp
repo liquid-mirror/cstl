@@ -8,13 +8,19 @@
 #include <sys/time.h>
 #endif
 #include <cstl/set.h>
+#include <cstl/unordered_set.h>
 #include <set>
 
 //#define malloc(s) ::operator new(s)
 //#define free(p) ::operator delete(p)
 
+#ifndef UNORDERED
 CSTL_SET_INTERFACE(IntSet, int)
 CSTL_SET_IMPLEMENT(IntSet, int, CSTL_LESS)
+#else
+CSTL_UNORDERED_SET_INTERFACE(IntSet, int)
+CSTL_UNORDERED_SET_IMPLEMENT(IntSet, int, IntSet_hash_int, CSTL_EQUAL_TO)
+#endif
 
 using namespace std;
 
