@@ -241,7 +241,7 @@ static const size_t Name##_primes[] = {\
 	536870912 + 11,\
 	1073741824 + 85,\
 };\
-static const size_t Name##_primes_size = sizeof Name##_primes / sizeof Name##_primes[0];\
+enum { Name##_PRIMES_SIZE = sizeof Name##_primes / sizeof Name##_primes[0] };\
 \
 static const float Name##_minimum_mlf = 1e-3f;\
 static const float Name##_default_mlf = 1.0f;\
@@ -260,12 +260,12 @@ struct Name {\
 static size_t Name##_next_prime(size_t n)\
 {\
 	register size_t i;\
-	for (i = 0; i < Name##_primes_size; i++) {\
+	for (i = 0; i < Name##_PRIMES_SIZE; i++) {\
 		if (Name##_primes[i] >= n) {\
 			return Name##_primes[i];\
 		}\
 	}\
-	return Name##_primes[Name##_primes_size - 1];\
+	return Name##_primes[Name##_PRIMES_SIZE - 1];\
 }\
 \
 Name *Name##_new(void)\
