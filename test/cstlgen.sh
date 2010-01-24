@@ -394,7 +394,7 @@ echo "\
 #ifdef __cplusplus
 extern \"C\" {
 #endif" >> "$path"".h"
-echo "$hdr" | cpp -CC -I.. | grep "$name" \
+echo "$hdr" | cpp -CC -I.. | grep "${name}_new" \
 | sed -e 's:/\*\([ !]\):\
 /\*\1:g' \
 | sed -e 's/\t* \* /\
@@ -536,7 +536,7 @@ elif [ $lower = "unordered_set" -o $lower = "unordered_multiset" -o\
 	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
 fi
 echo "" >> "$path"".c"
-echo "$src" | cpp -CC -I.. | grep "$name" \
+echo "$src" | cpp -CC -I.. | grep "${name}_new" \
 | sed -e 's:/\*\([ !]\):\
 /\*\1:g' \
 | sed -e 's/\t* \* /\
