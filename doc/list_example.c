@@ -26,8 +26,9 @@ void Hoge_print(Hoge *self)
 	printf("%s: %d\n", self->key, self->value);
 }
 
-CSTL_LIST_INTERFACE(HogeList, Hoge *) /* インターフェイスを展開 */
-CSTL_LIST_IMPLEMENT(HogeList, Hoge *) /* 実装を展開 */
+/* listのインターフェイスと実装を展開 */
+CSTL_LIST_INTERFACE(HogeList, Hoge *)
+CSTL_LIST_IMPLEMENT(HogeList, Hoge *)
 
 int main(void)
 {
@@ -53,13 +54,15 @@ int main(void)
 	/* 要素数 */
 	printf("size: %d\n", HogeList_size(lst));
 
-	for (pos = HogeList_begin(lst); pos != HogeList_end(lst); pos = HogeList_next(pos)) {
+	for (pos = HogeList_begin(lst); pos != HogeList_end(lst); 
+			pos = HogeList_next(pos)) {
 		/* イテレータによる要素のアクセス */
 		Hoge_print(*HogeList_data(pos));
 		(*HogeList_data(pos))->value++;
 		Hoge_print(*HogeList_data(pos));
 	}
-	for (pos = HogeList_begin(lst); pos != HogeList_end(lst); pos = HogeList_next(pos)) {
+	for (pos = HogeList_begin(lst); pos != HogeList_end(lst); 
+			pos = HogeList_next(pos)) {
 		Hoge *h = *HogeList_data(pos);
 		if (!strcmp(h->key, "bbb")) {
 			hoge = Hoge_new("eee", 5);

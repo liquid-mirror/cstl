@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <cstl/deque.h>
 
-CSTL_DEQUE_INTERFACE(IntDeque, int) /* インターフェイスを展開 */
-CSTL_DEQUE_IMPLEMENT(IntDeque, int) /* 実装を展開 */
+/* dequeのインターフェイスと実装を展開 */
+CSTL_DEQUE_INTERFACE(IntDeque, int)
+CSTL_DEQUE_IMPLEMENT(IntDeque, int)
 
 int main(void)
 {

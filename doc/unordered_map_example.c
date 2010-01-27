@@ -2,11 +2,15 @@
 #include <string.h>
 #include <cstl/unordered_map.h>
 
-CSTL_UNORDERED_MAP_INTERFACE(StrIntUMap, const char *, int)			/* インターフェイスを展開 */
-CSTL_UNORDERED_MAP_IMPLEMENT(StrIntUMap, const char *, int, StrIntUMap_hash_string, strcmp)		/* 実装を展開 */
+/* unordered_mapのインターフェイスと実装を展開 */
+CSTL_UNORDERED_MAP_INTERFACE(StrIntUMap, const char *, int)
+CSTL_UNORDERED_MAP_IMPLEMENT(StrIntUMap, const char *, int, 
+		StrIntUMap_hash_string, strcmp)
 
-CSTL_UNORDERED_MULTIMAP_INTERFACE(IntIntUMMap, int, int)			/* インターフェイスを展開 */
-CSTL_UNORDERED_MULTIMAP_IMPLEMENT(IntIntUMMap, int, int, StrIntUMap_hash_int, CSTL_EQUAL_TO)	/* 実装を展開 */
+/* unordered_multimapのインターフェイスと実装を展開 */
+CSTL_UNORDERED_MULTIMAP_INTERFACE(IntIntUMMap, int, int)
+CSTL_UNORDERED_MULTIMAP_IMPLEMENT(IntIntUMMap, int, int, 
+		StrIntUMap_hash_int, CSTL_EQUAL_TO)
 
 int main(void)
 {
@@ -26,7 +30,8 @@ int main(void)
 		*StrIntUMap_at(umap, "ccc") = 4; /* 存在しないキーの要素は自動的に挿入 */
 		/* 要素数 */
 		printf("size: %d\n", StrIntUMap_size(umap));
-		for (pos = StrIntUMap_begin(umap); pos != StrIntUMap_end(umap); pos = StrIntUMap_next(pos)) {
+		for (pos = StrIntUMap_begin(umap); pos != StrIntUMap_end(umap); 
+				pos = StrIntUMap_next(pos)) {
 			/* イテレータによる要素の読み書き */
 			printf("%s: %d,", *StrIntUMap_key(pos), *StrIntUMap_value(pos));
 			*StrIntUMap_value(pos) += 1;

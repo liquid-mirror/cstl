@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <cstl/unordered_set.h>
 
-CSTL_UNORDERED_SET_INTERFACE(IntUSet, int)				/* インターフェイスを展開 */
-CSTL_UNORDERED_SET_IMPLEMENT(IntUSet, int, IntUSet_hash_int, CSTL_EQUAL_TO)	/* 実装を展開 */
+/* unordered_setのインターフェイスと実装を展開 */
+CSTL_UNORDERED_SET_INTERFACE(IntUSet, int)
+CSTL_UNORDERED_SET_IMPLEMENT(IntUSet, int, IntUSet_hash_int, CSTL_EQUAL_TO)
 
 int main(void)
 {
@@ -19,7 +20,8 @@ int main(void)
 	}
 	/* 要素数 */
 	printf("size: %d\n", IntUSet_size(uset));
-	for (pos = IntUSet_begin(uset); pos != IntUSet_end(uset); pos = IntUSet_next(pos)) {
+	for (pos = IntUSet_begin(uset); pos != IntUSet_end(uset); 
+			pos = IntUSet_next(pos)) {
 		/* イテレータによる要素の読み出し(書き換えはできない) */
 		printf("%d, ", *IntUSet_data(pos));
 	}
@@ -28,7 +30,8 @@ int main(void)
 	/* 3以上の要素を削除 */
 	IntUSet_erase_range(uset, IntUSet_find(uset, 3), IntUSet_end(uset));
 
-	for (pos = IntUSet_begin(uset); pos != IntUSet_end(uset); pos = IntUSet_next(pos)) {
+	for (pos = IntUSet_begin(uset); pos != IntUSet_end(uset); 
+			pos = IntUSet_next(pos)) {
 		/* イテレータによる要素の読み出し(書き換えはできない) */
 		printf("%d, ", *IntUSet_data(pos));
 	}

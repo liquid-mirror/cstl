@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <cstl/set.h>
 
-CSTL_SET_INTERFACE(IntSet, int)				/* インターフェイスを展開 */
-CSTL_SET_IMPLEMENT(IntSet, int, CSTL_LESS)	/* 実装を展開 */
+/* setのインターフェイスと実装を展開 */
+CSTL_SET_INTERFACE(IntSet, int)
+CSTL_SET_IMPLEMENT(IntSet, int, CSTL_LESS)
 
 int main(void)
 {
@@ -19,7 +20,8 @@ int main(void)
 	}
 	/* 要素数 */
 	printf("size: %d\n", IntSet_size(set));
-	for (pos = IntSet_begin(set); pos != IntSet_end(set); pos = IntSet_next(pos)) {
+	for (pos = IntSet_begin(set); pos != IntSet_end(set); 
+			pos = IntSet_next(pos)) {
 		/* イテレータによる要素の読み出し(書き換えはできない) */
 		printf("%d, ", *IntSet_data(pos));
 	}
@@ -28,7 +30,8 @@ int main(void)
 	/* 3以上の要素を削除 */
 	IntSet_erase_range(set, IntSet_find(set, 3), IntSet_end(set));
 
-	for (pos = IntSet_begin(set); pos != IntSet_end(set); pos = IntSet_next(pos)) {
+	for (pos = IntSet_begin(set); pos != IntSet_end(set); 
+			pos = IntSet_next(pos)) {
 		/* イテレータによる要素の読み出し(書き換えはできない) */
 		printf("%d, ", *IntSet_data(pos));
 	}

@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <cstl/vector.h>
 
-CSTL_VECTOR_INTERFACE(IntVector, int) /* インターフェイスを展開 */
-CSTL_VECTOR_IMPLEMENT(IntVector, int) /* 実装を展開 */
+/* vectorのインターフェイスと実装を展開 */
+CSTL_VECTOR_INTERFACE(IntVector, int)
+CSTL_VECTOR_IMPLEMENT(IntVector, int)
 
 int main(void)
 {

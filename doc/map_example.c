@@ -2,11 +2,13 @@
 #include <string.h>
 #include <cstl/map.h>
 
-CSTL_MAP_INTERFACE(StrIntMap, const char *, int)			/* インターフェイスを展開 */
-CSTL_MAP_IMPLEMENT(StrIntMap, const char *, int, strcmp)	/* 実装を展開 */
+/* mapのインターフェイスと実装を展開 */
+CSTL_MAP_INTERFACE(StrIntMap, const char *, int)
+CSTL_MAP_IMPLEMENT(StrIntMap, const char *, int, strcmp)
 
-CSTL_MULTIMAP_INTERFACE(IntIntMMap, int, int)				/* インターフェイスを展開 */
-CSTL_MULTIMAP_IMPLEMENT(IntIntMMap, int, int, CSTL_LESS)	/* 実装を展開 */
+/* multimapのインターフェイスと実装を展開 */
+CSTL_MULTIMAP_INTERFACE(IntIntMMap, int, int)
+CSTL_MULTIMAP_IMPLEMENT(IntIntMMap, int, int, CSTL_LESS)
 
 int main(void)
 {
@@ -26,7 +28,8 @@ int main(void)
 		*StrIntMap_at(map, "ccc") = 4; /* 存在しないキーの要素は自動的に挿入 */
 		/* 要素数 */
 		printf("size: %d\n", StrIntMap_size(map));
-		for (pos = StrIntMap_begin(map); pos != StrIntMap_end(map); pos = StrIntMap_next(pos)) {
+		for (pos = StrIntMap_begin(map); pos != StrIntMap_end(map); 
+				pos = StrIntMap_next(pos)) {
 			/* イテレータによる要素の読み書き */
 			printf("%s: %d,", *StrIntMap_key(pos), *StrIntMap_value(pos));
 			*StrIntMap_value(pos) += 1;
@@ -51,7 +54,9 @@ int main(void)
 		printf("size: %d\n", IntIntMMap_size(map));
 
 		/* キーが1の要素を探索 */
-		for (pos = IntIntMMap_lower_bound(map, 1); pos != IntIntMMap_upper_bound(map, 1); pos = IntIntMMap_next(pos)) {
+		for (pos = IntIntMMap_lower_bound(map, 1); 
+				pos != IntIntMMap_upper_bound(map, 1); 
+				pos = IntIntMMap_next(pos)) {
 			/* イテレータによる要素の読み書き */
 			printf("%d: %d,", *IntIntMMap_key(pos), *IntIntMMap_value(pos));
 			*IntIntMMap_value(pos) += 1;

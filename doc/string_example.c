@@ -3,8 +3,9 @@
 #include <ctype.h>
 #include <cstl/string.h>
 
-CSTL_STRING_INTERFACE(String, char) /* インターフェイスを展開 */
-CSTL_STRING_IMPLEMENT(String, char) /* 実装を展開 */
+/* stringのインターフェイスと実装を展開 */
+CSTL_STRING_INTERFACE(String, char)
+CSTL_STRING_IMPLEMENT(String, char)
 
 int main(void)
 {

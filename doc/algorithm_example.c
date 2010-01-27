@@ -4,8 +4,9 @@
 #include <cstl/vector.h>
 #include <cstl/algorithm.h> /* CSTL_VECTOR_INTERFACE()の前にインクルード */
 
-CSTL_VECTOR_INTERFACE(IntVector, int) /* インターフェイスを展開 */
-CSTL_VECTOR_IMPLEMENT(IntVector, int) /* 実装を展開 */
+/* vectorのインターフェイスと実装を展開 */
+CSTL_VECTOR_INTERFACE(IntVector, int)
+CSTL_VECTOR_IMPLEMENT(IntVector, int)
 
 /* intの比較関数 */
 int int_less(const void *p1, const void *p2)
