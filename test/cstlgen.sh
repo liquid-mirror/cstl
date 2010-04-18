@@ -226,6 +226,9 @@ if [ "$debug1" != "" ]; then
 	hashtable_debug="#include \"./hashtable_debug.h\""
 fi
 
+indent_prog="indent -kr -ut -ts4 -fc1"
+#indent_prog="astyle --style=k/r -T4 -k3"
+
 hdr="\
 #include \"../cstl/${lower}.h\"
 ${list_debug}
@@ -394,17 +397,10 @@ echo "\
 #ifdef __cplusplus
 extern \"C\" {
 #endif" >> "$path"".h"
-echo "$hdr" | cpp -CC -I.. | grep "${name}_new" \
-| sed -e 's:/\*\([ !]\):\
-/\*\1:g' \
-| sed -e 's/\t* \* /\
- \* /g' \
-| sed -e 's:\*/:\*/\
-:g' \
-| indent -kr -ut -ts4 -fc1 \
+echo "$hdr" | cpp -I.. | grep "${name}_new" \
+| ${indent_prog} \
+| sed -e "s/\r//" \
 | sed -e "s/$name \* /$name */g" \
-| sed -e 's:^\( \*.*\) \*/:\1\
- \*/:' \
 >> "$path"".h"
 echo "\
 #ifdef __cplusplus
@@ -534,20 +530,23 @@ elif [ $lower = "unordered_set" -o $lower = "unordered_multiset" -o\
 	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
 fi
 echo "" >> "$path"".c"
-echo "$src" | cpp -CC -I.. | grep "${name}_new" \
-| sed -e 's:/\*\([ !]\):\
-/\*\1:g' \
-| sed -e 's/\t* \* /\
- \* /g' \
-| sed -e 's:\*/:\*/\
-:g' \
-| indent -kr -ut -ts4 -fc1 \
-| sed -e "s/$name \* /$name */g" | sed -e 's/^} /}\
+echo "$src" | cpp -I.. | grep "${name}_new" \
+| ${indent_prog} \
+| sed -e "s/\r//" \
+| sed -e "s/$name \* /$name */g" \
+| sed -e 's/^} /}\
 \
 /' \
-| sed -e 's:^\( \*.*\) \*/:\1\
- \*/:' \
 >> "$path"".c"
+
+is_windows=`echo $PATH | grep -i "WINDOWS"`
+if [ "$is_windows" != "" ]; then
+	sed -e "s/$/\r/" "$path"".h" > "$path"".hh"
+	sed -e "s/$/\r/" "$path"".c" > "$path"".cc"
+	mv "$path"".hh" "$path"".h"
+	mv "$path"".cc" "$path"".c"
+fi
+
 
 # コンパイル確認
 if [ "$nocompile" = "" ]; then
