@@ -329,7 +329,29 @@ static const struct Name##Iterator_Vtable Name##Iterator_vtbl = {\
 	Name##Iterator_ge_dummy,\
 };\
 \
-static const struct Name##_Vtable Name##_vtbl = {\
+static const struct CstlIteratorVtable Name##Iterator_in_vtbl = {\
+	(CstlIterator_data_t)   Name##Iterator_data,\
+	(CstlIterator_key_t)    Name##Iterator_key_dummy,\
+	(CstlIterator_val_t)    Name##Iterator_val_dummy,\
+	(CstlIterator_next_t)   Name##Iterator_next,\
+	(CstlIterator_prev_t)   Name##Iterator_prev,\
+	(CstlIterator_incr_t)   Name##Iterator_incr,\
+	(CstlIterator_decr_t)   Name##Iterator_decr,\
+	(CstlIterator_eq_t)     Name##Iterator_eq,\
+	(CstlIterator_ne_t)     Name##Iterator_ne,\
+	(CstlIterator_at_t)     Name##Iterator_at_dummy,\
+	(CstlIterator_add_t)    Name##Iterator_add_dummy,\
+	(CstlIterator_sub_t)    Name##Iterator_sub_dummy,\
+	(CstlIterator_incr_n_t) Name##Iterator_incr_n_dummy,\
+	(CstlIterator_decr_n_t) Name##Iterator_decr_n_dummy,\
+	(CstlIterator_diff_t)   Name##Iterator_diff_dummy,\
+	(CstlIterator_lt_t)     Name##Iterator_lt_dummy,\
+	(CstlIterator_le_t)     Name##Iterator_le_dummy,\
+	(CstlIterator_gt_t)     Name##Iterator_gt_dummy,\
+	(CstlIterator_ge_t)     Name##Iterator_ge_dummy,\
+};\
+\
+static struct Name##_Vtable Name##_vtbl = {\
 	Name##_delete,\
 	Name##_push_back,\
 	Name##_push_front,\
@@ -485,7 +507,7 @@ Name##Iterator Name##_begin(Name *self)\
 	CSTL_ASSERT(self && "List_begin");\
 	CSTL_ASSERT(self->magic == self && "List_begin");\
 	iter.vptr = &Name##Iterator_vtbl;\
-	iter.internal.in_vptr = (const CstlIteratorVtable *) &Name##Iterator_vtbl;\
+	iter.internal.in_vptr = &Name##Iterator_in_vtbl;\
 	CSTL_LIST_NODE_ASSIGN(iter.internal.data) = CSTL_LIST_BEGIN_NODE(self);\
 	return iter;\
 }\
@@ -496,7 +518,7 @@ Name##Iterator Name##_end(Name *self)\
 	CSTL_ASSERT(self && "List_end");\
 	CSTL_ASSERT(self->magic == self && "List_end");\
 	iter.vptr = &Name##Iterator_vtbl;\
-	iter.internal.in_vptr = (const CstlIteratorVtable *) &Name##Iterator_vtbl;\
+	iter.internal.in_vptr = &Name##Iterator_in_vtbl;\
 	CSTL_LIST_NODE_ASSIGN(iter.internal.data) = CSTL_LIST_END_NODE(self);\
 	return iter;\
 }\
@@ -507,7 +529,7 @@ Name##Iterator Name##_rbegin(Name *self)\
 	CSTL_ASSERT(self && "List_rbegin");\
 	CSTL_ASSERT(self->magic == self && "List_rbegin");\
 	iter.vptr = &Name##Iterator_vtbl;\
-	iter.internal.in_vptr = (const CstlIteratorVtable *) &Name##Iterator_vtbl;\
+	iter.internal.in_vptr = &Name##Iterator_in_vtbl;\
 	CSTL_LIST_NODE_ASSIGN(iter.internal.data) = CSTL_LIST_RBEGIN_NODE(self);\
 	return iter;\
 }\
@@ -518,7 +540,7 @@ Name##Iterator Name##_rend(Name *self)\
 	CSTL_ASSERT(self && "List_rend");\
 	CSTL_ASSERT(self->magic == self && "List_rend");\
 	iter.vptr = &Name##Iterator_vtbl;\
-	iter.internal.in_vptr = (const CstlIteratorVtable *) &Name##Iterator_vtbl;\
+	iter.internal.in_vptr = &Name##Iterator_in_vtbl;\
 	CSTL_LIST_NODE_ASSIGN(iter.internal.data) = CSTL_LIST_REND_NODE(self);\
 	return iter;\
 }\
@@ -530,7 +552,7 @@ Name##Iterator Name##Iterator_next(CstlIterInternalData pos)\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->magic && "List_next");\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->magic == CSTL_MAGIC_LIST(Name) && "List_next");\
 	iter.vptr = &Name##Iterator_vtbl;\
-	iter.internal.in_vptr = (const CstlIteratorVtable *) &Name##Iterator_vtbl;\
+	iter.internal.in_vptr = &Name##Iterator_in_vtbl;\
 	CSTL_LIST_NODE_ASSIGN(iter.internal.data) = CSTL_LIST_NODE(Name, pos)->next;\
 	return iter;\
 }\
@@ -542,7 +564,7 @@ Name##Iterator Name##Iterator_prev(CstlIterInternalData pos)\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->magic && "List_prev");\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->magic == CSTL_MAGIC_LIST(Name) && "List_prev");\
 	iter.vptr = &Name##Iterator_vtbl;\
-	iter.internal.in_vptr = (const CstlIteratorVtable *) &Name##Iterator_vtbl;\
+	iter.internal.in_vptr = &Name##Iterator_in_vtbl;\
 	CSTL_LIST_NODE_ASSIGN(iter.internal.data) = CSTL_LIST_NODE(Name, pos)->prev;\
 	return iter;\
 }\
@@ -603,7 +625,7 @@ int Name##_insert_ref(Name *self, CstlIterInternalData pos, Type const *data, Na
 	CSTL_MAGIC(node->magic = CSTL_MAGIC_LIST(Name));\
 	if (iter) {\
 		iter->vptr = &Name##Iterator_vtbl;\
-		iter->internal.in_vptr = (const CstlIteratorVtable *) &Name##Iterator_vtbl;\
+		iter->internal.in_vptr = &Name##Iterator_in_vtbl;\
 		CSTL_LIST_NODE_ASSIGN(iter->internal.data) = node;\
 	}\
 	return 1;\
@@ -725,7 +747,7 @@ Name##Iterator Name##_erase(Name *self, CstlIterInternalData pos)\
 	CSTL_UNUSED_PARAM(self);\
 	node = Name##_erase_aux(CSTL_LIST_NODE(Name, pos));\
 	iter.vptr = &Name##Iterator_vtbl;\
-	iter.internal.in_vptr = (const CstlIteratorVtable *) &Name##Iterator_vtbl;\
+	iter.internal.in_vptr = &Name##Iterator_in_vtbl;\
 	CSTL_LIST_NODE_ASSIGN(iter.internal.data) = node;\
 	return iter;\
 }\
@@ -748,7 +770,7 @@ Name##Iterator Name##_erase_range(Name *self, CstlIterInternalData first, CstlIt
 		node = Name##_erase_aux(node);\
 	}\
 	iter.vptr = &Name##Iterator_vtbl;\
-	iter.internal.in_vptr = (const CstlIteratorVtable *) &Name##Iterator_vtbl;\
+	iter.internal.in_vptr = &Name##Iterator_in_vtbl;\
 	CSTL_LIST_NODE_ASSIGN(iter.internal.data) = node;\
 	return iter;\
 }\
