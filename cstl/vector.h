@@ -54,6 +54,11 @@
 #define CSTL_VECTOR_FULL(self)		(CSTL_VECTOR_SIZE((self)) == CSTL_VECTOR_CAPACITY((self)))
 #define CSTL_VECTOR_CLEAR(self)		do { (self)->size = 0; } while (0)
 
+#define CSTL_VECTOR_ELEM(Type, internaldata)	((Type *) ((internaldata).data1))
+#define CSTL_VECTOR_ELEM_ASSIGN(internaldata)	((internaldata).data1)
+#define CSTL_VECTOR_SELF(Name, internaldata)	((Name *) ((internaldata).data2))
+#define CSTL_VECTOR_SELF_ASSIGN(internaldata)	((internaldata).data2)
+#define CSTL_VECTOR_IDX(internaldata)			((internaldata).data3)
 
 /*! 
  * \brief インターフェイスマクロ
@@ -63,6 +68,133 @@
  */
 #define CSTL_VECTOR_INTERFACE(Name, Type)	\
 typedef struct Name Name;\
+/*! \
+ * \brief イテレータ\
+ */\
+typedef struct Name##Iterator {\
+	const struct Name##Iterator_Vtable *vptr;\
+	CstlIterInternal internal;\
+} Name##Iterator;\
+\
+typedef Type *(*Name##Iterator_data_t)(CstlIterInternalData pos);\
+typedef void *(*Name##Iterator_key_t)(CstlIterInternalData pos);\
+typedef void *(*Name##Iterator_val_t)(CstlIterInternalData pos);\
+typedef Name##Iterator (*Name##Iterator_next_t)(CstlIterInternalData pos);\
+typedef Name##Iterator (*Name##Iterator_prev_t)(CstlIterInternalData pos);\
+typedef void (*Name##Iterator_incr_t)(CstlIterInternalData *pos);\
+typedef void (*Name##Iterator_decr_t)(CstlIterInternalData *pos);\
+typedef int (*Name##Iterator_eq_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef int (*Name##Iterator_ne_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef Type *(*Name##Iterator_at_t)(CstlIterInternalData pos, size_t n);\
+typedef Name##Iterator (*Name##Iterator_add_t)(CstlIterInternalData pos, size_t n);\
+typedef Name##Iterator (*Name##Iterator_sub_t)(CstlIterInternalData pos, size_t n);\
+typedef void (*Name##Iterator_incr_n_t)(CstlIterInternalData *pos, size_t n);\
+typedef void (*Name##Iterator_decr_n_t)(CstlIterInternalData *pos, size_t n);\
+typedef int (*Name##Iterator_diff_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef int (*Name##Iterator_lt_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef int (*Name##Iterator_le_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef int (*Name##Iterator_gt_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef int (*Name##Iterator_ge_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+\
+struct Name##Iterator_Vtable {\
+	Name##Iterator_data_t   data;\
+	Name##Iterator_key_t    key;\
+	Name##Iterator_val_t    val;\
+	Name##Iterator_next_t   next;\
+	Name##Iterator_prev_t   prev;\
+	Name##Iterator_incr_t   incr;\
+	Name##Iterator_decr_t   decr;\
+	Name##Iterator_eq_t     eq;\
+	Name##Iterator_ne_t     ne;\
+	Name##Iterator_at_t     at;\
+	Name##Iterator_add_t    add;\
+	Name##Iterator_sub_t    sub;\
+	Name##Iterator_incr_n_t incr_n;\
+	Name##Iterator_decr_n_t decr_n;\
+	Name##Iterator_diff_t   diff;\
+	Name##Iterator_lt_t     lt;\
+	Name##Iterator_le_t     le;\
+	Name##Iterator_gt_t     gt;\
+	Name##Iterator_ge_t     ge;\
+	int is_rand_iter;\
+};\
+\
+typedef void (*Name##_delete_t)(Name *self);\
+typedef int (*Name##_push_back_t)(Name *self, Type data);\
+/*typedef int (*Name##_push_front_t)(Name *self, Type data);*/\
+typedef int (*Name##_push_back_ref_t)(Name *self, Type const *data);\
+/*typedef int (*Name##_push_front_ref_t)(Name *self, Type const *data);*/\
+/*typedef void (*Name##_pop_front_t)(Name *self);*/\
+typedef void (*Name##_pop_back_t)(Name *self);\
+typedef int (*Name##_empty_t)(Name *self);\
+typedef size_t (*Name##_size_t)(Name *self);\
+typedef size_t (*Name##_capacity_t)(Name *self);\
+typedef void (*Name##_clear_t)(Name *self);\
+typedef int (*Name##_reserve_t)(Name *self, size_t n);\
+typedef void (*Name##_shrink_t)(Name *self, size_t n);\
+typedef Type *(*Name##_at_t)(Name *self, size_t idx);\
+typedef Type *(*Name##_front_t)(Name *self);\
+typedef Type *(*Name##_back_t)(Name *self);\
+typedef Name##Iterator (*Name##_begin_t)(Name *self);\
+typedef Name##Iterator (*Name##_end_t)(Name *self);\
+typedef Name##Iterator (*Name##_rbegin_t)(Name *self);\
+typedef Name##Iterator (*Name##_rend_t)(Name *self);\
+typedef Name##Iterator (*Name##_insert_t)(Name *self, CstlIterInternalData pos, Type data);\
+typedef Name##Iterator (*Name##_insert_ref_t)(Name *self, CstlIterInternalData pos, Type const *data);\
+typedef int (*Name##_insert_t)(Name *self, CstlIterInternalData pos, Type data, Name##Iterator *iter);\
+typedef int (*Name##_insert_ref_t)(Name *self, CstlIterInternalData pos, Type const *data, Name##Iterator *iter);\
+typedef int (*Name##_insert_n_t)(Name *self, CstlIterInternalData pos, size_t n, Type data);\
+typedef int (*Name##_insert_n_ref_t)(Name *self, CstlIterInternalData pos, size_t n, Type const *data);\
+typedef int (*Name##_insert_array_t)(Name *self, CstlIterInternalData pos, Type const *data, size_t n);\
+typedef int (*Name##_insert_range_t)(Name *self, CstlIterInternalData pos, CstlIterInternal first, CstlIterInternal last);\
+typedef Name##Iterator (*Name##_erase_t)(Name *self, CstlIterInternalData pos);\
+typedef Name##Iterator (*Name##_erase_range_t)(Name *self, CstlIterInternalData first, CstlIterInternalData last);\
+typedef int (*Name##_resize_t)(Name *self, size_t n, Type data);\
+typedef void (*Name##_swap_t)(Name *self, Name *x);\
+\
+struct Name##_Vtable {\
+	Name##_delete_t         delete_;\
+	Name##_push_back_t      push_back;\
+/*	Name##_push_front_t     push_front;*/\
+	Name##_push_back_ref_t  push_back_ref;\
+/*	Name##_push_front_ref_t push_front_ref;*/\
+/*	Name##_pop_front_t      pop_front;*/\
+	Name##_pop_back_t       pop_back;\
+	Name##_empty_t          empty;\
+	Name##_size_t           size;\
+	Name##_capacity_t           capacity;\
+	Name##_clear_t          clear;\
+	Name##_reserve_t           reserve;\
+	Name##_shrink_t           shrink;\
+	Name##_at_t           at;\
+	Name##_front_t          front;\
+	Name##_back_t           back;\
+	Name##_begin_t          begin;\
+	Name##_end_t            end;\
+	Name##_rbegin_t         rbegin;\
+	Name##_rend_t           rend;\
+	Name##_insert_t         insert;\
+	Name##_insert_ref_t     insert_ref;\
+	Name##_insert_n_t       insert_n;\
+	Name##_insert_n_ref_t   insert_n_ref;\
+	Name##_insert_array_t   insert_array;\
+	Name##_insert_range_t   insert_range;\
+	Name##_erase_t          erase;\
+	Name##_erase_range_t    erase_range;\
+	Name##_resize_t         resize;\
+	Name##_swap_t           swap;\
+};\
+\
+/*! \
+ * \brief vector構造体\
+ */\
+struct Name {\
+	const struct Name##_Vtable *vptr;\
+	size_t size;\
+	size_t capacity;\
+	Type *buf;\
+	CSTL_MAGIC(Name *magic;)\
+};\
 \
 CSTL_EXTERN_C_BEGIN()\
 Name *Name##_new(void);\
@@ -81,29 +213,32 @@ int Name##_resize(Name *self, size_t n, Type data);\
 Type *Name##_at(Name *self, size_t idx);\
 Type *Name##_front(Name *self);\
 Type *Name##_back(Name *self);\
-int Name##_insert(Name *self, size_t idx, Type data);\
-int Name##_insert_ref(Name *self, size_t idx, Type const *data);\
-int Name##_insert_n(Name *self, size_t idx, size_t n, Type data);\
-int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data);\
-int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n);\
-int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n);\
-void Name##_erase(Name *self, size_t idx, size_t n);\
+Name##Iterator Name##_begin(Name *self);\
+Name##Iterator Name##_end(Name *self);\
+Name##Iterator Name##_rbegin(Name *self);\
+Name##Iterator Name##_rend(Name *self);\
+int Name##_insert(Name *self, CstlIterInternalData pos, Type data, Name##Iterator *iter);\
+int Name##_insert_ref(Name *self, CstlIterInternalData pos, Type const *data, Name##Iterator *iter);\
+int Name##_insert_n(Name *self, CstlIterInternalData pos, size_t n, Type data);\
+int Name##_insert_n_ref(Name *self, CstlIterInternalData pos, size_t n, Type const *data);\
+int Name##_insert_array(Name *self, CstlIterInternalData pos, Type const *data, size_t n);\
+int Name##_insert_range(Name *self, CstlIterInternalData pos, CstlIterInternal first, CstlIterInternal last);\
+Name##Iterator Name##_erase(Name *self, CstlIterInternalData pos);\
+Name##Iterator Name##_erase_range(Name *self, CstlIterInternalData first, CstlIterInternalData last);\
 void Name##_swap(Name *self, Name *x);\
-CSTL_ALGORITHM_INTERFACE(Name, Type)\
+Type *Name##Iterator_data(CstlIterInternalData pos);\
+Name##Iterator Name##Iterator_next(CstlIterInternalData pos);\
+Name##Iterator Name##Iterator_prev(CstlIterInternalData pos);\
+void Name##Iterator_incr(CstlIterInternalData *pos);\
+void Name##Iterator_decr(CstlIterInternalData *pos);\
+int Name##Iterator_eq(CstlIterInternalData pos, CstlIterInternalData x);\
+int Name##Iterator_ne(CstlIterInternalData pos, CstlIterInternalData x);\
+/*CSTL_ALGORITHM_INTERFACE(Name, Type)*/\
 CSTL_EXTERN_C_END()\
 
 
 
 #define CSTL_VECTOR_IMPLEMENT_BASE(Name, Type)	\
-/*! \
- * \brief vector構造体\
- */\
-struct Name {\
-	size_t size;\
-	size_t capacity;\
-	Type *buf;\
-	CSTL_MAGIC(Name *magic;)\
-};\
 \
 Name *Name##_new(void)\
 {\
@@ -333,38 +468,40 @@ static int Name##_insert_n_no_data(Name *self, size_t idx, size_t n)\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_INSERT(Name, Type)	\
-int Name##_insert(Name *self, size_t idx, Type data)\
+int Name##_insert(Name *self, CstlIterInternalData pos, Type data, Name##Iterator *iter);\
 {\
 	CSTL_ASSERT(self && "Vector_insert");\
 	CSTL_ASSERT(self->magic == self && "Vector_insert");\
-	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert");\
-	return Name##_insert_n_ref(self, idx, 1, &data);\
+/*	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert");*/\
+	return Name##_insert_n_ref(self, pos, 1, &data);\
 }\
 \
-int Name##_insert_ref(Name *self, size_t idx, Type const *data)\
+int Name##_insert_ref(Name *self, CstlIterInternalData pos, Type const *data, Name##Iterator *iter);\
 {\
 	CSTL_ASSERT(self && "Vector_insert_ref");\
 	CSTL_ASSERT(self->magic == self && "Vector_insert_ref");\
-	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_ref");\
+/*	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_ref");*/\
 	CSTL_ASSERT(data && "Vector_insert_ref");\
-	return Name##_insert_n_ref(self, idx, 1, data);\
+	return Name##_insert_n_ref(self, pos, 1, data);\
 }\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_INSERT_N(Name, Type)	\
-int Name##_insert_n(Name *self, size_t idx, size_t n, Type data)\
+int Name##_insert_n(Name *self, CstlIterInternalData pos, size_t n, Type data);\
 {\
 	CSTL_ASSERT(self && "Vector_insert_n");\
 	CSTL_ASSERT(self->magic == self && "Vector_insert_n");\
-	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n");\
-	return Name##_insert_n_ref(self, idx, n, &data);\
+/*	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n");*/\
+	return Name##_insert_n_ref(self, pos, n, &data);\
 }\
 \
-int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data)\
+int Name##_insert_n_ref(Name *self, CstlIterInternalData pos, size_t n, Type const *data);\
 {\
 	register size_t i;\
+	size_t idx;\
 	CSTL_ASSERT(self && "Vector_insert_n_ref");\
 	CSTL_ASSERT(self->magic == self && "Vector_insert_n_ref");\
+	idx = CSTL_VECTOR_IDX(pos);\
 	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_n_ref");\
 	CSTL_ASSERT(data && "Vector_insert_n_ref");\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
@@ -378,10 +515,12 @@ int Name##_insert_n_ref(Name *self, size_t idx, size_t n, Type const *data)\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_INSERT_ARRAY(Name, Type)	\
-int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
+int Name##_insert_array(Name *self, CstlIterInternalData pos, Type const *data, size_t n);\
 {\
+	size_t idx;\
 	CSTL_ASSERT(self && "Vector_insert_array");\
 	CSTL_ASSERT(self->magic == self && "Vector_insert_array");\
+	idx = CSTL_VECTOR_IDX(pos);\
 	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_array");\
 	CSTL_ASSERT(data && "Vector_insert_array");\
 	if (!Name##_insert_n_no_data(self, idx, n)) {\
@@ -393,20 +532,34 @@ int Name##_insert_array(Name *self, size_t idx, Type const *data, size_t n)\
 \
 
 #define CSTL_VECTOR_IMPLEMENT_INSERT_RANGE(Name, Type)	\
-int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
+/*int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)*/\
+int Name##_insert_range(Name *self, CstlIterInternalData pos, CstlIterInternal first, CstlIterInternal last);\
 {\
+	size_t idx;\
+	Name *x;\
+	size_t n;\
 	CSTL_ASSERT(self && "Vector_insert_range");\
 	CSTL_ASSERT(self->magic == self && "Vector_insert_range");\
+	CSTL_ASSERT(first.in_vptr == last.in_vptr && "Vector_insert_range");\
+	CSTL_ASSERT(first.in_vptr->is_rand_iter == last.in_vptr->is_rand_iter && "Vector_insert_range");\
+	idx = CSTL_VECTOR_IDX(pos);\
 	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx && "Vector_insert_range");\
-	CSTL_ASSERT(x && "Vector_insert_range");\
-	CSTL_ASSERT(x->magic == x && "Vector_insert_range");\
-	CSTL_ASSERT(CSTL_VECTOR_SIZE(x) >= xidx + n && "Vector_insert_range");\
-	CSTL_ASSERT(CSTL_VECTOR_SIZE(x) >= n && "Vector_insert_range");\
-	CSTL_ASSERT(CSTL_VECTOR_SIZE(x) > xidx && "Vector_insert_range");\
-	if (!Name##_insert_n_no_data(self, idx, n)) {\
-		return 0;\
-	}\
+/*	CSTL_ASSERT(CSTL_VECTOR_SELF(Name, first.data) == CSTL_VECTOR_SELF(Name, last.data) && "Vector_insert_range");\
+	CSTL_ASSERT(CSTL_VECTOR_IDX(first.data) <= CSTL_VECTOR_IDX(last.data) && "Vector_insert_range");*/\
+	x = CSTL_VECTOR_SELF(Name, first.data);\
 	if (self == x) {\
+		size_t xidx;\
+		xidx = CSTL_VECTOR_IDX(first.data);\
+		n = CSTL_VECTOR_IDX(last.data) - CSTL_VECTOR_IDX(first.data);\
+		CSTL_ASSERT(x && "Vector_insert_range");\
+		CSTL_ASSERT(x->magic == x && "Vector_insert_range");\
+		CSTL_ASSERT(CSTL_VECTOR_SIZE(x) >= xidx + n && "Vector_insert_range");\
+		CSTL_ASSERT(CSTL_VECTOR_SIZE(x) >= n && "Vector_insert_range");\
+		CSTL_ASSERT(CSTL_VECTOR_SIZE(x) > xidx && "Vector_insert_range");\
+		if (!Name##_insert_n_no_data(self, idx, n)) {\
+			return 0;\
+		}\
+		/* この場合は[first, last)がvectorとして処理できる。イテレータの仮想関数を使わない */\
 		if (idx <= xidx) {\
 			memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(self, xidx + n), sizeof(Type) * n);\
 		} else if (xidx < idx && idx < xidx + n) {\
@@ -416,7 +569,23 @@ int Name##_insert_range(Name *self, size_t idx, Name *x, size_t xidx, size_t n)\
 			memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(self, xidx), sizeof(Type) * n);\
 		}\
 	} else {\
-		memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(x, xidx), sizeof(Type) * n);\
+		CstlIterInternal i;\
+		size_t j;\
+		if (first.in_vptr->is_rand_iter) {\
+			CSTL_ASSERT(first.in_vptr->diff(last.data, first.data) >= 0 && "Vector_insert_range");\
+			n = (size_t) first.in_vptr->diff(last.data, first.data);\
+		} else {\
+			for (i = first, n = 0; i.in_vptr->ne(i.data, last.data); i.in_vptr->incr(&i.data)) {\
+				n++;\
+			}\
+		}\
+		if (!Name##_insert_n_no_data(self, idx, n)) {\
+			return 0;\
+		}\
+		for (i = first, j = 0; i.in_vptr->ne(i.data, last.data); i.in_vptr->incr(&i.data), j++) {\
+			CSTL_VECTOR_AT(self, idx + j) = *((Type *) i.in_vptr->data(i.data));\
+		}\
+/*		memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(x, xidx), sizeof(Type) * n);*/\
 	}\
 	return 1;\
 }\
