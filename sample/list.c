@@ -61,7 +61,7 @@ int main(void)
 	IntListIterator iter;
 	Int2ListIterator iter2;
 
-	/* 生成は 型名_new() という関数になる */
+	/* 生成は 型名_new() という関数で行う */
 	hl = HogeList_new(); /* C++イメージ: hl = new list<Hoge *>; */
 	il = IntList_new();
 	il2 = Int2List_new();
