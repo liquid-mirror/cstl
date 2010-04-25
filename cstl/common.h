@@ -172,6 +172,7 @@ struct CstlIteratorVtable {
 	CstlIterator_le_t     le;
 	CstlIterator_gt_t     gt;
 	CstlIterator_ge_t     ge;
+	int is_rand_iter;
 };
 
 
