@@ -116,6 +116,7 @@ struct Name##Iterator_Vtable {\
 	Name##Iterator_le_t     le;\
 	Name##Iterator_gt_t     gt;\
 	Name##Iterator_ge_t     ge;\
+	int container;\
 	int is_rand_iter;\
 };\
 \
@@ -582,10 +583,20 @@ int Name##_insert_range(Name *self, CstlIterInternalData pos, CstlIterInternal f
 		if (!Name##_insert_n_no_data(self, idx, n)) {\
 			return 0;\
 		}\
-		for (i = first, j = 0; i.in_vptr->ne(i.data, last.data); i.in_vptr->incr(&i.data), j++) {\
-			CSTL_VECTOR_AT(self, idx + j) = *((Type *) i.in_vptr->data(i.data));\
+		if (first.in_vptr->container == CSTL_CONTAINER_VECTOR) {\
+			size_t xidx;\
+			xidx = CSTL_VECTOR_IDX(first.data);\
+			CSTL_ASSERT(x && "Vector_insert_range");\
+			CSTL_ASSERT(x->magic == x && "Vector_insert_range");\
+			CSTL_ASSERT(CSTL_VECTOR_SIZE(x) >= xidx + n && "Vector_insert_range");\
+			CSTL_ASSERT(CSTL_VECTOR_SIZE(x) >= n && "Vector_insert_range");\
+			CSTL_ASSERT(CSTL_VECTOR_SIZE(x) > xidx && "Vector_insert_range");\
+			memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(x, xidx), sizeof(Type) * n);\
+		} else {\
+			for (i = first, j = 0; i.in_vptr->ne(i.data, last.data); i.in_vptr->incr(&i.data), j++) {\
+				CSTL_VECTOR_AT(self, idx + j) = *((Type *) i.in_vptr->data(i.data));\
+			}\
 		}\
-/*		memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(x, xidx), sizeof(Type) * n);*/\
 	}\
 	return 1;\
 }\

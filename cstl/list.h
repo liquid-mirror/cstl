@@ -106,6 +106,7 @@ struct Name##Iterator_Vtable {\
 	Name##Iterator_le_t     le;\
 	Name##Iterator_gt_t     gt;\
 	Name##Iterator_ge_t     ge;\
+	int container;\
 	int is_rand_iter;\
 };\
 \
@@ -328,6 +329,7 @@ static const struct Name##Iterator_Vtable Name##Iterator_vtbl = {\
 	Name##Iterator_le_dummy,\
 	Name##Iterator_gt_dummy,\
 	Name##Iterator_ge_dummy,\
+	CSTL_CONTAINER_LIST,\
 	0,\
 };\
 \
@@ -351,10 +353,11 @@ static const struct CstlIteratorVtable Name##Iterator_in_vtbl = {\
 	(CstlIterator_le_t)     Name##Iterator_le_dummy,\
 	(CstlIterator_gt_t)     Name##Iterator_gt_dummy,\
 	(CstlIterator_ge_t)     Name##Iterator_ge_dummy,\
+	CSTL_CONTAINER_LIST,\
 	0,\
 };\
 \
-static struct Name##_Vtable Name##_vtbl = {\
+static const struct Name##_Vtable Name##_vtbl = {\
 	Name##_delete,\
 	Name##_push_back,\
 	Name##_push_front,\

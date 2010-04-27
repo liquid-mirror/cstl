@@ -152,6 +152,17 @@ typedef int (*CstlIterator_le_t)(CstlIterInternalData pos, CstlIterInternalData 
 typedef int (*CstlIterator_gt_t)(CstlIterInternalData pos, CstlIterInternalData x);
 typedef int (*CstlIterator_ge_t)(CstlIterInternalData pos, CstlIterInternalData x);
 
+enum {
+	CSTL_CONTAINER_VECTOR,
+	CSTL_CONTAINER_DEQUE,
+	CSTL_CONTAINER_LIST,
+	CSTL_CONTAINER_SET,
+	CSTL_CONTAINER_MAP,
+	CSTL_CONTAINER_UNORDERED_SET,
+	CSTL_CONTAINER_UNORDERED_MAP,
+	CSTL_CONTAINER_STRING
+};
+
 struct CstlIteratorVtable {
 	CstlIterator_data_t   data;
 	CstlIterator_key_t    key;
@@ -172,6 +183,7 @@ struct CstlIteratorVtable {
 	CstlIterator_le_t     le;
 	CstlIterator_gt_t     gt;
 	CstlIterator_ge_t     ge;
+	int container;
 	int is_rand_iter;
 };
 
