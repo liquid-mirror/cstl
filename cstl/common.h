@@ -119,7 +119,7 @@ typedef struct CstlIteratorVtable CstlIteratorVtable;
 typedef struct CstlIterInternalData {
 	void *data1;
 	void *data2;
-	void *data3;
+	size_t data3;
 } CstlIterInternalData;
 
 typedef struct CstlIterInternal {
