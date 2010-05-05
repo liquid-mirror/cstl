@@ -7,7 +7,7 @@
 #include <sys/time.h>
 #endif
 #include <cstl/vector.h>
-#include <cstl/algorithm.h>
+//#include <cstl/algorithm.h>
 #include <vector>
 #include <algorithm>
 #include <functional>
@@ -60,9 +60,14 @@ int greater_comp(const void *x, const void *y)
 int main(void)
 {
 	int i;
+	size_t j;
+	size_t size;
 	double t;
 	IntVector *x;
+	IntVectorIterator xpos;
+	IntVectorIterator end;
 	vector<int> y;
+	vector<int>::iterator ypos;
 
 	x = IntVector_new_reserve(8);
 	y.reserve(8);
@@ -71,7 +76,7 @@ int main(void)
 	// push_back
 	t = get_msec();
 	for (i = 0; i < COUNT; i++) {
-		IntVector_push_back(x, i);
+		cstl_push_back(x, i);
 	}
 	printf("cstl: push_back[%d]: %g ms\n", COUNT, get_msec() - t);
 
@@ -80,18 +85,43 @@ int main(void)
 		y.push_back(i);
 	}
 	printf("stl : push_back[%d]: %g ms\n", COUNT, get_msec() - t);
-	if (y.size() != IntVector_size(x)) {
+	if (y.size() != cstl_size(x)) {
 		printf("!!!NG!!!\n");
 	}
 	for (i = 0; i < COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i)) {
+		if (y[i] != *cstl_at(x, i)) {
 			printf("!!!NG!!!\n");
 		}
 	}
+
+	// iterate
+	t = get_msec();
+#if 1
+	end = cstl_end(x);
+	for (xpos = cstl_begin(x); cstl_iter_ne(xpos, end); cstl_iter_incr(&xpos)) {
+		volatile int tmp = *cstl_iter_data(xpos);
+		i = tmp;
+	}
+#else
+	size = cstl_size(x);
+	for (j = 0; j < size; j++) {
+		volatile int tmp = *cstl_at(x, i);
+		i = tmp;
+	}
+#endif
+	printf("cstl: iterate[%d]: %g ms\n", COUNT, get_msec() - t);
+
+	t = get_msec();
+	for (ypos = y.begin(); ypos != y.end(); ++ypos) {
+		volatile int tmp = *ypos;
+		i = tmp;
+	}
+	printf("stl : iterate[%d]: %g ms\n", COUNT, get_msec() - t);
+
 	// pop_back
 	t = get_msec();
 	for (i = 0; i < COUNT; i++) {
-		IntVector_pop_back(x);
+		cstl_pop_back(x);
 	}
 	printf("cstl: pop_back[%d]: %g ms\n", COUNT, get_msec() - t);
 
@@ -100,13 +130,13 @@ int main(void)
 		y.pop_back();
 	}
 	printf("stl : pop_back[%d]: %g ms\n", COUNT, get_msec() - t);
-	if (!y.empty() || y.size() != IntVector_size(x)) {
+	if (!y.empty() || y.size() != cstl_size(x)) {
 		printf("!!!NG!!!\n");
 	}
 	// insert front
 	t = get_msec();
 	for (i = 0; i < INSERT_COUNT; i++) {
-		IntVector_insert(x, 0, i);
+		cstl_insert(x, cstl_begin(x), i, NULL);
 	}
 	printf("cstl: insert front[%d]: %g ms\n", INSERT_COUNT, get_msec() - t);
 
@@ -116,14 +146,14 @@ int main(void)
 	}
 	printf("stl : insert front[%d]: %g ms\n", INSERT_COUNT, get_msec() - t);
 	for (i = 0; i < INSERT_COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i)) {
+		if (y[i] != *cstl_at(x, i)) {
 			printf("!!!NG!!!\n");
 		}
 	}
 	// erase front
 	t = get_msec();
 	for (i = 0; i < INSERT_COUNT; i++) {
-		IntVector_erase(x, 0, 1);
+		cstl_erase(x, cstl_begin(x));
 	}
 	printf("cstl: erase front[%d]: %g ms\n", INSERT_COUNT, get_msec() - t);
 
@@ -132,13 +162,16 @@ int main(void)
 		y.erase(y.begin());
 	}
 	printf("stl : erase front[%d]: %g ms\n", INSERT_COUNT, get_msec() - t);
-	if (!y.empty() || y.size() != IntVector_size(x)) {
+	if (!y.empty() || y.size() != cstl_size(x)) {
 		printf("!!!NG!!!\n");
 	}
 	// insert center
 	t = get_msec();
 	for (i = 0; i < INSERT_COUNT; i++) {
-		IntVector_insert(x, IntVector_size(x) / 2, i);
+//        cstl_insert(x, cstl_size(x) / 2, i);
+		xpos = cstl_begin(x);
+		cstl_insert(x, cstl_iter_add(xpos, cstl_size(x) / 2), i, NULL);
+//        cstl_insert(x, cstl_iter_add(cstl_begin(x), cstl_size(x) / 2), i, NULL);
 	}
 	printf("cstl: insert center[%d]: %g ms\n", INSERT_COUNT, get_msec() - t);
 
@@ -148,14 +181,17 @@ int main(void)
 	}
 	printf("stl : insert center[%d]: %g ms\n", INSERT_COUNT, get_msec() - t);
 	for (i = 0; i < INSERT_COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i)) {
+		if (y[i] != *cstl_at(x, i)) {
 			printf("!!!NG!!!\n");
 		}
 	}
 	// erase center
 	t = get_msec();
 	for (i = 0; i < INSERT_COUNT; i++) {
-		IntVector_erase(x, IntVector_size(x) / 2, 1);
+//        cstl_erase(x, cstl_size(x) / 2, 1);
+		xpos = cstl_begin(x);
+		cstl_erase(x, cstl_iter_add(xpos, cstl_size(x) / 2));
+//        cstl_erase(x, cstl_iter_add(cstl_begin(x), cstl_size(x) / 2));
 	}
 	printf("cstl: erase center[%d]: %g ms\n", INSERT_COUNT, get_msec() - t);
 
@@ -164,13 +200,14 @@ int main(void)
 		y.erase(y.begin() + y.size() / 2);
 	}
 	printf("stl : erase center[%d]: %g ms\n", INSERT_COUNT, get_msec() - t);
-	if (!y.empty() || y.size() != IntVector_size(x)) {
+	if (!y.empty() || y.size() != cstl_size(x)) {
 		printf("!!!NG!!!\n");
 	}
 	// insert back
 	t = get_msec();
 	for (i = 0; i < COUNT; i++) {
-		IntVector_insert(x, IntVector_size(x), i);
+//        cstl_insert(x, cstl_size(x), i);
+		cstl_insert(x, cstl_end(x), i, NULL);
 	}
 	printf("cstl: insert back[%d]: %g ms\n", COUNT, get_msec() - t);
 
@@ -180,14 +217,17 @@ int main(void)
 	}
 	printf("stl : insert back[%d]: %g ms\n", COUNT, get_msec() - t);
 	for (i = 0; i < COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i)) {
+		if (y[i] != *cstl_at(x, i)) {
 			printf("!!!NG!!!\n");
 		}
 	}
 	// erase back
 	t = get_msec();
 	for (i = 0; i < COUNT; i++) {
-		IntVector_erase(x, IntVector_size(x) - 1, 1);
+//        cstl_erase(x, cstl_size(x) - 1, 1);
+		xpos = cstl_end(x);
+		cstl_erase(x, cstl_iter_sub(xpos, 1));
+//        cstl_erase(x, cstl_iter_sub(cstl_end(x), 1));
 	}
 	printf("cstl: erase back[%d]: %g ms\n", COUNT, get_msec() - t);
 
@@ -196,21 +236,22 @@ int main(void)
 		y.erase(y.end() - 1);
 	}
 	printf("stl : erase back[%d]: %g ms\n", COUNT, get_msec() - t);
-	if (!y.empty() || y.size() != IntVector_size(x)) {
+	if (!y.empty() || y.size() != cstl_size(x)) {
 		printf("!!!NG!!!\n");
 	}
 
 
+#if 0
 	static int buf[SORT_COUNT];
 	srand(time(0));
 	// sort
 	for (i = 0; i < SORT_COUNT; i++) {
 		buf[i] = rand();
-		IntVector_push_back(x, buf[i]);
+		cstl_push_back(x, buf[i]);
 		y.push_back(buf[i]);
 	}
 	t = get_msec();
-	IntVector_sort(x, 0, IntVector_size(x), comp);
+	cstl_algo_sort(x, 0, cstl_size(x), comp);
 	printf("cstl: sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	t = get_msec();
@@ -222,13 +263,13 @@ int main(void)
 	printf("libc: qsort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	for (i = 0; i < SORT_COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i) || y[i] != buf[i]) {
+		if (y[i] != *cstl_at(x, i) || y[i] != buf[i]) {
 			printf("!!!NG!!!\n");
 		}
 	}
 	// sort 2
 	t = get_msec();
-	IntVector_sort(x, 0, IntVector_size(x), comp);
+	cstl_algo_sort(x, 0, cstl_size(x), comp);
 	printf("cstl: sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	t = get_msec();
@@ -240,13 +281,13 @@ int main(void)
 	printf("libc: qsort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	for (i = 0; i < SORT_COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i) || y[i] != buf[i]) {
+		if (y[i] != *cstl_at(x, i) || y[i] != buf[i]) {
 			printf("!!!NG!!!\n");
 		}
 	}
 	// sort 3
 	t = get_msec();
-	IntVector_sort(x, 0, IntVector_size(x), greater_comp);
+	cstl_algo_sort(x, 0, cstl_size(x), greater_comp);
 	printf("cstl: sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	t = get_msec();
@@ -258,69 +299,69 @@ int main(void)
 	printf("libc: qsort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	for (i = 0; i < SORT_COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i) || y[i] != buf[i]) {
+		if (y[i] != *cstl_at(x, i) || y[i] != buf[i]) {
 			printf("!!!NG!!!\n");
 		}
 	}
 
-	IntVector_clear(x);
+	cstl_clear(x);
 	y.clear();
 	// stable_sort
 	for (i = 0; i < SORT_COUNT; i++) {
 		buf[i] = rand();
-		IntVector_push_back(x, buf[i]);
+		cstl_push_back(x, buf[i]);
 		y.push_back(buf[i]);
 	}
 	t = get_msec();
-	IntVector_stable_sort(x, 0, IntVector_size(x), comp);
+	IntVector_stable_sort(x, 0, cstl_size(x), comp);
 	printf("cstl: stable_sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	t = get_msec();
 	stable_sort(y.begin(), y.end());
 	printf("stl : stable_sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 	for (i = 0; i < SORT_COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i)) {
+		if (y[i] != *cstl_at(x, i)) {
 			printf("!!!NG!!!\n");
 		}
 	}
 	// stable_sort 2
 	t = get_msec();
-	IntVector_stable_sort(x, 0, IntVector_size(x), comp);
+	IntVector_stable_sort(x, 0, cstl_size(x), comp);
 	printf("cstl: stable_sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	t = get_msec();
 	stable_sort(y.begin(), y.end());
 	printf("stl : stable_sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 	for (i = 0; i < SORT_COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i)) {
+		if (y[i] != *cstl_at(x, i)) {
 			printf("!!!NG!!!\n");
 		}
 	}
 	// stable_sort 3
 	t = get_msec();
-	IntVector_stable_sort(x, 0, IntVector_size(x), greater_comp);
+	IntVector_stable_sort(x, 0, cstl_size(x), greater_comp);
 	printf("cstl: stable_sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	t = get_msec();
 	stable_sort(y.begin(), y.end(), greater<int>());
 	printf("stl : stable_sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 	for (i = 0; i < SORT_COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i)) {
+		if (y[i] != *cstl_at(x, i)) {
 			printf("!!!NG!!!\n");
 		}
 	}
 
-	IntVector_clear(x);
+	cstl_clear(x);
 	y.clear();
 
 	// partial_sort
 	for (i = 0; i < SORT_COUNT; i++) {
 		buf[i] = rand();
-		IntVector_push_back(x, buf[i]);
+		cstl_push_back(x, buf[i]);
 		y.push_back(buf[i]);
 	}
 	t = get_msec();
-	IntVector_partial_sort(x, 0, IntVector_size(x), IntVector_size(x), comp);
+	IntVector_partial_sort(x, 0, cstl_size(x), cstl_size(x), comp);
 	printf("cstl: partial_sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	t = get_msec();
@@ -332,13 +373,13 @@ int main(void)
 	printf("libc: qsort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	for (i = 0; i < SORT_COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i) || y[i] != buf[i]) {
+		if (y[i] != *cstl_at(x, i) || y[i] != buf[i]) {
 			printf("!!!NG!!!\n");
 		}
 	}
 	// partial_sort 2
 	t = get_msec();
-	IntVector_partial_sort(x, 0, IntVector_size(x), IntVector_size(x), comp);
+	IntVector_partial_sort(x, 0, cstl_size(x), cstl_size(x), comp);
 	printf("cstl: partial_sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	t = get_msec();
@@ -350,13 +391,13 @@ int main(void)
 	printf("libc: qsort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	for (i = 0; i < SORT_COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i) || y[i] != buf[i]) {
+		if (y[i] != *cstl_at(x, i) || y[i] != buf[i]) {
 			printf("!!!NG!!!\n");
 		}
 	}
 	// partial_sort 3
 	t = get_msec();
-	IntVector_partial_sort(x, 0, IntVector_size(x), IntVector_size(x), greater_comp);
+	IntVector_partial_sort(x, 0, cstl_size(x), cstl_size(x), greater_comp);
 	printf("cstl: partial_sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	t = get_msec();
@@ -368,11 +409,12 @@ int main(void)
 	printf("libc: qsort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
 	for (i = 0; i < SORT_COUNT; i++) {
-		if (y[i] != *IntVector_at(x, i) || y[i] != buf[i]) {
+		if (y[i] != *cstl_at(x, i) || y[i] != buf[i]) {
 			printf("!!!NG!!!\n");
 		}
 	}
+#endif
 
-	IntVector_delete(x);
+	cstl_delete(x);
 	return 0;
 }
