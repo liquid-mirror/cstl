@@ -113,6 +113,7 @@
 #define cstl_iter_le(p, x)		((p).vptr->le((p).internal.data, (x).internal.data))
 #define cstl_iter_gt(p, x)		((p).vptr->gt((p).internal.data, (x).internal.data))
 #define cstl_iter_ge(p, x)		((p).vptr->ge((p).internal.data, (x).internal.data))
+#define cstl_riter_base(p)		((p).vptr->base((p).internal.data))
 
 typedef struct CstlIteratorVtable CstlIteratorVtable;
 
@@ -151,6 +152,7 @@ typedef int (*CstlIterator_lt_t)(CstlIterInternalData pos, CstlIterInternalData 
 typedef int (*CstlIterator_le_t)(CstlIterInternalData pos, CstlIterInternalData x);
 typedef int (*CstlIterator_gt_t)(CstlIterInternalData pos, CstlIterInternalData x);
 typedef int (*CstlIterator_ge_t)(CstlIterInternalData pos, CstlIterInternalData x);
+typedef CstlIterator (*CstlReverseIterator_base_t)(CstlIterInternalData pos);
 
 enum {
 	CSTL_CONTAINER_VECTOR,
@@ -183,8 +185,10 @@ struct CstlIteratorVtable {
 	CstlIterator_le_t     le;
 	CstlIterator_gt_t     gt;
 	CstlIterator_ge_t     ge;
+	CstlReverseIterator_base_t base;
 	int container;
 	int is_rand_iter;
+	int is_reverse_iter;
 };
 
 
