@@ -128,7 +128,7 @@ typedef struct CstlIterInternal {
 	CstlIterInternalData data;
 } CstlIterInternal;
 
-typedef struct CstlIterator {
+typedef union CstlIterator {
 	const CstlIteratorVtable *vptr;
 	CstlIterInternal internal;
 } CstlIterator;
