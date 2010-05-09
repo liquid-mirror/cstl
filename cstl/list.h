@@ -57,11 +57,12 @@
  */
 #define CSTL_LIST_INTERFACE(Name, Type)	\
 typedef struct Name Name;\
+typedef struct Name##Iterator_Vtable Name##Iterator_Vtable;\
 /*! \
  * \brief イテレータ\
  */\
 typedef union Name##Iterator {\
-	const struct Name##Iterator_Vtable *vptr;\
+	const Name##Iterator_Vtable *vptr;\
 	CstlIterInternal internal;\
 } Name##Iterator;\
 \
@@ -322,7 +323,7 @@ static int Name##Iterator_ge_dummy(CstlIterInternalData pos, CstlIterInternalDat
 	return 0;\
 }\
 \
-static const struct Name##Iterator_Vtable Name##Iterator_vtbl = {\
+static const Name##Iterator_Vtable Name##Iterator_vtbl = {\
 	Name##Iterator_data,\
 	Name##Iterator_key_dummy,\
 	Name##Iterator_val_dummy,\
@@ -348,7 +349,7 @@ static const struct Name##Iterator_Vtable Name##Iterator_vtbl = {\
 	0, /* is_reverse_iter */\
 };\
 \
-static const struct Name##Iterator_Vtable Name##ReverseIterator_vtbl = {\
+static const Name##Iterator_Vtable Name##ReverseIterator_vtbl = {\
 	Name##ReverseIterator_data,\
 	Name##Iterator_key_dummy,\
 	Name##Iterator_val_dummy,\
@@ -796,9 +797,10 @@ int Name##_insert_range(Name *self, CstlIterInternalData pos, CstlIterInternal f
 	x.prev = &x;\
 	CSTL_MAGIC(x.magic = &x);\
 	iter = Name##_end(&x);\
-	for (i = first; i.in_vptr->ne(i.data, last.data); i.in_vptr->incr(&i.data)) {\
+	for (i = first; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
+			CSTL_CAST_VPTR(Name, i.in_vptr)->incr(&i.data)) {\
 		/*CSTL_ASSERT(i->magic && "List_insert_range");*/\
-		if (!Name##_insert_ref(&x, iter.internal.data, (Type *) i.in_vptr->data(i.data), 0)) {\
+		if (!Name##_insert_ref(&x, iter.internal.data, CSTL_CAST_VPTR(Name, i.in_vptr)->data(i.data), 0)) {\
 			Name##_clear(&x);\
 			return 0;\
 		}\

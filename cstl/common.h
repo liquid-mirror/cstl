@@ -115,7 +115,9 @@
 #define cstl_iter_ge(p, x)		((p).vptr->ge((p).internal.data, (x).internal.data))
 #define cstl_riter_base(p)		((p).vptr->base((p).internal.data))
 
-typedef struct CstlIteratorVtable CstlIteratorVtable;
+#define CSTL_CAST_VPTR(Name, in_vptr)	((const Name##Iterator_Vtable *) (in_vptr))
+
+typedef struct CstlIteratorDummyVtable CstlIteratorDummyVtable;
 
 typedef struct CstlIterInternalData {
 	void *data1;
@@ -123,36 +125,37 @@ typedef struct CstlIterInternalData {
 	size_t data3;
 } CstlIterInternalData;
 
+
 typedef struct CstlIterInternal {
-	const CstlIteratorVtable *in_vptr;
+	const CstlIteratorDummyVtable *in_vptr;
 	CstlIterInternalData data;
 } CstlIterInternal;
 
-typedef union CstlIterator {
-	const CstlIteratorVtable *vptr;
+typedef union CstlIteratorDummy {
+	const CstlIteratorDummyVtable *vptr;
 	CstlIterInternal internal;
-} CstlIterator;
+} CstlIteratorDummy;
 
-typedef void *(*CstlIterator_data_t)(CstlIterInternalData pos);
-typedef void *(*CstlIterator_key_t)(CstlIterInternalData pos);
-typedef void *(*CstlIterator_val_t)(CstlIterInternalData pos);
-typedef CstlIterator (*CstlIterator_next_t)(CstlIterInternalData pos);
-typedef CstlIterator (*CstlIterator_prev_t)(CstlIterInternalData pos);
-typedef void (*CstlIterator_incr_t)(CstlIterInternalData *pos);
-typedef void (*CstlIterator_decr_t)(CstlIterInternalData *pos);
-typedef int (*CstlIterator_eq_t)(CstlIterInternalData pos, CstlIterInternalData x);
-typedef int (*CstlIterator_ne_t)(CstlIterInternalData pos, CstlIterInternalData x);
-typedef void *(*CstlIterator_at_t)(CstlIterInternalData pos, size_t n);
-typedef CstlIterator (*CstlIterator_add_t)(CstlIterInternalData pos, size_t n);
-typedef CstlIterator (*CstlIterator_sub_t)(CstlIterInternalData pos, size_t n);
-typedef void (*CstlIterator_incr_n_t)(CstlIterInternalData *pos, size_t n);
-typedef void (*CstlIterator_decr_n_t)(CstlIterInternalData *pos, size_t n);
-typedef int (*CstlIterator_diff_t)(CstlIterInternalData pos, CstlIterInternalData x);
-typedef int (*CstlIterator_lt_t)(CstlIterInternalData pos, CstlIterInternalData x);
-typedef int (*CstlIterator_le_t)(CstlIterInternalData pos, CstlIterInternalData x);
-typedef int (*CstlIterator_gt_t)(CstlIterInternalData pos, CstlIterInternalData x);
-typedef int (*CstlIterator_ge_t)(CstlIterInternalData pos, CstlIterInternalData x);
-typedef CstlIterator (*CstlReverseIterator_base_t)(CstlIterInternalData pos);
+typedef void *(*CstlIteratorDummy_data_t)(CstlIterInternalData pos);
+typedef void *(*CstlIteratorDummy_key_t)(CstlIterInternalData pos);
+typedef void *(*CstlIteratorDummy_val_t)(CstlIterInternalData pos);
+typedef CstlIteratorDummy (*CstlIteratorDummy_next_t)(CstlIterInternalData pos);
+typedef CstlIteratorDummy (*CstlIteratorDummy_prev_t)(CstlIterInternalData pos);
+typedef void (*CstlIteratorDummy_incr_t)(CstlIterInternalData *pos);
+typedef void (*CstlIteratorDummy_decr_t)(CstlIterInternalData *pos);
+typedef int (*CstlIteratorDummy_eq_t)(CstlIterInternalData pos, CstlIterInternalData x);
+typedef int (*CstlIteratorDummy_ne_t)(CstlIterInternalData pos, CstlIterInternalData x);
+typedef void *(*CstlIteratorDummy_at_t)(CstlIterInternalData pos, size_t n);
+typedef CstlIteratorDummy (*CstlIteratorDummy_add_t)(CstlIterInternalData pos, size_t n);
+typedef CstlIteratorDummy (*CstlIteratorDummy_sub_t)(CstlIterInternalData pos, size_t n);
+typedef void (*CstlIteratorDummy_incr_n_t)(CstlIterInternalData *pos, size_t n);
+typedef void (*CstlIteratorDummy_decr_n_t)(CstlIterInternalData *pos, size_t n);
+typedef int (*CstlIteratorDummy_diff_t)(CstlIterInternalData pos, CstlIterInternalData x);
+typedef int (*CstlIteratorDummy_lt_t)(CstlIterInternalData pos, CstlIterInternalData x);
+typedef int (*CstlIteratorDummy_le_t)(CstlIterInternalData pos, CstlIterInternalData x);
+typedef int (*CstlIteratorDummy_gt_t)(CstlIterInternalData pos, CstlIterInternalData x);
+typedef int (*CstlIteratorDummy_ge_t)(CstlIterInternalData pos, CstlIterInternalData x);
+typedef CstlIteratorDummy (*CstlReverseIteratorDummy_base_t)(CstlIterInternalData pos);
 
 enum {
 	CSTL_CONTAINER_VECTOR,
@@ -165,27 +168,27 @@ enum {
 	CSTL_CONTAINER_STRING
 };
 
-struct CstlIteratorVtable {
-	CstlIterator_data_t   data;
-	CstlIterator_key_t    key;
-	CstlIterator_val_t    val;
-	CstlIterator_next_t   next;
-	CstlIterator_prev_t   prev;
-	CstlIterator_incr_t   incr;
-	CstlIterator_decr_t   decr;
-	CstlIterator_eq_t     eq;
-	CstlIterator_ne_t     ne;
-	CstlIterator_at_t     at;
-	CstlIterator_add_t    add;
-	CstlIterator_sub_t    sub;
-	CstlIterator_incr_n_t incr_n;
-	CstlIterator_decr_n_t decr_n;
-	CstlIterator_diff_t   diff;
-	CstlIterator_lt_t     lt;
-	CstlIterator_le_t     le;
-	CstlIterator_gt_t     gt;
-	CstlIterator_ge_t     ge;
-	CstlReverseIterator_base_t base;
+struct CstlIteratorDummyVtable {
+	CstlIteratorDummy_data_t   data;
+	CstlIteratorDummy_key_t    key;
+	CstlIteratorDummy_val_t    val;
+	CstlIteratorDummy_next_t   next;
+	CstlIteratorDummy_prev_t   prev;
+	CstlIteratorDummy_incr_t   incr;
+	CstlIteratorDummy_decr_t   decr;
+	CstlIteratorDummy_eq_t     eq;
+	CstlIteratorDummy_ne_t     ne;
+	CstlIteratorDummy_at_t     at;
+	CstlIteratorDummy_add_t    add;
+	CstlIteratorDummy_sub_t    sub;
+	CstlIteratorDummy_incr_n_t incr_n;
+	CstlIteratorDummy_decr_n_t decr_n;
+	CstlIteratorDummy_diff_t   diff;
+	CstlIteratorDummy_lt_t     lt;
+	CstlIteratorDummy_le_t     le;
+	CstlIteratorDummy_gt_t     gt;
+	CstlIteratorDummy_ge_t     ge;
+	CstlReverseIteratorDummy_base_t base;
 	int container;
 	int is_rand_iter;
 	int is_reverse_iter;
