@@ -372,6 +372,7 @@ echo "#ifndef $included
 #define $included
 " >> "$path"".h"
 echo "#include <stddef.h>" >> "$path"".h"
+echo "#include \"../cstl/common.h\"" >> "$path"".h"
 if [ "$include_file" != "" ]; then
 	echo "#include \"$include_file\"
 " >> "$path"".h"
@@ -510,24 +511,27 @@ extern Pool $alloc;
 fi
 fi
 if [ $lower = "vector" ]; then
-	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
+	grep '#define CSTL_VECTOR_.*\(self\|internaldata\)' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "ring" ]; then
 	grep '#define CSTL_RING_.*self' "../cstl/ring.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "deque" ]; then
-	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
+#    grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
+	grep '#define CSTL_VECTOR_.*\(self\|internaldata\)' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
 	grep '#define CSTL_RING_.*self' "../cstl/ring.h" | sed -e "s/\r//" >> "$path"".c"
 	grep '#define CSTL_DEQUE_\(.*self\|RINGBUF_SIZE\|INITIAL_MAP_SIZE\)' "../cstl/deque.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "list" ]; then
-	grep '#define CSTL_LIST_.*\(self\|pos\)' "../cstl/list.h" | sed -e "s/\r//" >> "$path"".c"
+	grep '#define CSTL_LIST_.*\(self\|pos\|internaldata\)' "../cstl/list.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "string" ]; then
-	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
+#    grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
+	grep '#define CSTL_VECTOR_.*\(self\|internaldata\)' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
 	grep '#define CSTL_STRING_\(.*self\|DEFAULT_CAPACITY\)' "../cstl/string.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "set" -o $lower = "multiset" -o\
 	   $lower = "map" -o $lower = "multimap" ]; then
 	grep '#define CSTL_RBTREE_.*node' "../cstl/rbtree.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "unordered_set" -o $lower = "unordered_multiset" -o\
 	   $lower = "unordered_map" -o $lower = "unordered_multimap" ]; then
-	grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
+#    grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
+	grep '#define CSTL_VECTOR_.*\(self\|internaldata\)' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
 fi
 echo "" >> "$path"".c"
 echo "$src" | cpp -I.. | grep "${name}_new" \
