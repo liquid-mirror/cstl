@@ -272,8 +272,10 @@ void ListTest_test_1_6(void)
 	/* beginの位置の要素をerase */
 	size = cstl_size(hl);
 	for (i = 0; i < NELEMS(hogetab); i++) {
+		HogeListIterator next;
 		pos = cstl_begin(hl);
-		assert(cstl_iter_eq(cstl_iter_next(pos), cstl_erase(hl, pos)));
+		next = cstl_iter_next(pos);
+		assert(cstl_iter_eq(next, cstl_erase(hl, pos)));
 		assert(cstl_size(hl) == --size);
 		assert(HogeList_verify(hl));
 	}
@@ -288,11 +290,9 @@ void ListTest_test_1_6(void)
 	/* endの前の位置の要素をerase */
 	size = cstl_size(hl);
 	for (i = 0; i < NELEMS(hogetab); i++) {
-		HogeListReverseIterator iter = cstl_rbegin(hl);
-		cstl_iter_incr(&iter);
-		pos = cstl_riter_base(iter);
-/*        pos = cstl_rbegin(hl);*/
-		assert(cstl_iter_eq(cstl_iter_next(pos), cstl_erase(hl, pos)));
+		pos = cstl_end(hl);
+		cstl_iter_decr(&pos);
+		assert(cstl_iter_eq(cstl_end(hl), cstl_erase(hl, pos)));
 		assert(cstl_size(hl) == --size);
 		assert(HogeList_verify(hl));
 	}

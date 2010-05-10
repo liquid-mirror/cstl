@@ -581,7 +581,7 @@ Name##Iterator Name##Iterator_prev(CstlIterInternalData pos)\
 	Name##Iterator iter;\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos) && "ListIterator_prev");\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->magic && "ListIterator_prev");\
-	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->prev->magic != CSTL_MAGIC_LIST(Name) && "ListIterator_prev");\
+	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->prev->magic == CSTL_MAGIC_LIST(Name) && "ListIterator_prev");\
 	iter.vptr = &Name##Iterator_vtbl;\
 	CSTL_LIST_NODE_ASSIGN(iter.internal.data) = CSTL_LIST_NODE(Name, pos)->prev;\
 	return iter;\
@@ -599,7 +599,7 @@ void Name##Iterator_decr(CstlIterInternalData *pos)\
 {\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, *pos) && "ListIterator_decr");\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, *pos)->magic && "ListIterator_decr");\
-	CSTL_ASSERT(CSTL_LIST_NODE(Name, *pos)->prev->magic != CSTL_MAGIC_LIST(Name) && "ListIterator_decr");\
+	CSTL_ASSERT(CSTL_LIST_NODE(Name, *pos)->prev->magic == CSTL_MAGIC_LIST(Name) && "ListIterator_decr");\
 	CSTL_LIST_NODE_ASSIGN(*pos) = CSTL_LIST_NODE(Name, *pos)->prev;\
 }\
 \
@@ -640,7 +640,7 @@ Type *Name##ReverseIterator_data(CstlIterInternalData pos)\
 {\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos) && "ListReverseIterator_data");\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->magic && "ListReverseIterator_data");\
-	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->prev->magic != CSTL_MAGIC_LIST(Name) && "ListReverseIterator_data");\
+	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->prev->magic == CSTL_MAGIC_LIST(Name) && "ListReverseIterator_data");\
 	return &CSTL_LIST_NODE(Name, pos)->prev->data;\
 }\
 \
@@ -649,7 +649,7 @@ Name##ReverseIterator Name##ReverseIterator_next(CstlIterInternalData pos)\
 	Name##ReverseIterator iter;\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos) && "ListReverseIterator_next");\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->magic && "ListReverseIterator_next");\
-	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->prev->magic != CSTL_MAGIC_LIST(Name) && "ListReverseIterator_next");\
+	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->prev->magic == CSTL_MAGIC_LIST(Name) && "ListReverseIterator_next");\
 	iter.vptr = &Name##ReverseIterator_vtbl;\
 	CSTL_LIST_NODE_ASSIGN(iter.internal.data) = CSTL_LIST_NODE(Name, pos)->prev;\
 	return iter;\
@@ -670,7 +670,7 @@ void Name##ReverseIterator_incr(CstlIterInternalData *pos)\
 {\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, *pos) && "ListReverseIterator_incr");\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, *pos)->magic && "ListReverseIterator_incr");\
-	CSTL_ASSERT(CSTL_LIST_NODE(Name, *pos)->prev->magic != CSTL_MAGIC_LIST(Name) && "ListReverseIterator_incr");\
+	CSTL_ASSERT(CSTL_LIST_NODE(Name, *pos)->prev->magic == CSTL_MAGIC_LIST(Name) && "ListReverseIterator_incr");\
 	CSTL_LIST_NODE_ASSIGN(*pos) = CSTL_LIST_NODE(Name, *pos)->prev;\
 }\
 \
