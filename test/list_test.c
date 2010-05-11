@@ -401,17 +401,19 @@ void ListTest_test_1_8(void)
 	HogeList *x;
 	printf("***** test_1_8 *****\n");
 
+	/* NOTE: テストのために未公開のメンバを使用する */
+
 	printf("before sort\n");
 	/* push_back */
 	for (i = 0; i < NELEMS(hogetab2); i++) {
 		assert(cstl_push_back(hl, hogetab2[i]));
 	}
-	pos = cstl_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
-	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
+	printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, hl->prev, hl, hl->next);
 	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+		HogeList *node = (HogeList*)pos.internal.data.data1;
 		hoge = *cstl_iter_data(pos);
-/*        printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));*/
+		printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, node->prev, node, node->next);
 	}
 	/* sort less*/
 	printf("size[%d]\n", cstl_size(hl));
@@ -419,13 +421,13 @@ void ListTest_test_1_8(void)
 	assert(HogeList_verify(hl));
 	printf("size[%d]\n", cstl_size(hl));
 	printf("after sort (less)\n");
-	pos = cstl_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "000"; prev.value = 0;
-	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
+	printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, hl->prev, hl, hl->next);
 	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+		HogeList *node = (HogeList*)pos.internal.data.data1;
 		hoge = *cstl_iter_data(pos);
-/*        printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));*/
+		printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, node->prev, node, node->next);
 		assert(strcmp(prev.key, hoge.key) <= 0);
 		assert(prev.value <= hoge.value);
 		prev = hoge;
@@ -435,14 +437,14 @@ void ListTest_test_1_8(void)
 	cstl_sort(hl, less);
 	assert(HogeList_verify(hl));
 	printf("size[%d]\n", cstl_size(hl));
-	printf("after sort (less)\n");
-	pos = cstl_end(hl);
+	printf("after sort (less) again\n");
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "000"; prev.value = 0;
-	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
+	printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, hl->prev, hl, hl->next);
 	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+		HogeList *node = (HogeList*)pos.internal.data.data1;
 		hoge = *cstl_iter_data(pos);
-/*        printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));*/
+		printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, node->prev, node, node->next);
 		assert(strcmp(prev.key, hoge.key) <= 0);
 		assert(prev.value <= hoge.value);
 		prev = hoge;
@@ -453,13 +455,13 @@ void ListTest_test_1_8(void)
 	assert(HogeList_verify(hl));
 	printf("size[%d]\n", cstl_size(hl));
 	printf("after sort (greater)\n");
-	pos = cstl_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "999"; prev.value = 999;
-	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
+	printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, hl->prev, hl, hl->next);
 	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+		HogeList *node = (HogeList*)pos.internal.data.data1;
 		hoge = *cstl_iter_data(pos);
-/*        printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));*/
+		printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, node->prev, node, node->next);
 		assert(strcmp(prev.key, hoge.key) >= 0);
 		if (strcmp(prev.key, hoge.key) == 0) {
 			assert(prev.value <= hoge.value);
@@ -473,14 +475,14 @@ void ListTest_test_1_8(void)
 	cstl_sort(hl, greater);
 	assert(HogeList_verify(hl));
 	printf("size[%d]\n", cstl_size(hl));
-	printf("after sort (greater)\n");
-	pos = cstl_end(hl);
+	printf("after sort (greater) again\n");
 	hoge.key = "XXX"; hoge.value = 9999;
 	prev.key = "999"; prev.value = 999;
-	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
+	printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, hl->prev, hl, hl->next);
 	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+		HogeList *node = (HogeList*)pos.internal.data.data1;
 		hoge = *cstl_iter_data(pos);
-/*        printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));*/
+		printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, node->prev, node, node->next);
 		assert(strcmp(prev.key, hoge.key) >= 0);
 		if (strcmp(prev.key, hoge.key) == 0) {
 			assert(prev.value <= hoge.value);
@@ -494,12 +496,12 @@ void ListTest_test_1_8(void)
 	assert(HogeList_verify(hl));
 	printf("size[%d]\n", cstl_size(hl));
 	printf("reverse\n");
-	pos = cstl_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
-	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
+	printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, hl->prev, hl, hl->next);
 	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+		HogeList *node = (HogeList*)pos.internal.data.data1;
 		hoge = *cstl_iter_data(pos);
-/*        printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));*/
+		printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, node->prev, node, node->next);
 	}
 	/* merge */
 	printf("\n");
@@ -509,12 +511,12 @@ void ListTest_test_1_8(void)
 		assert(cstl_push_back(hl, hogetab2[i]));
 	}
 	cstl_sort(hl, less);
-	pos = cstl_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
-	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
+	printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, hl->prev, hl, hl->next);
 	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+		HogeList *node = (HogeList*)pos.internal.data.data1;
 		hoge = *cstl_iter_data(pos);
-/*        printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));*/
+		printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, node->prev, node, node->next);
 	}
 
 	printf("before merge 2\n");
@@ -523,28 +525,27 @@ void ListTest_test_1_8(void)
 		assert(cstl_push_back(x, hogetab2[i]));
 	}
 	cstl_sort(x, less);
-	pos = cstl_end(x);
 	hoge.key = "XXX"; hoge.value = 9999;
-	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
+	printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, x->prev, x, x->next);
 	for (pos = cstl_begin(x); cstl_iter_ne(pos, cstl_end(x)); cstl_iter_incr(&pos)) {
+		HogeList *node = (HogeList*)pos.internal.data.data1;
 		hoge = *cstl_iter_data(pos);
-/*        printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));*/
+		printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, node->prev, node, node->next);
 	}
 
 	printf("after merge\n");
 	cstl_merge(hl, x, less);
 	assert(HogeList_verify(hl));
 	assert(HogeList_verify(x));
-	pos = cstl_end(hl);
 	hoge.key = "XXX"; hoge.value = 9999;
-	printf("%s, %4d,	p[%p]\n", hoge.key, hoge.value, pos);
+	printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, hl->prev, hl, hl->next);
 	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+		HogeList *node = (HogeList*)pos.internal.data.data1;
 		hoge = *cstl_iter_data(pos);
-/*        printf("%s, %4d,	p[%p], prev[%p], next[%p]\n", hoge.key, hoge.value, pos, HogeList_prev(pos), HogeList_next(pos));*/
+		printf("%s, %4d,	prev[%p], p[%p], next[%p]\n", hoge.key, hoge.value, node->prev, node, node->next);
 	}
 	assert(cstl_empty(x));
 	assert(cstl_size(hl) == NELEMS(hogetab2));
-
 
 	cstl_delete(x);
 	cstl_clear(hl);
@@ -607,6 +608,7 @@ void ListTest_test_2_1(void)
 	assert(IntList_verify(il));
 	assert(IntList_verify(x));
 	assert(cstl_size(x) == 32);
+	printf("splice\n");
 	printf("x:\n");
 	for (pos = cstl_begin(x), i = 0; cstl_iter_ne(pos, cstl_end(x)); cstl_iter_incr(&pos), i++) {
 		assert(*cstl_iter_data(pos) == i);
@@ -623,10 +625,11 @@ void ListTest_test_2_1(void)
 	/* splice */
 	cstl_splice(x, cstl_begin(x), il, cstl_begin(il), cstl_end(il));
 /*    cstl_splice(x, cstl_begin(x), il, cstl_begin(il), cstl_begin(il));*/
-/*    cstl_splice(x, cstl_begin(x), il, cstl_begin(il), IntList_next(cstl_begin(il)));*/
-/*    cstl_splice(x, cstl_begin(x), x, IntList_next(cstl_begin(x)), cstl_end(x));*/
-/*    cstl_splice(x, cstl_end(x), x, IntList_next(cstl_begin(x)), cstl_end(x));*/
-/*    cstl_splice(x, cstl_rbegin(x), x, IntList_next(cstl_begin(x)), IntList_prev(cstl_rbegin(x)));*/
+/*    cstl_splice(x, cstl_begin(x), il, cstl_begin(il), cstl_iter_next(cstl_begin(il)));*/
+/*    cstl_splice(x, cstl_begin(x), x, cstl_iter_next(cstl_begin(x)), cstl_end(x));*/
+/*    cstl_splice(x, cstl_end(x), x, cstl_iter_next(cstl_begin(x)), cstl_end(x));*/
+/*    pos = cstl_iter_prev(cstl_end(x));*/
+/*    cstl_splice(x, pos, x, cstl_iter_next(cstl_begin(x)), cstl_iter_prev(pos));*/
 	assert(IntList_verify(il));
 	assert(IntList_verify(x));
 
@@ -641,6 +644,8 @@ void ListTest_test_2_1(void)
 	for (pos = cstl_begin(il), i = 0; cstl_iter_ne(pos, cstl_end(il)); cstl_iter_incr(&pos), i++) {
 		printf("%2d, ", *cstl_iter_data(pos));
 	}
+	printf("\n");
+	printf("\n");
 	/* insert_range */
 	cstl_clear(il);
 	cstl_clear(x);
