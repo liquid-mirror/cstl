@@ -59,6 +59,7 @@ int main(void)
 
 	HogeListIterator pos;
 	IntListIterator iter;
+	IntListReverseIterator riter;
 	Int2ListIterator iter2;
 
 	/* 生成は 型名_new() という関数で行う */
@@ -94,7 +95,7 @@ int main(void)
 	printf("il: size: %d\n", cstl_size(il));
 	printf("il2: size: %d\n", cstl_size(il2));
 
-	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_inc(&pos)) {
 		/* C++イメージ: for (pos = hl->begin(); pos != hl->end(); ++pos) */
 		/* イテレータによる要素のアクセス */
 		Hoge_print(*cstl_iter_data(pos)); /* C++イメージ: Hoge_print(*pos); */
@@ -102,20 +103,20 @@ int main(void)
 	printf("\n");
 	printf("sort\n");
 	cstl_sort(hl, comp);
-	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_inc(&pos)) {
 		/* イテレータによる要素のアクセス */
 		Hoge_print(*cstl_iter_data(pos));
 	}
 	printf("\n");
 
-	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_inc(&pos)) {
 		/* イテレータによる要素のアクセス */
 		Hoge_print(*cstl_iter_data(pos));
 		(*cstl_iter_data(pos))->value++;
 		Hoge_print(*cstl_iter_data(pos));
 	}
 	printf("\n");
-	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_incr(&pos)) {
+	for (pos = cstl_begin(hl); cstl_iter_ne(pos, cstl_end(hl)); cstl_iter_inc(&pos)) {
 		Hoge *h = *cstl_iter_data(pos);
 		if (!strcmp(h->key, "bbb")) {
 			hoge = Hoge_new("eee", 5);
@@ -130,14 +131,17 @@ int main(void)
 			/* 要素の削除 */
 			pos = cstl_erase(hl, pos);
 		} else {
-			cstl_iter_incr(&pos);
+			cstl_iter_inc(&pos);
 		}
 	}
 
-	for (iter = cstl_begin(il); cstl_iter_ne(iter, cstl_end(il)); cstl_iter_incr(&iter)) {
+	for (iter = cstl_begin(il); cstl_iter_ne(iter, cstl_end(il)); cstl_iter_inc(&iter)) {
 		printf("il: %d\n", *cstl_iter_data(iter));
 	}
-	for (iter2 = cstl_begin(il2); cstl_iter_ne(iter2, cstl_end(il2)); cstl_iter_incr(&iter2)) {
+	for (riter = cstl_rbegin(il); cstl_iter_ne(riter, cstl_rend(il)); cstl_iter_inc(&riter)) {
+		printf("riter il: %d\n", *cstl_iter_data(riter));
+	}
+	for (iter2 = cstl_begin(il2); cstl_iter_ne(iter2, cstl_end(il2)); cstl_iter_inc(&iter2)) {
 		printf("il2: %d\n", *cstl_iter_data(iter2));
 	}
 	printf("\n");
@@ -146,7 +150,7 @@ int main(void)
 	cstl_insert_range(il, cstl_end(il), cstl_begin(il2), cstl_end(il2));
 	printf("insert_range\n");
 
-	for (iter = cstl_begin(il); cstl_iter_ne(iter, cstl_end(il)); cstl_iter_incr(&iter)) {
+	for (iter = cstl_begin(il); cstl_iter_ne(iter, cstl_end(il)); cstl_iter_inc(&iter)) {
 		printf("il: %d\n", *cstl_iter_data(iter));
 	}
 	printf("\n");
@@ -154,7 +158,7 @@ int main(void)
 	printf("sort\n");
 	cstl_sort(il, int_comp);
 
-	for (iter = cstl_begin(il); cstl_iter_ne(iter, cstl_end(il)); cstl_iter_incr(&iter)) {
+	for (iter = cstl_begin(il); cstl_iter_ne(iter, cstl_end(il)); cstl_iter_inc(&iter)) {
 		printf("il: %d\n", *cstl_iter_data(iter));
 	}
 	printf("\n");

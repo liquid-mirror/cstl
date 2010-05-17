@@ -98,7 +98,7 @@ int main(void)
 	t = get_msec();
 #if 1
 	end = cstl_end(x);
-	for (xpos = cstl_begin(x); cstl_iter_ne(xpos, end); cstl_iter_incr(&xpos)) {
+	for (xpos = cstl_begin(x); cstl_iter_ne(xpos, end); cstl_iter_inc(&xpos)) {
 		volatile int tmp = *cstl_iter_data(xpos);
 		i = tmp;
 	}

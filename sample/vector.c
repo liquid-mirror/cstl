@@ -25,7 +25,7 @@ int main(void)
 	cstl_erase(x, cstl_iter_sub(cstl_end(x), 2));
 	printf("%s\n", cstl_at(x, 0));
 	printf("size:%d\n", cstl_size(x));
-	for (iter = cstl_begin(x); cstl_iter_ne(iter, cstl_end(x)); cstl_iter_incr(&iter)) {
+	for (iter = cstl_begin(x); cstl_iter_ne(iter, cstl_end(x)); cstl_iter_inc(&iter)) {
 		CharVectorReverseIterator rpos;
 		CharVectorIterator pos;
 		CharVectorReverseIterator_init(&rpos, iter);
@@ -35,7 +35,7 @@ int main(void)
 		printf("%c\n", *cstl_iter_data(pos));
 	}
 	printf("reverse iter\n");
-	for (riter = cstl_rbegin(x); cstl_iter_ne(riter, cstl_rend(x)); cstl_iter_incr(&riter)) {
+	for (riter = cstl_rbegin(x); cstl_iter_ne(riter, cstl_rend(x)); cstl_iter_inc(&riter)) {
 		printf("%c\n", *cstl_iter_data(riter));
 	}
 /*    cstl_erase_range(x, cstl_begin(x), cstl_end(x));*/

@@ -100,7 +100,7 @@ int main(void)
 	if (y.size() != cstl_size(x)) {
 		printf("!!!NG!!!\n");
 	}
-	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_incr(&xpos), ++ypos) {
+	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_inc(&xpos), ++ypos) {
 		if (*ypos != *cstl_iter_data(xpos)) {
 			printf("!!!NG!!!\n");
 		}
@@ -146,7 +146,7 @@ int main(void)
 	if (y.size() != cstl_size(x)) {
 		printf("!!!NG!!!\n");
 	}
-	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_incr(&xpos), ++ypos) {
+	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_inc(&xpos), ++ypos) {
 		if (*ypos != *cstl_iter_data(xpos)) {
 			printf("!!!NG!!!\n");
 		}
@@ -181,7 +181,7 @@ int main(void)
 	if (y.size() != cstl_size(x)) {
 		printf("!!!NG!!!\n");
 	}
-	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_incr(&xpos), ++ypos) {
+	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_inc(&xpos), ++ypos) {
 		if (*ypos != *cstl_iter_data(xpos)) {
 			printf("!!!NG!!!\n");
 		}
@@ -221,7 +221,7 @@ int main(void)
 	y.sort();
 	printf("stl : sort[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
-	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_incr(&xpos), ++ypos) {
+	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_inc(&xpos), ++ypos) {
 		if (*ypos != *cstl_iter_data(xpos)) {
 			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *cstl_iter_data(xpos));
 		}
@@ -235,7 +235,7 @@ int main(void)
 	y.sort();
 	printf("stl : sort2[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
-	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_incr(&xpos), ++ypos) {
+	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_inc(&xpos), ++ypos) {
 		if (*ypos != *cstl_iter_data(xpos)) {
 			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *cstl_iter_data(xpos));
 		}
@@ -249,14 +249,14 @@ int main(void)
 	y.sort(std::greater<int>());
 	printf("stl : sort3[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
-	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_incr(&xpos), ++ypos) {
+	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_inc(&xpos), ++ypos) {
 		if (*ypos != *cstl_iter_data(xpos)) {
 			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *cstl_iter_data(xpos));
 		}
 	}
 	// sort 4
 	for (xpos = cstl_begin(x), ypos = y.begin(), i = 0; ypos != y.end();
-			cstl_iter_incr(&xpos), ++ypos, i++) {
+			cstl_iter_inc(&xpos), ++ypos, i++) {
 		hoge = rand();
 		*cstl_iter_data(xpos) = hoge;
 		*ypos = hoge;
@@ -269,7 +269,7 @@ int main(void)
 	y.sort();
 	printf("stl : sort4[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
-	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_incr(&xpos), ++ypos) {
+	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_inc(&xpos), ++ypos) {
 		if (*ypos != *cstl_iter_data(xpos)) {
 			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *cstl_iter_data(xpos));
 		}
@@ -283,7 +283,7 @@ int main(void)
 	y.sort();
 	printf("stl : sort5[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
-	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_incr(&xpos), ++ypos) {
+	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_inc(&xpos), ++ypos) {
 		if (*ypos != *cstl_iter_data(xpos)) {
 			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *cstl_iter_data(xpos));
 		}
@@ -297,7 +297,7 @@ int main(void)
 	y.sort(std::greater<int>());
 	printf("stl : sort6[%d]: %g ms\n", SORT_COUNT, get_msec() - t);
 
-	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_incr(&xpos), ++ypos) {
+	for (xpos = cstl_begin(x), ypos = y.begin(); ypos != y.end(); cstl_iter_inc(&xpos), ++ypos) {
 		if (*ypos != *cstl_iter_data(xpos)) {
 			printf("!!!NG!!! :stl[%d], cstl[%d]\n", *ypos, *cstl_iter_data(xpos));
 		}
