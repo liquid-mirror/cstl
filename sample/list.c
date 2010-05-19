@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <cstl/list.h>
+#include <cstl/vector.h>
 
 
 /* Hogeクラス */
@@ -47,6 +48,8 @@ CSTL_LIST_INTERFACE(IntList, int)
 CSTL_LIST_IMPLEMENT(IntList, int)
 CSTL_LIST_INTERFACE(Int2List, int) /* IntListとは違う型を定義(要素の型は同じ) */
 CSTL_LIST_IMPLEMENT(Int2List, int)
+CSTL_VECTOR_INTERFACE(IntVector, int)
+CSTL_VECTOR_IMPLEMENT(IntVector, int)
 
 
 int main(void)
@@ -56,16 +59,20 @@ int main(void)
 	HogeList *hl;
 	IntList *il;
 	Int2List *il2;
+	IntVector *iv;
 
 	HogeListIterator pos;
 	IntListIterator iter;
 	IntListReverseIterator riter;
 	Int2ListIterator iter2;
+	IntVectorIterator vpos;
 
+	printf("sizeof %d, %d\n", sizeof iter, sizeof vpos);
 	/* 生成は 型名_new() という関数で行う */
 	hl = HogeList_new(); /* C++イメージ: hl = new list<Hoge *>; */
 	il = IntList_new();
 	il2 = Int2List_new();
+	iv = IntVector_new();
 
 	/* 末尾から追加 */
 	hoge = Hoge_new("aaa", 1);
@@ -80,6 +87,10 @@ int main(void)
 	cstl_push_back(il2, 10);
 	cstl_push_back(il2, 11);
 	cstl_push_back(il2, 12);
+
+	cstl_push_back(iv, 20);
+	cstl_push_back(iv, 21);
+	cstl_push_back(iv, 22);
 
 	/* 先頭から追加 */
 	hoge = Hoge_new("ccc", 3);
@@ -144,14 +155,24 @@ int main(void)
 	for (iter2 = cstl_begin(il2); cstl_iter_ne(iter2, cstl_end(il2)); cstl_iter_inc(&iter2)) {
 		printf("il2: %d\n", *cstl_iter_data(iter2));
 	}
+	for (vpos = cstl_begin(iv); cstl_iter_ne(vpos, cstl_end(iv)); cstl_iter_inc(&vpos)) {
+		printf("iv: %d\n", *cstl_iter_data(vpos));
+	}
 	printf("\n");
 
 	/* 違う型のオブジェクトの要素を挿入。要素の型は同じintなので可能 */
-	cstl_insert_range(il, cstl_end(il), cstl_begin(il2), cstl_end(il2));
+/*    cstl_insert_range(il, cstl_end(il), cstl_begin(il2), cstl_end(il2));*/
+	cstl_insert_range(il, cstl_end(il), cstl_begin(iv), cstl_end(iv));
 	printf("insert_range\n");
 
 	for (iter = cstl_begin(il); cstl_iter_ne(iter, cstl_end(il)); cstl_iter_inc(&iter)) {
 		printf("il: %d\n", *cstl_iter_data(iter));
+	}
+	printf("\n");
+
+	cstl_insert_range(iv, cstl_begin(iv), cstl_begin(il2), cstl_end(il2));
+	for (vpos = cstl_begin(iv); cstl_iter_ne(vpos, cstl_end(iv)); cstl_iter_inc(&vpos)) {
+		printf("iv: %d\n", *cstl_iter_data(vpos));
 	}
 	printf("\n");
 
@@ -178,6 +199,7 @@ int main(void)
 	cstl_delete(hl); /* C++イメージ: delete hl; */
 	cstl_delete(il);
 	cstl_delete(il2);
+	cstl_delete(iv);
 
 	return 0;
 }

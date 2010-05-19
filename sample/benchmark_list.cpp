@@ -64,6 +64,7 @@ int main(void)
 	IntList *x;
 	list<int> y;
 	IntListIterator xpos;
+	IntListIterator end;
 	list<int>::iterator ypos;
 
 	x = IntList_new();
@@ -105,6 +106,24 @@ int main(void)
 			printf("!!!NG!!!\n");
 		}
 	}
+
+	// iterate
+	t = get_msec();
+	end = cstl_end(x);
+	for (xpos = cstl_begin(x); cstl_iter_ne(xpos, end); cstl_iter_inc(&xpos)) {
+//    for (xpos = cstl_begin(x); cstl_iter_ne(xpos, cstl_end(x)); cstl_iter_inc(&xpos)) {
+		volatile int tmp = *cstl_iter_data(xpos);
+		i = tmp;
+	}
+	printf("cstl: iterate[%d]: %g ms\n", COUNT, get_msec() - t);
+
+	t = get_msec();
+	for (ypos = y.begin(); ypos != y.end(); ++ypos) {
+		volatile int tmp = *ypos;
+		i = tmp;
+	}
+	printf("stl : iterate[%d]: %g ms\n", COUNT, get_msec() - t);
+
 	// pop_back/pop_front
 	t = get_msec();
 	for (i = 0; i < COUNT; i++) {
