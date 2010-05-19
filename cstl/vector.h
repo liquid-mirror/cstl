@@ -98,6 +98,7 @@ typedef int (*Name##Iterator_lt_t)(CstlIterInternalData pos, CstlIterInternalDat
 typedef int (*Name##Iterator_le_t)(CstlIterInternalData pos, CstlIterInternalData x);\
 typedef int (*Name##Iterator_gt_t)(CstlIterInternalData pos, CstlIterInternalData x);\
 typedef int (*Name##Iterator_ge_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef Name##ReverseIterator (*Name##Iterator_reverse_iterator_t)(CstlIterInternalData pos);\
 typedef Name##Iterator (*Name##ReverseIterator_base_t)(CstlIterInternalData pos);\
 \
 struct Name##Iterator_Vtable {\
@@ -120,6 +121,7 @@ struct Name##Iterator_Vtable {\
 	Name##Iterator_le_t    le;\
 	Name##Iterator_gt_t    gt;\
 	Name##Iterator_ge_t    ge;\
+	Name##Iterator_reverse_iterator_t reverse_iterator;\
 	Name##ReverseIterator_base_t base;\
 	int container;\
 	int is_rand_iter;\
@@ -250,7 +252,7 @@ int Name##Iterator_lt(CstlIterInternalData pos, CstlIterInternalData x);\
 int Name##Iterator_le(CstlIterInternalData pos, CstlIterInternalData x);\
 int Name##Iterator_gt(CstlIterInternalData pos, CstlIterInternalData x);\
 int Name##Iterator_ge(CstlIterInternalData pos, CstlIterInternalData x);\
-void Name##ReverseIterator_init(Name##ReverseIterator *pos, Name##Iterator x);\
+Name##ReverseIterator Name##Iterator_reverse_iterator(CstlIterInternalData pos);\
 Name##Iterator Name##ReverseIterator_base(CstlIterInternalData pos);\
 Type *Name##ReverseIterator_data(CstlIterInternalData pos);\
 Name##Iterator Name##ReverseIterator_next(CstlIterInternalData pos);\
@@ -308,6 +310,7 @@ static const Name##Iterator_Vtable Name##Iterator_vtbl = {\
 	Name##Iterator_le,\
 	Name##Iterator_gt,\
 	Name##Iterator_ge,\
+	Name##Iterator_reverse_iterator,\
 	0, /* ReverseIterator_base */\
 	CSTL_CONTAINER_VECTOR,\
 	1, /* is_rand_iter */\
@@ -334,6 +337,7 @@ static const Name##Iterator_Vtable Name##ReverseIterator_vtbl = {\
 	Name##ReverseIterator_le,\
 	Name##ReverseIterator_gt,\
 	Name##ReverseIterator_ge,\
+	Name##Iterator_reverse_iterator,\
 	Name##ReverseIterator_base, /* ReverseIterator_base */\
 	CSTL_CONTAINER_VECTOR,\
 	1, /* is_rand_iter */\
@@ -507,11 +511,13 @@ int Name##Iterator_ge(CstlIterInternalData pos, CstlIterInternalData x)\
 	return CSTL_VECTOR_IDX(pos) >= CSTL_VECTOR_IDX(x);\
 }\
 \
-void Name##ReverseIterator_init(Name##ReverseIterator *pos, Name##Iterator x)\
+Name##ReverseIterator Name##Iterator_reverse_iterator(CstlIterInternalData pos)\
 {\
-	CSTL_ASSERT(pos && "VectorReverseIterator_init");\
-	pos->vptr = &Name##ReverseIterator_vtbl;\
-	pos->internal.data = x.internal.data;\
+	Name##ReverseIterator iter;\
+	CSTL_ASSERT(1 && "VectorIterator_reverse_iterator");\
+	iter.vptr = &Name##ReverseIterator_vtbl;\
+	iter.internal.data = pos;\
+	return iter;\
 }\
 \
 Name##Iterator Name##ReverseIterator_base(CstlIterInternalData pos)\
