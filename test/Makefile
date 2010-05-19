@@ -15,10 +15,14 @@ Pool.o: Pool.c Pool.h
 
 vector: ../cstl/vector.h vector_test.c Pool.o
 ifneq ($(CSTLGEN),)
-	sh cstlgen.sh vector UCharVector "unsigned char" true false false . $(POOL)
-	sh cstlgen.sh vector IntVector "int" true false false . $(POOL)
-	sh cstlgen.sh vector HogeVector "Hoge" true hoge.h false . $(POOL)
-	sh cstlgen.sh vector HogepVector "Hoge*" true hoge.h false . $(POOL)
+#     sh cstlgen.sh vector UCharVector "unsigned char" true false false . $(POOL)
+#     sh cstlgen.sh vector IntVector "int" true false false . $(POOL)
+#     sh cstlgen.sh vector HogeVector "Hoge" true hoge.h false . $(POOL)
+#     sh cstlgen.sh vector HogepVector "Hoge*" true hoge.h false . $(POOL)
+	sh cstlgen.sh vector UCharVector "unsigned char" false false false . $(POOL)
+	sh cstlgen.sh vector IntVector "int" false false false . $(POOL)
+	sh cstlgen.sh vector HogeVector "Hoge" false hoge.h false . $(POOL)
+	sh cstlgen.sh vector HogepVector "Hoge*" false hoge.h false . $(POOL)
 	$(CC) $(CFLAGS) -o $@.exe vector_test.c Pool.o UCharVector.c IntVector.c $(CSTLGEN)
 else
 	$(CC) $(CFLAGS) -o $@.exe vector_test.c Pool.o
