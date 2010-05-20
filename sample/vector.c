@@ -28,7 +28,7 @@ int main(void)
 	for (iter = cstl_begin(x); cstl_iter_ne(iter, cstl_end(x)); cstl_iter_inc(&iter)) {
 		CharVectorReverseIterator rpos;
 		CharVectorIterator pos;
-		CharVectorReverseIterator_init(&rpos, iter);
+		rpos = cstl_iter_reverse_iterator(iter);
 /*        printf("%c\n", *cstl_iter_data(iter));*/
 		printf("%c, %c\n", *cstl_iter_data(iter), *cstl_iter_data(rpos));
 		pos = cstl_riter_base(rpos);
