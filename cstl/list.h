@@ -185,10 +185,12 @@ struct Name##_Vtable {\
  * \brief list構造体\
  */\
 struct Name {\
-	const struct Name##_Vtable *vptr;\
+	union {\
+		const struct Name##_Vtable *vptr;\
+		Type data;\
+	} u;\
 	Name *prev;\
 	Name *next;\
-	Type data;\
 	CSTL_MAGIC(Name *magic;)\
 };\
 \
@@ -417,7 +419,7 @@ Name *Name##_new(void)\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->vptr = &Name##_vtbl;\
+	self->u.vptr = &Name##_vtbl;\
 	self->next = self;\
 	self->prev = self;\
 	CSTL_MAGIC(self->magic = self);\
@@ -510,7 +512,7 @@ Type *Name##Iterator_data(CstlIterInternalData pos)\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos) && "ListIterator_data");\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->magic && "ListIterator_data");\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->magic == CSTL_MAGIC_LIST(Name) && "ListIterator_data");\
-	return &CSTL_LIST_NODE(Name, pos)->data;\
+	return &CSTL_LIST_NODE(Name, pos)->u.data;\
 }\
 \
 Type *Name##_front(Name *self)\
@@ -518,7 +520,7 @@ Type *Name##_front(Name *self)\
 	CSTL_ASSERT(self && "List_front");\
 	CSTL_ASSERT(self->magic == self && "List_front");\
 	CSTL_ASSERT(!Name##_empty(self) && "List_front");\
-	return &CSTL_LIST_BEGIN_NODE(self)->data;\
+	return &CSTL_LIST_BEGIN_NODE(self)->u.data;\
 }\
 \
 Type *Name##_back(Name *self)\
@@ -526,7 +528,7 @@ Type *Name##_back(Name *self)\
 	CSTL_ASSERT(self && "List_back");\
 	CSTL_ASSERT(self->magic == self && "List_back");\
 	CSTL_ASSERT(!Name##_empty(self) && "List_back");\
-	return &CSTL_LIST_LAST_NODE(self)->data;\
+	return &CSTL_LIST_LAST_NODE(self)->u.data;\
 }\
 \
 Name##Iterator Name##_begin(Name *self)\
@@ -648,7 +650,7 @@ Type *Name##ReverseIterator_data(CstlIterInternalData pos)\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos) && "ListReverseIterator_data");\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->magic && "ListReverseIterator_data");\
 	CSTL_ASSERT(CSTL_LIST_NODE(Name, pos)->prev->magic == CSTL_MAGIC_LIST(Name) && "ListReverseIterator_data");\
-	return &CSTL_LIST_NODE(Name, pos)->prev->data;\
+	return &CSTL_LIST_NODE(Name, pos)->prev->u.data;\
 }\
 \
 Name##ReverseIterator Name##ReverseIterator_next(CstlIterInternalData pos)\
@@ -729,7 +731,7 @@ int Name##_insert_ref(Name *self, CstlIterInternalData pos, Type const *data, Na
 	CSTL_UNUSED_PARAM(self);\
 	node = (Name *) malloc(sizeof(Name));\
 	if (!node) return 0;\
-	node->data = *data;\
+	node->u.data = *data;\
 	node->next = CSTL_LIST_NODE(Name, pos);\
 	node->prev = CSTL_LIST_NODE(Name, pos)->prev;\
 	CSTL_LIST_NODE(Name, pos)->prev = node;\
@@ -763,7 +765,7 @@ int Name##_insert_n_ref(Name *self, CstlIterInternalData pos, size_t n, Type con
 	CSTL_ASSERT((CSTL_LIST_NODE(Name, pos)->magic == CSTL_MAGIC_LIST(Name) || \
 				CSTL_LIST_NODE(Name, pos)->magic == self) && "List_insert_n_ref");\
 	CSTL_ASSERT(data && "List_insert_n_ref");\
-	x.vptr = &Name##_vtbl;\
+	x.u.vptr = &Name##_vtbl;\
 	x.next = &x;\
 	x.prev = &x;\
 	CSTL_MAGIC(x.magic = &x);\
@@ -789,7 +791,7 @@ int Name##_insert_array(Name *self, CstlIterInternalData pos, Type const *data, 
 	CSTL_ASSERT((CSTL_LIST_NODE(Name, pos)->magic == CSTL_MAGIC_LIST(Name) || \
 				CSTL_LIST_NODE(Name, pos)->magic == self) && "List_insert_array");\
 	CSTL_ASSERT(data && "List_insert_array");\
-	x.vptr = &Name##_vtbl;\
+	x.u.vptr = &Name##_vtbl;\
 	x.next = &x;\
 	x.prev = &x;\
 	CSTL_MAGIC(x.magic = &x);\
@@ -815,7 +817,7 @@ int Name##_insert_range(Name *self, CstlIterInternalData pos, CstlIterInternal f
 	CSTL_ASSERT((CSTL_LIST_NODE(Name, pos)->magic == CSTL_MAGIC_LIST(Name) || \
 				CSTL_LIST_NODE(Name, pos)->magic == self) && "List_insert_range");\
 	CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr) == CSTL_CAST_VPTR(Name, last.in_vptr) && "List_insert_range");\
-	x.vptr = &Name##_vtbl;\
+	x.u.vptr = &Name##_vtbl;\
 	x.next = &x;\
 	x.prev = &x;\
 	CSTL_MAGIC(x.magic = &x);\
@@ -896,7 +898,7 @@ int Name##_resize(Name *self, size_t n, Type data)\
 	} else {\
 		Name x;\
 		Name##Iterator iter;\
-		x.vptr = &Name##_vtbl;\
+		x.u.vptr = &Name##_vtbl;\
 		x.next = &x;\
 		x.prev = &x;\
 		CSTL_MAGIC(x.magic = &x);\
@@ -975,7 +977,7 @@ static Name *Name##_merge_list(Name *x, Name *y, int (*comp)(const void *, const
 	x->prev->next = &head;\
 	y->prev->next = &head;\
 	while (x != &head && y != &head) {\
-		if (comp(&x->data, &y->data) <= 0) {\
+		if (comp(&x->u.data, &y->u.data) <= 0) {\
 			p->next = x;\
 			x->prev = p;\
 			p = x;\

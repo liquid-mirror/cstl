@@ -198,7 +198,9 @@ struct Name##_Vtable {\
  * \brief vector構造体\
  */\
 struct Name {\
-	const struct Name##_Vtable *vptr;\
+	union {\
+		const struct Name##_Vtable *vptr;\
+	} u;\
 	size_t size;\
 	size_t capacity;\
 	Type *buf;\
@@ -667,7 +669,7 @@ Name *Name##_new(void)\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
-	self->vptr = &Name##_vtbl;\
+	self->u.vptr = &Name##_vtbl;\
 	self->capacity = 0;\
 	self->size = 0;\
 	self->buf = 0;\
