@@ -68,12 +68,12 @@
  */
 #define CSTL_VECTOR_INTERFACE(Name, Type)	\
 typedef struct Name Name;\
-typedef struct Name##Iterator_Vtable Name##Iterator_Vtable;\
+typedef struct Name##IteratorVtable Name##IteratorVtable;\
 /*! \
  * \brief イテレータ\
  */\
 typedef union Name##Iterator {\
-	const Name##Iterator_Vtable *vptr;\
+	const Name##IteratorVtable *vptr;\
 	CstlIterInternal internal;\
 } Name##Iterator;\
 \
@@ -101,7 +101,7 @@ typedef int (*Name##Iterator_ge_t)(CstlIterInternalData pos, CstlIterInternalDat
 typedef Name##ReverseIterator (*Name##Iterator_reverse_iterator_t)(CstlIterInternalData pos);\
 typedef Name##Iterator (*Name##ReverseIterator_base_t)(CstlIterInternalData pos);\
 \
-struct Name##Iterator_Vtable {\
+struct Name##IteratorVtable {\
 	Name##Iterator_data_t  data;\
 	Name##Iterator_key_t   key;\
 	Name##Iterator_val_t   val;\
@@ -161,7 +161,7 @@ typedef Name##Iterator (*Name##_erase_range_t)(Name *self, CstlIterInternalData 
 typedef int (*Name##_resize_t)(Name *self, size_t n, Type data);\
 typedef void (*Name##_swap_t)(Name *self, Name *x);\
 \
-struct Name##_Vtable {\
+struct Name##Vtable {\
 	Name##_delete_t         delete_;\
 	Name##_push_back_t      push_back;\
 /*	Name##_push_front_t     push_front;*/\
@@ -199,7 +199,7 @@ struct Name##_Vtable {\
  */\
 struct Name {\
 	union {\
-		const struct Name##_Vtable *vptr;\
+		const struct Name##Vtable *vptr;\
 	} u;\
 	size_t size;\
 	size_t capacity;\
@@ -292,7 +292,7 @@ static void *Name##Iterator_val_dummy(CstlIterInternalData pos)\
 	return 0;\
 }\
 \
-static const Name##Iterator_Vtable Name##Iterator_vtbl = {\
+static const Name##IteratorVtable Name##Iterator_vtbl = {\
 	Name##Iterator_data,\
 	Name##Iterator_key_dummy,\
 	Name##Iterator_val_dummy,\
@@ -319,7 +319,7 @@ static const Name##Iterator_Vtable Name##Iterator_vtbl = {\
 	0, /* is_reverse_iter */\
 };\
 \
-static const Name##Iterator_Vtable Name##ReverseIterator_vtbl = {\
+static const Name##IteratorVtable Name##ReverseIterator_vtbl = {\
 	Name##ReverseIterator_data,\
 	Name##Iterator_key_dummy,\
 	Name##Iterator_val_dummy,\
@@ -346,7 +346,7 @@ static const Name##Iterator_Vtable Name##ReverseIterator_vtbl = {\
 	1, /* is_reverse_iter */\
 };\
 \
-static const struct Name##_Vtable Name##_vtbl = {\
+static const struct Name##Vtable Name##_vtbl = {\
 	Name##_delete,\
 	Name##_push_back,\
 /*	Name##_push_front,*/\
