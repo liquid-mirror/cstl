@@ -47,6 +47,8 @@
 #define CSTL_RBTREE_IS_ROOT(node, Name)		CSTL_RBTREE_IS_HEAD((node)->parent, Name)
 #define CSTL_RBTREE_IS_NIL(node, Name)		((node) == (Name##RBTree *) &Name##RBTree_nil)
 
+#define CSTL_RBTREE_NODE(Name, internaldata)		((Name *) ((internaldata).data1))
+#define CSTL_RBTREE_NODE_ASSIGN(internaldata)		((internaldata).data1)
 
 #define CSTL_RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
@@ -71,17 +73,17 @@ static void Name##RBTree_delete(Name##RBTree *self);\
 static void Name##RBTree_clear(Name##RBTree *self);\
 static int Name##RBTree_empty(Name##RBTree *self);\
 static void Name##RBTree_insert(Name##RBTree *self, Name##RBTree *node);\
-static void Name##RBTree_erase(Name##RBTree *self, Name##Iterator pos);\
+static void Name##RBTree_erase(Name##RBTree *self, Name##RBTree *pos);\
 static size_t Name##RBTree_count(Name##RBTree *self, KeyType key);\
-static Name##Iterator Name##RBTree_find(Name##RBTree *self, KeyType key);\
-static Name##Iterator Name##RBTree_lower_bound(Name##RBTree *self, KeyType key);\
-static Name##Iterator Name##RBTree_upper_bound(Name##RBTree *self, KeyType key);\
-static Name##Iterator Name##RBTree_begin(Name##RBTree *self);\
-static Name##Iterator Name##RBTree_end(Name##RBTree *self);\
-static Name##Iterator Name##RBTree_rbegin(Name##RBTree *self);\
-static Name##Iterator Name##RBTree_rend(Name##RBTree *self);\
-static Name##Iterator Name##RBTree_next(Name##Iterator pos);\
-static Name##Iterator Name##RBTree_prev(Name##Iterator pos);\
+static Name##RBTree *Name##RBTree_find(Name##RBTree *self, KeyType key);\
+static Name##RBTree *Name##RBTree_lower_bound(Name##RBTree *self, KeyType key);\
+static Name##RBTree *Name##RBTree_upper_bound(Name##RBTree *self, KeyType key);\
+static Name##RBTree *Name##RBTree_begin(Name##RBTree *self);\
+static Name##RBTree *Name##RBTree_end(Name##RBTree *self);\
+static Name##RBTree *Name##RBTree_rbegin(Name##RBTree *self);\
+static Name##RBTree *Name##RBTree_rend(Name##RBTree *self);\
+static Name##RBTree *Name##RBTree_next(Name##RBTree *pos);\
+static Name##RBTree *Name##RBTree_prev(Name##RBTree *pos);\
 \
 static void Name##RBTree_set_left(Name##RBTree *node, Name##RBTree *t);\
 static void Name##RBTree_set_right(Name##RBTree *node, Name##RBTree *t);\
@@ -204,7 +206,7 @@ static Name##RBTree *Name##RBTree_find_node(Name##RBTree *t, KeyType key)\
 	return t;\
 }\
 \
-static Name##Iterator Name##RBTree_find(Name##RBTree *self, KeyType key)\
+static Name##RBTree *Name##RBTree_find(Name##RBTree *self, KeyType key)\
 {\
 	Name##RBTree *t;\
 	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_find");\
@@ -215,9 +217,9 @@ static Name##Iterator Name##RBTree_find(Name##RBTree *self, KeyType key)\
 static size_t Name##RBTree_count(Name##RBTree *self, KeyType key)\
 {\
 	register size_t count = 0;\
-	register Name##Iterator pos;\
-	register Name##Iterator first;\
-	register Name##Iterator last;\
+	register Name##RBTree *pos;\
+	register Name##RBTree *first;\
+	register Name##RBTree *last;\
 	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_count");\
 	first = Name##RBTree_lower_bound(self, key);\
 	last = Name##RBTree_upper_bound(self, key);\
@@ -227,7 +229,7 @@ static size_t Name##RBTree_count(Name##RBTree *self, KeyType key)\
 	return count;\
 }\
 \
-static Name##Iterator Name##RBTree_lower_bound(Name##RBTree *self, KeyType key)\
+static Name##RBTree *Name##RBTree_lower_bound(Name##RBTree *self, KeyType key)\
 {\
 	register Name##RBTree *t;\
 	register Name##RBTree *tmp;\
@@ -245,7 +247,7 @@ static Name##Iterator Name##RBTree_lower_bound(Name##RBTree *self, KeyType key)\
 	return tmp;\
 }\
 \
-static Name##Iterator Name##RBTree_upper_bound(Name##RBTree *self, KeyType key)\
+static Name##RBTree *Name##RBTree_upper_bound(Name##RBTree *self, KeyType key)\
 {\
 	register Name##RBTree *t;\
 	register Name##RBTree *tmp;\
@@ -576,7 +578,7 @@ static void Name##RBTree_balance_for_erase(Name##RBTree *n, Name##RBTree *p_of_n
 	}\
 }\
 \
-static void Name##RBTree_erase(Name##RBTree *self, Name##Iterator pos)\
+static void Name##RBTree_erase(Name##RBTree *self, Name##RBTree *pos)\
 {\
 	register Name##RBTree *n;\
 	register Name##RBTree *x;\
@@ -628,7 +630,7 @@ end:\
 	free(n);\
 }\
 \
-static Name##Iterator Name##RBTree_begin(Name##RBTree *self)\
+static Name##RBTree *Name##RBTree_begin(Name##RBTree *self)\
 {\
 	register Name##RBTree *t;\
 	register Name##RBTree *tmp;\
@@ -642,13 +644,13 @@ static Name##Iterator Name##RBTree_begin(Name##RBTree *self)\
 	return tmp;\
 }\
 \
-static Name##Iterator Name##RBTree_end(Name##RBTree *self)\
+static Name##RBTree *Name##RBTree_end(Name##RBTree *self)\
 {\
 	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_end");\
 	return self;\
 }\
 \
-static Name##Iterator Name##RBTree_rbegin(Name##RBTree *self)\
+static Name##RBTree *Name##RBTree_rbegin(Name##RBTree *self)\
 {\
 	register Name##RBTree *t;\
 	register Name##RBTree *tmp;\
@@ -662,13 +664,13 @@ static Name##Iterator Name##RBTree_rbegin(Name##RBTree *self)\
 	return tmp;\
 }\
 \
-static Name##Iterator Name##RBTree_rend(Name##RBTree *self)\
+static Name##RBTree *Name##RBTree_rend(Name##RBTree *self)\
 {\
 	CSTL_ASSERT(CSTL_RBTREE_IS_HEAD(self, Name) && "RBTree_rend");\
 	return self;\
 }\
 \
-static Name##Iterator Name##RBTree_next(Name##Iterator pos)\
+static Name##RBTree *Name##RBTree_next(Name##RBTree *pos)\
 {\
 	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "RBTree_next");\
 	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(pos, Name) && "RBTree_next");\
@@ -688,7 +690,7 @@ static Name##Iterator Name##RBTree_next(Name##Iterator pos)\
 	return pos->parent;\
 }\
 \
-static Name##Iterator Name##RBTree_prev(Name##Iterator pos)\
+static Name##RBTree *Name##RBTree_prev(Name##RBTree *pos)\
 {\
 	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "RBTree_prev");\
 	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(pos, Name) && "RBTree_prev");\
@@ -714,14 +716,106 @@ static Name##Iterator Name##RBTree_prev(Name##Iterator pos)\
 #define CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)	\
 \
 typedef struct Name Name;\
-typedef struct Name##RBTree *Name##Iterator;\
+/*typedef struct Name##RBTree *Name##Iterator;*/\
+typedef struct Name##IteratorVtable Name##IteratorVtable;\
+/*! \
+ * \brief イテレータ\
+ */\
+typedef union Name##Iterator {\
+	const Name##IteratorVtable *vptr;\
+	CstlIterInternal internal;\
+} Name##Iterator;\
+\
+typedef Name##Iterator Name##ReverseIterator;\
+\
+typedef Type *(*Name##Iterator_data_t)(CstlIterInternalData pos);\
+typedef void *(*Name##Iterator_key_t)(CstlIterInternalData pos);\
+typedef void *(*Name##Iterator_val_t)(CstlIterInternalData pos);\
+typedef Name##Iterator (*Name##Iterator_next_t)(CstlIterInternalData pos);\
+typedef Name##Iterator (*Name##Iterator_prev_t)(CstlIterInternalData pos);\
+typedef void (*Name##Iterator_inc_t)(CstlIterInternalData *pos);\
+typedef void (*Name##Iterator_dec_t)(CstlIterInternalData *pos);\
+typedef int (*Name##Iterator_eq_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef int (*Name##Iterator_ne_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef Type *(*Name##Iterator_at_t)(CstlIterInternalData pos, size_t n);\
+typedef Name##Iterator (*Name##Iterator_add_t)(CstlIterInternalData pos, size_t n);\
+typedef Name##Iterator (*Name##Iterator_sub_t)(CstlIterInternalData pos, size_t n);\
+typedef void (*Name##Iterator_inc_n_t)(CstlIterInternalData *pos, size_t n);\
+typedef void (*Name##Iterator_dec_n_t)(CstlIterInternalData *pos, size_t n);\
+typedef int (*Name##Iterator_diff_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef int (*Name##Iterator_lt_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef int (*Name##Iterator_le_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef int (*Name##Iterator_gt_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef int (*Name##Iterator_ge_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef Name##ReverseIterator (*Name##Iterator_reverse_iterator_t)(CstlIterInternalData pos);\
+typedef Name##Iterator (*Name##ReverseIterator_base_t)(CstlIterInternalData pos);\
+\
+struct Name##IteratorVtable {\
+	Name##Iterator_data_t  data;\
+	Name##Iterator_key_t   key;\
+	Name##Iterator_val_t   val;\
+	Name##Iterator_next_t  next;\
+	Name##Iterator_prev_t  prev;\
+	Name##Iterator_inc_t   inc;\
+	Name##Iterator_dec_t   dec;\
+	Name##Iterator_eq_t    eq;\
+	Name##Iterator_ne_t    ne;\
+	Name##Iterator_at_t    at;\
+	Name##Iterator_add_t   add;\
+	Name##Iterator_sub_t   sub;\
+	Name##Iterator_inc_n_t inc_n;\
+	Name##Iterator_dec_n_t dec_n;\
+	Name##Iterator_diff_t  diff;\
+	Name##Iterator_lt_t    lt;\
+	Name##Iterator_le_t    le;\
+	Name##Iterator_gt_t    gt;\
+	Name##Iterator_ge_t    ge;\
+	Name##Iterator_reverse_iterator_t reverse_iterator;\
+	Name##ReverseIterator_base_t base;\
+	int container;\
+	int is_rand_iter;\
+	int is_reverse_iter;\
+};\
+\
+typedef void (*Name##_delete_t)(Name *self);\
+typedef int (*Name##_empty_t)(Name *self);\
+typedef size_t (*Name##_size_t)(Name *self);\
+typedef void (*Name##_clear_t)(Name *self);\
+typedef int (*Name##_insert_range_t)(Name *self, CstlIterInternalData pos, CstlIterInternal first, CstlIterInternal last);\
+typedef int (*Name##_insert_range_assoc_t)(Name *self, CstlIterInternal first, CstlIterInternal last);\
+typedef Name##Iterator (*Name##_erase_t)(Name *self, CstlIterInternalData pos);\
+typedef Name##Iterator (*Name##_erase_range_t)(Name *self, CstlIterInternalData first, CstlIterInternalData last);\
+typedef size_t (*Name##_erase_key_t)(Name *self, KeyType key);\
+typedef size_t (*Name##_count_t)(Name *self, KeyType key);\
+typedef Name##Iterator (*Name##_find_t)(Name *self, KeyType key);\
+typedef Name##Iterator (*Name##_lower_bound_t)(Name *self, KeyType key);\
+typedef Name##Iterator (*Name##_upper_bound_t)(Name *self, KeyType key);\
+typedef void (*Name##_equal_range_t)(Name *self, KeyType key, Name##Iterator *first, Name##Iterator *last);\
+typedef Name##Iterator (*Name##_begin_t)(Name *self);\
+typedef Name##Iterator (*Name##_end_t)(Name *self);\
+typedef Name##ReverseIterator (*Name##_rbegin_t)(Name *self);\
+typedef Name##ReverseIterator (*Name##_rend_t)(Name *self);\
+typedef void (*Name##_swap_t)(Name *self, Name *x);\
+\
+/*! \
+ * \brief set/map構造体\
+ */\
+struct Name {\
+	union {\
+		const struct Name##Vtable *vptr;\
+	} u;\
+	Name##RBTree *tree;\
+	size_t size;\
+	CSTL_MAGIC(Name *magic;)\
+};\
 \
 Name *Name##_new(void);\
 void Name##_delete(Name *self);\
 void Name##_clear(Name *self);\
 int Name##_empty(Name *self);\
 size_t Name##_size(Name *self);\
-int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last);\
+int Name##_insert_range(Name *self, CstlIterInternalData pos, CstlIterInternal first, CstlIterInternal last);\
+int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last);\
 Name##Iterator Name##_erase(Name *self, Name##Iterator pos);\
 Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last);\
 size_t Name##_erase_key(Name *self, KeyType key);\
@@ -742,15 +836,6 @@ void Name##_swap(Name *self, Name *x);\
 #define CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
 typedef struct Name##RBTree Name##RBTree;\
-/*! \
- * \brief set/map構造体\
- */\
-struct Name {\
-	Name##RBTree *tree;\
-	size_t size;\
-	CSTL_MAGIC(Name *magic;)\
-};\
-\
 CSTL_RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare)\
 \
 Name *Name##_new(void)\
@@ -758,6 +843,7 @@ Name *Name##_new(void)\
 	Name *self;\
 	self = (Name *) malloc(sizeof(Name));\
 	if (!self) return 0;\
+	self->u.vptr = &Name##_vtbl;\
 	self->tree = Name##RBTree_new();\
 	if (!self->tree) {\
 		free(self);\

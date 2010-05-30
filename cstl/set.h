@@ -86,6 +86,28 @@ Type const *Name##_data(Name##Iterator pos)\
 \
 CSTL_EXTERN_C_BEGIN()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
+\
+typedef int (*Name##_insert_set_t)(Name *self, CstlIterInternalData pos, Type data, Name##Iterator *iter, int *success);\
+typedef int (*Name##_insert_multiset_t)(Name *self, CstlIterInternalData pos, Type data, Name##Iterator *iter);\
+\
+struct Name##Vtable {\
+	Name##_delete_t       delete_;\
+	Name##_empty_t        empty;\
+	Name##_size_t         size;\
+	Name##_clear_t        clear;\
+	Name##_begin_t        begin;\
+	Name##_end_t          end;\
+	Name##_rbegin_t       rbegin;\
+	Name##_rend_t         rend;\
+	Name##_insert_range_t insert_range;\
+	Name##_insert_range_assoc_t insert_range_assoc;\
+	Name##_erase_t        erase;\
+	Name##_erase_range_t  erase_range;\
+	Name##_erase_key_t    erase_key;\
+	Name##_swap_t         swap;\
+	Name##_insert_set_t   insert_set;\
+}\
+\
 Name##Iterator Name##_insert(Name *self, Type data, int *success);\
 Type const *Name##_data(Name##Iterator pos);\
 CSTL_EXTERN_C_END()\
@@ -98,6 +120,24 @@ CSTL_EXTERN_C_END()\
  * \param Compare 要素の比較ルーチン
  */
 #define CSTL_SET_IMPLEMENT(Name, Type, Compare)	\
+static const struct Name##Vtable Name##_vtbl = {\
+	Name##_delete,\
+	Name##_empty,\
+	Name##_size,\
+	Name##_clear,\
+	Name##_begin,\
+	Name##_end,\
+	Name##_rbegin,\
+	Name##_rend,\
+	Name##_insert_range,\
+	Name##_insert_range_assoc,\
+	Name##_erase,\
+	Name##_erase_range,\
+	Name##_erase_key,\
+	Name##_swap,\
+	Name##_insert_set,\
+};\
+\
 CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 \
 Name##Iterator Name##_insert(Name *self, Type data, int *success)\
@@ -121,18 +161,18 @@ Name##Iterator Name##_insert(Name *self, Type data, int *success)\
 	return pos;\
 }\
 \
-int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
+int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
 	register Name##Iterator pos;\
 	register Name##Iterator tmp;\
 	Name##RBTree head;\
 	register size_t count = 0;\
-	CSTL_ASSERT(self && "Set_insert_range");\
-	CSTL_ASSERT(self->magic == self && "Set_insert_range");\
-	CSTL_ASSERT(first && "Set_insert_range");\
-	CSTL_ASSERT(last && "Set_insert_range");\
-	CSTL_ASSERT(first->magic && "Set_insert_range");\
-	CSTL_ASSERT(last->magic && "Set_insert_range");\
+	CSTL_ASSERT(self && "Set_insert_range_assoc");\
+	CSTL_ASSERT(self->magic == self && "Set_insert_range_assoc");\
+	CSTL_ASSERT(first && "Set_insert_range_assoc");\
+	CSTL_ASSERT(last && "Set_insert_range_assoc");\
+	CSTL_ASSERT(first->magic && "Set_insert_range_assoc");\
+	CSTL_ASSERT(last->magic && "Set_insert_range_assoc");\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
@@ -197,18 +237,18 @@ Name##Iterator Name##_insert(Name *self, Type data)\
 	return pos;\
 }\
 \
-int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
+int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
 	register Name##Iterator pos;\
 	register Name##Iterator tmp;\
 	Name##RBTree head;\
 	register size_t count = 0;\
-	CSTL_ASSERT(self && "MultiSet_insert_range");\
-	CSTL_ASSERT(self->magic == self && "MultiSet_insert_range");\
-	CSTL_ASSERT(first && "MultiSet_insert_range");\
-	CSTL_ASSERT(last && "MultiSet_insert_range");\
-	CSTL_ASSERT(first->magic && "MultiSet_insert_range");\
-	CSTL_ASSERT(last->magic && "MultiSet_insert_range");\
+	CSTL_ASSERT(self && "MultiSet_insert_range_assoc");\
+	CSTL_ASSERT(self->magic == self && "MultiSet_insert_range_assoc");\
+	CSTL_ASSERT(first && "MultiSet_insert_range_assoc");\
+	CSTL_ASSERT(last && "MultiSet_insert_range_assoc");\
+	CSTL_ASSERT(first->magic && "MultiSet_insert_range_assoc");\
+	CSTL_ASSERT(last->magic && "MultiSet_insert_range_assoc");\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\

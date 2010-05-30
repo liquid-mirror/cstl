@@ -144,18 +144,18 @@ Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value
 	return pos;\
 }\
 \
-int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
+int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
 	register Name##Iterator pos;\
 	register Name##Iterator tmp;\
 	Name##RBTree head;\
 	register size_t count = 0;\
-	CSTL_ASSERT(self && "Map_insert_range");\
-	CSTL_ASSERT(self->magic == self && "Map_insert_range");\
-	CSTL_ASSERT(first && "Map_insert_range");\
-	CSTL_ASSERT(last && "Map_insert_range");\
-	CSTL_ASSERT(first->magic && "Map_insert_range");\
-	CSTL_ASSERT(last->magic && "Map_insert_range");\
+	CSTL_ASSERT(self && "Map_insert_range_assoc");\
+	CSTL_ASSERT(self->magic == self && "Map_insert_range_assoc");\
+	CSTL_ASSERT(first && "Map_insert_range_assoc");\
+	CSTL_ASSERT(last && "Map_insert_range_assoc");\
+	CSTL_ASSERT(first->magic && "Map_insert_range_assoc");\
+	CSTL_ASSERT(last->magic && "Map_insert_range_assoc");\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
@@ -252,18 +252,18 @@ Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value
 	return pos;\
 }\
 \
-int Name##_insert_range(Name *self, Name##Iterator first, Name##Iterator last)\
+int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)\
 {\
 	register Name##Iterator pos;\
 	register Name##Iterator tmp;\
 	Name##RBTree head;\
 	register size_t count = 0;\
-	CSTL_ASSERT(self && "MultiMap_insert_range");\
-	CSTL_ASSERT(self->magic == self && "MultiMap_insert_range");\
-	CSTL_ASSERT(first && "MultiMap_insert_range");\
-	CSTL_ASSERT(last && "MultiMap_insert_range");\
-	CSTL_ASSERT(first->magic && "MultiMap_insert_range");\
-	CSTL_ASSERT(last->magic && "MultiMap_insert_range");\
+	CSTL_ASSERT(self && "MultiMap_insert_range_assoc");\
+	CSTL_ASSERT(self->magic == self && "MultiMap_insert_range_assoc");\
+	CSTL_ASSERT(first && "MultiMap_insert_range_assoc");\
+	CSTL_ASSERT(last && "MultiMap_insert_range_assoc");\
+	CSTL_ASSERT(first->magic && "MultiMap_insert_range_assoc");\
+	CSTL_ASSERT(last->magic && "MultiMap_insert_range_assoc");\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	for (pos = first; pos != last; pos = Name##_next(pos)) {\
