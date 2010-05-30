@@ -131,8 +131,8 @@ typedef Type *(*Name##_front_t)(Name *self);\
 typedef Type *(*Name##_back_t)(Name *self);\
 typedef Name##Iterator (*Name##_begin_t)(Name *self);\
 typedef Name##Iterator (*Name##_end_t)(Name *self);\
-typedef Name##Iterator (*Name##_rbegin_t)(Name *self);\
-typedef Name##Iterator (*Name##_rend_t)(Name *self);\
+typedef Name##ReverseIterator (*Name##_rbegin_t)(Name *self);\
+typedef Name##ReverseIterator (*Name##_rend_t)(Name *self);\
 typedef int (*Name##_insert_t)(Name *self, CstlIterInternalData pos, Type data, Name##Iterator *iter);\
 typedef int (*Name##_insert_ref_t)(Name *self, CstlIterInternalData pos, Type const *data, Name##Iterator *iter);\
 typedef int (*Name##_insert_n_t)(Name *self, CstlIterInternalData pos, size_t n, Type data);\

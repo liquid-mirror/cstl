@@ -146,8 +146,8 @@ typedef Type *(*Name##_front_t)(Name *self);\
 typedef Type *(*Name##_back_t)(Name *self);\
 typedef Name##Iterator (*Name##_begin_t)(Name *self);\
 typedef Name##Iterator (*Name##_end_t)(Name *self);\
-typedef Name##Iterator (*Name##_rbegin_t)(Name *self);\
-typedef Name##Iterator (*Name##_rend_t)(Name *self);\
+typedef Name##ReverseIterator (*Name##_rbegin_t)(Name *self);\
+typedef Name##ReverseIterator (*Name##_rend_t)(Name *self);\
 /*typedef Name##Iterator (*Name##_insert_t)(Name *self, CstlIterInternalData pos, Type data);\
 typedef Name##Iterator (*Name##_insert_ref_t)(Name *self, CstlIterInternalData pos, Type const *data);*/\
 typedef int (*Name##_insert_t)(Name *self, CstlIterInternalData pos, Type data, Name##Iterator *iter);\
@@ -226,8 +226,8 @@ Type *Name##_front(Name *self);\
 Type *Name##_back(Name *self);\
 Name##Iterator Name##_begin(Name *self);\
 Name##Iterator Name##_end(Name *self);\
-Name##Iterator Name##_rbegin(Name *self);\
-Name##Iterator Name##_rend(Name *self);\
+Name##ReverseIterator Name##_rbegin(Name *self);\
+Name##ReverseIterator Name##_rend(Name *self);\
 int Name##_insert(Name *self, CstlIterInternalData pos, Type data, Name##Iterator *iter);\
 int Name##_insert_ref(Name *self, CstlIterInternalData pos, Type const *data, Name##Iterator *iter);\
 int Name##_insert_n(Name *self, CstlIterInternalData pos, size_t n, Type data);\
@@ -722,9 +722,9 @@ Name##Iterator Name##_end(Name *self)\
 	return iter;\
 }\
 \
-Name##Iterator Name##_rbegin(Name *self)\
+Name##ReverseIterator Name##_rbegin(Name *self)\
 {\
-	Name##Iterator iter;\
+	Name##ReverseIterator iter;\
 	CSTL_ASSERT(self && "Vector_rbegin");\
 	CSTL_ASSERT(self->magic == self && "Vector_rbegin");\
 	iter.vptr = &Name##ReverseIterator_vtbl;\
@@ -734,9 +734,9 @@ Name##Iterator Name##_rbegin(Name *self)\
 	return iter;\
 }\
 \
-Name##Iterator Name##_rend(Name *self)\
+Name##ReverseIterator Name##_rend(Name *self)\
 {\
-	Name##Iterator iter;\
+	Name##ReverseIterator iter;\
 	CSTL_ASSERT(self && "Vector_rend");\
 	CSTL_ASSERT(self->magic == self && "Vector_rend");\
 	iter.vptr = &Name##ReverseIterator_vtbl;\
