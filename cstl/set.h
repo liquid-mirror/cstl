@@ -120,6 +120,60 @@ CSTL_EXTERN_C_END()\
  * \param Compare 要素の比較ルーチン
  */
 #define CSTL_SET_IMPLEMENT(Name, Type, Compare)	\
+static const Name##IteratorVtable Name##Iterator_vtbl = {\
+	Name##Iterator_data,\
+	0, /* key */\
+	0, /* val */\
+	Name##Iterator_next,\
+	Name##Iterator_prev,\
+	Name##Iterator_inc,\
+	Name##Iterator_dec,\
+	Name##Iterator_eq,\
+	Name##Iterator_ne,\
+	0, /* at */\
+	0, /* add */\
+	0, /* sub */\
+	0, /* inc_n */\
+	0, /* dec_n */\
+	0, /* diff */\
+	0, /* lt */\
+	0, /* le */\
+	0, /* gt */\
+	0, /* ge */\
+	Name##Iterator_reverse_iterator,\
+	0, /* ReverseIterator_base */\
+	CSTL_CONTAINER_SET,\
+	0, /* is_rand_iter */\
+	0, /* is_reverse_iter */\
+};\
+\
+static const Name##IteratorVtable Name##ReverseIterator_vtbl = {\
+	Name##ReverseIterator_data,\
+	0, /* key */\
+	0, /* val */\
+	Name##ReverseIterator_next,\
+	Name##ReverseIterator_prev,\
+	Name##ReverseIterator_inc,\
+	Name##ReverseIterator_dec,\
+	Name##ReverseIterator_eq,\
+	Name##ReverseIterator_ne,\
+	0, /* at */\
+	0, /* add */\
+	0, /* sub */\
+	0, /* inc_n */\
+	0, /* dec_n */\
+	0, /* diff */\
+	0, /* lt */\
+	0, /* le */\
+	0, /* gt */\
+	0, /* ge */\
+	Name##Iterator_reverse_iterator,\
+	Name##ReverseIterator_base, /* ReverseIterator_base */\
+	CSTL_CONTAINER_SET,\
+	0, /* is_rand_iter */\
+	1, /* is_reverse_iter */\
+};\
+\
 static const struct Name##Vtable Name##_vtbl = {\
 	Name##_delete,\
 	Name##_empty,\
