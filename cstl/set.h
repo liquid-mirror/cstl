@@ -66,12 +66,13 @@ static Name##RBTree *Name##RBTree_new_node(Type data, int color)\
 	return node;\
 }\
 \
-Type const *Name##_data(Name##Iterator pos)\
+/*Type const *Name##Iterator_data(Name##Iterator pos)*/\
+Type *Name##Iterator_data(CstlIterInternalData pos)\
 {\
-	CSTL_ASSERT(pos && "Set_data");\
-	CSTL_ASSERT(pos->magic && "Set_data");\
-	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "Set_data");\
-	return &pos->key;\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "SetIterator_data");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos)->magic && "SetIterator_data");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(CSTL_RBTREE_NODE(Name, pos), Name) && "SetIterator_data");\
+	return &CSTL_RBTREE_NODE(Name, pos)->key;\
 }\
 \
 
@@ -87,8 +88,8 @@ Type const *Name##_data(Name##Iterator pos)\
 CSTL_EXTERN_C_BEGIN()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
 \
-typedef int (*Name##_insert_set_t)(Name *self, CstlIterInternalData pos, Type data, Name##Iterator *iter, int *success);\
-typedef int (*Name##_insert_multiset_t)(Name *self, CstlIterInternalData pos, Type data, Name##Iterator *iter);\
+typedef int (*Name##_insert_set_t)(Name *self, Type data, Name##Iterator *iter, int *success);\
+typedef int (*Name##_insert_multiset_t)(Name *self, Type data, Name##Iterator *iter);\
 \
 struct Name##Vtable {\
 	Name##_delete_t       delete_;\
@@ -265,7 +266,7 @@ int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator l
 CSTL_EXTERN_C_BEGIN()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
 Name##Iterator Name##_insert(Name *self, Type data);\
-Type const *Name##_data(Name##Iterator pos);\
+Type const *Name##Iterator_data(Name##Iterator pos);\
 CSTL_EXTERN_C_END()\
 
 /*! 

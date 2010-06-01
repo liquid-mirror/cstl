@@ -47,7 +47,7 @@
 #define CSTL_RBTREE_IS_ROOT(node, Name)		CSTL_RBTREE_IS_HEAD((node)->parent, Name)
 #define CSTL_RBTREE_IS_NIL(node, Name)		((node) == (Name##RBTree *) &Name##RBTree_nil)
 
-#define CSTL_RBTREE_NODE(Name, internaldata)		((Name *) ((internaldata).data1))
+#define CSTL_RBTREE_NODE(Name, internaldata)		((Name##RBTree *) ((internaldata).data1))
 #define CSTL_RBTREE_NODE_ASSIGN(internaldata)		((internaldata).data1)
 
 #define CSTL_RBTREE_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
