@@ -66,7 +66,6 @@ static Name##RBTree *Name##RBTree_new_node(Type data, int color)\
 	return node;\
 }\
 \
-/*Type const *Name##Iterator_data(Name##Iterator pos)*/\
 Type *Name##Iterator_data(CstlIterInternalData pos)\
 {\
 	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "SetIterator_data");\
@@ -89,7 +88,6 @@ CSTL_EXTERN_C_BEGIN()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
 \
 typedef int (*Name##_insert_set_t)(Name *self, Type data, Name##Iterator *iter, int *success);\
-typedef int (*Name##_insert_multiset_t)(Name *self, Type data, Name##Iterator *iter);\
 \
 struct Name##Vtable {\
 	Name##_delete_t       delete_;\
@@ -109,8 +107,9 @@ struct Name##Vtable {\
 	Name##_insert_set_t   insert_set;\
 }\
 \
-Name##Iterator Name##_insert(Name *self, Type data, int *success);\
-Type const *Name##_data(Name##Iterator pos);\
+/*Name##Iterator Name##_insert(Name *self, Type data, int *success);*/\
+int Name##_insert_set(Name *self, Type data, Name##Iterator *iter, int *success);\
+Type *Name##Iterator_data(CstlIterInternalData pos);\
 CSTL_EXTERN_C_END()\
 
 /*! 
@@ -195,11 +194,12 @@ static const struct Name##Vtable Name##_vtbl = {\
 \
 CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 \
-Name##Iterator Name##_insert(Name *self, Type data, int *success)\
+/*Name##Iterator Name##_insert(Name *self, Type data, int *success)*/\
+int Name##_insert_set(Name *self, Type data, Name##Iterator *iter, int *success)\
 {\
-	Name##Iterator pos;\
-	CSTL_ASSERT(self && "Set_insert");\
-	CSTL_ASSERT(self->magic == self && "Set_insert");\
+	Name##RBTree *pos;\
+	CSTL_ASSERT(self && "Set_insert_set");\
+	CSTL_ASSERT(self->magic == self && "Set_insert_set");\
 	pos = Name##RBTree_find(self->tree, data);\
 	if (pos == Name##RBTree_end(self->tree)) {\
 		pos = Name##RBTree_new_node(data, Name##_COLOR_RED);\
@@ -209,30 +209,39 @@ Name##Iterator Name##_insert(Name *self, Type data, int *success)\
 			self->size++;\
 		} else {\
 			if (success) *success = 0;\
+			return 0;\
 		}\
 	} else {\
 		if (success) *success = 0;\
 	}\
-	return pos;\
+	if (iter) {\
+		iter->vptr = &Name##Iterator_vtbl;\
+		CSTL_RBTREE_NODE_ASSIGN(iter->internal.data) = pos;\
+	}\
+	return 1;\
 }\
 \
-int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)\
+/*int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)*/\
+int Name##_insert_range_assoc(Name *self, CstlIterInternal first, CstlIterInternal last)\
 {\
-	register Name##Iterator pos;\
-	register Name##Iterator tmp;\
+	register Name##RBTree *pos;\
+	register Name##RBTree *tmp;\
+	CstlIterInternal i;\
 	Name##RBTree head;\
 	register size_t count = 0;\
 	CSTL_ASSERT(self && "Set_insert_range_assoc");\
 	CSTL_ASSERT(self->magic == self && "Set_insert_range_assoc");\
-	CSTL_ASSERT(first && "Set_insert_range_assoc");\
-	CSTL_ASSERT(last && "Set_insert_range_assoc");\
-	CSTL_ASSERT(first->magic && "Set_insert_range_assoc");\
-	CSTL_ASSERT(last->magic && "Set_insert_range_assoc");\
+	CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr) == CSTL_CAST_VPTR(Name, last.in_vptr) && "Set_insert_range_assoc");\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (Name##RBTree_find(self->tree, pos->key) == Name##RBTree_end(self->tree)) {\
-			tmp->right = Name##RBTree_new_node(pos->key, Name##_COLOR_RED);\
+	/*for (pos = first; pos != last; pos = Name##_next(pos)) {*/\
+	for (i = first; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
+			CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data)) {\
+		/*if (Name##RBTree_find(self->tree, pos->key) == Name##RBTree_end(self->tree)) {*/\
+		Type const *p = CSTL_CAST_VPTR(Name, i.in_vptr)->data(i.data);\
+		if (Name##RBTree_find(self->tree, *p) == Name##RBTree_end(self->tree)) {\
+			/*tmp->right = Name##RBTree_new_node(pos->key, Name##_COLOR_RED);*/\
+			tmp->right = Name##RBTree_new_node(*p, Name##_COLOR_RED);\
 			if (!tmp->right) {\
 				for (pos = head.right; pos != 0; pos = tmp) {\
 					tmp = pos->right;\
@@ -265,8 +274,29 @@ int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator l
 \
 CSTL_EXTERN_C_BEGIN()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
-Name##Iterator Name##_insert(Name *self, Type data);\
-Type const *Name##Iterator_data(Name##Iterator pos);\
+\
+typedef int (*Name##_insert_multiset_t)(Name *self, Type data, Name##Iterator *iter);\
+\
+struct Name##Vtable {\
+	Name##_delete_t       delete_;\
+	Name##_empty_t        empty;\
+	Name##_size_t         size;\
+	Name##_clear_t        clear;\
+	Name##_begin_t        begin;\
+	Name##_end_t          end;\
+	Name##_rbegin_t       rbegin;\
+	Name##_rend_t         rend;\
+	Name##_insert_range_t insert_range;\
+	Name##_insert_range_assoc_t insert_range_assoc;\
+	Name##_erase_t        erase;\
+	Name##_erase_range_t  erase_range;\
+	Name##_erase_key_t    erase_key;\
+	Name##_swap_t         swap;\
+	Name##_insert_multiset_t insert_multiset;\
+}\
+\
+int Name##_insert_multiset(Name *self, Type data, Name##Iterator *iter);\
+Type *Name##Iterator_data(CstlIterInternalData pos);\
 CSTL_EXTERN_C_END()\
 
 /*! 
@@ -279,35 +309,44 @@ CSTL_EXTERN_C_END()\
 #define CSTL_MULTISET_IMPLEMENT(Name, Type, Compare)	\
 CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 \
-Name##Iterator Name##_insert(Name *self, Type data)\
+/*Name##Iterator Name##_insert(Name *self, Type data)*/\
+int Name##_insert_multiset(Name *self, Type data, Name##Iterator *iter)\
 {\
-	Name##Iterator pos;\
-	CSTL_ASSERT(self && "MultiSet_insert");\
-	CSTL_ASSERT(self->magic == self && "MultiSet_insert");\
+	Name##RBTree *pos;\
+	CSTL_ASSERT(self && "MultiSet_insert_multiset");\
+	CSTL_ASSERT(self->magic == self && "MultiSet_insert_multiset");\
 	pos = Name##RBTree_new_node(data, Name##_COLOR_RED);\
 	if (pos) {\
 		Name##RBTree_insert(self->tree, pos);\
 		self->size++;\
+	} else {\
+		return 0;\
 	}\
-	return pos;\
+	if (iter) {\
+		iter->vptr = &Name##Iterator_vtbl;\
+		CSTL_RBTREE_NODE_ASSIGN(iter->internal.data) = pos;\
+	}\
+	return 1;\
 }\
 \
-int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)\
+/*int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)*/\
+int Name##_insert_range_assoc(Name *self, CstlIterInternal first, CstlIterInternal last)\
 {\
-	register Name##Iterator pos;\
-	register Name##Iterator tmp;\
+	register Name##RBTree *pos;\
+	register Name##RBTree *tmp;\
+	CstlIterInternal i;\
 	Name##RBTree head;\
 	register size_t count = 0;\
 	CSTL_ASSERT(self && "MultiSet_insert_range_assoc");\
 	CSTL_ASSERT(self->magic == self && "MultiSet_insert_range_assoc");\
-	CSTL_ASSERT(first && "MultiSet_insert_range_assoc");\
-	CSTL_ASSERT(last && "MultiSet_insert_range_assoc");\
-	CSTL_ASSERT(first->magic && "MultiSet_insert_range_assoc");\
-	CSTL_ASSERT(last->magic && "MultiSet_insert_range_assoc");\
+	CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr) == CSTL_CAST_VPTR(Name, last.in_vptr) && "MultiSet_insert_range_assoc");\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		tmp->right = Name##RBTree_new_node(pos->key, Name##_COLOR_RED);\
+	/*for (pos = first; pos != last; pos = Name##_next(pos)) {*/\
+	for (i = first; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
+			CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data)) {\
+		/*tmp->right = Name##RBTree_new_node(pos->key, Name##_COLOR_RED);*/\
+		tmp->right = Name##RBTree_new_node(*CSTL_CAST_VPTR(Name, i.in_vptr)->data(i.data), Name##_COLOR_RED);\
 		if (!tmp->right) {\
 			for (pos = head.right; pos != 0; pos = tmp) {\
 				tmp = pos->right;\
