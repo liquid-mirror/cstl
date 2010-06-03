@@ -45,6 +45,7 @@ int main(void)
 	printf("upper_bound(5): %d\n", *cstl_iter_data(cstl_upper_bound(x, 5)));
 	printf("lower_bound(6): %d\n", *cstl_iter_data(cstl_lower_bound(x, 6)));
 	printf("upper_bound(6): %d\n", *cstl_iter_data(cstl_upper_bound(x, 6)));
-	IntSet_delete(x);
+
+	cstl_delete(x);
 	return 0;
 }
