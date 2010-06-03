@@ -164,6 +164,11 @@ struct Name##Vtable {\
 	Name##_erase_t        erase;\
 	Name##_erase_range_t  erase_range;\
 	Name##_erase_key_t    erase_key;\
+	Name##_count_t        count;\
+	Name##_find_t         find;\
+	Name##_lower_bound_t  lower_bound;\
+	Name##_upper_bound_t  upper_bound;\
+	Name##_equal_range_t  equal_range;\
 	Name##_swap_t         swap;\
 	Name##_insert_set_t   insert_set;\
 };\
@@ -195,6 +200,11 @@ static const struct Name##Vtable Name##_vtbl = {\
 	Name##_erase,\
 	Name##_erase_range,\
 	Name##_erase_key,\
+	Name##_count,\
+	Name##_find,\
+	Name##_lower_bound,\
+	Name##_upper_bound,\
+	Name##_equal_range,\
 	Name##_swap,\
 	Name##_insert_set,\
 };\
@@ -297,6 +307,11 @@ struct Name##Vtable {\
 	Name##_erase_t        erase;\
 	Name##_erase_range_t  erase_range;\
 	Name##_erase_key_t    erase_key;\
+	Name##_count_t        count;\
+	Name##_find_t         find;\
+	Name##_lower_bound_t  lower_bound;\
+	Name##_upper_bound_t  upper_bound;\
+	Name##_equal_range_t  equal_range;\
 	Name##_swap_t         swap;\
 	Name##_insert_multiset_t insert_multiset;\
 };\
@@ -327,6 +342,11 @@ static const struct Name##Vtable Name##_vtbl = {\
 	Name##_erase,\
 	Name##_erase_range,\
 	Name##_erase_key,\
+	Name##_count,\
+	Name##_find,\
+	Name##_lower_bound,\
+	Name##_upper_bound,\
+	Name##_equal_range,\
 	Name##_swap,\
 	Name##_insert_multiset,\
 };\
