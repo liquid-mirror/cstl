@@ -692,8 +692,12 @@ static Name##RBTree *Name##RBTree_next(Name##RBTree *pos)\
 \
 static Name##RBTree *Name##RBTree_prev(Name##RBTree *pos)\
 {\
-	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "RBTree_prev");\
+	/*CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "RBTree_prev");*/\
 	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(pos, Name) && "RBTree_prev");\
+	if (CSTL_RBTREE_IS_HEAD(pos, Name)) {\
+		/* TODO */\
+		return Name##RBTree_rbegin(pos);\
+	}\
 	/* 下位検索 */\
 	if (!CSTL_RBTREE_IS_NIL(pos->left, Name)) {\
 		pos = pos->left;\
@@ -707,6 +711,7 @@ static Name##RBTree *Name##RBTree_prev(Name##RBTree *pos)\
 		pos = pos->parent;\
 	}\
 	/* 引数のposがbegin()の時、pos->parentはrend()となる。 */\
+	/* TODO:posがbegin()の時はエラー */\
 	return pos->parent;\
 }\
 \
@@ -728,16 +733,16 @@ typedef union Name##Iterator {\
 \
 typedef Name##Iterator Name##ReverseIterator;\
 \
-typedef Type *(*Name##Iterator_data_t)(CstlIterInternalData pos);\
-typedef void *(*Name##Iterator_key_t)(CstlIterInternalData pos);\
-typedef void *(*Name##Iterator_val_t)(CstlIterInternalData pos);\
+typedef KeyType *(*Name##Iterator_data_t)(CstlIterInternalData pos);\
+typedef KeyType *(*Name##Iterator_key_t)(CstlIterInternalData pos);\
+typedef ValueType *(*Name##Iterator_val_t)(CstlIterInternalData pos);\
 typedef Name##Iterator (*Name##Iterator_next_t)(CstlIterInternalData pos);\
 typedef Name##Iterator (*Name##Iterator_prev_t)(CstlIterInternalData pos);\
 typedef void (*Name##Iterator_inc_t)(CstlIterInternalData *pos);\
 typedef void (*Name##Iterator_dec_t)(CstlIterInternalData *pos);\
 typedef int (*Name##Iterator_eq_t)(CstlIterInternalData pos, CstlIterInternalData x);\
 typedef int (*Name##Iterator_ne_t)(CstlIterInternalData pos, CstlIterInternalData x);\
-typedef Type *(*Name##Iterator_at_t)(CstlIterInternalData pos, size_t n);\
+typedef KeyType *(*Name##Iterator_at_t)(CstlIterInternalData pos, size_t n);\
 typedef Name##Iterator (*Name##Iterator_add_t)(CstlIterInternalData pos, size_t n);\
 typedef Name##Iterator (*Name##Iterator_sub_t)(CstlIterInternalData pos, size_t n);\
 typedef void (*Name##Iterator_inc_n_t)(CstlIterInternalData *pos, size_t n);\
@@ -781,7 +786,6 @@ typedef void (*Name##_delete_t)(Name *self);\
 typedef int (*Name##_empty_t)(Name *self);\
 typedef size_t (*Name##_size_t)(Name *self);\
 typedef void (*Name##_clear_t)(Name *self);\
-typedef int (*Name##_insert_range_t)(Name *self, CstlIterInternalData pos, CstlIterInternal first, CstlIterInternal last);\
 typedef int (*Name##_insert_range_assoc_t)(Name *self, CstlIterInternal first, CstlIterInternal last);\
 typedef Name##Iterator (*Name##_erase_t)(Name *self, CstlIterInternalData pos);\
 typedef Name##Iterator (*Name##_erase_range_t)(Name *self, CstlIterInternalData first, CstlIterInternalData last);\
@@ -804,7 +808,7 @@ struct Name {\
 	union {\
 		const struct Name##Vtable *vptr;\
 	} u;\
-	Name##RBTree *tree;\
+	struct Name##RBTree *tree;\
 	size_t size;\
 	CSTL_MAGIC(Name *magic;)\
 };\
@@ -814,7 +818,6 @@ void Name##_delete(Name *self);\
 void Name##_clear(Name *self);\
 int Name##_empty(Name *self);\
 size_t Name##_size(Name *self);\
-int Name##_insert_range(Name *self, CstlIterInternalData pos, CstlIterInternal first, CstlIterInternal last);\
 int Name##_insert_range_assoc(Name *self, CstlIterInternal first, CstlIterInternal last);\
 Name##Iterator Name##_erase(Name *self, CstlIterInternalData pos);\
 Name##Iterator Name##_erase_range(Name *self, CstlIterInternalData first, CstlIterInternalData last);\
@@ -834,6 +837,14 @@ void Name##Iterator_inc(CstlIterInternalData *pos);\
 void Name##Iterator_dec(CstlIterInternalData *pos);\
 int Name##Iterator_eq(CstlIterInternalData pos, CstlIterInternalData x);\
 int Name##Iterator_ne(CstlIterInternalData pos, CstlIterInternalData x);\
+Name##ReverseIterator Name##Iterator_reverse_iterator(CstlIterInternalData pos);\
+Name##Iterator Name##ReverseIterator_base(CstlIterInternalData pos);\
+Name##ReverseIterator Name##ReverseIterator_next(CstlIterInternalData pos);\
+Name##ReverseIterator Name##ReverseIterator_prev(CstlIterInternalData pos);\
+void Name##ReverseIterator_inc(CstlIterInternalData *pos);\
+void Name##ReverseIterator_dec(CstlIterInternalData *pos);\
+int Name##ReverseIterator_eq(CstlIterInternalData pos, CstlIterInternalData x);\
+int Name##ReverseIterator_ne(CstlIterInternalData pos, CstlIterInternalData x);\
 void Name##_swap(Name *self, Name *x);\
 
 
@@ -910,7 +921,7 @@ Name##Iterator Name##_erase(Name *self, CstlIterInternalData pos)\
 /*Name##Iterator Name##_erase_range(Name *self, Name##Iterator first, Name##Iterator last)*/\
 Name##Iterator Name##_erase_range(Name *self, CstlIterInternalData first, CstlIterInternalData last)\
 {\
-	register Name##Name *pos;\
+	register Name##RBTree *pos;\
 	Name##Iterator iter;\
 	CSTL_ASSERT(self && "(Set|Map)_erase_range");\
 	CSTL_ASSERT(self->magic == self && "(Set|Map)_erase_range");\
@@ -920,7 +931,7 @@ Name##Iterator Name##_erase_range(Name *self, CstlIterInternalData first, CstlIt
 	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, last)->magic == self->tree && "(Set|Map)_erase_range");\
 	pos = CSTL_RBTREE_NODE(Name, first);\
 	while (pos != CSTL_RBTREE_NODE(Name, last)) {\
-		register Name##Name *tmp;\
+		register Name##RBTree *tmp;\
 		CSTL_ASSERT(!Name##_empty(self) && "(Set|Map)_erase_range");\
 		/*pos = Name##_erase(self, pos);*/\
 		tmp = Name##RBTree_next(pos);\
@@ -943,7 +954,7 @@ size_t Name##_erase_key(Name *self, KeyType key)\
 	pos = Name##RBTree_lower_bound(self->tree, key);\
 	last = Name##RBTree_upper_bound(self->tree, key);\
 	while (pos != last) {\
-		register Name##Name *tmp;\
+		register Name##RBTree *tmp;\
 		CSTL_ASSERT(!Name##_empty(self) && "(Set|Map)_erase_key");\
 		/*pos = Name##_erase(self, pos);*/\
 		tmp = Name##RBTree_next(pos);\
@@ -963,9 +974,12 @@ size_t Name##_count(Name *self, KeyType key)\
 \
 Name##Iterator Name##_find(Name *self, KeyType key)\
 {\
+	Name##Iterator iter;\
 	CSTL_ASSERT(self && "(Set|Map)_find");\
 	CSTL_ASSERT(self->magic == self && "(Set|Map)_find");\
-	return Name##RBTree_find(self->tree, key);\
+	iter.vptr = &Name##Iterator_vtbl;\
+	CSTL_RBTREE_NODE_ASSIGN(iter.internal.data) = Name##RBTree_find(self->tree, key);\
+	return iter;\
 }\
 \
 Name##Iterator Name##_lower_bound(Name *self, KeyType key)\
@@ -996,8 +1010,8 @@ void Name##_equal_range(Name *self, KeyType key, Name##Iterator *first, Name##It
 	CSTL_ASSERT(last && "(Set|Map)_equal_range");\
 	first->vptr = &Name##Iterator_vtbl;\
 	last->vptr = &Name##Iterator_vtbl;\
-	CSTL_RBTREE_NODE_ASSIGN(Name, first->internal.data) = Name##RBTree_lower_bound(self->tree, key);\
-	CSTL_RBTREE_NODE_ASSIGN(Name, last->internal.data) = Name##RBTree_upper_bound(self->tree, key);\
+	CSTL_RBTREE_NODE_ASSIGN(first->internal.data) = Name##RBTree_lower_bound(self->tree, key);\
+	CSTL_RBTREE_NODE_ASSIGN(last->internal.data) = Name##RBTree_upper_bound(self->tree, key);\
 }\
 \
 Name##Iterator Name##_begin(Name *self)\
@@ -1074,6 +1088,94 @@ void Name##Iterator_dec(CstlIterInternalData *pos)\
 	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, *pos) && "(Set|Map)Iterator_dec");\
 	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, *pos)->magic && "(Set|Map)Iterator_dec");\
 	CSTL_RBTREE_NODE_ASSIGN(*pos) = Name##RBTree_prev(CSTL_RBTREE_NODE(Name, *pos));\
+}\
+\
+int Name##Iterator_eq(CstlIterInternalData pos, CstlIterInternalData x)\
+{\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "(Set|Map)Iterator_eq");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos)->magic && "(Set|Map)Iterator_eq");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, x) && "(Set|Map)Iterator_eq");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, x)->magic && "(Set|Map)Iterator_eq");\
+	return CSTL_RBTREE_NODE(Name, pos) == CSTL_RBTREE_NODE(Name, x);\
+}\
+\
+int Name##Iterator_ne(CstlIterInternalData pos, CstlIterInternalData x)\
+{\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "(Set|Map)Iterator_ne");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos)->magic && "(Set|Map)Iterator_ne");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, x) && "(Set|Map)Iterator_ne");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, x)->magic && "(Set|Map)Iterator_ne");\
+	return CSTL_RBTREE_NODE(Name, pos) != CSTL_RBTREE_NODE(Name, x);\
+}\
+\
+Name##ReverseIterator Name##Iterator_reverse_iterator(CstlIterInternalData pos)\
+{\
+	Name##ReverseIterator iter;\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "(Set|Map)Iterator_reverse_iterator");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos)->magic && "(Set|Map)Iterator_reverse_iterator");\
+	iter.vptr = &Name##ReverseIterator_vtbl;\
+	CSTL_RBTREE_NODE_ASSIGN(iter.internal.data) = CSTL_RBTREE_NODE(Name, pos);\
+	return iter;\
+}\
+\
+Name##Iterator Name##ReverseIterator_base(CstlIterInternalData pos)\
+{\
+	Name##Iterator iter;\
+	iter.vptr = &Name##Iterator_vtbl;\
+	iter.internal.data = pos;\
+	return iter;\
+}\
+\
+Name##ReverseIterator Name##ReverseIterator_next(CstlIterInternalData pos)\
+{\
+	Name##ReverseIterator iter;\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "(Set|Map)ReverseIterator_next");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos)->magic && "(Set|Map)ReverseIterator_next");\
+	iter.vptr = &Name##ReverseIterator_vtbl;\
+	CSTL_RBTREE_NODE_ASSIGN(iter.internal.data) = Name##RBTree_prev(CSTL_RBTREE_NODE(Name, pos));\
+	return iter;\
+}\
+\
+Name##ReverseIterator Name##ReverseIterator_prev(CstlIterInternalData pos)\
+{\
+	Name##ReverseIterator iter;\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "(Set|Map)ReverseIterator_prev");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos)->magic && "(Set|Map)ReverseIterator_prev");\
+	iter.vptr = &Name##ReverseIterator_vtbl;\
+	CSTL_RBTREE_NODE_ASSIGN(iter.internal.data) = Name##RBTree_next(CSTL_RBTREE_NODE(Name, pos));\
+	return iter;\
+}\
+\
+void Name##ReverseIterator_inc(CstlIterInternalData *pos)\
+{\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, *pos) && "(Set|Map)ReverseIterator_inc");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, *pos)->magic && "(Set|Map)ReverseIterator_inc");\
+	CSTL_RBTREE_NODE_ASSIGN(*pos) = Name##RBTree_prev(CSTL_RBTREE_NODE(Name, *pos));\
+}\
+\
+void Name##ReverseIterator_dec(CstlIterInternalData *pos)\
+{\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, *pos) && "(Set|Map)ReverseIterator_dec");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, *pos)->magic && "(Set|Map)ReverseIterator_dec");\
+	CSTL_RBTREE_NODE_ASSIGN(*pos) = Name##RBTree_next(CSTL_RBTREE_NODE(Name, *pos));\
+}\
+\
+int Name##ReverseIterator_eq(CstlIterInternalData pos, CstlIterInternalData x)\
+{\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "(Set|Map)ReverseIterator_eq");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos)->magic && "(Set|Map)ReverseIterator_eq");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, x) && "(Set|Map)ReverseIterator_eq");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, x)->magic && "(Set|Map)ReverseIterator_eq");\
+	return CSTL_RBTREE_NODE(Name, pos) == CSTL_RBTREE_NODE(Name, x);\
+}\
+\
+int Name##ReverseIterator_ne(CstlIterInternalData pos, CstlIterInternalData x)\
+{\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "(Set|Map)ReverseIterator_ne");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos)->magic && "(Set|Map)ReverseIterator_ne");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, x) && "(Set|Map)ReverseIterator_ne");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, x)->magic && "(Set|Map)ReverseIterator_ne");\
+	return CSTL_RBTREE_NODE(Name, pos) != CSTL_RBTREE_NODE(Name, x);\
 }\
 \
 void Name##_swap(Name *self, Name *x)\

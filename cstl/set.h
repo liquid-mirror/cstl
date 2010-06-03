@@ -39,87 +39,6 @@
 
 
 #define CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)	\
-/*! \
- * \brief set赤黒木構造体\
- */\
-struct Name##RBTree {\
-	struct Name##RBTree *parent;\
-	struct Name##RBTree *left;\
-	struct Name##RBTree *right;\
-	int color;\
-	Type key;\
-	CSTL_MAGIC(struct Name##RBTree *magic;)\
-};\
-\
-CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare)\
-\
-static Name##RBTree *Name##RBTree_new_node(Type data, int color)\
-{\
-	Name##RBTree *node;\
-	node = (Name##RBTree *) malloc(sizeof(Name##RBTree));\
-	if (!node) return 0;\
-	node->key = data;\
-	node->left = (Name##RBTree *) &Name##RBTree_nil;\
-	node->right = (Name##RBTree *) &Name##RBTree_nil;\
-	node->parent = (Name##RBTree *) &Name##RBTree_nil;\
-	node->color = color;\
-	return node;\
-}\
-\
-Type *Name##Iterator_data(CstlIterInternalData pos)\
-{\
-	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "SetIterator_data");\
-	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos)->magic && "SetIterator_data");\
-	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(CSTL_RBTREE_NODE(Name, pos), Name) && "SetIterator_data");\
-	return &CSTL_RBTREE_NODE(Name, pos)->key;\
-}\
-\
-
-
-/*! 
- * \brief インターフェイスマクロ
- * 
- * \param Name コンテナ名
- * \param Type 要素の型
- */
-#define CSTL_SET_INTERFACE(Name, Type)	\
-\
-CSTL_EXTERN_C_BEGIN()\
-CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
-\
-typedef int (*Name##_insert_set_t)(Name *self, Type data, Name##Iterator *iter, int *success);\
-\
-struct Name##Vtable {\
-	Name##_delete_t       delete_;\
-	Name##_empty_t        empty;\
-	Name##_size_t         size;\
-	Name##_clear_t        clear;\
-	Name##_begin_t        begin;\
-	Name##_end_t          end;\
-	Name##_rbegin_t       rbegin;\
-	Name##_rend_t         rend;\
-	Name##_insert_range_t insert_range;\
-	Name##_insert_range_assoc_t insert_range_assoc;\
-	Name##_erase_t        erase;\
-	Name##_erase_range_t  erase_range;\
-	Name##_erase_key_t    erase_key;\
-	Name##_swap_t         swap;\
-	Name##_insert_set_t   insert_set;\
-}\
-\
-/*Name##Iterator Name##_insert(Name *self, Type data, int *success);*/\
-int Name##_insert_set(Name *self, Type data, Name##Iterator *iter, int *success);\
-Type *Name##Iterator_data(CstlIterInternalData pos);\
-CSTL_EXTERN_C_END()\
-
-/*! 
- * \brief 実装マクロ
- * 
- * \param Name コンテナ名
- * \param Type 要素の型
- * \param Compare 要素の比較ルーチン
- */
-#define CSTL_SET_IMPLEMENT(Name, Type, Compare)	\
 static const Name##IteratorVtable Name##Iterator_vtbl = {\
 	Name##Iterator_data,\
 	0, /* key */\
@@ -174,6 +93,95 @@ static const Name##IteratorVtable Name##ReverseIterator_vtbl = {\
 	1, /* is_reverse_iter */\
 };\
 \
+/*! \
+ * \brief set赤黒木構造体\
+ */\
+struct Name##RBTree {\
+	struct Name##RBTree *parent;\
+	struct Name##RBTree *left;\
+	struct Name##RBTree *right;\
+	int color;\
+	Type key;\
+	CSTL_MAGIC(struct Name##RBTree *magic;)\
+};\
+\
+CSTL_RBTREE_WRAPPER_IMPLEMENT(Name, Type, Type, Compare)\
+\
+static Name##RBTree *Name##RBTree_new_node(Type data, int color)\
+{\
+	Name##RBTree *node;\
+	node = (Name##RBTree *) malloc(sizeof(Name##RBTree));\
+	if (!node) return 0;\
+	node->key = data;\
+	node->left = (Name##RBTree *) &Name##RBTree_nil;\
+	node->right = (Name##RBTree *) &Name##RBTree_nil;\
+	node->parent = (Name##RBTree *) &Name##RBTree_nil;\
+	node->color = color;\
+	return node;\
+}\
+\
+Type *Name##Iterator_data(CstlIterInternalData pos)\
+{\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "SetIterator_data");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos)->magic && "SetIterator_data");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(CSTL_RBTREE_NODE(Name, pos), Name) && "SetIterator_data");\
+	return &CSTL_RBTREE_NODE(Name, pos)->key;\
+}\
+\
+Type *Name##ReverseIterator_data(CstlIterInternalData pos)\
+{\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos) && "SetReverseIterator_data");\
+	CSTL_ASSERT(CSTL_RBTREE_NODE(Name, pos)->magic && "SetReverseIterator_data");\
+	/*CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(CSTL_RBTREE_NODE(Name, pos), Name) && "SetReverseIterator_data");*/\
+	return &Name##RBTree_prev(CSTL_RBTREE_NODE(Name, pos))->key;\
+}\
+\
+
+
+/*! 
+ * \brief インターフェイスマクロ
+ * 
+ * \param Name コンテナ名
+ * \param Type 要素の型
+ */
+#define CSTL_SET_INTERFACE(Name, Type)	\
+\
+CSTL_EXTERN_C_BEGIN()\
+CSTL_RBTREE_WRAPPER_INTERFACE(Name, Type, Type)\
+\
+typedef int (*Name##_insert_set_t)(Name *self, Type data, Name##Iterator *iter, int *success);\
+\
+struct Name##Vtable {\
+	Name##_delete_t       delete_;\
+	Name##_empty_t        empty;\
+	Name##_size_t         size;\
+	Name##_clear_t        clear;\
+	Name##_begin_t        begin;\
+	Name##_end_t          end;\
+	Name##_rbegin_t       rbegin;\
+	Name##_rend_t         rend;\
+	Name##_insert_range_assoc_t insert_range_assoc;\
+	Name##_erase_t        erase;\
+	Name##_erase_range_t  erase_range;\
+	Name##_erase_key_t    erase_key;\
+	Name##_swap_t         swap;\
+	Name##_insert_set_t   insert_set;\
+};\
+\
+/*Name##Iterator Name##_insert(Name *self, Type data, int *success);*/\
+int Name##_insert_set(Name *self, Type data, Name##Iterator *iter, int *success);\
+Type *Name##Iterator_data(CstlIterInternalData pos);\
+Type *Name##ReverseIterator_data(CstlIterInternalData pos);\
+CSTL_EXTERN_C_END()\
+
+/*! 
+ * \brief 実装マクロ
+ * 
+ * \param Name コンテナ名
+ * \param Type 要素の型
+ * \param Compare 要素の比較ルーチン
+ */
+#define CSTL_SET_IMPLEMENT(Name, Type, Compare)	\
 static const struct Name##Vtable Name##_vtbl = {\
 	Name##_delete,\
 	Name##_empty,\
@@ -183,7 +191,6 @@ static const struct Name##Vtable Name##_vtbl = {\
 	Name##_end,\
 	Name##_rbegin,\
 	Name##_rend,\
-	Name##_insert_range,\
 	Name##_insert_range_assoc,\
 	Name##_erase,\
 	Name##_erase_range,\
@@ -286,17 +293,17 @@ struct Name##Vtable {\
 	Name##_end_t          end;\
 	Name##_rbegin_t       rbegin;\
 	Name##_rend_t         rend;\
-	Name##_insert_range_t insert_range;\
 	Name##_insert_range_assoc_t insert_range_assoc;\
 	Name##_erase_t        erase;\
 	Name##_erase_range_t  erase_range;\
 	Name##_erase_key_t    erase_key;\
 	Name##_swap_t         swap;\
 	Name##_insert_multiset_t insert_multiset;\
-}\
+};\
 \
 int Name##_insert_multiset(Name *self, Type data, Name##Iterator *iter);\
 Type *Name##Iterator_data(CstlIterInternalData pos);\
+Type *Name##ReverseIterator_data(CstlIterInternalData pos);\
 CSTL_EXTERN_C_END()\
 
 /*! 
@@ -307,6 +314,23 @@ CSTL_EXTERN_C_END()\
  * \param Compare 要素の比較ルーチン
  */
 #define CSTL_MULTISET_IMPLEMENT(Name, Type, Compare)	\
+static const struct Name##Vtable Name##_vtbl = {\
+	Name##_delete,\
+	Name##_empty,\
+	Name##_size,\
+	Name##_clear,\
+	Name##_begin,\
+	Name##_end,\
+	Name##_rbegin,\
+	Name##_rend,\
+	Name##_insert_range_assoc,\
+	Name##_erase,\
+	Name##_erase_range,\
+	Name##_erase_key,\
+	Name##_swap,\
+	Name##_insert_multiset,\
+};\
+\
 CSTL_COMMON_SET_IMPLEMENT(Name, Type, Compare)\
 \
 /*Name##Iterator Name##_insert(Name *self, Type data)*/\
