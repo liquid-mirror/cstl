@@ -960,6 +960,7 @@ size_t Name##_erase_key(Name *self, KeyType key)\
 		tmp = Name##RBTree_next(pos);\
 		Name##RBTree_erase(self->tree, pos);\
 		self->size--;\
+		pos = tmp;\
 		count++;\
 	}\
 	return count;\
