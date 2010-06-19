@@ -241,41 +241,41 @@ int Name##_insert_set(Name *self, Type data, Name##Iterator *iter, int *success)
 /*int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)*/\
 int Name##_insert_range_assoc(Name *self, CstlIterInternal first, CstlIterInternal last)\
 {\
-	register Name##RBTree *pos;\
-	register Name##RBTree *tmp;\
 	CstlIterInternal i;\
-	Name##RBTree head;\
-	register size_t count = 0;\
+	register size_t j = 0;\
+	size_t n;\
+	char *insert_flags;\
 	CSTL_ASSERT(self && "Set_insert_range_assoc");\
 	CSTL_ASSERT(self->magic == self && "Set_insert_range_assoc");\
 	CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr) == CSTL_CAST_VPTR(Name, last.in_vptr) && "Set_insert_range_assoc");\
-	head.right = (Name##RBTree *) &Name##RBTree_nil;\
-	tmp = &head;\
-	/*for (pos = first; pos != last; pos = Name##_next(pos)) {*/\
-	for (i = first; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
-			CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data)) {\
-		/*if (Name##RBTree_find(self->tree, pos->key) == Name##RBTree_end(self->tree)) {*/\
-		Type const *p = CSTL_CAST_VPTR(Name, i.in_vptr)->data(i.data);\
-		if (Name##RBTree_find(self->tree, *p) == Name##RBTree_end(self->tree)) {\
-			/*tmp->right = Name##RBTree_new_node(pos->key, Name##_COLOR_RED);*/\
-			tmp->right = Name##RBTree_new_node(*p, Name##_COLOR_RED);\
-			if (!tmp->right) {\
-				for (pos = head.right; pos != 0; pos = tmp) {\
-					tmp = pos->right;\
-					free(pos);\
-				}\
-				return 0;\
-			}\
-			tmp = tmp->right;\
-			count++;\
+	if (CSTL_CAST_VPTR(Name, first.in_vptr)->is_rand_iter) {\
+		CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr)->diff(last.data, first.data) >= 0 && "Set_insert_range_assoc");\
+		n = (size_t) CSTL_CAST_VPTR(Name, first.in_vptr)->diff(last.data, first.data);\
+	} else {\
+		for (i = first, n = 0; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
+				CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data)) {\
+			n++;\
 		}\
 	}\
-	for (pos = head.right; pos != (Name##RBTree *) &Name##RBTree_nil; pos = tmp) {\
-		tmp = pos->right;\
-		pos->right = (Name##RBTree *) &Name##RBTree_nil;\
-		Name##RBTree_insert(self->tree, pos);\
+	insert_flags = (char *) malloc(n * sizeof(char));\
+	if (!insert_flags) return 0;\
+	for (i = first; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
+			CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data), j++) {\
+		int success;\
+		if (Name##_insert_set(self, *CSTL_CAST_VPTR(Name, i.in_vptr)->data(i.data), 0, &success)) {\
+			insert_flags[j] = (success != 0);\
+		} else {\
+			register size_t k;\
+			for (i = first, k = 0; k < j; CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data), k++) {\
+				if (insert_flags[k]) {\
+					Name##_erase_key(self, *CSTL_CAST_VPTR(Name, i.in_vptr)->data(i.data));\
+				}\
+			}\
+			free(insert_flags);\
+			return 0;\
+		}\
 	}\
-	self->size += count;\
+	free(insert_flags);\
 	return 1;\
 }\
 \
