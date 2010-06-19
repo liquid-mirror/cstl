@@ -695,7 +695,6 @@ static Name##RBTree *Name##RBTree_prev(Name##RBTree *pos)\
 	/*CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "RBTree_prev");*/\
 	CSTL_ASSERT(!CSTL_RBTREE_IS_NIL(pos, Name) && "RBTree_prev");\
 	if (CSTL_RBTREE_IS_HEAD(pos, Name)) {\
-		/* TODO */\
 		return Name##RBTree_rbegin(pos);\
 	}\
 	/* 下位検索 */\
@@ -710,8 +709,8 @@ static Name##RBTree *Name##RBTree_prev(Name##RBTree *pos)\
 	while (!CSTL_RBTREE_IS_ROOT(pos, Name) && pos == pos->parent->left) {\
 		pos = pos->parent;\
 	}\
-	/* 引数のposがbegin()の時、pos->parentはrend()となる。 */\
-	/* TODO:posがbegin()の時はエラー */\
+	/* 引数のposがbegin()の時はエラー */\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_ROOT(pos, Name));\
 	return pos->parent;\
 }\
 \
