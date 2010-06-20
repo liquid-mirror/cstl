@@ -785,7 +785,7 @@ typedef void (*Name##_delete_t)(Name *self);\
 typedef int (*Name##_empty_t)(Name *self);\
 typedef size_t (*Name##_size_t)(Name *self);\
 typedef void (*Name##_clear_t)(Name *self);\
-typedef int (*Name##_insert_range_assoc_t)(Name *self, CstlIterInternal first, CstlIterInternal last);\
+typedef int (*Name##_assoc_insert_range_t)(Name *self, CstlIterInternal first, CstlIterInternal last);\
 typedef Name##Iterator (*Name##_erase_t)(Name *self, CstlIterInternalData pos);\
 typedef Name##Iterator (*Name##_erase_range_t)(Name *self, CstlIterInternalData first, CstlIterInternalData last);\
 typedef size_t (*Name##_erase_key_t)(Name *self, KeyType key);\
@@ -817,7 +817,7 @@ void Name##_delete(Name *self);\
 void Name##_clear(Name *self);\
 int Name##_empty(Name *self);\
 size_t Name##_size(Name *self);\
-int Name##_insert_range_assoc(Name *self, CstlIterInternal first, CstlIterInternal last);\
+int Name##_assoc_insert_range(Name *self, CstlIterInternal first, CstlIterInternal last);\
 Name##Iterator Name##_erase(Name *self, CstlIterInternalData pos);\
 Name##Iterator Name##_erase_range(Name *self, CstlIterInternalData first, CstlIterInternalData last);\
 size_t Name##_erase_key(Name *self, KeyType key);\
