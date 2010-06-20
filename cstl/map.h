@@ -39,6 +39,60 @@
 
 
 #define CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
+static const Name##IteratorVtable Name##Iterator_vtbl = {\
+	0, /* data */\
+	Name##Iterator_key,\
+	Name##Iterator_val,\
+	Name##Iterator_next,\
+	Name##Iterator_prev,\
+	Name##Iterator_inc,\
+	Name##Iterator_dec,\
+	Name##Iterator_eq,\
+	Name##Iterator_ne,\
+	0, /* at */\
+	0, /* add */\
+	0, /* sub */\
+	0, /* inc_n */\
+	0, /* dec_n */\
+	0, /* diff */\
+	0, /* lt */\
+	0, /* le */\
+	0, /* gt */\
+	0, /* ge */\
+	Name##Iterator_reverse_iterator,\
+	0, /* ReverseIterator_base */\
+	CSTL_CONTAINER_MAP,\
+	0, /* is_rand_iter */\
+	0, /* is_reverse_iter */\
+};\
+\
+static const Name##IteratorVtable Name##ReverseIterator_vtbl = {\
+	0, /* data */\
+	Name##ReverseIterator_key,\
+	Name##ReverseIterator_val,\
+	Name##ReverseIterator_next,\
+	Name##ReverseIterator_prev,\
+	Name##ReverseIterator_inc,\
+	Name##ReverseIterator_dec,\
+	Name##ReverseIterator_eq,\
+	Name##ReverseIterator_ne,\
+	0, /* at */\
+	0, /* add */\
+	0, /* sub */\
+	0, /* inc_n */\
+	0, /* dec_n */\
+	0, /* diff */\
+	0, /* lt */\
+	0, /* le */\
+	0, /* gt */\
+	0, /* ge */\
+	Name##Iterator_reverse_iterator,\
+	Name##ReverseIterator_base, /* ReverseIterator_base */\
+	CSTL_CONTAINER_MAP,\
+	0, /* is_rand_iter */\
+	1, /* is_reverse_iter */\
+};\
+\
 /*! \
  * \brief map赤黒木構造体\
  */\
@@ -68,19 +122,37 @@ static Name##RBTree *Name##RBTree_new_node(KeyType key, ValueType const *value, 
 	return node;\
 }\
 \
-KeyType const *Name##_key(Name##Iterator pos)\
+KeyType const *Name##Iterator_key(Name##Iterator pos)\
 {\
-	CSTL_ASSERT(pos && "Map_key");\
-	CSTL_ASSERT(pos->magic && "Map_key");\
-	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "Map_key");\
+	CSTL_ASSERT(pos && "MapIterator_key");\
+	CSTL_ASSERT(pos->magic && "MapIterator_key");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "MapIterator_key");\
 	return &pos->key;\
 }\
 \
-ValueType *Name##_value(Name##Iterator pos)\
+ValueType *Name##Iterator_val(Name##Iterator pos)\
 {\
-	CSTL_ASSERT(pos && "Map_value");\
-	CSTL_ASSERT(pos->magic && "Map_value");\
-	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "Map_value");\
+	CSTL_ASSERT(pos && "MapIterator_val");\
+	CSTL_ASSERT(pos->magic && "MapIterator_val");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "MapIterator_val");\
+	return &pos->value;\
+}\
+\
+KeyType const *Name##ReverseIterator_key(Name##Iterator pos)\
+{\
+	CSTL_ASSERT(pos && "MapReverseIterator_key");\
+	CSTL_ASSERT(pos->magic && "MapReverseIterator_key");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "MapReverseIterator_key");\
+	/* TODO */\
+	return &pos->key;\
+}\
+\
+ValueType *Name##ReverseIterator_val(Name##Iterator pos)\
+{\
+	CSTL_ASSERT(pos && "MapReverseIterator_val");\
+	CSTL_ASSERT(pos->magic && "MapReverseIterator_val");\
+	CSTL_ASSERT(!CSTL_RBTREE_IS_HEAD(pos, Name) && "MapReverseIterator_val");\
+	/* TODO */\
 	return &pos->value;\
 }\
 \
@@ -96,10 +168,40 @@ ValueType *Name##_value(Name##Iterator pos)\
 #define CSTL_MAP_INTERFACE(Name, KeyType, ValueType)	\
 CSTL_EXTERN_C_BEGIN()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
-Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success);\
-Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value, int *success);\
-KeyType const *Name##_key(Name##Iterator pos);\
-ValueType *Name##_value(Name##Iterator pos);\
+\
+\
+typedef int (*Name##_map_insert_t)(Name *self, keyType key, ValueType value, Name##Iterator *iter, int *success);\
+typedef int (*Name##_map_insert_ref_t)(Name *self, keyType key, ValueType const *value, Name##Iterator *iter, int *success);\
+typedef ValueType (*Name##_at_t)(Name *self, KeyType key);\
+\
+struct Name##Vtable {\
+	Name##_delete_t       delete_;\
+	Name##_empty_t        empty;\
+	Name##_size_t         size;\
+	Name##_clear_t        clear;\
+	Name##_begin_t        begin;\
+	Name##_end_t          end;\
+	Name##_rbegin_t       rbegin;\
+	Name##_rend_t         rend;\
+	Name##_assoc_insert_range_t assoc_insert_range;\
+	Name##_erase_t        erase;\
+	Name##_erase_range_t  erase_range;\
+	Name##_erase_key_t    erase_key;\
+	Name##_count_t        count;\
+	Name##_find_t         find;\
+	Name##_lower_bound_t  lower_bound;\
+	Name##_upper_bound_t  upper_bound;\
+	Name##_equal_range_t  equal_range;\
+	Name##_swap_t         swap;\
+	Name##_map_insert_t   map_insert;\
+	Name##_map_insert_ref_t map_insert_ref;\
+	Name##_at_t           at;\
+};\
+\
+int Name##_map_insert(Name *self, KeyType key, ValueType value, Name##Iterator *iter, int *success);\
+int Name##_map_insert_ref(Name *self, KeyType key, ValueType const *value, Name##Iterator *iter, int *success);\
+KeyType const *Name##Iterator_key(CstlIterInternalData pos);\
+ValueType *Name##Iterator_val(CstlIterInternalData pos);\
 ValueType *Name##_at(Name *self, KeyType key);\
 CSTL_EXTERN_C_END()\
 
@@ -113,17 +215,45 @@ CSTL_EXTERN_C_END()\
  */
 #define CSTL_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
+static const struct Name##Vtable Name##_vtbl = {\
+	Name##_delete,\
+	Name##_empty,\
+	Name##_size,\
+	Name##_clear,\
+	Name##_begin,\
+	Name##_end,\
+	Name##_rbegin,\
+	Name##_rend,\
+	Name##_assoc_insert_range,\
+	Name##_erase,\
+	Name##_erase_range,\
+	Name##_erase_key,\
+	Name##_count,\
+	Name##_find,\
+	Name##_lower_bound,\
+	Name##_upper_bound,\
+	Name##_equal_range,\
+	Name##_swap,\
+	Name##_map_insert,\
+	Name##_map_insert_ref,\
+	Name##_at,\
+};\
+\
 CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
-Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success)\
+/*Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value, int *success)*/\
+int Name##_map_insert(Name *self, KeyType key, ValueType value, Name##Iterator *iter, int *success)\
 {\
+	/* TODO */\
 	CSTL_ASSERT(self && "Map_insert");\
 	CSTL_ASSERT(self->magic == self && "Map_insert");\
 	return Name##_insert_ref(self, key, &value, success);\
 }\
 \
-Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value, int *success)\
+/*Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value, int *success)*/\
+int Name##_map_insert_ref(Name *self, KeyType key, ValueType const *value, Name##Iterator *iter, int *success)\
 {\
+	/* TODO */\
 	Name##Iterator pos;\
 	CSTL_ASSERT(self && "Map_insert_ref");\
 	CSTL_ASSERT(self->magic == self && "Map_insert_ref");\
@@ -144,8 +274,10 @@ Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value
 	return pos;\
 }\
 \
-int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)\
+/*int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)*/\
+int Name##_assoc_insert_range(Name *self, CstlIterInternal first, CstlIterInternal last)\
 {\
+	/* TODO */\
 	register Name##Iterator pos;\
 	register Name##Iterator tmp;\
 	Name##RBTree head;\
@@ -213,10 +345,39 @@ ValueType *Name##_at(Name *self, KeyType key)\
 #define CSTL_MULTIMAP_INTERFACE(Name, KeyType, ValueType)	\
 CSTL_EXTERN_C_BEGIN()\
 CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
-Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value);\
-Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value);\
-KeyType const *Name##_key(Name##Iterator pos);\
-ValueType *Name##_value(Name##Iterator pos);\
+\
+typedef int (*Name##_multimap_insert_t)(Name *self, keyType key, ValueType value, Name##Iterator *iter);\
+typedef int (*Name##_multimap_insert_ref_t)(Name *self, keyType key, ValueType const *value, Name##Iterator *iter);\
+\
+struct Name##Vtable {\
+	Name##_delete_t       delete_;\
+	Name##_empty_t        empty;\
+	Name##_size_t         size;\
+	Name##_clear_t        clear;\
+	Name##_begin_t        begin;\
+	Name##_end_t          end;\
+	Name##_rbegin_t       rbegin;\
+	Name##_rend_t         rend;\
+	Name##_assoc_insert_range_t assoc_insert_range;\
+	Name##_erase_t        erase;\
+	Name##_erase_range_t  erase_range;\
+	Name##_erase_key_t    erase_key;\
+	Name##_count_t        count;\
+	Name##_find_t         find;\
+	Name##_lower_bound_t  lower_bound;\
+	Name##_upper_bound_t  upper_bound;\
+	Name##_equal_range_t  equal_range;\
+	Name##_swap_t         swap;\
+	Name##_multimap_insert_t multimap_insert;\
+	Name##_multimap_insert_ref_t multimap_insert_ref;\
+};\
+\
+int Name##_multimap_insert(Name *self, KeyType key, ValueType value, Name##Iterator *iter);\
+int Name##_multimap_insert_ref(Name *self, KeyType key, ValueType const *value, Name##Iterator *iter);\
+/*Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value);\
+Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value);*/\
+KeyType const *Name##Iterator_key(Name##Iterator pos);\
+ValueType *Name##Iterator_val(Name##Iterator pos);\
 CSTL_EXTERN_C_END()\
 
 /*! 
@@ -229,17 +390,45 @@ CSTL_EXTERN_C_END()\
  */
 #define CSTL_MULTIMAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
+static const struct Name##Vtable Name##_vtbl = {\
+	Name##_delete,\
+	Name##_empty,\
+	Name##_size,\
+	Name##_clear,\
+	Name##_begin,\
+	Name##_end,\
+	Name##_rbegin,\
+	Name##_rend,\
+	Name##_assoc_insert_range,\
+	Name##_erase,\
+	Name##_erase_range,\
+	Name##_erase_key,\
+	Name##_count,\
+	Name##_find,\
+	Name##_lower_bound,\
+	Name##_upper_bound,\
+	Name##_equal_range,\
+	Name##_swap,\
+	Name##_multimap_insert,\
+	Name##_multimap_insert_ref,\
+};\
+\
+\
 CSTL_COMMON_MAP_IMPLEMENT(Name, KeyType, ValueType, Compare)	\
 \
-Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)\
+/*Name##Iterator Name##_insert(Name *self, KeyType key, ValueType value)*/\
+int Name##_multimap_insert(Name *self, KeyType key, ValueType value, Name##Iterator *iter)\
 {\
+	/* TODO */\
 	CSTL_ASSERT(self && "MultiMap_insert");\
 	CSTL_ASSERT(self->magic == self && "MultiMap_insert");\
 	return Name##_insert_ref(self, key, &value);\
 }\
 \
-Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value)\
+/*Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value)*/\
+int Name##_multimap_insert_ref(Name *self, KeyType key, ValueType const *value, Name##Iterator *iter)\
 {\
+	/* TODO */\
 	Name##Iterator pos;\
 	CSTL_ASSERT(self && "MultiMap_insert_ref");\
 	CSTL_ASSERT(self->magic == self && "MultiMap_insert_ref");\
@@ -252,8 +441,10 @@ Name##Iterator Name##_insert_ref(Name *self, KeyType key, ValueType const *value
 	return pos;\
 }\
 \
-int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)\
+/*int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)*/\
+int Name##_assoc_insert_range(Name *self, CstlIterInternal first, CstlIterInternal last)\
 {\
+	/* TODO */\
 	register Name##Iterator pos;\
 	register Name##Iterator tmp;\
 	Name##RBTree head;\
