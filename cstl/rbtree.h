@@ -733,7 +733,7 @@ typedef union Name##Iterator {\
 typedef Name##Iterator Name##ReverseIterator;\
 \
 typedef KeyType *(*Name##Iterator_data_t)(CstlIterInternalData pos);\
-typedef KeyType *(*Name##Iterator_key_t)(CstlIterInternalData pos);\
+typedef KeyType const *(*Name##Iterator_key_t)(CstlIterInternalData pos);\
 typedef ValueType *(*Name##Iterator_val_t)(CstlIterInternalData pos);\
 typedef Name##Iterator (*Name##Iterator_next_t)(CstlIterInternalData pos);\
 typedef Name##Iterator (*Name##Iterator_prev_t)(CstlIterInternalData pos);\

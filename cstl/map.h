@@ -170,7 +170,7 @@ CSTL_RBTREE_WRAPPER_INTERFACE(Name, KeyType, ValueType)\
 \
 typedef int (*Name##_map_insert_t)(Name *self, KeyType key, ValueType value, Name##Iterator *iter, int *success);\
 typedef int (*Name##_map_insert_ref_t)(Name *self, KeyType key, ValueType const *value, Name##Iterator *iter, int *success);\
-typedef ValueType (*Name##_at_t)(Name *self, KeyType key);\
+typedef ValueType *(*Name##_at_t)(Name *self, KeyType key);\
 \
 struct Name##Vtable {\
 	Name##_delete_t       delete_;\
@@ -280,39 +280,42 @@ int Name##_map_insert_ref(Name *self, KeyType key, ValueType const *value, Name#
 /*int Name##_insert_range_assoc(Name *self, Name##Iterator first, Name##Iterator last)*/\
 int Name##_assoc_insert_range(Name *self, CstlIterInternal first, CstlIterInternal last)\
 {\
-	/* TODO */\
-	register Name##Iterator pos;\
-	register Name##Iterator tmp;\
-	Name##RBTree head;\
-	register size_t count = 0;\
-	CSTL_ASSERT(self && "Map_insert_range_assoc");\
-	CSTL_ASSERT(self->magic == self && "Map_insert_range_assoc");\
-	CSTL_ASSERT(first && "Map_insert_range_assoc");\
-	CSTL_ASSERT(last && "Map_insert_range_assoc");\
-	CSTL_ASSERT(first->magic && "Map_insert_range_assoc");\
-	CSTL_ASSERT(last->magic && "Map_insert_range_assoc");\
-	head.right = (Name##RBTree *) &Name##RBTree_nil;\
-	tmp = &head;\
-	for (pos = first; pos != last; pos = Name##_next(pos)) {\
-		if (Name##RBTree_find(self->tree, pos->key) == Name##RBTree_end(self->tree)) {\
-			tmp->right = Name##RBTree_new_node(pos->key, &pos->value, Name##_COLOR_RED);\
-			if (!tmp->right) {\
-				for (pos = head.right; pos != 0; pos = tmp) {\
-					tmp = pos->right;\
-					free(pos);\
-				}\
-				return 0;\
-			}\
-			tmp = tmp->right;\
-			count++;\
+	CstlIterInternal i;\
+	register size_t j = 0;\
+	size_t n;\
+	char *insert_flags;\
+	CSTL_ASSERT(self && "Map_assoc_insert_range");\
+	CSTL_ASSERT(self->magic == self && "Map_assoc_insert_range");\
+	CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr) == CSTL_CAST_VPTR(Name, last.in_vptr) && "Map_assoc_insert_range");\
+	if (CSTL_CAST_VPTR(Name, first.in_vptr)->is_rand_iter) {\
+		CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr)->diff(last.data, first.data) >= 0 && "Map_assoc_insert_range");\
+		n = (size_t) CSTL_CAST_VPTR(Name, first.in_vptr)->diff(last.data, first.data);\
+	} else {\
+		for (i = first, n = 0; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
+				CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data)) {\
+			n++;\
 		}\
 	}\
-	for (pos = head.right; pos != (Name##RBTree *) &Name##RBTree_nil; pos = tmp) {\
-		tmp = pos->right;\
-		pos->right = (Name##RBTree *) &Name##RBTree_nil;\
-		Name##RBTree_insert(self->tree, pos);\
+	insert_flags = (char *) malloc(n * sizeof(char));\
+	if (!insert_flags) return 0;\
+	for (i = first; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
+			CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data), j++) {\
+		int success;\
+		if (Name##_map_insert_ref(self, *CSTL_CAST_VPTR(Name, i.in_vptr)->key(i.data), \
+					CSTL_CAST_VPTR(Name, i.in_vptr)->val(i.data), 0, &success)) {\
+			insert_flags[j] = (success != 0);\
+		} else {\
+			register size_t k;\
+			for (i = first, k = 0; k < j; CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data), k++) {\
+				if (insert_flags[k]) {\
+					Name##_erase_key(self, *CSTL_CAST_VPTR(Name, i.in_vptr)->key(i.data));\
+				}\
+			}\
+			free(insert_flags);\
+			return 0;\
+		}\
 	}\
-	self->size += count;\
+	free(insert_flags);\
 	return 1;\
 }\
 \
