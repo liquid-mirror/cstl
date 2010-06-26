@@ -287,14 +287,11 @@ int Name##_assoc_insert_range(Name *self, CstlIterInternal first, CstlIterIntern
 	CSTL_ASSERT(self && "Map_assoc_insert_range");\
 	CSTL_ASSERT(self->magic == self && "Map_assoc_insert_range");\
 	CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr) == CSTL_CAST_VPTR(Name, last.in_vptr) && "Map_assoc_insert_range");\
-	if (CSTL_CAST_VPTR(Name, first.in_vptr)->is_rand_iter) {\
-		CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr)->diff(last.data, first.data) >= 0 && "Map_assoc_insert_range");\
-		n = (size_t) CSTL_CAST_VPTR(Name, first.in_vptr)->diff(last.data, first.data);\
-	} else {\
-		for (i = first, n = 0; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
-				CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data)) {\
-			n++;\
-		}\
+	CSTL_ASSERT(((CSTL_CAST_VPTR(Name, first.in_vptr)->container == CSTL_CONTAINER_MAP) || \
+			(CSTL_CAST_VPTR(Name, first.in_vptr)->container == CSTL_CONTAINER_UNORDERED_MAP)) && "Map_assoc_insert_range");\
+	for (i = first, n = 0; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
+			CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data)) {\
+		n++;\
 	}\
 	insert_flags = (char *) malloc(n * sizeof(char));\
 	if (!insert_flags) return 0;\
