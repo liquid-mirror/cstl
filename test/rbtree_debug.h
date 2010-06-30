@@ -147,7 +147,7 @@ int Name##_verify(Name *self)\
 	size_t len;\
 	Name##RBTree *l;\
 	Name##RBTree *r;\
-	Name##Iterator pos;\
+	Name##RBTree *pos;\
 	Name##RBTree *tree = self->tree;\
 	if (Name##RBTree_empty(tree) || Name##RBTree_begin(tree) == Name##RBTree_end(tree)) {\
 		return Name##RBTree_empty(tree) && Name##RBTree_begin(tree) == Name##RBTree_end(tree) &&\
