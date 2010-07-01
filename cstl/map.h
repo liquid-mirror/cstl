@@ -455,14 +455,12 @@ int Name##_assoc_insert_range(Name *self, CstlIterInternal first, CstlIterIntern
 {\
 	register Name##RBTree *pos;\
 	register Name##RBTree *tmp;\
+	CstlIterInternal i;\
 	Name##RBTree head;\
 	register size_t count = 0;\
 	CSTL_ASSERT(self && "MultiMap_insert_range_assoc");\
 	CSTL_ASSERT(self->magic == self && "MultiMap_insert_range_assoc");\
-	CSTL_ASSERT(first && "MultiMap_insert_range_assoc");\
-	CSTL_ASSERT(last && "MultiMap_insert_range_assoc");\
-	CSTL_ASSERT(first->magic && "MultiMap_insert_range_assoc");\
-	CSTL_ASSERT(last->magic && "MultiMap_insert_range_assoc");\
+	CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr) == CSTL_CAST_VPTR(Name, last.in_vptr) && "MultiMap_assoc_insert_range");\
 	head.right = (Name##RBTree *) &Name##RBTree_nil;\
 	tmp = &head;\
 	/*for (pos = first; pos != last; pos = Name##_next(pos)) {*/\

@@ -180,13 +180,15 @@ void SetTest_test_1_1(void)
 		assert(*cstl_iter_data(p) == i);
 	}
 	assert(i == SIZE/2);
-	assert(cstl_iter_eq(cstl_iter_next(cstl_rbegin(ia)), cstl_end(ia)));
+/*    assert(cstl_iter_eq(cstl_iter_next(cstl_rbegin(ia)), cstl_end(ia)));*/
+	assert(*cstl_iter_data(cstl_rbegin(ia)) == *cstl_iter_data(cstl_iter_prev(cstl_end(ia))));
 	/* rbegin, rend, prev, data */
 	for (rp = cstl_rbegin(ia), i = SIZE/2 -1; cstl_iter_ne(rp, cstl_rend(ia)); cstl_iter_inc(&rp), i--) {
 		assert(*cstl_iter_data(rp) == i);
 	}
 	assert(i == -1);
-	assert(cstl_iter_eq(cstl_iter_prev(cstl_begin(ia)), cstl_rend(ia)));
+/*    assert(cstl_iter_eq(cstl_iter_prev(cstl_begin(ia)), cstl_rend(ia)));*/
+	assert(*cstl_iter_data(cstl_begin(ia)) == *cstl_iter_data(cstl_iter_prev(cstl_rend(ia))));
 	/* erase */
 	for (i = 0; i < SIZE; i++) {
 /*        if (pos[i] && success[i]) {*/
@@ -215,17 +217,19 @@ void SetTest_test_1_1(void)
 	assert(cstl_size(ia) == 0);
 	assert(cstl_set_insert(ia, hoge_int[0], NULL, NULL));
 	assert(cstl_size(ia) == 1);
-	assert(cstl_iter_next(cstl_begin(ia)) == cstl_erase_range(ia, cstl_begin(ia), cstl_iter_next(cstl_begin(ia))));
+	p = cstl_iter_next(cstl_begin(ia));
+	assert(cstl_iter_eq(p, cstl_erase_range(ia, cstl_begin(ia), cstl_iter_next(cstl_begin(ia)))));
 	assert(cstl_size(ia) == 0);
-	assert(cstl_set_insert(ia, 100, NULL));
-	assert(cstl_set_insert(ia, 110, NULL));
+	assert(cstl_set_insert(ia, 100, NULL, NULL));
+	assert(cstl_set_insert(ia, 110, NULL, NULL));
 	assert(cstl_size(ia) == 2);
-	assert(cstl_upper_bound(ia, 110) == cstl_erase_range(ia, cstl_lower_bound(ia, 100), cstl_upper_bound(ia, 110)));
+	assert(cstl_iter_eq(cstl_upper_bound(ia, 110), cstl_erase_range(ia, cstl_lower_bound(ia, 100), cstl_upper_bound(ia, 110))));
 	assert(cstl_size(ia) == 0);
 	/* erase_key */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = cstl_set_insert(ia, hoge_int[i], NULL);
-		assert(pos[i]);
+/*        pos[i] = cstl_set_insert(ia, hoge_int[i], NULL);*/
+/*        assert(pos[i]);*/
+		assert(cstl_set_insert(ia, hoge_int[i], &pos[i], NULL));
 	}
 	assert(cstl_size(ia) == SIZE/2);
 	for (i = 0; i < SIZE/2; i++) {
@@ -235,7 +239,7 @@ void SetTest_test_1_1(void)
 	assert(cstl_size(ia) == 0);
 	/* 大量にinsert */
 	count = 0;
-	while (count < 1000000 && cstl_set_insert(ia, count, NULL)) {
+	while (count < 1000000 && cstl_set_insert(ia, count, NULL, NULL)) {
 		count++;
 	}
 	assert(cstl_size(ia) == count);
@@ -245,7 +249,7 @@ void SetTest_test_1_1(void)
 	cstl_clear(ia);
 	printf("size: %d\n", cstl_size(ia));
 	assert(cstl_size(ia) == 0);
-	assert(cstl_set_insert(ia, 100, NULL));
+	assert(cstl_set_insert(ia, 100, NULL, NULL));
 	assert(cstl_size(ia) == 1);
 	cstl_clear(ia);
 	assert(cstl_size(ia) == 0);
@@ -253,15 +257,17 @@ void SetTest_test_1_1(void)
 	assert(cstl_size(ia) == 0);
 	/* swap */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = cstl_set_insert(ia, hoge_int[i], &success[i]);
-		assert(pos[i]);
+/*        pos[i] = cstl_set_insert(ia, hoge_int[i], &success[i]);*/
+/*        assert(pos[i]);*/
+		assert(cstl_set_insert(ia, hoge_int[i], &pos[i], &success[i]));
 		assert(success[i]);
 	}
 	assert(cstl_size(ia) == SIZE/2);
 	x = IntSetA_new();
 	for (i = 0; i < sizeof b / sizeof b[0]; i++) {
-		pos[i] = cstl_set_insert(x, b[i], &success[i]);
-		assert(pos[i]);
+/*        pos[i] = cstl_set_insert(x, b[i], &success[i]);*/
+/*        assert(pos[i]);*/
+		assert(cstl_set_insert(x, b[i], &pos[i], &success[i]));
 		assert(success[i]);
 	}
 	assert(cstl_size(x) == sizeof b / sizeof b[0]);
@@ -278,11 +284,11 @@ void SetTest_test_1_1(void)
 	assert(cstl_size(ia) == sizeof b / sizeof b[0]);
 	/* insert_range */
 	count = cstl_size(x);
-	cstl_set_insert(x, b[0], 0);
-	cstl_set_insert(ia, hoge_int[0], 0);
+	cstl_set_insert(x, b[0], 0, 0);
+	cstl_set_insert(ia, hoge_int[0], 0, 0);
 /*    IntSetA_print(ia);*/
 /*    IntSetA_print(x);*/
-	assert(cstl_insert_range(x, cstl_begin(ia), cstl_end(ia)));
+	assert(cstl_assoc_insert_range(x, cstl_begin(ia), cstl_end(ia)));
 
 /*    IntSetA_print(ia);*/
 /*    IntSetA_print(x);*/
@@ -291,7 +297,7 @@ void SetTest_test_1_1(void)
 	assert(IntSetA_verify(ia));
 	assert(IntSetA_verify(x));
 
-	assert(cstl_insert_range(x, cstl_begin(ia), cstl_end(ia)));
+	assert(cstl_assoc_insert_range(x, cstl_begin(ia), cstl_end(ia)));
 	assert(cstl_size(ia) == sizeof b / sizeof b[0] + 1);
 	assert(cstl_size(x)  == count + sizeof b / sizeof b[0]);
 	assert(IntSetA_verify(ia));
@@ -302,7 +308,6 @@ void SetTest_test_1_1(void)
 	cstl_delete(x);
 }
 
-#if 0
 void SetTest_test_1_2(void)
 {
 	int i;
@@ -313,98 +318,104 @@ void SetTest_test_1_2(void)
 	printf("***** test_1_2 *****\n");
 	id = IntSetD_new();
 	/* 初期状態 */
-	assert(IntSetD_empty(id));
-	assert(IntSetD_size(id) == 0);
-	assert(IntSetD_begin(id) == IntSetD_end(id));
-	assert(IntSetD_rbegin(id) == IntSetD_rend(id));
+	assert(cstl_empty(id));
+	assert(cstl_size(id) == 0);
+	assert(cstl_iter_eq(cstl_begin(id), cstl_end(id)));
+	assert(cstl_iter_eq(cstl_rbegin(id), cstl_rend(id)));
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
-		pos[i] = IntSetD_insert(id, hoge_int[i], &success[i]);
+/*        pos[i] = cstl_set_insert(id, hoge_int[i], &success[i]);*/
+		assert(cstl_set_insert(id, hoge_int[i], &pos[i], &success[i]));
 		if (i < SIZE/2) {
 			assert(success[i]);
 			count++;
 		} else {
 			assert(!success[i]);
 		}
-		assert(pos[i]);
 	}
 /*    IntSetD_print(id);*/
-	assert(!IntSetD_empty(id));
-	assert(IntSetD_size(id) == count);
+	assert(!cstl_empty(id));
+	assert(cstl_size(id) == count);
 	assert(count == SIZE/2);
 	/* count, find, lower_bound, upper_bound */
 	for (i = 0; i < SIZE/2; i++) {
-		assert(IntSetD_count(id, hoge_int[i]) == 1);
-		assert(pos[i] == IntSetD_find(id, hoge_int[i]));
-		assert(pos[i] == IntSetD_lower_bound(id, hoge_int[i]));
-		assert(pos[i] == IntSetD_upper_bound(id, hoge_int[i]+1));
-		assert(IntSetD_lower_bound(id, hoge_int[i]-1) == IntSetD_upper_bound(id, hoge_int[i]));
+		assert(cstl_count(id, hoge_int[i]) == 1);
+		assert(cstl_iter_eq(pos[i], cstl_find(id, hoge_int[i])));
+		assert(cstl_iter_eq(pos[i], cstl_lower_bound(id, hoge_int[i])));
+		assert(cstl_iter_eq(pos[i], cstl_upper_bound(id, hoge_int[i]+1)));
+		assert(cstl_iter_eq(cstl_lower_bound(id, hoge_int[i]-1), cstl_upper_bound(id, hoge_int[i])));
 	}
-	assert(IntSetD_find(id, *IntSetD_data(IntSetD_begin(id)) +1) == IntSetD_end(id));
-	assert(IntSetD_lower_bound(id, *IntSetD_data(IntSetD_rbegin(id)) -1) == IntSetD_end(id));
-	assert(IntSetD_upper_bound(id, *IntSetD_data(IntSetD_rbegin(id))) == IntSetD_end(id));
+	assert(cstl_iter_eq(cstl_find(id, *cstl_iter_data(cstl_begin(id)) +1), cstl_end(id)));
+	assert(cstl_iter_eq(cstl_lower_bound(id, *cstl_iter_data(cstl_rbegin(id)) -1), cstl_end(id)));
+	assert(cstl_iter_eq(cstl_upper_bound(id, *cstl_iter_data(cstl_rbegin(id))), cstl_end(id)));
 	/* begin, end, next, data */
-	for (p = IntSetD_begin(id), i = SIZE/2 -1; p != IntSetD_end(id); p = IntSetD_next(p), i--) {
-		assert(*IntSetD_data(p) == i);
+	for (p = cstl_begin(id), i = SIZE/2 -1; cstl_iter_ne(p, cstl_end(id)); cstl_iter_inc(&p), i--) {
+		assert(*cstl_iter_data(p) == i);
 	}
 	assert(i == -1);
-	assert(IntSetD_next(IntSetD_rbegin(id)) == IntSetD_end(id));
+/*    assert(cstl_iter_next(cstl_rbegin(id)) == cstl_end(id));*/
+	assert(*cstl_iter_data(cstl_rbegin(id)) == *cstl_iter_data(cstl_iter_prev(cstl_end(id))));
 	/* rbegin, rend, prev, data */
-	for (p = IntSetD_rbegin(id), i = 0; p != IntSetD_rend(id); p = IntSetD_prev(p), i++) {
-		assert(*IntSetD_data(p) == i);
+	for (p = cstl_rbegin(id), i = 0; cstl_iter_ne(p, cstl_rend(id)); cstl_iter_inc(&p), i++) {
+		assert(*cstl_iter_data(p) == i);
 	}
 	assert(i == SIZE/2);
-	assert(IntSetD_prev(IntSetD_begin(id)) == IntSetD_rend(id));
+/*    assert(cstl_iter_prev(cstl_begin(id)) == cstl_rend(id));*/
+	assert(*cstl_iter_data(cstl_begin(id)) == *cstl_iter_data(cstl_iter_prev(cstl_rend(id))));
 	/* erase */
 	for (i = 0; i < SIZE; i++) {
-		if (pos[i] && success[i]) {
-			IntSetDIterator itr = IntSetD_next(pos[i]);
-			assert(itr == IntSetD_erase(id, pos[i]));
+		if (success[i]) {
+			IntSetDIterator itr = cstl_iter_next(pos[i]);
+			assert(cstl_iter_eq(itr, cstl_erase(id, pos[i])));
 			count--;
 		}
 	}
-	assert(IntSetD_empty(id));
-	assert(IntSetD_size(id) == 0);
+	assert(cstl_empty(id));
+	assert(cstl_size(id) == 0);
 	assert(count == 0);
 	/* erase_range */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = IntSetD_insert(id, hoge_int[i], NULL);
-		assert(pos[i]);
+		assert(cstl_set_insert(id, hoge_int[i], &pos[i], NULL));
+/*        pos[i] = cstl_set_insert(id, hoge_int[i], NULL);*/
+/*        assert(pos[i]);*/
 	}
-	assert(IntSetD_size(id) == SIZE/2);
-	assert(IntSetD_find(id, 1) == IntSetD_erase_range(id, IntSetD_find(id, SIZE/2-1 -2), IntSetD_find(id, 1)));
-	assert(IntSetD_size(id) == 4);
-	assert(IntSetD_end(id) == IntSetD_erase_range(id, IntSetD_begin(id), IntSetD_end(id)));
-	assert(IntSetD_size(id) == 0);
-	assert(IntSetD_insert(id, hoge_int[0], NULL));
-	assert(IntSetD_size(id) == 1);
-	assert(IntSetD_next(IntSetD_begin(id)) == IntSetD_erase_range(id, IntSetD_begin(id), IntSetD_next(IntSetD_begin(id))));
-	assert(IntSetD_size(id) == 0);
-	assert(IntSetD_insert(id, 100, NULL));
-	assert(IntSetD_insert(id, 110, NULL));
-	assert(IntSetD_size(id) == 2);
-	assert(IntSetD_upper_bound(id, 100) == IntSetD_erase_range(id, IntSetD_lower_bound(id, 110), IntSetD_upper_bound(id, 100)));
-	assert(IntSetD_size(id) == 0);
+	assert(cstl_size(id) == SIZE/2);
+	assert(cstl_iter_eq(cstl_find(id, 1), cstl_erase_range(id, cstl_find(id, SIZE/2-1 -2), cstl_find(id, 1))));
+	assert(cstl_size(id) == 4);
+	assert(cstl_iter_eq(cstl_end(id), cstl_erase_range(id, cstl_begin(id), cstl_end(id))));
+	assert(cstl_size(id) == 0);
+	assert(cstl_set_insert(id, hoge_int[0], NULL, NULL));
+	assert(cstl_size(id) == 1);
+	p = cstl_iter_next(cstl_begin(id));
+	assert(cstl_iter_eq(p, cstl_erase_range(id, cstl_begin(id), cstl_iter_next(cstl_begin(id)))));
+/*    assert(cstl_iter_next(cstl_begin(id)) == cstl_erase_range(id, cstl_begin(id), cstl_iter_next(cstl_begin(id))));*/
+	assert(cstl_size(id) == 0);
+	assert(cstl_set_insert(id, 100, NULL, NULL));
+	assert(cstl_set_insert(id, 110, NULL, NULL));
+	assert(cstl_size(id) == 2);
+	assert(cstl_iter_eq(cstl_upper_bound(id, 100), cstl_erase_range(id, cstl_lower_bound(id, 110), cstl_upper_bound(id, 100))));
+	assert(cstl_size(id) == 0);
 	/* erase_key */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = IntSetD_insert(id, hoge_int[i], NULL);
-		assert(pos[i]);
+		assert(cstl_set_insert(id, hoge_int[i], &pos[i], NULL));
+/*        pos[i] = cstl_set_insert(id, hoge_int[i], NULL);*/
+/*        assert(pos[i]);*/
 	}
-	assert(IntSetD_size(id) == SIZE/2);
+	assert(cstl_size(id) == SIZE/2);
 	for (i = 0; i < SIZE/2; i++) {
-		assert(IntSetD_erase_key(id, hoge_int[i]) == 1);
+		assert(cstl_erase_key(id, hoge_int[i]) == 1);
 	}
-	assert(IntSetD_size(id) == 0);
+	assert(cstl_size(id) == 0);
 	/* 大量にinsert */
 	count = 0;
-	while (count < 1000000 && IntSetD_insert(id, count, NULL)) {
+	while (count < 1000000 && cstl_set_insert(id, count, NULL, NULL)) {
 		count++;
 	}
-	assert(IntSetD_size(id) == count);
+	assert(cstl_size(id) == count);
 	printf("count: %d\n", count);
 
 	POOL_DUMP_OVERFLOW(&pool);
-	IntSetD_delete(id);
+	cstl_delete(id);
 }
 
 void SetTest_test_1_3(void)
@@ -419,146 +430,161 @@ void SetTest_test_1_3(void)
 	printf("***** test_1_3 *****\n");
 	ima = IntMSetA_new();
 	/* 初期状態 */
-	assert(IntMSetA_empty(ima));
-	assert(IntMSetA_size(ima) == 0);
-	assert(IntMSetA_begin(ima) == IntMSetA_end(ima));
-	assert(IntMSetA_rbegin(ima) == IntMSetA_rend(ima));
+	assert(cstl_empty(ima));
+	assert(cstl_size(ima) == 0);
+	assert(cstl_iter_eq(cstl_begin(ima), cstl_end(ima)));
+	assert(cstl_iter_eq(cstl_rbegin(ima), cstl_rend(ima)));
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
-		pos[i] = IntMSetA_insert(ima, hoge_int[i]);
-		assert(pos[i] && pos[i] != IntMSetA_end(ima));
+/*        pos[i] = cstl_multiset_insert(ima, hoge_int[i]);*/
+		assert(cstl_multiset_insert(ima, hoge_int[i], &pos[i]));
+/*        assert(pos[i] && pos[i] != cstl_end(ima));*/
+		assert(cstl_iter_ne(pos[i], cstl_end(ima)));
 		count++;
 	}
 /*    IntMSetA_print(ima);*/
-	assert(!IntMSetA_empty(ima));
-	assert(IntMSetA_size(ima) == count);
+	assert(!cstl_empty(ima));
+	assert(cstl_size(ima) == count);
 	assert(count == SIZE);
 	/* count */
 	for (i = 0; i < SIZE; i++) {
 		if (i < SIZE/2/2) {
-			assert(IntMSetA_count(ima, i) == 1);
+			assert(cstl_count(ima, i) == 1);
 		} else if (i < SIZE/2) {
-			assert(IntMSetA_count(ima, i) == 3);
+			assert(cstl_count(ima, i) == 3);
 		} else {
-			assert(IntMSetA_count(ima, i) == 0);
+			assert(cstl_count(ima, i) == 0);
 		}
 	}
 	/* find, lower_bound, upper_bound */
 	for (i = 0; i < SIZE; i++) {
-		if (IntMSetA_count(ima, hoge_int[i]) == 1) {
-			assert(pos[i] == IntMSetA_find(ima, hoge_int[i]));
-			assert(pos[i] == IntMSetA_lower_bound(ima, hoge_int[i]));
-			assert(pos[i] == IntMSetA_upper_bound(ima, hoge_int[i]-1));
-		} else if (IntMSetA_count(ima, hoge_int[i]) == 3) {
+		if (cstl_count(ima, hoge_int[i]) == 1) {
+			assert(cstl_iter_eq(pos[i], cstl_find(ima, hoge_int[i])));
+			assert(cstl_iter_eq(pos[i], cstl_lower_bound(ima, hoge_int[i])));
+			assert(cstl_iter_eq(pos[i], cstl_upper_bound(ima, hoge_int[i]-1)));
+		} else if (cstl_count(ima, hoge_int[i]) == 3) {
 			if (!flag[hoge_int[i]]) {
 				flag[hoge_int[i]] = 1;
-				assert(pos[i] == IntMSetA_lower_bound(ima, hoge_int[i]));
-				assert(pos[i] == IntMSetA_upper_bound(ima, hoge_int[i]-1));
+				assert(cstl_iter_eq(pos[i], cstl_lower_bound(ima, hoge_int[i])));
+				assert(cstl_iter_eq(pos[i], cstl_upper_bound(ima, hoge_int[i]-1)));
 			}
 		} else {
 			assert(0);
 		}
-		assert(IntMSetA_lower_bound(ima, hoge_int[i]+1) == IntMSetA_upper_bound(ima, hoge_int[i]));
+		assert(cstl_iter_eq(cstl_lower_bound(ima, hoge_int[i]+1), cstl_upper_bound(ima, hoge_int[i])));
 	}
-	assert(IntMSetA_find(ima, *IntMSetA_data(IntMSetA_begin(ima)) -1) == IntMSetA_end(ima));
-	assert(IntMSetA_lower_bound(ima, *IntMSetA_data(IntMSetA_rbegin(ima)) +1) == IntMSetA_end(ima));
-	assert(IntMSetA_upper_bound(ima, *IntMSetA_data(IntMSetA_rbegin(ima))) == IntMSetA_end(ima));
+	assert(cstl_iter_eq(cstl_find(ima, *cstl_iter_data(cstl_begin(ima)) -1), cstl_end(ima)));
+	assert(cstl_iter_eq(cstl_lower_bound(ima, *cstl_iter_data(cstl_rbegin(ima)) +1), cstl_end(ima)));
+	assert(cstl_iter_eq(cstl_upper_bound(ima, *cstl_iter_data(cstl_rbegin(ima))), cstl_end(ima)));
 	/* begin, end, next, data */
-	for (p = IntMSetA_begin(ima), i = 0; p != IntMSetA_end(ima); p = IntMSetA_next(p), i++) {
-/*        printf("%d, %d\n", i, *IntMSetA_data(p));*/
+	for (p = cstl_begin(ima), i = 0; cstl_iter_ne(p, cstl_end(ima)); cstl_iter_inc(&p), i++) {
+/*        printf("%d, %d\n", i, *cstl_iter_data(p));*/
 	}
 	assert(i == SIZE);
-	assert(IntMSetA_next(IntMSetA_rbegin(ima)) == IntMSetA_end(ima));
+/*    assert(cstl_iter_eq(cstl_iter_next(cstl_rbegin(ia)), cstl_end(ia)));*/
+	assert(*cstl_iter_data(cstl_rbegin(ima)) == *cstl_iter_data(cstl_iter_prev(cstl_end(ima))));
 	/* rbegin, rend, prev, data */
-	for (p = IntMSetA_rbegin(ima), i = SIZE -1; p != IntMSetA_rend(ima); p = IntMSetA_prev(p), i--) {
-/*        printf("%d, %d\n", i, *IntMSetA_data(p));*/
+	for (p = cstl_rbegin(ima), i = SIZE -1; cstl_iter_ne(p, cstl_rend(ima)); cstl_iter_inc(&p), i--) {
+/*        printf("%d, %d\n", i, *cstl_iter_data(p));*/
 	}
 	assert(i == -1);
-	assert(IntMSetA_prev(IntMSetA_begin(ima)) == IntMSetA_rend(ima));
+/*    assert(cstl_iter_prev(cstl_begin(ima)) == cstl_rend(ima));*/
+	assert(*cstl_iter_data(cstl_begin(ima)) == *cstl_iter_data(cstl_iter_prev(cstl_rend(ima))));
 	/* erase */
 	for (i = 0; i < SIZE; i++) {
-		IntMSetAIterator itr = IntMSetA_next(pos[i]);
-		assert(itr == IntMSetA_erase(ima, pos[i]));
+		IntMSetAIterator itr = cstl_iter_next(pos[i]);
+		assert(cstl_iter_eq(itr, cstl_erase(ima, pos[i])));
 		count--;
 	}
-	assert(IntMSetA_empty(ima));
-	assert(IntMSetA_size(ima) == 0);
+	assert(cstl_empty(ima));
+	assert(cstl_size(ima) == 0);
 	assert(count == 0);
 	/* erase_range */
 	for (i = 0; i < SIZE; i++) {
-		pos[i] = IntMSetA_insert(ima, hoge_int[i]);
-		assert(pos[i] && pos[i] != IntMSetA_end(ima));
+/*        pos[i] = cstl_multiset_insert(ima, hoge_int[i]);*/
+		assert(cstl_multiset_insert(ima, hoge_int[i], &pos[i]));
+/*        assert(pos[i] && pos[i] != cstl_end(ima));*/
+		assert(cstl_iter_ne(pos[i], cstl_end(ima)));
 	}
-	assert(IntMSetA_size(ima) == SIZE);
-	assert(IntMSetA_next(IntMSetA_find(ima, SIZE/2/2 -1)) == IntMSetA_erase_range(ima, IntMSetA_find(ima, 0), IntMSetA_next(IntMSetA_find(ima, SIZE/2/2 -1))));
-	assert(IntMSetA_size(ima) == SIZE - SIZE/2/2);
-	assert(IntMSetA_end(ima) == IntMSetA_erase_range(ima, IntMSetA_begin(ima), IntMSetA_end(ima)));
-	assert(IntMSetA_size(ima) == 0);
-	assert(IntMSetA_insert(ima, hoge_int[0]));
-	assert(IntMSetA_size(ima) == 1);
-	assert(IntMSetA_next(IntMSetA_begin(ima)) == IntMSetA_erase_range(ima, IntMSetA_begin(ima), IntMSetA_next(IntMSetA_begin(ima))));
-	assert(IntMSetA_size(ima) == 0);
-	assert(IntMSetA_insert(ima, 100));
-	assert(IntMSetA_insert(ima, 100));
-	assert(IntMSetA_insert(ima, 100));
-	assert(IntMSetA_insert(ima, 110));
-	assert(IntMSetA_insert(ima, 110));
-	assert(IntMSetA_size(ima) == 5);
-	assert(IntMSetA_upper_bound(ima, 110) == IntMSetA_erase_range(ima, IntMSetA_lower_bound(ima, 100), IntMSetA_upper_bound(ima, 110)));
-	assert(IntMSetA_size(ima) == 0);
+	assert(cstl_size(ima) == SIZE);
+/*    assert(cstl_iter_eq(cstl_iter_next(cstl_find(ima, SIZE/2/2 -1)), cstl_erase_range(ima, cstl_find(ima, 0), cstl_iter_next(cstl_find(ima, SIZE/2/2 -1)))));*/
+	p = cstl_iter_next(cstl_find(ima, SIZE/2/2 -1));
+	assert(cstl_iter_eq(p, cstl_erase_range(ima, cstl_find(ima, 0), cstl_iter_next(cstl_find(ima, SIZE/2/2 -1)))));
+	assert(cstl_size(ima) == SIZE - SIZE/2/2);
+	assert(cstl_iter_eq(cstl_end(ima), cstl_erase_range(ima, cstl_begin(ima), cstl_end(ima))));
+	assert(cstl_size(ima) == 0);
+	assert(cstl_multiset_insert(ima, hoge_int[0], NULL));
+	assert(cstl_size(ima) == 1);
+	p = cstl_iter_next(cstl_begin(ima));
+	assert(cstl_iter_eq(p, cstl_erase_range(ima, cstl_begin(ima), cstl_iter_next(cstl_begin(ima)))));
+/*    assert(cstl_iter_next(cstl_begin(ima)) == cstl_erase_range(ima, cstl_begin(ima), cstl_iter_next(cstl_begin(ima))));*/
+	assert(cstl_size(ima) == 0);
+	assert(cstl_multiset_insert(ima, 100, NULL));
+	assert(cstl_multiset_insert(ima, 100, NULL));
+	assert(cstl_multiset_insert(ima, 100, NULL));
+	assert(cstl_multiset_insert(ima, 110, NULL));
+	assert(cstl_multiset_insert(ima, 110, NULL));
+	assert(cstl_size(ima) == 5);
+	assert(cstl_iter_eq(cstl_upper_bound(ima, 110), cstl_erase_range(ima, cstl_lower_bound(ima, 100), cstl_upper_bound(ima, 110))));
+	assert(cstl_size(ima) == 0);
 	/* erase_key */
 	for (i = 0; i < SIZE; i++) {
-		pos[i] = IntMSetA_insert(ima, hoge_int[i]);
-		assert(pos[i] && pos[i] != IntMSetA_end(ima));
+/*        pos[i] = cstl_multiset_insert(ima, hoge_int[i]);*/
+		assert(cstl_multiset_insert(ima, hoge_int[i], &pos[i]));
+/*        assert(pos[i] && pos[i] != cstl_end(ima));*/
+		assert(cstl_iter_ne(pos[i], cstl_end(ima)));
 	}
-	assert(IntMSetA_size(ima) == SIZE);
+	assert(cstl_size(ima) == SIZE);
 	for (i = 0; i < SIZE/2/2; i++) {
-		assert(IntMSetA_erase_key(ima, i) == 1);
+		assert(cstl_erase_key(ima, i) == 1);
 	}
-	assert(IntMSetA_size(ima) == SIZE - SIZE/2/2);
+	assert(cstl_size(ima) == SIZE - SIZE/2/2);
 	for (i = SIZE/2/2; i < SIZE/2; i++) {
-		assert(IntMSetA_erase_key(ima, i) == 3);
+		assert(cstl_erase_key(ima, i) == 3);
 	}
-	assert(IntMSetA_size(ima) == 0);
+	assert(cstl_size(ima) == 0);
 	/* 大量にinsert */
 	count = 0;
-	while (count < 1000000 && IntMSetA_insert(ima, 0)) {
+	while (count < 1000000 && cstl_multiset_insert(ima, 0, NULL)) {
 		count++;
 	}
-	assert(IntMSetA_size(ima) == count);
+	assert(cstl_size(ima) == count);
 	printf("count: %d\n", count);
 
-	IntMSetA_clear(ima);
+	cstl_clear(ima);
 
 	/* insert_range */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = IntMSetA_insert(ima, hoge_int[i]);
-		assert(pos[i]);
+		assert(cstl_multiset_insert(ima, hoge_int[i], &pos[i]));
+/*        pos[i] = cstl_multiset_insert(ima, hoge_int[i]);*/
+/*        assert(pos[i]);*/
 	}
-	assert(IntMSetA_size(ima) == SIZE/2);
+	assert(cstl_size(ima) == SIZE/2);
 	x = IntMSetA_new();
 	for (i = 0; i < sizeof b / sizeof b[0]; i++) {
-		pos[i] = IntMSetA_insert(x, b[i]);
-		assert(pos[i]);
+		assert(cstl_multiset_insert(x, b[i], &pos[i]));
+/*        pos[i] = cstl_multiset_insert(x, b[i]);*/
+/*        assert(pos[i]);*/
 	}
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = IntMSetA_insert(x, hoge_int[i]);
-		assert(pos[i]);
+		assert(cstl_multiset_insert(x, hoge_int[i], &pos[i]));
+/*        pos[i] = cstl_multiset_insert(x, hoge_int[i]);*/
+/*        assert(pos[i]);*/
 	}
-	assert(IntMSetA_size(x) == sizeof b / sizeof b[0] + SIZE/2);
+	assert(cstl_size(x) == sizeof b / sizeof b[0] + SIZE/2);
 /*    IntMSetA_print(ima);*/
 /*    IntMSetA_print(x);*/
-	assert(IntMSetA_insert_range(x, IntMSetA_begin(ima), IntMSetA_end(ima)));
+	assert(cstl_assoc_insert_range(x, cstl_begin(ima), cstl_end(ima)));
 	assert(IntMSetA_verify(ima));
 	assert(IntMSetA_verify(x));
 /*    IntMSetA_print(ima);*/
 /*    IntMSetA_print(x);*/
-	assert(IntMSetA_size(x) == sizeof b / sizeof b[0] + SIZE);
+	assert(cstl_size(x) == sizeof b / sizeof b[0] + SIZE);
 
 
 	POOL_DUMP_OVERFLOW(&pool);
-	IntMSetA_delete(ima);
-	IntMSetA_delete(x);
+	cstl_delete(ima);
+	cstl_delete(x);
 }
 
 void SetTest_test_2_1(void)
@@ -571,108 +597,114 @@ void SetTest_test_2_1(void)
 	printf("***** test_2_1 *****\n");
 	da = DoubleSetA_new();
 	/* 初期状態 */
-	assert(DoubleSetA_empty(da));
-	assert(DoubleSetA_size(da) == 0);
-	assert(DoubleSetA_begin(da) == DoubleSetA_end(da));
-	assert(DoubleSetA_rbegin(da) == DoubleSetA_rend(da));
+	assert(cstl_empty(da));
+	assert(cstl_size(da) == 0);
+	assert(cstl_iter_eq(cstl_begin(da), cstl_end(da)));
+	assert(cstl_iter_eq(cstl_rbegin(da), cstl_rend(da)));
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
-		pos[i] = DoubleSetA_insert(da, hoge_double[i], &success[i]);
+/*        pos[i] = cstl_set_insert(da, hoge_double[i], &success[i]);*/
+		assert(cstl_set_insert(da, hoge_double[i], &pos[i], &success[i]));
 		if (i < SIZE/2) {
 			assert(success[i]);
 			count++;
 		} else {
 			assert(!success[i]);
 		}
-		assert(pos[i]);
 	}
-	assert(!DoubleSetA_empty(da));
-	assert(DoubleSetA_size(da) == count);
+	assert(!cstl_empty(da));
+	assert(cstl_size(da) == count);
 	assert(count == SIZE/2);
 	/* count, find, lower_bound, upper_bound */
 	for (i = 0; i < SIZE/2; i++) {
-		assert(DoubleSetA_count(da, hoge_double[i]) == 1);
-		assert(pos[i] == DoubleSetA_find(da, hoge_double[i]));
-		assert(pos[i] == DoubleSetA_lower_bound(da, hoge_double[i]));
-		assert(pos[i] == DoubleSetA_upper_bound(da, hoge_double[i]-0.5));
-		assert(DoubleSetA_lower_bound(da, hoge_double[i]+0.5) == DoubleSetA_upper_bound(da, hoge_double[i]));
+		assert(cstl_count(da, hoge_double[i]) == 1);
+		assert(cstl_iter_eq(pos[i], cstl_find(da, hoge_double[i])));
+		assert(cstl_iter_eq(pos[i], cstl_lower_bound(da, hoge_double[i])));
+		assert(cstl_iter_eq(pos[i], cstl_upper_bound(da, hoge_double[i]-0.5)));
+		assert(cstl_iter_eq(cstl_lower_bound(da, hoge_double[i]+0.5), cstl_upper_bound(da, hoge_double[i])));
 	}
-	assert(DoubleSetA_find(da, *DoubleSetA_data(DoubleSetA_begin(da)) -1) == DoubleSetA_end(da));
-	assert(DoubleSetA_lower_bound(da, *DoubleSetA_data(DoubleSetA_rbegin(da)) +1) == DoubleSetA_end(da));
-	assert(DoubleSetA_upper_bound(da, *DoubleSetA_data(DoubleSetA_rbegin(da))) == DoubleSetA_end(da));
+	assert(cstl_iter_eq(cstl_find(da, *cstl_iter_data(cstl_begin(da)) -1), cstl_end(da)));
+	assert(cstl_iter_eq(cstl_lower_bound(da, *cstl_iter_data(cstl_rbegin(da)) +1), cstl_end(da)));
+	assert(cstl_iter_eq(cstl_upper_bound(da, *cstl_iter_data(cstl_rbegin(da))), cstl_end(da)));
 	/* begin, end, next, data */
-	for (p = DoubleSetA_begin(da), i = 0; p != DoubleSetA_end(da); p = DoubleSetA_next(p), i++) {
-		assert(*DoubleSetA_data(p) == i*0.5);
+	for (p = cstl_begin(da), i = 0; cstl_iter_ne(p, cstl_end(da)); cstl_iter_inc(&p), i++) {
+		assert(*cstl_iter_data(p) == i*0.5);
 	}
 	assert(i == SIZE/2);
-	assert(DoubleSetA_next(DoubleSetA_rbegin(da)) == DoubleSetA_end(da));
+/*    assert(cstl_iter_next(cstl_rbegin(da)) == cstl_end(da));*/
+	assert(*cstl_iter_data(cstl_rbegin(da)) == *cstl_iter_data(cstl_iter_prev(cstl_end(da))));
 	/* rbegin, rend, prev, data */
-	for (p = DoubleSetA_rbegin(da), i = SIZE/2 -1; p != DoubleSetA_rend(da); p = DoubleSetA_prev(p), i--) {
-		assert(*DoubleSetA_data(p) == i*0.5);
+	for (p = cstl_rbegin(da), i = SIZE/2 -1; cstl_iter_ne(p, cstl_rend(da)); cstl_iter_inc(&p), i--) {
+		assert(*cstl_iter_data(p) == i*0.5);
 	}
 	assert(i == -1);
-	assert(DoubleSetA_prev(DoubleSetA_begin(da)) == DoubleSetA_rend(da));
+/*    assert(cstl_iter_prev(cstl_begin(da)) == cstl_rend(da));*/
+	assert(*cstl_iter_data(cstl_begin(da)) == *cstl_iter_data(cstl_iter_prev(cstl_rend(da))));
 	/* erase */
 	for (i = 0; i < SIZE; i++) {
-		if (pos[i] && success[i]) {
-			DoubleSetAIterator itr = DoubleSetA_next(pos[i]);
-			assert(itr == DoubleSetA_erase(da, pos[i]));
+		if (success[i]) {
+			DoubleSetAIterator itr = cstl_iter_next(pos[i]);
+			assert(cstl_iter_eq(itr, cstl_erase(da, pos[i])));
 			count--;
 		}
 	}
-	assert(DoubleSetA_empty(da));
-	assert(DoubleSetA_size(da) == 0);
+	assert(cstl_empty(da));
+	assert(cstl_size(da) == 0);
 	assert(count == 0);
 	/* erase_range */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = DoubleSetA_insert(da, hoge_double[i], NULL);
-		assert(pos[i]);
+		assert(cstl_set_insert(da, hoge_double[i], &pos[i], NULL));
+/*        pos[i] = cstl_set_insert(da, hoge_double[i], NULL);*/
+/*        assert(pos[i]);*/
 	}
-	assert(DoubleSetA_size(da) == SIZE/2);
-	assert(DoubleSetA_find(da, SIZE/2 -2) == DoubleSetA_erase_range(da, DoubleSetA_find(da, 2), DoubleSetA_find(da, SIZE/2 -2)));
-	assert(DoubleSetA_size(da) == 4);
-	assert(DoubleSetA_end(da) == DoubleSetA_erase_range(da, DoubleSetA_begin(da), DoubleSetA_end(da)));
-	assert(DoubleSetA_size(da) == 0);
-	assert(DoubleSetA_insert(da, hoge_double[0], NULL));
-	assert(DoubleSetA_size(da) == 1);
-	assert(DoubleSetA_next(DoubleSetA_begin(da)) == DoubleSetA_erase_range(da, DoubleSetA_begin(da), DoubleSetA_next(DoubleSetA_begin(da))));
-	assert(DoubleSetA_size(da) == 0);
-	assert(DoubleSetA_insert(da, 100.1, NULL));
-	assert(DoubleSetA_insert(da, 110.1, NULL));
-	assert(DoubleSetA_size(da) == 2);
-	assert(DoubleSetA_upper_bound(da, 110.1) == DoubleSetA_erase_range(da, DoubleSetA_lower_bound(da, 100.1), DoubleSetA_upper_bound(da, 110.1)));
-	assert(DoubleSetA_size(da) == 0);
+	assert(cstl_size(da) == SIZE/2);
+	assert(cstl_iter_eq(cstl_find(da, SIZE/2 -2), cstl_erase_range(da, cstl_find(da, 2), cstl_find(da, SIZE/2 -2))));
+	assert(cstl_size(da) == 4);
+	assert(cstl_iter_eq(cstl_end(da), cstl_erase_range(da, cstl_begin(da), cstl_end(da))));
+	assert(cstl_size(da) == 0);
+	assert(cstl_set_insert(da, hoge_double[0], NULL, NULL));
+	assert(cstl_size(da) == 1);
+	p = cstl_iter_next(cstl_begin(da));
+	assert(cstl_iter_eq(p, cstl_erase_range(da, cstl_begin(da), cstl_iter_next(cstl_begin(da)))));
+/*    assert(cstl_iter_next(cstl_begin(da)) == cstl_erase_range(da, cstl_begin(da), cstl_iter_next(cstl_begin(da))));*/
+	assert(cstl_size(da) == 0);
+	assert(cstl_set_insert(da, 100.1, NULL, NULL));
+	assert(cstl_set_insert(da, 110.1, NULL, NULL));
+	assert(cstl_size(da) == 2);
+	assert(cstl_iter_eq(cstl_upper_bound(da, 110.1), cstl_erase_range(da, cstl_lower_bound(da, 100.1), cstl_upper_bound(da, 110.1))));
+	assert(cstl_size(da) == 0);
 	/* erase_key */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = DoubleSetA_insert(da, hoge_double[i], NULL);
-		assert(pos[i]);
+		assert(cstl_set_insert(da, hoge_double[i], &pos[i], NULL));
+/*        pos[i] = cstl_set_insert(da, hoge_double[i], NULL);*/
+/*        assert(pos[i]);*/
 	}
-	assert(DoubleSetA_size(da) == SIZE/2);
+	assert(cstl_size(da) == SIZE/2);
 	for (i = 0; i < SIZE/2; i++) {
-		assert(DoubleSetA_erase_key(da, hoge_double[i]) == 1);
+		assert(cstl_erase_key(da, hoge_double[i]) == 1);
 	}
-	assert(DoubleSetA_size(da) == 0);
+	assert(cstl_size(da) == 0);
 	/* 大量にinsert */
 	count = 0;
-	while (count < 1000000 && DoubleSetA_insert(da, count, NULL)) {
+	while (count < 1000000 && cstl_set_insert(da, count, NULL, NULL)) {
 		count++;
 	}
-	assert(DoubleSetA_size(da) == count);
+	assert(cstl_size(da) == count);
 	printf("count: %d\n", count);
-	printf("size: %d\n", DoubleSetA_size(da));
+	printf("size: %d\n", cstl_size(da));
 	/* clear */
-	DoubleSetA_clear(da);
-	printf("size: %d\n", DoubleSetA_size(da));
-	assert(DoubleSetA_size(da) == 0);
-	assert(DoubleSetA_insert(da, 100, NULL));
-	assert(DoubleSetA_size(da) == 1);
-	DoubleSetA_clear(da);
-	assert(DoubleSetA_size(da) == 0);
-	DoubleSetA_clear(da);
-	assert(DoubleSetA_size(da) == 0);
+	cstl_clear(da);
+	printf("size: %d\n", cstl_size(da));
+	assert(cstl_size(da) == 0);
+	assert(cstl_set_insert(da, 100, NULL, NULL));
+	assert(cstl_size(da) == 1);
+	cstl_clear(da);
+	assert(cstl_size(da) == 0);
+	cstl_clear(da);
+	assert(cstl_size(da) == 0);
 
 	POOL_DUMP_OVERFLOW(&pool);
-	DoubleSetA_delete(da);
+	cstl_delete(da);
 }
 
 void SetTest_test_3_1(void)
@@ -686,109 +718,115 @@ void SetTest_test_3_1(void)
 	printf("***** test_3_1 *****\n");
 	pa = PtrSetA_new();
 	/* 初期状態 */
-	assert(PtrSetA_empty(pa));
-	assert(PtrSetA_size(pa) == 0);
-	assert(PtrSetA_begin(pa) == PtrSetA_end(pa));
-	assert(PtrSetA_rbegin(pa) == PtrSetA_rend(pa));
+	assert(cstl_empty(pa));
+	assert(cstl_size(pa) == 0);
+	assert(cstl_iter_eq(cstl_begin(pa), cstl_end(pa)));
+	assert(cstl_iter_eq(cstl_rbegin(pa), cstl_rend(pa)));
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
-		pos[i] = PtrSetA_insert(pa, hoge_ptr[i], &success[i]);
+/*        pos[i] = cstl_set_insert(pa, hoge_ptr[i], &success[i]);*/
+		assert(cstl_set_insert(pa, hoge_ptr[i], &pos[i], &success[i]));
 		if (i < SIZE/2) {
 			assert(success[i]);
 			count++;
 		} else {
 			assert(!success[i]);
 		}
-		assert(pos[i]);
 	}
-	assert(!PtrSetA_empty(pa));
-	assert(PtrSetA_size(pa) == count);
+	assert(!cstl_empty(pa));
+	assert(cstl_size(pa) == count);
 	assert(count == SIZE/2);
 	/* count, find, lower_bound, upper_bound */
 	for (i = 0; i < SIZE/2; i++) {
-		assert(PtrSetA_count(pa, hoge_ptr[i]) == 1);
-		assert(pos[i] == PtrSetA_find(pa, hoge_ptr[i]));
-		assert(pos[i] == PtrSetA_lower_bound(pa, hoge_ptr[i]));
-		assert(pos[i] == PtrSetA_upper_bound(pa, hoge_ptr[i]-1));
-		assert(PtrSetA_lower_bound(pa, hoge_ptr[i]+1) == PtrSetA_upper_bound(pa, hoge_ptr[i]));
+		assert(cstl_count(pa, hoge_ptr[i]) == 1);
+		assert(cstl_iter_eq(pos[i], cstl_find(pa, hoge_ptr[i])));
+		assert(cstl_iter_eq(pos[i], cstl_lower_bound(pa, hoge_ptr[i])));
+		assert(cstl_iter_eq(pos[i], cstl_upper_bound(pa, hoge_ptr[i]-1)));
+		assert(cstl_iter_eq(cstl_lower_bound(pa, hoge_ptr[i]+1), cstl_upper_bound(pa, hoge_ptr[i])));
 	}
-	assert(PtrSetA_find(pa, *PtrSetA_data(PtrSetA_begin(pa)) -1) == PtrSetA_end(pa));
-	assert(PtrSetA_lower_bound(pa, *PtrSetA_data(PtrSetA_rbegin(pa)) +1) == PtrSetA_end(pa));
-	assert(PtrSetA_upper_bound(pa, *PtrSetA_data(PtrSetA_rbegin(pa))) == PtrSetA_end(pa));
+	assert(cstl_iter_eq(cstl_find(pa, *cstl_iter_data(cstl_begin(pa)) -1), cstl_end(pa)));
+	assert(cstl_iter_eq(cstl_lower_bound(pa, *cstl_iter_data(cstl_rbegin(pa)) +1), cstl_end(pa)));
+	assert(cstl_iter_eq(cstl_upper_bound(pa, *cstl_iter_data(cstl_rbegin(pa))), cstl_end(pa)));
 	/* begin, end, next, data */
-	for (p = PtrSetA_begin(pa), i = 0; p != PtrSetA_end(pa); p = PtrSetA_next(p), i++) {
-		assert(*PtrSetA_data(p) == &hoge_int[i]);
+	for (p = cstl_begin(pa), i = 0; cstl_iter_ne(p, cstl_end(pa)); cstl_iter_inc(&p), i++) {
+		assert(*cstl_iter_data(p) == &hoge_int[i]);
 	}
 	assert(i == SIZE/2);
-	assert(PtrSetA_next(PtrSetA_rbegin(pa)) == PtrSetA_end(pa));
+/*    assert(cstl_iter_next(cstl_rbegin(pa)) == cstl_end(pa));*/
+	assert(*cstl_iter_data(cstl_rbegin(pa)) == *cstl_iter_data(cstl_iter_prev(cstl_end(pa))));
 	/* rbegin, rend, prev, data */
-	for (p = PtrSetA_rbegin(pa), i = SIZE/2 -1; p != PtrSetA_rend(pa); p = PtrSetA_prev(p), i--) {
-		assert(*PtrSetA_data(p) == &hoge_int[i]);
+	for (p = cstl_rbegin(pa), i = SIZE/2 -1; cstl_iter_ne(p, cstl_rend(pa)); cstl_iter_inc(&p), i--) {
+		assert(*cstl_iter_data(p) == &hoge_int[i]);
 	}
 	assert(i == -1);
-	assert(PtrSetA_prev(PtrSetA_begin(pa)) == PtrSetA_rend(pa));
+/*    assert(cstl_iter_prev(cstl_begin(pa)) == cstl_rend(pa));*/
+	assert(*cstl_iter_data(cstl_begin(pa)) == *cstl_iter_data(cstl_iter_prev(cstl_rend(pa))));
 	/* erase */
 	for (i = 0; i < SIZE; i++) {
-		if (pos[i] && success[i]) {
-			PtrSetAIterator itr = PtrSetA_next(pos[i]);
-			assert(itr == PtrSetA_erase(pa, pos[i]));
+		if (success[i]) {
+			PtrSetAIterator itr = cstl_iter_next(pos[i]);
+			assert(cstl_iter_eq(itr, cstl_erase(pa, pos[i])));
 			count--;
 		}
 	}
-	assert(PtrSetA_empty(pa));
-	assert(PtrSetA_size(pa) == 0);
+	assert(cstl_empty(pa));
+	assert(cstl_size(pa) == 0);
 	assert(count == 0);
 	/* erase_range */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = PtrSetA_insert(pa, hoge_ptr[i], NULL);
-		assert(pos[i]);
+		assert(cstl_set_insert(pa, hoge_ptr[i], &pos[i], &success[i]));
+/*        pos[i] = cstl_set_insert(pa, hoge_ptr[i], NULL);*/
+/*        assert(pos[i]);*/
 	}
-	assert(PtrSetA_size(pa) == SIZE/2);
-	assert(PtrSetA_find(pa, &hoge_int[SIZE/2 -2]) == PtrSetA_erase_range(pa, PtrSetA_find(pa, &hoge_int[2]), PtrSetA_find(pa, &hoge_int[SIZE/2 -2])));
-	assert(PtrSetA_size(pa) == 4);
-	assert(PtrSetA_end(pa) == PtrSetA_erase_range(pa, PtrSetA_begin(pa), PtrSetA_end(pa)));
-	assert(PtrSetA_size(pa) == 0);
-	assert(PtrSetA_insert(pa, hoge_ptr[0], NULL));
-	assert(PtrSetA_size(pa) == 1);
-	assert(PtrSetA_next(PtrSetA_begin(pa)) == PtrSetA_erase_range(pa, PtrSetA_begin(pa), PtrSetA_next(PtrSetA_begin(pa))));
-	assert(PtrSetA_size(pa) == 0);
-	assert(PtrSetA_insert(pa, (int*)100, NULL));
-	assert(PtrSetA_insert(pa, (int*)100 + 1, NULL));
-	assert(PtrSetA_size(pa) == 2);
-	assert(PtrSetA_upper_bound(pa, (int*)100 + 1) == PtrSetA_erase_range(pa, PtrSetA_lower_bound(pa, (int*)100), PtrSetA_upper_bound(pa, (int*)100 + 1)));
-	assert(PtrSetA_size(pa) == 0);
+	assert(cstl_size(pa) == SIZE/2);
+	assert(cstl_iter_eq(cstl_find(pa, &hoge_int[SIZE/2 -2]), cstl_erase_range(pa, cstl_find(pa, &hoge_int[2]), cstl_find(pa, &hoge_int[SIZE/2 -2]))));
+	assert(cstl_size(pa) == 4);
+	assert(cstl_iter_eq(cstl_end(pa), cstl_erase_range(pa, cstl_begin(pa), cstl_end(pa))));
+	assert(cstl_size(pa) == 0);
+	assert(cstl_set_insert(pa, hoge_ptr[0], NULL, NULL));
+	assert(cstl_size(pa) == 1);
+	p = cstl_iter_next(cstl_begin(pa));
+	assert(cstl_iter_eq(p, cstl_erase_range(pa, cstl_begin(pa), cstl_iter_next(cstl_begin(pa)))));
+/*    assert(cstl_iter_next(cstl_begin(pa)) == cstl_erase_range(pa, cstl_begin(pa), cstl_iter_next(cstl_begin(pa))));*/
+	assert(cstl_size(pa) == 0);
+	assert(cstl_set_insert(pa, (int*)100, NULL, NULL));
+	assert(cstl_set_insert(pa, (int*)100 + 1, NULL, NULL));
+	assert(cstl_size(pa) == 2);
+	assert(cstl_iter_eq(cstl_upper_bound(pa, (int*)100 + 1), cstl_erase_range(pa, cstl_lower_bound(pa, (int*)100), cstl_upper_bound(pa, (int*)100 + 1))));
+	assert(cstl_size(pa) == 0);
 	/* erase_key */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = PtrSetA_insert(pa, hoge_ptr[i], NULL);
-		assert(pos[i]);
+		assert(cstl_set_insert(pa, hoge_ptr[i], &pos[i], NULL));
+/*        pos[i] = cstl_set_insert(pa, hoge_ptr[i], NULL);*/
+/*        assert(pos[i]);*/
 	}
-	assert(PtrSetA_size(pa) == SIZE/2);
+	assert(cstl_size(pa) == SIZE/2);
 	for (i = 0; i < SIZE/2; i++) {
-		assert(PtrSetA_erase_key(pa, hoge_ptr[i]) == 1);
+		assert(cstl_erase_key(pa, hoge_ptr[i]) == 1);
 	}
-	assert(PtrSetA_size(pa) == 0);
+	assert(cstl_size(pa) == 0);
 	/* 大量にinsert */
 	count = 0;
-	while (count < 1000000 && PtrSetA_insert(pa, intp, NULL)) {
+	while (count < 1000000 && cstl_set_insert(pa, intp, NULL, NULL)) {
 		count++;
 		intp++;
 	}
-	assert(PtrSetA_size(pa) == count);
+	assert(cstl_size(pa) == count);
 	printf("count: %d\n", count);
-	printf("size: %d\n", PtrSetA_size(pa));
+	printf("size: %d\n", cstl_size(pa));
 	/* clear */
-	PtrSetA_clear(pa);
-	printf("size: %d\n", PtrSetA_size(pa));
-	assert(PtrSetA_size(pa) == 0);
-	assert(PtrSetA_insert(pa, intp, NULL));
-	assert(PtrSetA_size(pa) == 1);
-	PtrSetA_clear(pa);
-	assert(PtrSetA_size(pa) == 0);
-	PtrSetA_clear(pa);
-	assert(PtrSetA_size(pa) == 0);
+	cstl_clear(pa);
+	printf("size: %d\n", cstl_size(pa));
+	assert(cstl_size(pa) == 0);
+	assert(cstl_set_insert(pa, intp, NULL, NULL));
+	assert(cstl_size(pa) == 1);
+	cstl_clear(pa);
+	assert(cstl_size(pa) == 0);
+	cstl_clear(pa);
+	assert(cstl_size(pa) == 0);
 
 	POOL_DUMP_OVERFLOW(&pool);
-	PtrSetA_delete(pa);
+	cstl_delete(pa);
 }
 
 void SetTest_test_4_1(void)
@@ -801,111 +839,117 @@ void SetTest_test_4_1(void)
 	printf("***** test_4_1 *****\n");
 	sa = StrSetA_new();
 	/* 初期状態 */
-	assert(StrSetA_empty(sa));
-	assert(StrSetA_size(sa) == 0);
-	assert(StrSetA_begin(sa) == StrSetA_end(sa));
-	assert(StrSetA_rbegin(sa) == StrSetA_rend(sa));
+	assert(cstl_empty(sa));
+	assert(cstl_size(sa) == 0);
+	assert(cstl_iter_eq(cstl_begin(sa), cstl_end(sa)));
+	assert(cstl_iter_eq(cstl_rbegin(sa), cstl_rend(sa)));
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
-		pos[i] = StrSetA_insert(sa, hoge_str[i], &success[i]);
+		assert(cstl_set_insert(sa, hoge_str[i], &pos[i], &success[i]));
+/*        pos[i] = cstl_set_insert(sa, hoge_str[i], &success[i]);*/
 		if (i < SIZE/2) {
 			assert(success[i]);
 			count++;
 		} else {
 			assert(!success[i]);
 		}
-		assert(pos[i]);
 	}
 /*    StrSetA_print(sa);*/
-	assert(!StrSetA_empty(sa));
-	assert(StrSetA_size(sa) == count);
+	assert(!cstl_empty(sa));
+	assert(cstl_size(sa) == count);
 	assert(count == SIZE/2);
 	/* count, find, lower_bound, upper_bound */
 	for (i = 0; i < SIZE/2; i++) {
-		assert(StrSetA_count(sa, hoge_str[i]) == 1);
-		assert(pos[i] == StrSetA_find(sa, hoge_str[i]));
-		assert(pos[i] == StrSetA_lower_bound(sa, hoge_str[i]));
+		assert(cstl_count(sa, hoge_str[i]) == 1);
+		assert(cstl_iter_eq(pos[i], cstl_find(sa, hoge_str[i])));
+		assert(cstl_iter_eq(pos[i], cstl_lower_bound(sa, hoge_str[i])));
 		if (i != SIZE/2-1) {
-			assert(pos[i+1] == StrSetA_upper_bound(sa, hoge_str[i]));
-			assert(StrSetA_lower_bound(sa, hoge_str[i+1]) == StrSetA_upper_bound(sa, hoge_str[i]));
+			assert(cstl_iter_eq(pos[i+1], cstl_upper_bound(sa, hoge_str[i])));
+			assert(cstl_iter_eq(cstl_lower_bound(sa, hoge_str[i+1]), cstl_upper_bound(sa, hoge_str[i])));
 		}
 	}
-	assert(StrSetA_find(sa, "hoge") == StrSetA_end(sa));
-	assert(StrSetA_lower_bound(sa, "hoge") == StrSetA_end(sa));
-	assert(StrSetA_upper_bound(sa, *StrSetA_data(StrSetA_rbegin(sa))) == StrSetA_end(sa));
+	assert(cstl_iter_eq(cstl_find(sa, "hoge"), cstl_end(sa)));
+	assert(cstl_iter_eq(cstl_lower_bound(sa, "hoge"), cstl_end(sa)));
+	assert(cstl_iter_eq(cstl_upper_bound(sa, *cstl_iter_data(cstl_rbegin(sa))), cstl_end(sa)));
 	/* begin, end, next, data */
-	for (p = StrSetA_begin(sa), i = 0; p != StrSetA_end(sa); p = StrSetA_next(p), i++) {
-		assert(*StrSetA_data(p) == hoge_str[i]);
+	for (p = cstl_begin(sa), i = 0; cstl_iter_ne(p, cstl_end(sa)); cstl_iter_inc(&p), i++) {
+		assert(*cstl_iter_data(p) == hoge_str[i]);
 	}
 	assert(i == SIZE/2);
-	assert(StrSetA_next(StrSetA_rbegin(sa)) == StrSetA_end(sa));
+/*    assert(cstl_iter_next(cstl_rbegin(sa)) == cstl_end(sa));*/
+	assert(*cstl_iter_data(cstl_rbegin(sa)) == *cstl_iter_data(cstl_iter_prev(cstl_end(sa))));
 	/* rbegin, rend, prev, data */
-	for (p = StrSetA_rbegin(sa), i = SIZE/2 -1; p != StrSetA_rend(sa); p = StrSetA_prev(p), i--) {
-		assert(*StrSetA_data(p) == hoge_str[i]);
+	for (p = cstl_rbegin(sa), i = SIZE/2 -1; cstl_iter_ne(p, cstl_rend(sa)); cstl_iter_inc(&p), i--) {
+		assert(*cstl_iter_data(p) == hoge_str[i]);
 	}
 	assert(i == -1);
-	assert(StrSetA_prev(StrSetA_begin(sa)) == StrSetA_rend(sa));
+/*    assert(cstl_iter_prev(cstl_begin(sa)) == cstl_rend(sa));*/
+	assert(*cstl_iter_data(cstl_begin(sa)) == *cstl_iter_data(cstl_iter_prev(cstl_rend(sa))));
 	/* erase */
 	for (i = 0; i < SIZE; i++) {
-		if (pos[i] && success[i]) {
-			StrSetAIterator itr = StrSetA_next(pos[i]);
-			assert(itr == StrSetA_erase(sa, pos[i]));
+		if (success[i]) {
+			StrSetAIterator itr = cstl_iter_next(pos[i]);
+			assert(cstl_iter_eq(itr, cstl_erase(sa, pos[i])));
 			count--;
 		}
 	}
-	assert(StrSetA_empty(sa));
-	assert(StrSetA_size(sa) == 0);
+	assert(cstl_empty(sa));
+	assert(cstl_size(sa) == 0);
 	assert(count == 0);
 	/* erase_range */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = StrSetA_insert(sa, hoge_str[i], NULL);
-		assert(pos[i]);
+		assert(cstl_set_insert(sa, hoge_str[i], &pos[i], NULL));
+/*        pos[i] = cstl_set_insert(sa, hoge_str[i], NULL);*/
+/*        assert(pos[i]);*/
 	}
-	assert(StrSetA_size(sa) == SIZE/2);
-	assert(StrSetA_find(sa, hoge_str[SIZE/2 -2]) == StrSetA_erase_range(sa, StrSetA_find(sa, hoge_str[2]), StrSetA_find(sa, hoge_str[SIZE/2 -2])));
-	assert(StrSetA_size(sa) == 4);
-	assert(StrSetA_end(sa) == StrSetA_erase_range(sa, StrSetA_begin(sa), StrSetA_end(sa)));
-	assert(StrSetA_size(sa) == 0);
-	assert(StrSetA_insert(sa, hoge_str[0], NULL));
-	assert(StrSetA_size(sa) == 1);
-	assert(StrSetA_next(StrSetA_begin(sa)) == StrSetA_erase_range(sa, StrSetA_begin(sa), StrSetA_next(StrSetA_begin(sa))));
-	assert(StrSetA_size(sa) == 0);
-	assert(StrSetA_insert(sa, "100", NULL));
-	assert(StrSetA_insert(sa, "110", NULL));
-	assert(StrSetA_size(sa) == 2);
-	assert(StrSetA_upper_bound(sa, "110") == StrSetA_erase_range(sa, StrSetA_lower_bound(sa, "100"), StrSetA_upper_bound(sa, "110")));
-	assert(StrSetA_size(sa) == 0);
+	assert(cstl_size(sa) == SIZE/2);
+	assert(cstl_iter_eq(cstl_find(sa, hoge_str[SIZE/2 -2]), cstl_erase_range(sa, cstl_find(sa, hoge_str[2]), cstl_find(sa, hoge_str[SIZE/2 -2]))));
+	assert(cstl_size(sa) == 4);
+	assert(cstl_iter_eq(cstl_end(sa), cstl_erase_range(sa, cstl_begin(sa), cstl_end(sa))));
+	assert(cstl_size(sa) == 0);
+	assert(cstl_set_insert(sa, hoge_str[0], NULL, NULL));
+	assert(cstl_size(sa) == 1);
+	p = cstl_iter_next(cstl_begin(sa));
+	assert(cstl_iter_eq(p, cstl_erase_range(sa, cstl_begin(sa), cstl_iter_next(cstl_begin(sa)))));
+/*    assert(cstl_iter_next(cstl_begin(sa)) == cstl_erase_range(sa, cstl_begin(sa), cstl_iter_next(cstl_begin(sa))));*/
+	assert(cstl_size(sa) == 0);
+	assert(cstl_set_insert(sa, "100", NULL, NULL));
+	assert(cstl_set_insert(sa, "110", NULL, NULL));
+	assert(cstl_size(sa) == 2);
+	assert(cstl_iter_eq(cstl_upper_bound(sa, "110"), cstl_erase_range(sa, cstl_lower_bound(sa, "100"), cstl_upper_bound(sa, "110"))));
+	assert(cstl_size(sa) == 0);
 	/* erase_key */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = StrSetA_insert(sa, hoge_str[i], NULL);
-		assert(pos[i]);
+		assert(cstl_set_insert(sa, hoge_str[i], &pos[i], NULL));
+/*        pos[i] = cstl_set_insert(sa, hoge_str[i], NULL);*/
+/*        assert(pos[i]);*/
 	}
-	assert(StrSetA_size(sa) == SIZE/2);
+	assert(cstl_size(sa) == SIZE/2);
 	for (i = 0; i < SIZE/2; i++) {
-		assert(StrSetA_erase_key(sa, hoge_str[i]) == 1);
+		assert(cstl_erase_key(sa, hoge_str[i]) == 1);
 	}
-	assert(StrSetA_size(sa) == 0);
+	assert(cstl_size(sa) == 0);
 	/* clear */
-	assert(StrSetA_insert(sa, "103", NULL));
-	assert(StrSetA_insert(sa, "101", NULL));
-	assert(StrSetA_insert(sa, "100", NULL));
-	assert(StrSetA_insert(sa, "104", NULL));
-	assert(StrSetA_insert(sa, "106", NULL));
-	assert(StrSetA_insert(sa, "105", NULL));
-	assert(StrSetA_insert(sa, "102", NULL));
-	printf("size: %d\n", StrSetA_size(sa));
-	StrSetA_clear(sa);
-	printf("size: %d\n", StrSetA_size(sa));
-	assert(StrSetA_size(sa) == 0);
-	assert(StrSetA_insert(sa, "100", NULL));
-	assert(StrSetA_size(sa) == 1);
-	StrSetA_clear(sa);
-	assert(StrSetA_size(sa) == 0);
-	StrSetA_clear(sa);
-	assert(StrSetA_size(sa) == 0);
+	assert(cstl_set_insert(sa, "103", NULL, NULL));
+	assert(cstl_set_insert(sa, "101", NULL, NULL));
+	assert(cstl_set_insert(sa, "100", NULL, NULL));
+	assert(cstl_set_insert(sa, "104", NULL, NULL));
+	assert(cstl_set_insert(sa, "106", NULL, NULL));
+	assert(cstl_set_insert(sa, "105", NULL, NULL));
+	assert(cstl_set_insert(sa, "102", NULL, NULL));
+	printf("size: %d\n", cstl_size(sa));
+	cstl_clear(sa);
+	printf("size: %d\n", cstl_size(sa));
+	assert(cstl_size(sa) == 0);
+	assert(cstl_set_insert(sa, "100", NULL, NULL));
+	assert(cstl_size(sa) == 1);
+	cstl_clear(sa);
+	assert(cstl_size(sa) == 0);
+	cstl_clear(sa);
+	assert(cstl_size(sa) == 0);
 
 	POOL_DUMP_OVERFLOW(&pool);
-	StrSetA_delete(sa);
+	cstl_delete(sa);
 }
 
 void SetTest_test_5_1(void)
@@ -918,15 +962,15 @@ void SetTest_test_5_1(void)
 	printf("***** test_5_1 *****\n");
 	uia = UIntSetA_new();
 	/* 初期状態 */
-	assert(UIntSetA_empty(uia));
-	assert(UIntSetA_size(uia) == 0);
-	assert(UIntSetA_begin(uia) == UIntSetA_end(uia));
-	assert(UIntSetA_rbegin(uia) == UIntSetA_rend(uia));
+	assert(cstl_empty(uia));
+	assert(cstl_size(uia) == 0);
+	assert(cstl_iter_eq(cstl_begin(uia), cstl_end(uia)));
+	assert(cstl_iter_eq(cstl_rbegin(uia), cstl_rend(uia)));
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
-		pos[i] = UIntSetA_insert(uia, hoge_int[i], &success[i]);
+		assert(cstl_set_insert(uia, hoge_int[i], &pos[i], &success[i]));
+/*        pos[i] = cstl_set_insert(uia, hoge_int[i], &success[i]);*/
 /*        UIntSetA_print(uia);*/
-		assert(pos[i]);
 		if (i < SIZE/2) {
 			assert(success[i]);
 			count++;
@@ -935,100 +979,105 @@ void SetTest_test_5_1(void)
 		}
 	}
 /*    UIntSetA_print(uia);*/
-	assert(!UIntSetA_empty(uia));
-	assert(UIntSetA_size(uia) == count);
+	assert(!cstl_empty(uia));
+	assert(cstl_size(uia) == count);
 	assert(count == SIZE/2);
 	/* count, find, lower_bound, upper_bound */
 	for (i = 0; i < SIZE/2; i++) {
-		assert(UIntSetA_count(uia, hoge_int[i]) == 1);
-		assert(pos[i] == UIntSetA_find(uia, hoge_int[i]));
-		assert(pos[i] == UIntSetA_lower_bound(uia, hoge_int[i]));
+		assert(cstl_count(uia, hoge_int[i]) == 1);
+		assert(cstl_iter_eq(pos[i], cstl_find(uia, hoge_int[i])));
+		assert(cstl_iter_eq(pos[i], cstl_lower_bound(uia, hoge_int[i])));
 		if (hoge_int[i] == 0) {
-			assert(UIntSetA_end(uia) == UIntSetA_upper_bound(uia, hoge_int[i]-1));
+			assert(cstl_iter_eq(cstl_end(uia), cstl_upper_bound(uia, hoge_int[i]-1)));
 		} else {
-			assert(pos[i] == UIntSetA_upper_bound(uia, hoge_int[i]-1));
+			assert(cstl_iter_eq(pos[i], cstl_upper_bound(uia, hoge_int[i]-1)));
 		}
-		assert(UIntSetA_lower_bound(uia, hoge_int[i]+1) == UIntSetA_upper_bound(uia, hoge_int[i]));
+		assert(cstl_iter_eq(cstl_lower_bound(uia, hoge_int[i]+1), cstl_upper_bound(uia, hoge_int[i])));
 	}
-	assert(UIntSetA_find(uia, *UIntSetA_data(UIntSetA_begin(uia)) -1) == UIntSetA_end(uia));
-	assert(UIntSetA_lower_bound(uia, *UIntSetA_data(UIntSetA_rbegin(uia)) +1) == UIntSetA_end(uia));
-	assert(UIntSetA_upper_bound(uia, *UIntSetA_data(UIntSetA_rbegin(uia))) == UIntSetA_end(uia));
+	assert(cstl_iter_eq(cstl_find(uia, *cstl_iter_data(cstl_begin(uia)) -1), cstl_end(uia)));
+	assert(cstl_iter_eq(cstl_lower_bound(uia, *cstl_iter_data(cstl_rbegin(uia)) +1), cstl_end(uia)));
+	assert(cstl_iter_eq(cstl_upper_bound(uia, *cstl_iter_data(cstl_rbegin(uia))), cstl_end(uia)));
 	/* begin, end, next, data */
-	for (p = UIntSetA_begin(uia), i = 0; p != UIntSetA_end(uia); p = UIntSetA_next(p), i++) {
-		assert(*UIntSetA_data(p) == i);
+	for (p = cstl_begin(uia), i = 0; cstl_iter_ne(p, cstl_end(uia)); cstl_iter_inc(&p), i++) {
+		assert(*cstl_iter_data(p) == i);
 	}
 	assert(i == SIZE/2);
-	assert(UIntSetA_next(UIntSetA_rbegin(uia)) == UIntSetA_end(uia));
+/*    assert(cstl_iter_next(cstl_rbegin(uia)) == cstl_end(uia));*/
+	assert(*cstl_iter_data(cstl_rbegin(uia)) == *cstl_iter_data(cstl_iter_prev(cstl_end(uia))));
 	/* rbegin, rend, prev, data */
-	for (p = UIntSetA_rbegin(uia), i = SIZE/2 -1; p != UIntSetA_rend(uia); p = UIntSetA_prev(p), i--) {
-		assert(*UIntSetA_data(p) == i);
+	for (p = cstl_rbegin(uia), i = SIZE/2 -1; cstl_iter_ne(p, cstl_rend(uia)); cstl_iter_inc(&p), i--) {
+		assert(*cstl_iter_data(p) == i);
 	}
 	assert(i == -1);
-	assert(UIntSetA_prev(UIntSetA_begin(uia)) == UIntSetA_rend(uia));
+/*    assert(cstl_iter_prev(cstl_begin(uia)) == cstl_rend(uia));*/
+	assert(*cstl_iter_data(cstl_begin(uia)) == *cstl_iter_data(cstl_iter_prev(cstl_rend(uia))));
 	/* erase */
 	for (i = 0; i < SIZE; i++) {
-		if (pos[i] && success[i]) {
-			UIntSetAIterator itr = UIntSetA_next(pos[i]);
-			assert(itr == UIntSetA_erase(uia, pos[i]));
+		if (success[i]) {
+			UIntSetAIterator itr = cstl_iter_next(pos[i]);
+			assert(cstl_iter_eq(itr, cstl_erase(uia, pos[i])));
 			count--;
 		}
 	}
-	assert(UIntSetA_empty(uia));
-	assert(UIntSetA_size(uia) == 0);
+	assert(cstl_empty(uia));
+	assert(cstl_size(uia) == 0);
 	assert(count == 0);
 	/* erase_range */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = UIntSetA_insert(uia, hoge_int[i], NULL);
-		assert(pos[i]);
+		assert(cstl_set_insert(uia, hoge_int[i], &pos[i], NULL));
+/*        pos[i] = cstl_set_insert(uia, hoge_int[i], NULL);*/
+/*        assert(pos[i]);*/
 	}
-	assert(UIntSetA_size(uia) == SIZE/2);
-	assert(UIntSetA_find(uia, SIZE/2 -2) == UIntSetA_erase_range(uia, UIntSetA_find(uia, 2), UIntSetA_find(uia, SIZE/2 -2)));
-	assert(UIntSetA_size(uia) == 4);
-	assert(UIntSetA_end(uia) == UIntSetA_erase_range(uia, UIntSetA_begin(uia), UIntSetA_end(uia)));
-	assert(UIntSetA_size(uia) == 0);
-	assert(UIntSetA_insert(uia, hoge_int[0], NULL));
-	assert(UIntSetA_size(uia) == 1);
-	assert(UIntSetA_next(UIntSetA_begin(uia)) == UIntSetA_erase_range(uia, UIntSetA_begin(uia), UIntSetA_next(UIntSetA_begin(uia))));
-	assert(UIntSetA_size(uia) == 0);
-	assert(UIntSetA_insert(uia, 100, NULL));
-	assert(UIntSetA_insert(uia, 110, NULL));
-	assert(UIntSetA_size(uia) == 2);
-	assert(UIntSetA_upper_bound(uia, 110) == UIntSetA_erase_range(uia, UIntSetA_lower_bound(uia, 100), UIntSetA_upper_bound(uia, 110)));
-	assert(UIntSetA_size(uia) == 0);
+	assert(cstl_size(uia) == SIZE/2);
+	assert(cstl_iter_eq(cstl_find(uia, SIZE/2 -2), cstl_erase_range(uia, cstl_find(uia, 2), cstl_find(uia, SIZE/2 -2))));
+	assert(cstl_size(uia) == 4);
+	assert(cstl_iter_eq(cstl_end(uia), cstl_erase_range(uia, cstl_begin(uia), cstl_end(uia))));
+	assert(cstl_size(uia) == 0);
+	assert(cstl_set_insert(uia, hoge_int[0], NULL, NULL));
+	assert(cstl_size(uia) == 1);
+	p = cstl_iter_next(cstl_begin(uia));
+	assert(cstl_iter_eq(p, cstl_erase_range(uia, cstl_begin(uia), cstl_iter_next(cstl_begin(uia)))));
+/*    assert(cstl_iter_next(cstl_begin(uia)) == cstl_erase_range(uia, cstl_begin(uia), cstl_iter_next(cstl_begin(uia))));*/
+	assert(cstl_size(uia) == 0);
+	assert(cstl_set_insert(uia, 100, NULL, NULL));
+	assert(cstl_set_insert(uia, 110, NULL, NULL));
+	assert(cstl_size(uia) == 2);
+	assert(cstl_iter_eq(cstl_upper_bound(uia, 110), cstl_erase_range(uia, cstl_lower_bound(uia, 100), cstl_upper_bound(uia, 110))));
+	assert(cstl_size(uia) == 0);
 	/* erase_key */
 	for (i = 0; i < SIZE/2; i++) {
-		pos[i] = UIntSetA_insert(uia, hoge_int[i], NULL);
-		assert(pos[i]);
+		assert(cstl_set_insert(uia, hoge_int[i], &pos[i], NULL));
+/*        pos[i] = cstl_set_insert(uia, hoge_int[i], NULL);*/
+/*        assert(pos[i]);*/
 	}
-	assert(UIntSetA_size(uia) == SIZE/2);
+	assert(cstl_size(uia) == SIZE/2);
 	for (i = 0; i < SIZE/2; i++) {
-		assert(UIntSetA_erase_key(uia, hoge_int[i]) == 1);
+		assert(cstl_erase_key(uia, hoge_int[i]) == 1);
 	}
-	assert(UIntSetA_size(uia) == 0);
+	assert(cstl_size(uia) == 0);
 	/* 大量にinsert */
 	count = 0;
-	while (count < 1000000 && UIntSetA_insert(uia, count, NULL)) {
+	while (count < 1000000 && cstl_set_insert(uia, count, NULL, NULL)) {
 		count++;
 	}
-	assert(UIntSetA_size(uia) == count);
+	assert(cstl_size(uia) == count);
 	printf("count: %d\n", count);
-	printf("size: %d\n", UIntSetA_size(uia));
+	printf("size: %d\n", cstl_size(uia));
 	/* clear */
-	UIntSetA_clear(uia);
-	printf("size: %d\n", UIntSetA_size(uia));
-	assert(UIntSetA_size(uia) == 0);
-	assert(UIntSetA_insert(uia, 100, NULL));
-	assert(UIntSetA_size(uia) == 1);
-	UIntSetA_clear(uia);
-	assert(UIntSetA_size(uia) == 0);
-	UIntSetA_clear(uia);
-	assert(UIntSetA_size(uia) == 0);
+	cstl_clear(uia);
+	printf("size: %d\n", cstl_size(uia));
+	assert(cstl_size(uia) == 0);
+	assert(cstl_set_insert(uia, 100, NULL, NULL));
+	assert(cstl_size(uia) == 1);
+	cstl_clear(uia);
+	assert(cstl_size(uia) == 0);
+	cstl_clear(uia);
+	assert(cstl_size(uia) == 0);
 
 	POOL_DUMP_OVERFLOW(&pool);
-	UIntSetA_delete(uia);
+	cstl_delete(uia);
 }
 
-#endif
 
 
 void SetTest_run(void)
@@ -1037,12 +1086,12 @@ void SetTest_run(void)
 	set_init_hoge();
 
 	SetTest_test_1_1();
-/*    SetTest_test_1_2();*/
-/*    SetTest_test_1_3();*/
-/*    SetTest_test_2_1();*/
-/*    SetTest_test_3_1();*/
-/*    SetTest_test_4_1();*/
-/*    SetTest_test_5_1();*/
+	SetTest_test_1_2();
+	SetTest_test_1_3();
+	SetTest_test_2_1();
+	SetTest_test_3_1();
+	SetTest_test_4_1();
+	SetTest_test_5_1();
 }
 
 
