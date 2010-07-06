@@ -518,7 +518,7 @@ elif [ $lower = "deque" ]; then
 #    grep '#define CSTL_VECTOR_.*self' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
 	grep '#define CSTL_VECTOR_.*\(self\|internaldata\)' "../cstl/vector.h" | sed -e "s/\r//" >> "$path"".c"
 	grep '#define CSTL_RING_.*self' "../cstl/ring.h" | sed -e "s/\r//" >> "$path"".c"
-	grep '#define CSTL_DEQUE_\(.*self\|RINGBUF_SIZE\|INITIAL_MAP_SIZE\)' "../cstl/deque.h" | sed -e "s/\r//" >> "$path"".c"
+	grep '#define CSTL_DEQUE_.*\(self\|internaldata\)' "../cstl/deque.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "list" ]; then
 	grep '#define CSTL_LIST_.*\(self\|pos\|internaldata\)' "../cstl/list.h" | sed -e "s/\r//" >> "$path"".c"
 elif [ $lower = "string" ]; then
@@ -545,10 +545,10 @@ echo "$src" | cpp -I.. | grep "${name}_new" \
 
 is_windows=`echo $PATH | grep -i "WINDOWS"`
 if [ "$is_windows" != "" ]; then
-	sed -e "s/$/\r/" "$path"".h" > "$path"".hh"
-	sed -e "s/$/\r/" "$path"".c" > "$path"".cc"
-	mv "$path"".hh" "$path"".h"
-	mv "$path"".cc" "$path"".c"
+	sed -e "s/$/\r/" "$path"".h" > "$path"".h.tmp"
+	sed -e "s/$/\r/" "$path"".c" > "$path"".c.tmp"
+	mv "$path"".h.tmp" "$path"".h"
+	mv "$path"".c.tmp" "$path"".c"
 fi
 
 

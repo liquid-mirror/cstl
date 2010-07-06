@@ -278,7 +278,7 @@ CSTL_EXTERN_C_END()\
 
 
 
-#define CSTL_VECTOR_IMPLEMENT_BASE(Name, Type)	\
+#define CSTL_VECTOR_IMPLEMENT_VTBL(Name, Type)	\
 \
 static void *Name##Iterator_key_dummy(CstlIterInternalData pos)\
 {\
@@ -378,6 +378,92 @@ static const struct Name##Vtable Name##_vtbl = {\
 	Name##_resize,\
 	Name##_swap,\
 };\
+\
+
+#define CSTL_VECTOR_IMPLEMENT_BASE(Name, Type)	\
+Name *Name##_new(void)\
+{\
+	Name *self;\
+	self = (Name *) malloc(sizeof(Name));\
+	if (!self) return 0;\
+	self->u.vptr = &Name##_vtbl;\
+	self->capacity = 0;\
+	self->size = 0;\
+	self->buf = 0;\
+	CSTL_MAGIC(self->magic = self);\
+	return self;\
+}\
+\
+Name *Name##_new_reserve(size_t n)\
+{\
+	Name *self;\
+	self = Name##_new();\
+	if (!self) return 0;\
+	if (!Name##_reserve(self, n)) {\
+		Name##_delete(self);\
+		return 0;\
+	}\
+	return self;\
+}\
+\
+void Name##_delete(Name *self)\
+{\
+	if (!self) return;\
+	CSTL_ASSERT(self->magic == self && "Vector_delete");\
+	CSTL_MAGIC(self->magic = 0);\
+	free(self->buf);\
+	free(self);\
+}\
+\
+
+#define CSTL_VECTOR_IMPLEMENT_ITERATOR(Name, Type)	\
+Name##Iterator Name##_begin(Name *self)\
+{\
+	Name##Iterator iter;\
+	CSTL_ASSERT(self && "Vector_begin");\
+	CSTL_ASSERT(self->magic == self && "Vector_begin");\
+	iter.vptr = &Name##Iterator_vtbl;\
+	CSTL_VECTOR_ELEM_ASSIGN(iter.internal.data) = self->buf ? &CSTL_VECTOR_AT(self, 0) : 0;\
+	CSTL_VECTOR_SELF_ASSIGN(iter.internal.data) = self;\
+	CSTL_VECTOR_IDX(iter.internal.data) = 0;\
+	return iter;\
+}\
+\
+Name##Iterator Name##_end(Name *self)\
+{\
+	Name##Iterator iter;\
+	CSTL_ASSERT(self && "Vector_end");\
+	CSTL_ASSERT(self->magic == self && "Vector_end");\
+	iter.vptr = &Name##Iterator_vtbl;\
+	CSTL_VECTOR_ELEM_ASSIGN(iter.internal.data) = self->buf ? &CSTL_VECTOR_AT(self, self->size) : 0;\
+	CSTL_VECTOR_SELF_ASSIGN(iter.internal.data) = self;\
+	CSTL_VECTOR_IDX(iter.internal.data) = self->size;\
+	return iter;\
+}\
+\
+Name##ReverseIterator Name##_rbegin(Name *self)\
+{\
+	Name##ReverseIterator iter;\
+	CSTL_ASSERT(self && "Vector_rbegin");\
+	CSTL_ASSERT(self->magic == self && "Vector_rbegin");\
+	iter.vptr = &Name##ReverseIterator_vtbl;\
+	CSTL_VECTOR_ELEM_ASSIGN(iter.internal.data) = self->buf ? &CSTL_VECTOR_AT(self, self->size) : 0;\
+	CSTL_VECTOR_SELF_ASSIGN(iter.internal.data) = self;\
+	CSTL_VECTOR_IDX(iter.internal.data) = self->size;\
+	return iter;\
+}\
+\
+Name##ReverseIterator Name##_rend(Name *self)\
+{\
+	Name##ReverseIterator iter;\
+	CSTL_ASSERT(self && "Vector_rend");\
+	CSTL_ASSERT(self->magic == self && "Vector_rend");\
+	iter.vptr = &Name##ReverseIterator_vtbl;\
+	CSTL_VECTOR_ELEM_ASSIGN(iter.internal.data) = self->buf ? &CSTL_VECTOR_AT(self, 0) : 0;\
+	CSTL_VECTOR_SELF_ASSIGN(iter.internal.data) = self;\
+	CSTL_VECTOR_IDX(iter.internal.data) = 0;\
+	return iter;\
+}\
 \
 Type *Name##Iterator_data(CstlIterInternalData pos)\
 {\
@@ -587,8 +673,9 @@ int Name##ReverseIterator_ne(CstlIterInternalData pos, CstlIterInternalData x)\
 \
 Type *Name##ReverseIterator_at(CstlIterInternalData pos, size_t n)\
 {\
-	CSTL_ASSERT(Name##_size(CSTL_VECTOR_SELF(Name, pos)) > CSTL_VECTOR_IDX(pos) + n && "VectorIterator_at");\
-	return &CSTL_VECTOR_AT(CSTL_VECTOR_SELF(Name, pos), CSTL_VECTOR_IDX(pos) + n);\
+	/* TODO: nが負数 */\
+	/*CSTL_ASSERT(Name##_size(CSTL_VECTOR_SELF(Name, pos)) > CSTL_VECTOR_IDX(pos) + n && "VectorIterator_at");*/\
+	return &CSTL_VECTOR_AT(CSTL_VECTOR_SELF(Name, pos), CSTL_VECTOR_IDX(pos) - n - 1);\
 }\
 \
 Name##Iterator Name##ReverseIterator_add(CstlIterInternalData pos, size_t n)\
@@ -664,90 +751,7 @@ int Name##ReverseIterator_ge(CstlIterInternalData pos, CstlIterInternalData x)\
 	return CSTL_VECTOR_IDX(pos) <= CSTL_VECTOR_IDX(x);\
 }\
 \
-Name *Name##_new(void)\
-{\
-	Name *self;\
-	self = (Name *) malloc(sizeof(Name));\
-	if (!self) return 0;\
-	self->u.vptr = &Name##_vtbl;\
-	self->capacity = 0;\
-	self->size = 0;\
-	self->buf = 0;\
-	CSTL_MAGIC(self->magic = self);\
-	return self;\
-}\
 \
-Name *Name##_new_reserve(size_t n)\
-{\
-	Name *self;\
-	self = Name##_new();\
-	if (!self) return 0;\
-	if (!Name##_reserve(self, n)) {\
-		Name##_delete(self);\
-		return 0;\
-	}\
-	return self;\
-}\
-\
-void Name##_delete(Name *self)\
-{\
-	if (!self) return;\
-	CSTL_ASSERT(self->magic == self && "Vector_delete");\
-	CSTL_MAGIC(self->magic = 0);\
-	free(self->buf);\
-	free(self);\
-}\
-\
-Name##Iterator Name##_begin(Name *self)\
-{\
-	Name##Iterator iter;\
-	CSTL_ASSERT(self && "Vector_begin");\
-	CSTL_ASSERT(self->magic == self && "Vector_begin");\
-	iter.vptr = &Name##Iterator_vtbl;\
-	CSTL_VECTOR_ELEM_ASSIGN(iter.internal.data) = self->buf ? &CSTL_VECTOR_AT(self, 0) : 0;\
-	CSTL_VECTOR_SELF_ASSIGN(iter.internal.data) = self;\
-	CSTL_VECTOR_IDX(iter.internal.data) = 0;\
-	return iter;\
-}\
-\
-Name##Iterator Name##_end(Name *self)\
-{\
-	Name##Iterator iter;\
-	CSTL_ASSERT(self && "Vector_end");\
-	CSTL_ASSERT(self->magic == self && "Vector_end");\
-	iter.vptr = &Name##Iterator_vtbl;\
-	CSTL_VECTOR_ELEM_ASSIGN(iter.internal.data) = self->buf ? &CSTL_VECTOR_AT(self, self->size) : 0;\
-	CSTL_VECTOR_SELF_ASSIGN(iter.internal.data) = self;\
-	CSTL_VECTOR_IDX(iter.internal.data) = self->size;\
-	return iter;\
-}\
-\
-Name##ReverseIterator Name##_rbegin(Name *self)\
-{\
-	Name##ReverseIterator iter;\
-	CSTL_ASSERT(self && "Vector_rbegin");\
-	CSTL_ASSERT(self->magic == self && "Vector_rbegin");\
-	iter.vptr = &Name##ReverseIterator_vtbl;\
-	CSTL_VECTOR_ELEM_ASSIGN(iter.internal.data) = self->buf ? &CSTL_VECTOR_AT(self, self->size) : 0;\
-	CSTL_VECTOR_SELF_ASSIGN(iter.internal.data) = self;\
-	CSTL_VECTOR_IDX(iter.internal.data) = self->size;\
-	return iter;\
-}\
-\
-Name##ReverseIterator Name##_rend(Name *self)\
-{\
-	Name##ReverseIterator iter;\
-	CSTL_ASSERT(self && "Vector_rend");\
-	CSTL_ASSERT(self->magic == self && "Vector_rend");\
-	iter.vptr = &Name##ReverseIterator_vtbl;\
-	CSTL_VECTOR_ELEM_ASSIGN(iter.internal.data) = self->buf ? &CSTL_VECTOR_AT(self, 0) : 0;\
-	CSTL_VECTOR_SELF_ASSIGN(iter.internal.data) = self;\
-	CSTL_VECTOR_IDX(iter.internal.data) = 0;\
-	return iter;\
-}\
-\
-\
-
 
 #define CSTL_VECTOR_IMPLEMENT_PUSH_BACK(Name, Type)	\
 int Name##_push_back(Name *self, Type data)\
@@ -1042,8 +1046,6 @@ int Name##_insert_range(Name *self, CstlIterInternalData pos, CstlIterInternal f
 		size_t xidx;\
 		xidx = CSTL_VECTOR_IDX(first.data);\
 		n = CSTL_VECTOR_IDX(last.data) - CSTL_VECTOR_IDX(first.data);\
-		CSTL_ASSERT(x && "Vector_insert_range");\
-		CSTL_ASSERT(x->magic == x && "Vector_insert_range");\
 		CSTL_ASSERT(CSTL_VECTOR_SIZE(x) >= xidx + n && "Vector_insert_range");\
 		CSTL_ASSERT(CSTL_VECTOR_SIZE(x) >= n && "Vector_insert_range");\
 		CSTL_ASSERT(CSTL_VECTOR_SIZE(x) > xidx && "Vector_insert_range");\
@@ -1060,14 +1062,13 @@ int Name##_insert_range(Name *self, CstlIterInternalData pos, CstlIterInternal f
 			memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(self, xidx), sizeof(Type) * n);\
 		}\
 	} else {\
-		CstlIterInternal i;\
-		size_t j;\
+		CstlIterInternal internal;\
 		if (CSTL_CAST_VPTR(Name, first.in_vptr)->is_rand_iter) {\
 			CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr)->diff(last.data, first.data) >= 0 && "Vector_insert_range");\
 			n = (size_t) CSTL_CAST_VPTR(Name, first.in_vptr)->diff(last.data, first.data);\
 		} else {\
-			for (i = first, n = 0; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
-					CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data)) {\
+			for (internal = first, n = 0; CSTL_CAST_VPTR(Name, internal.in_vptr)->ne(internal.data, last.data); \
+					CSTL_CAST_VPTR(Name, internal.in_vptr)->inc(&internal.data)) {\
 				n++;\
 			}\
 		}\
@@ -1084,10 +1085,12 @@ int Name##_insert_range(Name *self, CstlIterInternalData pos, CstlIterInternal f
 			CSTL_ASSERT(CSTL_VECTOR_SIZE(x) > xidx && "Vector_insert_range");\
 			memcpy(&CSTL_VECTOR_AT(self, idx), &CSTL_VECTOR_AT(x, xidx), sizeof(Type) * n);\
 		} else {\
-			for (i = first, j = 0; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
-					CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data), j++) {\
-				CSTL_VECTOR_AT(self, idx + j) = *CSTL_CAST_VPTR(Name, i.in_vptr)->data(i.data);\
+			size_t i;\
+			for (internal = first, i = 0; CSTL_CAST_VPTR(Name, internal.in_vptr)->ne(internal.data, last.data); \
+					CSTL_CAST_VPTR(Name, internal.in_vptr)->inc(&internal.data), i++) {\
+				CSTL_VECTOR_AT(self, idx + i) = *CSTL_CAST_VPTR(Name, internal.in_vptr)->data(internal.data);\
 			}\
+			CSTL_ASSERT(i == n && "Vector_insert_range");\
 		}\
 	}\
 	return 1;\
@@ -1126,7 +1129,7 @@ Name##Iterator Name##_erase_range(Name *self, CstlIterInternalData first, CstlIt
 	CSTL_ASSERT(self->magic == self && "Vector_erase_range");\
 	CSTL_ASSERT(CSTL_VECTOR_SELF(Name, first) == CSTL_VECTOR_SELF(Name, last));\
 	CSTL_ASSERT(CSTL_VECTOR_SELF(Name, first) == self);\
-	CSTL_ASSERT(CSTL_VECTOR_IDX(first) <= CSTL_VECTOR_IDX(last) && "VectorIterator_sub");\
+	CSTL_ASSERT(CSTL_VECTOR_IDX(first) <= CSTL_VECTOR_IDX(last) && "Vector_erase_range");\
 	idx = CSTL_VECTOR_IDX(first);\
 	n = CSTL_VECTOR_IDX(last) - CSTL_VECTOR_IDX(first);\
 	CSTL_ASSERT(CSTL_VECTOR_SIZE(self) >= idx + n && "Vector_erase_range");\
@@ -1172,7 +1175,9 @@ void Name##_swap(Name *self, Name *x)\
  * \param Type 要素の型
  */
 #define CSTL_VECTOR_IMPLEMENT(Name, Type)	\
+CSTL_VECTOR_IMPLEMENT_VTBL(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_BASE(Name, Type)\
+CSTL_VECTOR_IMPLEMENT_ITERATOR(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_RESERVE(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_FORWARD(Name, Type)\
 CSTL_VECTOR_IMPLEMENT_MOVE_BACKWARD(Name, Type)\

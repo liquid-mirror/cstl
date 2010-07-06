@@ -8,23 +8,34 @@ int main(void)
 {
 	int i;
 	UCharDeque *x;
+	UCharDequeIterator iter;
 
 	x = UCharDeque_new();
-	UCharDeque_push_back(x, 0x01);
-	UCharDeque_push_back(x, 0x02);
-	UCharDeque_push_front(x, 0x03);
-	UCharDeque_push_front(x, 0x04);
-	UCharDeque_insert(x, 1, 0x05);
-	UCharDeque_erase(x, 2, 1);
-	*UCharDeque_at(x, 0) = 0x06;
-	for (i = 0; i < UCharDeque_size(x); i++) {
-		printf("%02x\n", *UCharDeque_at(x, i));
+	cstl_push_back(x, 0x01);
+	cstl_push_back(x, 0x02);
+	cstl_push_front(x, 0x03);
+	cstl_push_front(x, 0x04);
+	for (i = 0; i < cstl_size(x); i++) { printf("%02x\n", *cstl_at(x, i)); }
+	printf("\n");
+
+	iter = cstl_begin(x);
+	cstl_insert(x, cstl_iter_add(iter, 1), 0x05, NULL);
+	for (i = 0; i < cstl_size(x); i++) { printf("%02x\n", *cstl_at(x, i)); }
+	printf("\n");
+
+	cstl_erase_range(x, cstl_iter_add(iter, 2), cstl_iter_add(iter, 3));
+	for (i = 0; i < cstl_size(x); i++) { printf("%02x\n", *cstl_at(x, i)); }
+	printf("\n");
+
+	*cstl_at(x, 0) = 0x06;
+	for (i = 0; i < cstl_size(x); i++) { printf("%02x\n", *cstl_at(x, i)); }
+	printf("\n");
+
+	while (!cstl_empty(x)) {
+		printf("%02x\n", *cstl_front(x));
+		cstl_pop_front(x);
 	}
-	while (!UCharDeque_empty(x)) {
-		printf("%02x\n", *UCharDeque_front(x));
-		UCharDeque_pop_front(x);
-	}
-	UCharDeque_delete(x);
+	cstl_delete(x);
 	return 0;
 }
 
