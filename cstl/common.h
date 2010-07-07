@@ -123,7 +123,6 @@
 #define cstl_iter_reverse_iterator(p)	((p).vptr->reverse_iterator((p).internal.data))
 #define cstl_riter_base(p)		((p).vptr->base((p).internal.data))
 
-#define CSTL_CAST_VPTR(Name, in_vptr)	((const Name##IteratorVtable *) (in_vptr))
 
 enum {
 	CSTL_CONTAINER_VECTOR,
@@ -216,6 +215,8 @@ struct Name##IteratorVtable {\
 	int is_reverse_iter;\
 };\
 \
+
+#define CSTL_CAST_VPTR(Name, in_vptr)	((const Name##IteratorVtable *) (in_vptr))
 
 
 #endif /* CSTL_COMMON_H_INCLUDED */
