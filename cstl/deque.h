@@ -62,65 +62,8 @@
  */
 #define CSTL_DEQUE_INTERFACE(Name, Type)	\
 typedef struct Name Name;\
-typedef struct Name##IteratorVtable Name##IteratorVtable;\
-/*! \
- * \brief イテレータ\
- */\
-typedef union Name##Iterator {\
-	const Name##IteratorVtable *vptr;\
-	CstlIterInternal internal;\
-} Name##Iterator;\
 \
-typedef Name##Iterator Name##ReverseIterator;\
-\
-typedef Type *(*Name##Iterator_data_t)(CstlIterInternalData pos);\
-typedef void *(*Name##Iterator_key_t)(CstlIterInternalData pos);\
-typedef void *(*Name##Iterator_val_t)(CstlIterInternalData pos);\
-typedef Name##Iterator (*Name##Iterator_next_t)(CstlIterInternalData pos);\
-typedef Name##Iterator (*Name##Iterator_prev_t)(CstlIterInternalData pos);\
-typedef void (*Name##Iterator_inc_t)(CstlIterInternalData *pos);\
-typedef void (*Name##Iterator_dec_t)(CstlIterInternalData *pos);\
-typedef int (*Name##Iterator_eq_t)(CstlIterInternalData pos, CstlIterInternalData x);\
-typedef int (*Name##Iterator_ne_t)(CstlIterInternalData pos, CstlIterInternalData x);\
-typedef Type *(*Name##Iterator_at_t)(CstlIterInternalData pos, size_t n);\
-typedef Name##Iterator (*Name##Iterator_add_t)(CstlIterInternalData pos, size_t n);\
-typedef Name##Iterator (*Name##Iterator_sub_t)(CstlIterInternalData pos, size_t n);\
-typedef void (*Name##Iterator_inc_n_t)(CstlIterInternalData *pos, size_t n);\
-typedef void (*Name##Iterator_dec_n_t)(CstlIterInternalData *pos, size_t n);\
-typedef int (*Name##Iterator_diff_t)(CstlIterInternalData pos, CstlIterInternalData x);\
-typedef int (*Name##Iterator_lt_t)(CstlIterInternalData pos, CstlIterInternalData x);\
-typedef int (*Name##Iterator_le_t)(CstlIterInternalData pos, CstlIterInternalData x);\
-typedef int (*Name##Iterator_gt_t)(CstlIterInternalData pos, CstlIterInternalData x);\
-typedef int (*Name##Iterator_ge_t)(CstlIterInternalData pos, CstlIterInternalData x);\
-typedef Name##ReverseIterator (*Name##Iterator_reverse_iterator_t)(CstlIterInternalData pos);\
-typedef Name##Iterator (*Name##ReverseIterator_base_t)(CstlIterInternalData pos);\
-\
-struct Name##IteratorVtable {\
-	Name##Iterator_data_t  data;\
-	Name##Iterator_key_t   key;\
-	Name##Iterator_val_t   val;\
-	Name##Iterator_next_t  next;\
-	Name##Iterator_prev_t  prev;\
-	Name##Iterator_inc_t   inc;\
-	Name##Iterator_dec_t   dec;\
-	Name##Iterator_eq_t    eq;\
-	Name##Iterator_ne_t    ne;\
-	Name##Iterator_at_t    at;\
-	Name##Iterator_add_t   add;\
-	Name##Iterator_sub_t   sub;\
-	Name##Iterator_inc_n_t inc_n;\
-	Name##Iterator_dec_n_t dec_n;\
-	Name##Iterator_diff_t  diff;\
-	Name##Iterator_lt_t    lt;\
-	Name##Iterator_le_t    le;\
-	Name##Iterator_gt_t    gt;\
-	Name##Iterator_ge_t    ge;\
-	Name##Iterator_reverse_iterator_t reverse_iterator;\
-	Name##ReverseIterator_base_t base;\
-	int container;\
-	int is_rand_iter;\
-	int is_reverse_iter;\
-};\
+CSTL_DEFINE_ITERATOR(Name, Type, Type)\
 \
 typedef void (*Name##_delete_t)(Name *self);\
 typedef int (*Name##_push_back_t)(Name *self, Type data);\
@@ -311,13 +254,13 @@ enum {\
 						                          0x200 / 0x001)\
 };\
 \
-static void *Name##Iterator_key_dummy(CstlIterInternalData pos)\
+static Type const *Name##Iterator_key_dummy(CstlIterInternalData pos)\
 {\
 	CSTL_ASSERT(0 && "DequeIterator_key_dummy");\
 	return 0;\
 }\
 \
-static void *Name##Iterator_val_dummy(CstlIterInternalData pos)\
+static Type *Name##Iterator_val_dummy(CstlIterInternalData pos)\
 {\
 	CSTL_ASSERT(0 && "DequeIterator_val_dummy");\
 	return 0;\
