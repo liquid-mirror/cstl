@@ -175,12 +175,12 @@ typedef void (*Name##Iterator_inc_t)(CstlIterInternalData *pos);\
 typedef void (*Name##Iterator_dec_t)(CstlIterInternalData *pos);\
 typedef int (*Name##Iterator_eq_t)(CstlIterInternalData pos, CstlIterInternalData x);\
 typedef int (*Name##Iterator_ne_t)(CstlIterInternalData pos, CstlIterInternalData x);\
-typedef Type *(*Name##Iterator_at_t)(CstlIterInternalData pos, size_t n);\
-typedef Name##Iterator (*Name##Iterator_add_t)(CstlIterInternalData pos, size_t n);\
-typedef Name##Iterator (*Name##Iterator_sub_t)(CstlIterInternalData pos, size_t n);\
-typedef void (*Name##Iterator_inc_n_t)(CstlIterInternalData *pos, size_t n);\
-typedef void (*Name##Iterator_dec_n_t)(CstlIterInternalData *pos, size_t n);\
-typedef int (*Name##Iterator_diff_t)(CstlIterInternalData pos, CstlIterInternalData x);\
+typedef Type *(*Name##Iterator_at_t)(CstlIterInternalData pos, long n);\
+typedef Name##Iterator (*Name##Iterator_add_t)(CstlIterInternalData pos, long n);\
+typedef Name##Iterator (*Name##Iterator_sub_t)(CstlIterInternalData pos, long n);\
+typedef void (*Name##Iterator_inc_n_t)(CstlIterInternalData *pos, long n);\
+typedef void (*Name##Iterator_dec_n_t)(CstlIterInternalData *pos, long n);\
+typedef long (*Name##Iterator_diff_t)(CstlIterInternalData pos, CstlIterInternalData x);\
 typedef int (*Name##Iterator_lt_t)(CstlIterInternalData pos, CstlIterInternalData x);\
 typedef int (*Name##Iterator_le_t)(CstlIterInternalData pos, CstlIterInternalData x);\
 typedef int (*Name##Iterator_gt_t)(CstlIterInternalData pos, CstlIterInternalData x);\

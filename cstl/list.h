@@ -210,37 +210,37 @@ static Type *Name##Iterator_val_dummy(CstlIterInternalData pos)\
 	return 0;\
 }\
 \
-static Type *Name##Iterator_at_dummy(CstlIterInternalData pos, size_t n)\
+static Type *Name##Iterator_at_dummy(CstlIterInternalData pos, long n)\
 {\
 	CSTL_ASSERT(0 && "ListIterator_at_dummy");\
 	return 0;\
 }\
 \
-static Name##Iterator Name##Iterator_add_dummy(CstlIterInternalData pos, size_t n)\
+static Name##Iterator Name##Iterator_add_dummy(CstlIterInternalData pos, long n)\
 {\
 	Name##Iterator iter;\
 	CSTL_ASSERT(0 && "ListIterator_add_dummy");\
 	return iter;\
 }\
 \
-static Name##Iterator Name##Iterator_sub_dummy(CstlIterInternalData pos, size_t n)\
+static Name##Iterator Name##Iterator_sub_dummy(CstlIterInternalData pos, long n)\
 {\
 	Name##Iterator iter;\
 	CSTL_ASSERT(0 && "ListIterator_sub_dummy");\
 	return iter;\
 }\
 \
-static void Name##Iterator_inc_n_dummy(CstlIterInternalData *pos, size_t n)\
+static void Name##Iterator_inc_n_dummy(CstlIterInternalData *pos, long n)\
 {\
 	CSTL_ASSERT(0 && "ListIterator_inc_n_dummy");\
 }\
 \
-static void Name##Iterator_dec_n_dummy(CstlIterInternalData *pos, size_t n)\
+static void Name##Iterator_dec_n_dummy(CstlIterInternalData *pos, long n)\
 {\
 	CSTL_ASSERT(0 && "ListIterator_dec_n_dummy");\
 }\
 \
-static int Name##Iterator_diff_dummy(CstlIterInternalData pos, CstlIterInternalData x)\
+static long Name##Iterator_diff_dummy(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
 	CSTL_ASSERT(0 && "ListIterator_diff_dummy");\
 	return 0;\
