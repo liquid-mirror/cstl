@@ -50,9 +50,9 @@
 
 #define CSTL_DEQUE_SIZE(self)	(self)->size
 
-#define CSTL_DEQUE_SELF(Name, internaldata)	((Name *) ((internaldata).data2))
-#define CSTL_DEQUE_SELF_ASSIGN(internaldata)	((internaldata).data2)
-#define CSTL_DEQUE_IDX(internaldata)			((internaldata).data3)
+#define CSTL_DEQUE_SELF(Name, internaldata)	((Name *) ((internaldata).data1))
+#define CSTL_DEQUE_SELF_ASSIGN(internaldata)	((internaldata).data1)
+#define CSTL_DEQUE_IDX(internaldata)			((internaldata).data2)
 
 /*! 
  * \brief インターフェイスマクロ
