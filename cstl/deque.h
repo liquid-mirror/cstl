@@ -352,13 +352,18 @@ static const struct Name##Vtable Name##_vtbl = {\
 \
 Type *Name##Iterator_data(CstlIterInternalData pos)\
 {\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_data");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_data");\
+	CSTL_ASSERT(CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, pos)) > CSTL_DEQUE_IDX(pos) && "DequeIterator_data");\
 	return Name##_at(CSTL_DEQUE_SELF(Name, pos), CSTL_DEQUE_IDX(pos));\
 }\
 \
 Name##Iterator Name##Iterator_next(CstlIterInternalData pos)\
 {\
 	Name##Iterator iter;\
-	CSTL_ASSERT(Name##_size(CSTL_DEQUE_SELF(Name, pos)) > CSTL_DEQUE_IDX(pos));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_next");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_next");\
+	CSTL_ASSERT(CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, pos)) > CSTL_DEQUE_IDX(pos) && "DequeIterator_next");\
 	iter.vptr = &Name##Iterator_vtbl;\
 	CSTL_DEQUE_SELF_ASSIGN(iter.internal.data) = CSTL_DEQUE_SELF(Name, pos);\
 	CSTL_DEQUE_IDX(iter.internal.data) = CSTL_DEQUE_IDX(pos) + 1;\
@@ -368,7 +373,9 @@ Name##Iterator Name##Iterator_next(CstlIterInternalData pos)\
 Name##Iterator Name##Iterator_prev(CstlIterInternalData pos)\
 {\
 	Name##Iterator iter;\
-	CSTL_ASSERT(CSTL_DEQUE_IDX(pos) > 0);\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_prev");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_prev");\
+	CSTL_ASSERT(CSTL_DEQUE_IDX(pos) > 0 && "DequeIterator_prev");\
 	iter.vptr = &Name##Iterator_vtbl;\
 	CSTL_DEQUE_SELF_ASSIGN(iter.internal.data) = CSTL_DEQUE_SELF(Name, pos);\
 	CSTL_DEQUE_IDX(iter.internal.data) = CSTL_DEQUE_IDX(pos) - 1;\
@@ -377,42 +384,58 @@ Name##Iterator Name##Iterator_prev(CstlIterInternalData pos)\
 \
 void Name##Iterator_inc(CstlIterInternalData *pos)\
 {\
-	CSTL_ASSERT(pos);\
-	CSTL_ASSERT(Name##_size(CSTL_DEQUE_SELF(Name, *pos)) > CSTL_DEQUE_IDX(*pos));\
+	CSTL_ASSERT(pos && "DequeIterator_inc");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos) && "DequeIterator_inc");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos)->magic == CSTL_DEQUE_SELF(Name, *pos) && "DequeIterator_inc");\
+	CSTL_ASSERT(CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, *pos)) > CSTL_DEQUE_IDX(*pos) && "DequeIterator_inc");\
 	CSTL_DEQUE_IDX(*pos)++;\
 }\
 \
 void Name##Iterator_dec(CstlIterInternalData *pos)\
 {\
-	CSTL_ASSERT(pos);\
-	CSTL_ASSERT(CSTL_DEQUE_IDX(*pos) > 0);\
+	CSTL_ASSERT(pos && "DequeIterator_dec");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos) && "DequeIterator_dec");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos)->magic == CSTL_DEQUE_SELF(Name, *pos) && "DequeIterator_dec");\
+	CSTL_ASSERT(CSTL_DEQUE_IDX(*pos) > 0 && "DequeIterator_dec");\
 	CSTL_DEQUE_IDX(*pos)--;\
 }\
 \
 int Name##Iterator_eq(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_eq");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_eq");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeIterator_eq");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeIterator_eq");\
 	return CSTL_DEQUE_IDX(pos) == CSTL_DEQUE_IDX(x);\
 }\
 \
 int Name##Iterator_ne(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_ne");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_ne");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeIterator_ne");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeIterator_ne");\
 	return CSTL_DEQUE_IDX(pos) != CSTL_DEQUE_IDX(x);\
 }\
 \
 Type *Name##Iterator_at(CstlIterInternalData pos, long n)\
 {\
-	/* TODO: nが負数 */\
-	CSTL_ASSERT(Name##_size(CSTL_DEQUE_SELF(Name, pos)) > CSTL_DEQUE_IDX(pos) + n && "DequeIterator_at");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_at");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_at");\
+	CSTL_ASSERT(0 <= (long) CSTL_DEQUE_IDX(pos) + n && \
+			(long) CSTL_DEQUE_IDX(pos) + n < (long) CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, pos)) && \
+			"DequeIterator_at");\
 	return Name##_at(CSTL_DEQUE_SELF(Name, pos), CSTL_DEQUE_IDX(pos) + n);\
 }\
 \
 Name##Iterator Name##Iterator_add(CstlIterInternalData pos, long n)\
 {\
-	/* TODO: nが負数 */\
 	Name##Iterator iter;\
-	CSTL_ASSERT(1 && "DequeIterator_add");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_add");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_add");\
+	CSTL_ASSERT(0 <= (long) CSTL_DEQUE_IDX(pos) + n && \
+			(long) CSTL_DEQUE_IDX(pos) + n <= (long) CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, pos)) && \
+			"DequeIterator_add");\
 	iter.vptr = &Name##Iterator_vtbl;\
 	CSTL_DEQUE_SELF_ASSIGN(iter.internal.data) = CSTL_DEQUE_SELF(Name, pos);\
 	CSTL_DEQUE_IDX(iter.internal.data) = CSTL_DEQUE_IDX(pos) + n;\
@@ -422,8 +445,11 @@ Name##Iterator Name##Iterator_add(CstlIterInternalData pos, long n)\
 Name##Iterator Name##Iterator_sub(CstlIterInternalData pos, long n)\
 {\
 	Name##Iterator iter;\
-	CSTL_ASSERT(1 && "DequeIterator_sub");\
-	CSTL_ASSERT(CSTL_DEQUE_IDX(pos) >= n && "DequeIterator_sub");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_sub");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_sub");\
+	CSTL_ASSERT(0 <= (long) CSTL_DEQUE_IDX(pos) - n && \
+			(long) CSTL_DEQUE_IDX(pos) - n <= (long) CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, pos)) && \
+			"DequeIterator_sub");\
 	iter.vptr = &Name##Iterator_vtbl;\
 	CSTL_DEQUE_SELF_ASSIGN(iter.internal.data) = CSTL_DEQUE_SELF(Name, pos);\
 	CSTL_DEQUE_IDX(iter.internal.data) = CSTL_DEQUE_IDX(pos) - n;\
@@ -432,57 +458,74 @@ Name##Iterator Name##Iterator_sub(CstlIterInternalData pos, long n)\
 \
 void Name##Iterator_inc_n(CstlIterInternalData *pos, long n)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_inc_n");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos) && "DequeIterator_inc_n");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos)->magic == CSTL_DEQUE_SELF(Name, *pos) && "DequeIterator_inc_n");\
+	CSTL_ASSERT(0 <= (long) CSTL_DEQUE_IDX(*pos) + n && \
+			(long) CSTL_DEQUE_IDX(*pos) + n <= (long) CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, *pos)) && \
+			"DequeIterator_inc_n");\
 	CSTL_DEQUE_IDX(*pos) += n;\
 }\
 \
 void Name##Iterator_dec_n(CstlIterInternalData *pos, long n)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_dec_n");\
-	CSTL_ASSERT(CSTL_DEQUE_IDX(*pos) >= n && "DequeIterator_dec_n");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos) && "DequeIterator_dec_n");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos)->magic == CSTL_DEQUE_SELF(Name, *pos) && "DequeIterator_dec_n");\
+	CSTL_ASSERT(0 <= (long) CSTL_DEQUE_IDX(*pos) - n && \
+			(long) CSTL_DEQUE_IDX(*pos) - n <= (long) CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, *pos)) && \
+			"DequeIterator_dec_n");\
 	CSTL_DEQUE_IDX(*pos) -= n;\
 }\
 \
-/* TODO:戻り値ptrdiff_tにする */\
 long Name##Iterator_diff(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_diff");\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_diff");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_diff");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeIterator_diff");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeIterator_diff");\
 	return (long) CSTL_DEQUE_IDX(pos) - (long) CSTL_DEQUE_IDX(x);\
 }\
 \
 int Name##Iterator_lt(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_lt");\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_lt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_lt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeIterator_lt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeIterator_lt");\
 	return CSTL_DEQUE_IDX(pos) < CSTL_DEQUE_IDX(x);\
 }\
 \
 int Name##Iterator_le(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_le");\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_le");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_le");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeIterator_le");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeIterator_le");\
 	return CSTL_DEQUE_IDX(pos) <= CSTL_DEQUE_IDX(x);\
 }\
 \
 int Name##Iterator_gt(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_gt");\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_gt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_gt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeIterator_gt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeIterator_gt");\
 	return CSTL_DEQUE_IDX(pos) > CSTL_DEQUE_IDX(x);\
 }\
 \
 int Name##Iterator_ge(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_ge");\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_ge");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_ge");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeIterator_ge");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeIterator_ge");\
 	return CSTL_DEQUE_IDX(pos) >= CSTL_DEQUE_IDX(x);\
 }\
 \
 Name##ReverseIterator Name##Iterator_reverse_iterator(CstlIterInternalData pos)\
 {\
 	Name##ReverseIterator iter;\
-	CSTL_ASSERT(1 && "DequeIterator_reverse_iterator");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_reverse_iterator");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeIterator_reverse_iterator");\
 	iter.vptr = &Name##ReverseIterator_vtbl;\
 	iter.internal.data = pos;\
 	return iter;\
@@ -491,6 +534,8 @@ Name##ReverseIterator Name##Iterator_reverse_iterator(CstlIterInternalData pos)\
 Name##Iterator Name##ReverseIterator_base(CstlIterInternalData pos)\
 {\
 	Name##Iterator iter;\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_base");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_base");\
 	iter.vptr = &Name##Iterator_vtbl;\
 	iter.internal.data = pos;\
 	return iter;\
@@ -498,13 +543,18 @@ Name##Iterator Name##ReverseIterator_base(CstlIterInternalData pos)\
 \
 Type *Name##ReverseIterator_data(CstlIterInternalData pos)\
 {\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_data");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_data");\
+	CSTL_ASSERT(CSTL_DEQUE_IDX(pos) > 0 && "DequeReverseIterator_data");\
 	return Name##_at(CSTL_DEQUE_SELF(Name, pos), CSTL_DEQUE_IDX(pos) - 1);\
 }\
 \
 Name##Iterator Name##ReverseIterator_next(CstlIterInternalData pos)\
 {\
 	Name##Iterator iter;\
-	CSTL_ASSERT(CSTL_DEQUE_IDX(pos) > 0);\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_next");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_next");\
+	CSTL_ASSERT(CSTL_DEQUE_IDX(pos) > 0 && "DequeReverseIterator_next");\
 	iter.vptr = &Name##ReverseIterator_vtbl;\
 	CSTL_DEQUE_SELF_ASSIGN(iter.internal.data) = CSTL_DEQUE_SELF(Name, pos);\
 	CSTL_DEQUE_IDX(iter.internal.data) = CSTL_DEQUE_IDX(pos) - 1;\
@@ -514,7 +564,9 @@ Name##Iterator Name##ReverseIterator_next(CstlIterInternalData pos)\
 Name##Iterator Name##ReverseIterator_prev(CstlIterInternalData pos)\
 {\
 	Name##Iterator iter;\
-	CSTL_ASSERT(Name##_size(CSTL_DEQUE_SELF(Name, pos)) > CSTL_DEQUE_IDX(pos));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_prev");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_prev");\
+	CSTL_ASSERT(CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, pos)) > CSTL_DEQUE_IDX(pos) && "DequeReverseIterator_prev");\
 	iter.vptr = &Name##ReverseIterator_vtbl;\
 	CSTL_DEQUE_SELF_ASSIGN(iter.internal.data) = CSTL_DEQUE_SELF(Name, pos);\
 	CSTL_DEQUE_IDX(iter.internal.data) = CSTL_DEQUE_IDX(pos) + 1;\
@@ -523,43 +575,58 @@ Name##Iterator Name##ReverseIterator_prev(CstlIterInternalData pos)\
 \
 void Name##ReverseIterator_inc(CstlIterInternalData *pos)\
 {\
-	CSTL_ASSERT(pos);\
-	CSTL_ASSERT(CSTL_DEQUE_IDX(*pos) > 0);\
+	CSTL_ASSERT(pos && "DequeReverseIterator_inc");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos) && "DequeReverseIterator_inc");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos)->magic == CSTL_DEQUE_SELF(Name, *pos) && "DequeReverseIterator_inc");\
+	CSTL_ASSERT(CSTL_DEQUE_IDX(*pos) > 0 && "DequeReverseIterator_inc");\
 	CSTL_DEQUE_IDX(*pos)--;\
 }\
 \
 void Name##ReverseIterator_dec(CstlIterInternalData *pos)\
 {\
-	CSTL_ASSERT(pos);\
-	CSTL_ASSERT(Name##_size(CSTL_DEQUE_SELF(Name, *pos)) > CSTL_DEQUE_IDX(*pos));\
+	CSTL_ASSERT(pos && "DequeReverseIterator_dec");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos) && "DequeReverseIterator_dec");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos)->magic == CSTL_DEQUE_SELF(Name, *pos) && "DequeReverseIterator_dec");\
+	CSTL_ASSERT(CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, *pos)) > CSTL_DEQUE_IDX(*pos) && "DequeReverseIterator_dec");\
 	CSTL_DEQUE_IDX(*pos)++;\
 }\
 \
 int Name##ReverseIterator_eq(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_eq");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_eq");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeReverseIterator_eq");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeReverseIterator_eq");\
 	return CSTL_DEQUE_IDX(pos) == CSTL_DEQUE_IDX(x);\
 }\
 \
 int Name##ReverseIterator_ne(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_ne");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_ne");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeReverseIterator_ne");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeReverseIterator_ne");\
 	return CSTL_DEQUE_IDX(pos) != CSTL_DEQUE_IDX(x);\
 }\
 \
 Type *Name##ReverseIterator_at(CstlIterInternalData pos, long n)\
 {\
-	/* TODO: nが負数 */\
-	/*CSTL_ASSERT(Name##_size(CSTL_DEQUE_SELF(Name, pos)) > CSTL_DEQUE_IDX(pos) + n && "DequeIterator_at");*/\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_at");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_at");\
+	CSTL_ASSERT(0 <= (long) CSTL_DEQUE_IDX(pos) - n - 1 && \
+			(long) CSTL_DEQUE_IDX(pos) - n - 1 < (long) CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, pos)) && \
+			"DequeReverseIterator_at");\
 	return Name##_at(CSTL_DEQUE_SELF(Name, pos), CSTL_DEQUE_IDX(pos) - n - 1);\
 }\
 \
 Name##Iterator Name##ReverseIterator_add(CstlIterInternalData pos, long n)\
 {\
-	/* TODO: nが負数 */\
 	Name##Iterator iter;\
-	CSTL_ASSERT(1 && "DequeIterator_add");\
-	CSTL_ASSERT(CSTL_DEQUE_IDX(pos) >= n && "DequeIterator_add");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_add");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_add");\
+	CSTL_ASSERT(0 <= (long) CSTL_DEQUE_IDX(pos) - n - 1 && \
+			(long) CSTL_DEQUE_IDX(pos) - n - 1 <= (long) CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, pos)) && \
+			"DequeReverseIterator_add");\
 	iter.vptr = &Name##ReverseIterator_vtbl;\
 	CSTL_DEQUE_SELF_ASSIGN(iter.internal.data) = CSTL_DEQUE_SELF(Name, pos);\
 	CSTL_DEQUE_IDX(iter.internal.data) = CSTL_DEQUE_IDX(pos) - n;\
@@ -569,7 +636,11 @@ Name##Iterator Name##ReverseIterator_add(CstlIterInternalData pos, long n)\
 Name##Iterator Name##ReverseIterator_sub(CstlIterInternalData pos, long n)\
 {\
 	Name##Iterator iter;\
-	CSTL_ASSERT(1 && "DequeIterator_sub");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_sub");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_sub");\
+	CSTL_ASSERT(0 <= (long) CSTL_DEQUE_IDX(pos) + n - 1 && \
+			(long) CSTL_DEQUE_IDX(pos) + n - 1 <= (long) CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, pos)) && \
+			"DequeReverseIterator_sub");\
 	iter.vptr = &Name##ReverseIterator_vtbl;\
 	CSTL_DEQUE_SELF_ASSIGN(iter.internal.data) = CSTL_DEQUE_SELF(Name, pos);\
 	CSTL_DEQUE_IDX(iter.internal.data) = CSTL_DEQUE_IDX(pos) + n;\
@@ -578,50 +649,66 @@ Name##Iterator Name##ReverseIterator_sub(CstlIterInternalData pos, long n)\
 \
 void Name##ReverseIterator_inc_n(CstlIterInternalData *pos, long n)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_inc_n");\
-	CSTL_ASSERT(CSTL_DEQUE_IDX(*pos) >= n && "DequeIterator_inc_n");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos) && "DequeReverseIterator_inc_n");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos)->magic == CSTL_DEQUE_SELF(Name, *pos) && "DequeReverseIterator_inc_n");\
+	CSTL_ASSERT(0 <= (long) CSTL_DEQUE_IDX(*pos) - n - 1 && \
+			(long) CSTL_DEQUE_IDX(*pos) - n - 1 <= (long) CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, *pos)) && \
+			"DequeReverseIterator_inc_n");\
 	CSTL_DEQUE_IDX(*pos) -= n;\
 }\
 \
 void Name##ReverseIterator_dec_n(CstlIterInternalData *pos, long n)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_dec_n");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos) && "DequeReverseIterator_dec_n");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, *pos)->magic == CSTL_DEQUE_SELF(Name, *pos) && "DequeReverseIterator_dec_n");\
+	CSTL_ASSERT(0 <= (long) CSTL_DEQUE_IDX(*pos) + n - 1 && \
+			(long) CSTL_DEQUE_IDX(*pos) + n - 1 <= (long) CSTL_DEQUE_SIZE(CSTL_DEQUE_SELF(Name, *pos)) && \
+			"DequeReverseIterator_dec_n");\
 	CSTL_DEQUE_IDX(*pos) += n;\
 }\
 \
-/* TODO:戻り値ptrdiff_tにする */\
 long Name##ReverseIterator_diff(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_diff");\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_diff");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_diff");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeReverseIterator_diff");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeReverseIterator_diff");\
 	return (long) CSTL_DEQUE_IDX(x) - (long) CSTL_DEQUE_IDX(pos);\
 }\
 \
 int Name##ReverseIterator_lt(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_lt");\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_lt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_lt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeReverseIterator_lt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeReverseIterator_lt");\
 	return CSTL_DEQUE_IDX(pos) > CSTL_DEQUE_IDX(x);\
 }\
 \
 int Name##ReverseIterator_le(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_le");\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_le");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_le");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeReverseIterator_le");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeReverseIterator_le");\
 	return CSTL_DEQUE_IDX(pos) >= CSTL_DEQUE_IDX(x);\
 }\
 \
 int Name##ReverseIterator_gt(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_gt");\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_gt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_gt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeReverseIterator_gt");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeReverseIterator_gt");\
 	return CSTL_DEQUE_IDX(pos) < CSTL_DEQUE_IDX(x);\
 }\
 \
 int Name##ReverseIterator_ge(CstlIterInternalData pos, CstlIterInternalData x)\
 {\
-	CSTL_ASSERT(1 && "DequeIterator_ge");\
-	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x));\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_ge");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, pos) && "DequeReverseIterator_ge");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos) == CSTL_DEQUE_SELF(Name, x) && "DequeReverseIterator_ge");\
+	CSTL_ASSERT(CSTL_DEQUE_SELF(Name, pos)->magic == CSTL_DEQUE_SELF(Name, x)->magic && "DequeReverseIterator_ge");\
 	return CSTL_DEQUE_IDX(pos) <= CSTL_DEQUE_IDX(x);\
 }\
 \
@@ -1159,9 +1246,9 @@ int Name##_insert_range(Name *self, CstlIterInternalData pos, CstlIterInternal f
 	size_t n;\
 	CSTL_ASSERT(self && "Deque_insert_range");\
 	CSTL_ASSERT(self->magic == self && "Deque_insert_range");\
-	CSTL_ASSERT(first.in_vptr == last.in_vptr && "Vector_insert_range");\
+	CSTL_ASSERT(first.in_vptr == last.in_vptr && "Deque_insert_range");\
 	CSTL_ASSERT(CSTL_CAST_VPTR(Name, first.in_vptr)->is_rand_iter == \
-				CSTL_CAST_VPTR(Name, last.in_vptr)->is_rand_iter && "Vector_insert_range");\
+				CSTL_CAST_VPTR(Name, last.in_vptr)->is_rand_iter && "Deque_insert_range");\
 	idx = CSTL_DEQUE_IDX(pos);\
 	CSTL_ASSERT(Name##_size(self) >= idx && "Deque_insert_range");\
 	x = CSTL_DEQUE_SELF(Name, first.data);\
