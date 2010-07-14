@@ -372,7 +372,7 @@ echo "#ifndef $included
 #define $included
 " >> "$path"".h"
 echo "#include <stddef.h>" >> "$path"".h"
-echo "#include \"../cstl/common.h\"" >> "$path"".h"
+echo "#include <cstl/common.h>" >> "$path"".h"
 if [ "$include_file" != "" ]; then
 	echo "#include \"$include_file\"
 " >> "$path"".h"
@@ -469,27 +469,8 @@ echo "#include \"$name.h\"
 if [ $lower = "list" ]; then
 echo "\
 #if !defined(NDEBUG) && defined(CSTL_DEBUG)
-#include <assert.h>
 #define CSTL_MAGIC_LIST(Name)	((Name *) -1)
-#define CSTL_MAGIC(x)	x
-#define CSTL_ASSERT(x)	assert(x)
-#else
-#define CSTL_MAGIC(x)
-#define CSTL_ASSERT(x)
 #endif
-#define CSTL_UNUSED_PARAM(x)	(void) x
-" >> "$path"".c"
-else
-echo "\
-#if !defined(NDEBUG) && defined(CSTL_DEBUG)
-#include <assert.h>
-#define CSTL_MAGIC(x)	x
-#define CSTL_ASSERT(x)	assert(x)
-#else
-#define CSTL_MAGIC(x)
-#define CSTL_ASSERT(x)
-#endif
-#define CSTL_UNUSED_PARAM(x)	(void) x
 " >> "$path"".c"
 fi
 if [ "$alloc" != "" ]; then
@@ -554,9 +535,9 @@ fi
 
 # コンパイル確認
 if [ "$nocompile" = "" ]; then
-	gcc -Wall -ansi -pedantic-errors "$path"".c" -c -DCSTL_DEBUG
-	gcc -Wall -ansi -pedantic-errors "$path"".c" -c
-	g++ -Wall -ansi -pedantic-errors "$path"".c" -c -DCSTL_DEBUG
-	g++ -Wall -ansi -pedantic-errors "$path"".c" -c
+	gcc -Wall -ansi -pedantic-errors -I.. "$path"".c" -c -DCSTL_DEBUG
+	gcc -Wall -ansi -pedantic-errors -I.. "$path"".c" -c
+	g++ -Wall -ansi -pedantic-errors -I.. "$path"".c" -c -DCSTL_DEBUG
+	g++ -Wall -ansi -pedantic-errors -I.. "$path"".c" -c
 	rm "$path"".o"
 fi

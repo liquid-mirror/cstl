@@ -1,7 +1,7 @@
 CC=gcc
 # MEMORY=-DPOOL_DEBUG -DMY_MALLOC
 # CSTLGEN=-DCSTLGEN
-CFLAGS=-Wall -g -DCSTL_DEBUG $(MEMORY) #-fprofile-arcs -ftest-coverage
+CFLAGS=-Wall -I.. -g -DCSTL_DEBUG $(MEMORY) #-fprofile-arcs -ftest-coverage
 ifneq ($(MEMORY),)
 	POOL="pool"
 endif
