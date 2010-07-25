@@ -53,7 +53,7 @@
 #define CSTL_MAGIC(x)
 #define CSTL_ASSERT(x)	((void) 0)
 #endif
-#define CSTL_ASSERT_SELF(s)			CSTL_ASSERT((s) && (s)->magic == (s))
+#define CSTL_ASSERT_SELF(s)			(CSTL_ASSERT(s), CSTL_ASSERT((s)->magic == (s)))
 
 #define CSTL_UNUSED_PARAM(x)	(void) x
 
