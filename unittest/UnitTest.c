@@ -45,15 +45,15 @@ static void cleanup(const TestSuite *suites)
 
 static void print_result(void)
 {
-	PRINTF("Type      Total     Ran  Passed  Failed\n");
-	PRINTF("suites  %7d %7d     n/a %7d", suites_total, suites_ran, suites_failed);
+	PRINTF("Type       Total      Ran   Passed   Failed\n");
+	PRINTF("suites  %8d %8d      n/a %8d", suites_total, suites_ran, suites_failed);
 	if (setup_failed || teardown_failed) {
 		PRINTF("(setup:%d/teardown:%d)\n", setup_failed, teardown_failed);
 	} else {
 		PRINTF("\n");
 	}
-	PRINTF("tests   %7d %7d %7d %7d\n", tests_total, tests_ran, tests_ran - tests_failed, tests_failed);
-	PRINTF("asserts %7d %7d %7d %7d\n", asserts_total, asserts_ran, asserts_ran - asserts_failed, asserts_failed);
+	PRINTF("tests   %8d %8d %8d %8d\n", tests_total, tests_ran, tests_ran - tests_failed, tests_failed);
+	PRINTF("asserts %8d %8d %8d %8d\n", asserts_total, asserts_ran, asserts_ran - asserts_failed, asserts_failed);
 	PRINTF("\n");
 }
 
