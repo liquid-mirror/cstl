@@ -2,6 +2,7 @@ CC=gcc
 # MEMORY=-DPOOL_DEBUG -DMY_MALLOC
 # CSTLGEN=-DCSTLGEN
 CFLAGS=-Wall -I.. -g -DCSTL_DEBUG $(MEMORY) #-fprofile-arcs -ftest-coverage
+LFLAGS=-L../unittest -lunittest
 ifneq ($(MEMORY),)
 	POOL="pool"
 endif
@@ -23,9 +24,9 @@ ifneq ($(CSTLGEN),)
 	sh cstlgen.sh vector IntVector "int" false false false . $(POOL)
 	sh cstlgen.sh vector HogeVector "Hoge" false hoge.h false . $(POOL)
 	sh cstlgen.sh vector HogepVector "Hoge*" false hoge.h false . $(POOL)
-	$(CC) $(CFLAGS) -o $@.exe vector_test.c Pool.o UCharVector.c IntVector.c $(CSTLGEN)
+	$(CC) $(CFLAGS) -o $@.exe vector_test.c Pool.o UCharVector.c IntVector.c $(CSTLGEN) $(LFLAGS)
 else
-	$(CC) $(CFLAGS) -o $@.exe vector_test.c Pool.o
+	$(CC) $(CFLAGS) -o $@.exe vector_test.c Pool.o $(LFLAGS)
 endif
 	./$@.exe
 
@@ -58,9 +59,9 @@ ifneq ($(CSTLGEN),)
 	sh cstlgen.sh list IntList "int" false false '%d' . $(POOL)
 	sh cstlgen.sh list HogeList "Hoge" false hoge.h '%d' . $(POOL)
 	sh cstlgen.sh list HogepList "Hoge*" false hoge.h '%p' . $(POOL)
-	$(CC) $(CFLAGS) -o $@.exe list_test.c Pool.o IntList.c HogeList.c $(CSTLGEN)
+	$(CC) $(CFLAGS) -o $@.exe list_test.c Pool.o IntList.c HogeList.c $(CSTLGEN) $(LFLAGS)
 else
-	$(CC) $(CFLAGS) -o $@.exe list_test.c Pool.o
+	$(CC) $(CFLAGS) -o $@.exe list_test.c Pool.o $(LFLAGS)
 endif
 	./$@.exe
 
@@ -75,9 +76,9 @@ ifneq ($(CSTLGEN),)
 	sh cstlgen.sh set UIntSetA "unsigned int" CSTL_LESS false '%d' . $(POOL)
 	sh cstlgen.sh set HogeSetA "Hoge" HOGE_COMP hoge.h '%d' . $(POOL)
 	sh cstlgen.sh set HogepSetA "Hoge*" HOGEP_COMP hoge.h '%p' . $(POOL)
-	$(CC) $(CFLAGS) -o $@.exe set_test.c Pool.o IntSetA.c IntSetD.c IntMSetA.c DoubleSetA.c PtrSetA.c StrSetA.c UIntSetA.c $(CSTLGEN)
+	$(CC) $(CFLAGS) -o $@.exe set_test.c Pool.o IntSetA.c IntSetD.c IntMSetA.c DoubleSetA.c PtrSetA.c StrSetA.c UIntSetA.c $(CSTLGEN) $(LFLAGS)
 else
-	$(CC) $(CFLAGS) -o $@.exe set_test.c Pool.o
+	$(CC) $(CFLAGS) -o $@.exe set_test.c Pool.o $(LFLAGS)
 endif
 	./$@.exe
 
@@ -87,9 +88,9 @@ ifneq ($(CSTLGEN),)
 	sh cstlgen.sh map HogeIntMapA "Hoge" "int" HOGE_COMP hoge.h '%d' '%d' . $(POOL)
 	sh cstlgen.sh map HogepIntMapA "Hoge*" "int" HOGEP_COMP hoge.h '%p' '%d' . $(POOL)
 	sh cstlgen.sh multimap IntIntMMapA "int" "int" CSTL_LESS false '%d' '%d' . $(POOL)
-	$(CC) $(CFLAGS) -o $@.exe map_test.c Pool.o IntIntMapA.c IntIntMMapA.c $(CSTLGEN)
+	$(CC) $(CFLAGS) -o $@.exe map_test.c Pool.o IntIntMapA.c IntIntMMapA.c $(CSTLGEN) $(LFLAGS)
 else
-	$(CC) $(CFLAGS) -o $@.exe map_test.c Pool.o
+	$(CC) $(CFLAGS) -o $@.exe map_test.c Pool.o $(LFLAGS)
 endif
 	./$@.exe
 

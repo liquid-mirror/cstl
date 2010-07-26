@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
+#include "../unittest/UnitTest.h"
 #include <time.h>
 #include "../cstl/ring.h"
 #include "../cstl/map.h"
@@ -88,127 +88,126 @@ void MapTest_test_1_1(void)
 	IntIntMapAIterator pos[SIZE];
 	IntIntMapAIterator p;
 	IntIntMapA *x;
-	printf("***** test_1_1 *****\n");
 	ia = IntIntMapA_new();
 	/* 初期状態 */
-	assert(cstl_empty(ia));
-	assert(cstl_size(ia) == 0);
-	assert(cstl_iter_eq(cstl_begin(ia), cstl_end(ia)));
-	assert(cstl_iter_eq(cstl_rbegin(ia), cstl_rend(ia)));
+	ASSERT(cstl_empty(ia));
+	ASSERT(cstl_size(ia) == 0);
+	ASSERT(cstl_iter_eq(cstl_begin(ia), cstl_end(ia)));
+	ASSERT(cstl_iter_eq(cstl_rbegin(ia), cstl_rend(ia)));
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
 /*        pos[i] = cstl_map_insert(ia, hoge_int[i], hoge_int[i], &success[i]);*/
-		assert(cstl_map_insert(ia, hoge_int[i], hoge_int[i], &pos[i], &success[i]));
+		ASSERT(cstl_map_insert(ia, hoge_int[i], hoge_int[i], &pos[i], &success[i]));
 		if (i < SIZE/2) {
-			assert(success[i]);
+			ASSERT(success[i]);
 			count++;
 		} else {
-			assert(!success[i]);
+			ASSERT(!success[i]);
 		}
 	}
 /*    IntIntMapA_print(ia);*/
-	assert(!cstl_empty(ia));
-	assert(cstl_size(ia) == count);
-	assert(count == SIZE/2);
+	ASSERT(!cstl_empty(ia));
+	ASSERT(cstl_size(ia) == count);
+	ASSERT(count == SIZE/2);
 	/* count, find, lower_bound, upper_bound */
 	for (i = 0; i < SIZE/2; i++) {
-		assert(cstl_count(ia, hoge_int[i]) == 1);
-		assert(cstl_iter_eq(pos[i], cstl_find(ia, hoge_int[i])));
-		assert(cstl_iter_eq(pos[i], cstl_lower_bound(ia, hoge_int[i])));
-		assert(cstl_iter_eq(pos[i], cstl_upper_bound(ia, hoge_int[i]-1)));
-		assert(cstl_iter_eq(cstl_lower_bound(ia, hoge_int[i]+1), cstl_upper_bound(ia, hoge_int[i])));
+		ASSERT(cstl_count(ia, hoge_int[i]) == 1);
+		ASSERT(cstl_iter_eq(pos[i], cstl_find(ia, hoge_int[i])));
+		ASSERT(cstl_iter_eq(pos[i], cstl_lower_bound(ia, hoge_int[i])));
+		ASSERT(cstl_iter_eq(pos[i], cstl_upper_bound(ia, hoge_int[i]-1)));
+		ASSERT(cstl_iter_eq(cstl_lower_bound(ia, hoge_int[i]+1), cstl_upper_bound(ia, hoge_int[i])));
 	}
-	assert(cstl_iter_eq(cstl_find(ia, *cstl_iter_key(cstl_begin(ia)) -1), cstl_end(ia)));
-	assert(cstl_iter_eq(cstl_lower_bound(ia, *cstl_iter_key(cstl_rbegin(ia)) +1), cstl_end(ia)));
-	assert(cstl_iter_eq(cstl_upper_bound(ia, *cstl_iter_key(cstl_rbegin(ia))), cstl_end(ia)));
+	ASSERT(cstl_iter_eq(cstl_find(ia, *cstl_iter_key(cstl_begin(ia)) -1), cstl_end(ia)));
+	ASSERT(cstl_iter_eq(cstl_lower_bound(ia, *cstl_iter_key(cstl_rbegin(ia)) +1), cstl_end(ia)));
+	ASSERT(cstl_iter_eq(cstl_upper_bound(ia, *cstl_iter_key(cstl_rbegin(ia))), cstl_end(ia)));
 	/* begin, end, next, key, value, at */
 	for (p = cstl_begin(ia), i = 0; cstl_iter_ne(p, cstl_end(ia)); cstl_iter_inc(&p), i++) {
-		assert(*cstl_iter_key(p) == i);
-		assert(*cstl_iter_val(p) == i);
-		assert(*cstl_at(ia, *cstl_iter_key(p)) == i);
+		ASSERT(*cstl_iter_key(p) == i);
+		ASSERT(*cstl_iter_val(p) == i);
+		ASSERT(*cstl_at(ia, *cstl_iter_key(p)) == i);
 		*cstl_iter_val(p) = ~i;
-		assert(*cstl_at(ia, *cstl_iter_key(p)) == ~i);
+		ASSERT(*cstl_at(ia, *cstl_iter_key(p)) == ~i);
 		*cstl_at(ia, *cstl_iter_key(p)) = i;
 	}
-	assert(i == SIZE/2);
-/*    assert(cstl_iter_next(cstl_rbegin(ia)) == cstl_end(ia));*/
-	assert(*cstl_iter_key(cstl_rbegin(ia)) == *cstl_iter_key(cstl_iter_prev(cstl_end(ia))));
-	assert(*cstl_iter_val(cstl_rbegin(ia)) == *cstl_iter_val(cstl_iter_prev(cstl_end(ia))));
+	ASSERT(i == SIZE/2);
+/*    ASSERT(cstl_iter_next(cstl_rbegin(ia)) == cstl_end(ia));*/
+	ASSERT(*cstl_iter_key(cstl_rbegin(ia)) == *cstl_iter_key(cstl_iter_prev(cstl_end(ia))));
+	ASSERT(*cstl_iter_val(cstl_rbegin(ia)) == *cstl_iter_val(cstl_iter_prev(cstl_end(ia))));
 	/* rbegin, rend, prev, key, value, at */
 	for (p = cstl_rbegin(ia), i = SIZE/2 -1; cstl_iter_ne(p, cstl_rend(ia)); cstl_iter_inc(&p), i--) {
-		assert(*cstl_iter_key(p) == i);
-		assert(*cstl_iter_val(p) == i);
-		assert(*cstl_at(ia, *cstl_iter_key(p)) == i);
+		ASSERT(*cstl_iter_key(p) == i);
+		ASSERT(*cstl_iter_val(p) == i);
+		ASSERT(*cstl_at(ia, *cstl_iter_key(p)) == i);
 		*cstl_iter_val(p) = ~i;
-		assert(*cstl_at(ia, *cstl_iter_key(p)) == ~i);
+		ASSERT(*cstl_at(ia, *cstl_iter_key(p)) == ~i);
 		*cstl_at(ia, *cstl_iter_key(p)) = i;
 	}
-	assert(i == -1);
-/*    assert(cstl_iter_prev(cstl_begin(ia)) == cstl_rend(ia));*/
-	assert(*cstl_iter_key(cstl_begin(ia)) == *cstl_iter_key(cstl_iter_prev(cstl_rend(ia))));
-	assert(*cstl_iter_val(cstl_begin(ia)) == *cstl_iter_val(cstl_iter_prev(cstl_rend(ia))));
+	ASSERT(i == -1);
+/*    ASSERT(cstl_iter_prev(cstl_begin(ia)) == cstl_rend(ia));*/
+	ASSERT(*cstl_iter_key(cstl_begin(ia)) == *cstl_iter_key(cstl_iter_prev(cstl_rend(ia))));
+	ASSERT(*cstl_iter_val(cstl_begin(ia)) == *cstl_iter_val(cstl_iter_prev(cstl_rend(ia))));
 	/* erase */
 	for (i = 0; i < SIZE; i++) {
 		if (success[i]) {
 			IntIntMapAIterator itr = cstl_iter_next(pos[i]);
-			assert(cstl_iter_eq(itr, cstl_erase(ia, pos[i])));
+			ASSERT(cstl_iter_eq(itr, cstl_erase(ia, pos[i])));
 			count--;
 		}
 	}
-	assert(cstl_empty(ia));
-	assert(cstl_size(ia) == 0);
-	assert(count == 0);
+	ASSERT(cstl_empty(ia));
+	ASSERT(cstl_size(ia) == 0);
+	ASSERT(count == 0);
 	/* erase_range */
 	for (i = 0; i < SIZE/2; i++) {
-		assert(cstl_map_insert(ia, hoge_int[i], hoge_int[i], &pos[i], NULL));
+		ASSERT(cstl_map_insert(ia, hoge_int[i], hoge_int[i], &pos[i], NULL));
 /*        pos[i] = cstl_map_insert(ia, hoge_int[i], hoge_int[i], NULL);*/
-		assert(cstl_iter_ne(pos[i], cstl_end(ia)));
+		ASSERT(cstl_iter_ne(pos[i], cstl_end(ia)));
 	}
-	assert(cstl_size(ia) == SIZE/2);
-	assert(cstl_iter_eq(cstl_find(ia, SIZE/2 -2), cstl_erase_range(ia, cstl_find(ia, 2), cstl_find(ia, SIZE/2 -2))));
-	assert(cstl_size(ia) == 4);
-	assert(cstl_iter_eq(cstl_end(ia), cstl_erase_range(ia, cstl_begin(ia), cstl_end(ia))));
-	assert(cstl_size(ia) == 0);
-	assert(cstl_map_insert(ia, hoge_int[0], hoge_int[0], NULL, NULL));
-	assert(cstl_size(ia) == 1);
+	ASSERT(cstl_size(ia) == SIZE/2);
+	ASSERT(cstl_iter_eq(cstl_find(ia, SIZE/2 -2), cstl_erase_range(ia, cstl_find(ia, 2), cstl_find(ia, SIZE/2 -2))));
+	ASSERT(cstl_size(ia) == 4);
+	ASSERT(cstl_iter_eq(cstl_end(ia), cstl_erase_range(ia, cstl_begin(ia), cstl_end(ia))));
+	ASSERT(cstl_size(ia) == 0);
+	ASSERT(cstl_map_insert(ia, hoge_int[0], hoge_int[0], NULL, NULL));
+	ASSERT(cstl_size(ia) == 1);
 	p = cstl_iter_next(cstl_begin(ia));
-	assert(cstl_iter_eq(p, cstl_erase_range(ia, cstl_begin(ia), cstl_iter_next(cstl_begin(ia)))));
-/*    assert(cstl_iter_next(cstl_begin(ia)) == cstl_erase_range(ia, cstl_begin(ia), cstl_iter_next(cstl_begin(ia))));*/
-	assert(cstl_size(ia) == 0);
-	assert(cstl_map_insert(ia, 100, 101, NULL, NULL));
-	assert(cstl_map_insert(ia, 110, 111, NULL, NULL));
-	assert(cstl_size(ia) == 2);
-	assert(cstl_iter_eq(cstl_upper_bound(ia, 110), cstl_erase_range(ia, cstl_lower_bound(ia, 100), cstl_upper_bound(ia, 110))));
-	assert(cstl_size(ia) == 0);
+	ASSERT(cstl_iter_eq(p, cstl_erase_range(ia, cstl_begin(ia), cstl_iter_next(cstl_begin(ia)))));
+/*    ASSERT(cstl_iter_next(cstl_begin(ia)) == cstl_erase_range(ia, cstl_begin(ia), cstl_iter_next(cstl_begin(ia))));*/
+	ASSERT(cstl_size(ia) == 0);
+	ASSERT(cstl_map_insert(ia, 100, 101, NULL, NULL));
+	ASSERT(cstl_map_insert(ia, 110, 111, NULL, NULL));
+	ASSERT(cstl_size(ia) == 2);
+	ASSERT(cstl_iter_eq(cstl_upper_bound(ia, 110), cstl_erase_range(ia, cstl_lower_bound(ia, 100), cstl_upper_bound(ia, 110))));
+	ASSERT(cstl_size(ia) == 0);
 	/* erase_key */
 	for (i = 0; i < SIZE/2; i++) {
-		assert(cstl_map_insert(ia, hoge_int[i], hoge_int[i], &pos[i], NULL));
+		ASSERT(cstl_map_insert(ia, hoge_int[i], hoge_int[i], &pos[i], NULL));
 /*        pos[i] = cstl_map_insert(ia, hoge_int[i], hoge_int[i], NULL);*/
-		assert(cstl_iter_ne(pos[i], cstl_end(ia)));
+		ASSERT(cstl_iter_ne(pos[i], cstl_end(ia)));
 	}
-	assert(cstl_size(ia) == SIZE/2);
+	ASSERT(cstl_size(ia) == SIZE/2);
 	for (i = 0; i < SIZE/2; i++) {
-		assert(cstl_erase_key(ia, hoge_int[i]) == 1);
+		ASSERT(cstl_erase_key(ia, hoge_int[i]) == 1);
 	}
-	assert(cstl_size(ia) == 0);
+	ASSERT(cstl_size(ia) == 0);
 	/* 大量にinsert */
 	count = 0;
 	while (count < 1000000 && cstl_map_insert(ia, count, 9999, NULL, NULL)) {
 		count++;
 	}
-	assert(cstl_size(ia) == count);
+	ASSERT(cstl_size(ia) == count);
 	printf("count: %d\n", count);
 	printf("size: %d\n", cstl_size(ia));
 	/* clear */
 	cstl_clear(ia);
 	printf("size: %d\n", cstl_size(ia));
-	assert(cstl_size(ia) == 0);
-	assert(cstl_map_insert(ia, 100, 123, NULL, NULL));
-	assert(cstl_size(ia) == 1);
+	ASSERT(cstl_size(ia) == 0);
+	ASSERT(cstl_map_insert(ia, 100, 123, NULL, NULL));
+	ASSERT(cstl_size(ia) == 1);
 	cstl_clear(ia);
-	assert(cstl_size(ia) == 0);
+	ASSERT(cstl_size(ia) == 0);
 	cstl_clear(ia);
-	assert(cstl_size(ia) == 0);
+	ASSERT(cstl_size(ia) == 0);
 
 	/* at */
 	/* 挿入 */
@@ -232,17 +231,17 @@ void MapTest_test_1_1(void)
 	IntIntMapA_swap(ia, x);
 /*    IntIntMapA_print(ia);*/
 /*    IntIntMapA_print(x);*/
-	assert(cstl_size(ia) == 3);
-	assert(cstl_size(x) == 5);
+	ASSERT(cstl_size(ia) == 3);
+	ASSERT(cstl_size(x) == 5);
 	/* insert_range */
 /*    IntIntMapA_print(ia);*/
 /*    IntIntMapA_print(x);*/
-	assert(cstl_assoc_insert_range(x, cstl_begin(ia), cstl_end(ia)));
+	ASSERT(cstl_assoc_insert_range(x, cstl_begin(ia), cstl_end(ia)));
 /*    IntIntMapA_print(ia);*/
 /*    IntIntMapA_print(x);*/
-	assert(cstl_size(x) == 8);
-	assert(cstl_assoc_insert_range(x, cstl_begin(ia), cstl_end(ia)));
-	assert(cstl_size(x) == 8);
+	ASSERT(cstl_size(x) == 8);
+	ASSERT(cstl_assoc_insert_range(x, cstl_begin(ia), cstl_end(ia)));
+	ASSERT(cstl_size(x) == 8);
 	IntIntMapA_print(ia);
 	IntIntMapA_print(x);
 
@@ -260,128 +259,127 @@ void MapTest_test_1_2(void)
 	IntIntMMapAIterator pos[SIZE];
 	IntIntMMapAIterator p;
 	int flag[SIZE/2] = {0};
-	printf("***** test_1_2 *****\n");
 	ima = IntIntMMapA_new();
 	/* 初期状態 */
-	assert(cstl_empty(ima));
-	assert(cstl_size(ima) == 0);
-	assert(cstl_iter_eq(cstl_begin(ima), cstl_end(ima)));
-	assert(cstl_iter_eq(cstl_rbegin(ima), cstl_rend(ima)));
+	ASSERT(cstl_empty(ima));
+	ASSERT(cstl_size(ima) == 0);
+	ASSERT(cstl_iter_eq(cstl_begin(ima), cstl_end(ima)));
+	ASSERT(cstl_iter_eq(cstl_rbegin(ima), cstl_rend(ima)));
 	/* insert */
 	for (i = 0; i < SIZE; i++) {
 /*        pos[i] = cstl_multimap_insert(ima, hoge_int[i], hoge_int[i]);*/
-/*        assert(pos[i] && cstl_iter_ne(pos[i], cstl_end(ima)));*/
-		assert(cstl_multimap_insert(ima, hoge_int[i], hoge_int[i], &pos[i]));
-		assert(cstl_iter_ne(pos[i], cstl_end(ima)));
+/*        ASSERT(pos[i] && cstl_iter_ne(pos[i], cstl_end(ima)));*/
+		ASSERT(cstl_multimap_insert(ima, hoge_int[i], hoge_int[i], &pos[i]));
+		ASSERT(cstl_iter_ne(pos[i], cstl_end(ima)));
 		count++;
 	}
 /*    IntIntMMapA_print(ima);*/
-	assert(!cstl_empty(ima));
-	assert(cstl_size(ima) == count);
-	assert(count == SIZE);
+	ASSERT(!cstl_empty(ima));
+	ASSERT(cstl_size(ima) == count);
+	ASSERT(count == SIZE);
 	/* count */
 	for (i = 0; i < SIZE; i++) {
 		if (i < SIZE/2/2) {
-			assert(cstl_count(ima, i) == 1);
+			ASSERT(cstl_count(ima, i) == 1);
 		} else if (i < SIZE/2) {
-			assert(cstl_count(ima, i) == 3);
+			ASSERT(cstl_count(ima, i) == 3);
 		} else {
-			assert(cstl_count(ima, i) == 0);
+			ASSERT(cstl_count(ima, i) == 0);
 		}
 	}
 	/* find, lower_bound, upper_bound */
 	for (i = 0; i < SIZE; i++) {
 		if (cstl_count(ima, hoge_int[i]) == 1) {
-			assert(cstl_iter_eq(pos[i], cstl_find(ima, hoge_int[i])));
-			assert(cstl_iter_eq(pos[i], cstl_lower_bound(ima, hoge_int[i])));
-			assert(cstl_iter_eq(pos[i], cstl_upper_bound(ima, hoge_int[i]-1)));
+			ASSERT(cstl_iter_eq(pos[i], cstl_find(ima, hoge_int[i])));
+			ASSERT(cstl_iter_eq(pos[i], cstl_lower_bound(ima, hoge_int[i])));
+			ASSERT(cstl_iter_eq(pos[i], cstl_upper_bound(ima, hoge_int[i]-1)));
 		} else if (cstl_count(ima, hoge_int[i]) == 3) {
 			if (!flag[hoge_int[i]]) {
 				flag[hoge_int[i]] = 1;
-				assert(cstl_iter_eq(pos[i], cstl_lower_bound(ima, hoge_int[i])));
-				assert(cstl_iter_eq(pos[i], cstl_upper_bound(ima, hoge_int[i]-1)));
+				ASSERT(cstl_iter_eq(pos[i], cstl_lower_bound(ima, hoge_int[i])));
+				ASSERT(cstl_iter_eq(pos[i], cstl_upper_bound(ima, hoge_int[i]-1)));
 			}
 		} else {
-			assert(0);
+			ASSERT(0);
 		}
-		assert(cstl_iter_eq(cstl_lower_bound(ima, hoge_int[i]+1), cstl_upper_bound(ima, hoge_int[i])));
+		ASSERT(cstl_iter_eq(cstl_lower_bound(ima, hoge_int[i]+1), cstl_upper_bound(ima, hoge_int[i])));
 	}
-	assert(cstl_iter_eq(cstl_find(ima, *cstl_iter_key(cstl_begin(ima)) -1), cstl_end(ima)));
-	assert(cstl_iter_eq(cstl_lower_bound(ima, *cstl_iter_key(cstl_rbegin(ima)) +1), cstl_end(ima)));
-	assert(cstl_iter_eq(cstl_upper_bound(ima, *cstl_iter_key(cstl_rbegin(ima))), cstl_end(ima)));
+	ASSERT(cstl_iter_eq(cstl_find(ima, *cstl_iter_key(cstl_begin(ima)) -1), cstl_end(ima)));
+	ASSERT(cstl_iter_eq(cstl_lower_bound(ima, *cstl_iter_key(cstl_rbegin(ima)) +1), cstl_end(ima)));
+	ASSERT(cstl_iter_eq(cstl_upper_bound(ima, *cstl_iter_key(cstl_rbegin(ima))), cstl_end(ima)));
 	/* begin, end, next, key, value */
 	for (p = cstl_begin(ima), i = 0; cstl_iter_ne(p, cstl_end(ima)); cstl_iter_inc(&p), i++) {
 /*        printf("%d, %d, %d\n", i, *cstl_iter_key(p), *cstl_iter_val(p));*/
 	}
-	assert(i == SIZE);
-/*    assert(cstl_iter_next(cstl_rbegin(ima)) == cstl_end(ima));*/
-	assert(*cstl_iter_key(cstl_rbegin(ima)) == *cstl_iter_key(cstl_iter_prev(cstl_end(ima))));
-	assert(*cstl_iter_val(cstl_rbegin(ima)) == *cstl_iter_val(cstl_iter_prev(cstl_end(ima))));
+	ASSERT(i == SIZE);
+/*    ASSERT(cstl_iter_next(cstl_rbegin(ima)) == cstl_end(ima));*/
+	ASSERT(*cstl_iter_key(cstl_rbegin(ima)) == *cstl_iter_key(cstl_iter_prev(cstl_end(ima))));
+	ASSERT(*cstl_iter_val(cstl_rbegin(ima)) == *cstl_iter_val(cstl_iter_prev(cstl_end(ima))));
 	/* rbegin, rend, prev, key, value */
 	for (p = cstl_rbegin(ima), i = SIZE -1; cstl_iter_ne(p, cstl_rend(ima)); cstl_iter_inc(&p), i--) {
 /*        printf("%d, %d, %d\n", i, *cstl_iter_key(p), *cstl_iter_val(ima, p));*/
 	}
-	assert(i == -1);
-/*    assert(cstl_iter_prev(cstl_begin(ima)) == cstl_rend(ima));*/
-	assert(*cstl_iter_key(cstl_begin(ima)) == *cstl_iter_key(cstl_iter_prev(cstl_rend(ima))));
-	assert(*cstl_iter_val(cstl_begin(ima)) == *cstl_iter_val(cstl_iter_prev(cstl_rend(ima))));
+	ASSERT(i == -1);
+/*    ASSERT(cstl_iter_prev(cstl_begin(ima)) == cstl_rend(ima));*/
+	ASSERT(*cstl_iter_key(cstl_begin(ima)) == *cstl_iter_key(cstl_iter_prev(cstl_rend(ima))));
+	ASSERT(*cstl_iter_val(cstl_begin(ima)) == *cstl_iter_val(cstl_iter_prev(cstl_rend(ima))));
 	/* erase */
 	for (i = 0; i < SIZE; i++) {
 		IntIntMMapAIterator itr = cstl_iter_next(pos[i]);
-		assert(cstl_iter_eq(itr, cstl_erase(ima, pos[i])));
+		ASSERT(cstl_iter_eq(itr, cstl_erase(ima, pos[i])));
 		count--;
 	}
-	assert(cstl_empty(ima));
-	assert(cstl_size(ima) == 0);
-	assert(count == 0);
+	ASSERT(cstl_empty(ima));
+	ASSERT(cstl_size(ima) == 0);
+	ASSERT(count == 0);
 	/* erase_range */
 	for (i = 0; i < SIZE; i++) {
-		assert(cstl_multimap_insert(ima, hoge_int[i], hoge_int[i], &pos[i]));
+		ASSERT(cstl_multimap_insert(ima, hoge_int[i], hoge_int[i], &pos[i]));
 /*        pos[i] = cstl_multimap_insert(ima, hoge_int[i], hoge_int[i]);*/
-		assert(cstl_iter_ne(pos[i], cstl_end(ima)));
+		ASSERT(cstl_iter_ne(pos[i], cstl_end(ima)));
 	}
-	assert(cstl_size(ima) == SIZE);
-/*    assert(cstl_iter_next(cstl_find(ima, SIZE/2/2 -1)) == cstl_erase_range(ima, cstl_find(ima, 0), cstl_iter_next(cstl_find(ima, SIZE/2/2 -1))));*/
+	ASSERT(cstl_size(ima) == SIZE);
+/*    ASSERT(cstl_iter_next(cstl_find(ima, SIZE/2/2 -1)) == cstl_erase_range(ima, cstl_find(ima, 0), cstl_iter_next(cstl_find(ima, SIZE/2/2 -1))));*/
 	p = cstl_iter_next(cstl_find(ima, SIZE/2/2 -1));
-	assert(cstl_iter_eq(p, cstl_erase_range(ima, cstl_find(ima, 0), cstl_iter_next(cstl_find(ima, SIZE/2/2 -1)))));
-	assert(cstl_size(ima) == SIZE - SIZE/2/2);
-	assert(cstl_iter_eq(cstl_end(ima), cstl_erase_range(ima, cstl_begin(ima), cstl_end(ima))));
-	assert(cstl_size(ima) == 0);
-	assert(cstl_multimap_insert(ima, hoge_int[0], hoge_int[0], NULL));
-	assert(cstl_size(ima) == 1);
-/*    assert(cstl_iter_next(cstl_begin(ima)) == cstl_erase_range(ima, cstl_begin(ima), cstl_iter_next(cstl_begin(ima))));*/
+	ASSERT(cstl_iter_eq(p, cstl_erase_range(ima, cstl_find(ima, 0), cstl_iter_next(cstl_find(ima, SIZE/2/2 -1)))));
+	ASSERT(cstl_size(ima) == SIZE - SIZE/2/2);
+	ASSERT(cstl_iter_eq(cstl_end(ima), cstl_erase_range(ima, cstl_begin(ima), cstl_end(ima))));
+	ASSERT(cstl_size(ima) == 0);
+	ASSERT(cstl_multimap_insert(ima, hoge_int[0], hoge_int[0], NULL));
+	ASSERT(cstl_size(ima) == 1);
+/*    ASSERT(cstl_iter_next(cstl_begin(ima)) == cstl_erase_range(ima, cstl_begin(ima), cstl_iter_next(cstl_begin(ima))));*/
 	p = cstl_iter_next(cstl_begin(ima));
-	assert(cstl_iter_eq(p, cstl_erase_range(ima, cstl_begin(ima), cstl_iter_next(cstl_begin(ima)))));
-	assert(cstl_size(ima) == 0);
-	assert(cstl_multimap_insert(ima, 100, 100, NULL));
-	assert(cstl_multimap_insert(ima, 100, 100, NULL));
-	assert(cstl_multimap_insert(ima, 100, 100, NULL));
-	assert(cstl_multimap_insert(ima, 110, 110, NULL));
-	assert(cstl_multimap_insert(ima, 110, 110, NULL));
-	assert(cstl_size(ima) == 5);
-	assert(cstl_iter_eq(cstl_upper_bound(ima, 110), cstl_erase_range(ima, cstl_lower_bound(ima, 100), cstl_upper_bound(ima, 110))));
-	assert(cstl_size(ima) == 0);
+	ASSERT(cstl_iter_eq(p, cstl_erase_range(ima, cstl_begin(ima), cstl_iter_next(cstl_begin(ima)))));
+	ASSERT(cstl_size(ima) == 0);
+	ASSERT(cstl_multimap_insert(ima, 100, 100, NULL));
+	ASSERT(cstl_multimap_insert(ima, 100, 100, NULL));
+	ASSERT(cstl_multimap_insert(ima, 100, 100, NULL));
+	ASSERT(cstl_multimap_insert(ima, 110, 110, NULL));
+	ASSERT(cstl_multimap_insert(ima, 110, 110, NULL));
+	ASSERT(cstl_size(ima) == 5);
+	ASSERT(cstl_iter_eq(cstl_upper_bound(ima, 110), cstl_erase_range(ima, cstl_lower_bound(ima, 100), cstl_upper_bound(ima, 110))));
+	ASSERT(cstl_size(ima) == 0);
 	/* erase_key */
 	for (i = 0; i < SIZE; i++) {
-		assert(cstl_multimap_insert(ima, hoge_int[i], hoge_int[i], &pos[i]));
+		ASSERT(cstl_multimap_insert(ima, hoge_int[i], hoge_int[i], &pos[i]));
 /*        pos[i] = cstl_multimap_insert(ima, hoge_int[i], hoge_int[i]);*/
-		assert(cstl_iter_ne(pos[i], cstl_end(ima)));
+		ASSERT(cstl_iter_ne(pos[i], cstl_end(ima)));
 	}
-	assert(cstl_size(ima) == SIZE);
+	ASSERT(cstl_size(ima) == SIZE);
 	for (i = 0; i < SIZE/2/2; i++) {
-		assert(cstl_erase_key(ima, i) == 1);
+		ASSERT(cstl_erase_key(ima, i) == 1);
 	}
-	assert(cstl_size(ima) == SIZE - SIZE/2/2);
+	ASSERT(cstl_size(ima) == SIZE - SIZE/2/2);
 	for (i = SIZE/2/2; i < SIZE/2; i++) {
-		assert(cstl_erase_key(ima, i) == 3);
+		ASSERT(cstl_erase_key(ima, i) == 3);
 	}
-	assert(cstl_size(ima) == 0);
+	ASSERT(cstl_size(ima) == 0);
 	/* 大量にinsert */
 	count = 0;
 	while (count < 1000000 && cstl_multimap_insert(ima, 0, count, NULL)) {
 		count++;
 	}
-	assert(cstl_size(ima) == count);
+	ASSERT(cstl_size(ima) == count);
 	printf("count: %d\n", count);
 
 	POOL_DUMP_OVERFLOW(&pool);
@@ -390,30 +388,35 @@ void MapTest_test_1_2(void)
 
 
 
+static TestCase map_tests[] = {
+	{ "MapTest_test_1_1", MapTest_test_1_1 },
+	{ "MapTest_test_1_2", MapTest_test_1_2 },
+	TEST_CASE_NULL,
+};
 
-
-
-
-
-
-
-
-void MapTest_run(void)
+static int setup(void)
 {
-	printf("\n===== map test =====\n");
 	map_init_hoge();
-
-	MapTest_test_1_1();
-	MapTest_test_1_2();
+	return 0;
 }
 
+static TestSuite suites[] = {
+	{ "map test", setup, 0, map_tests },
+	TEST_SUITE_NULL,
+};
 
-int main(void)
+
+
+int main(int argc, char *argv[])
 {
 #ifdef MY_MALLOC
 	Pool_init(&pool, buf, sizeof buf, sizeof buf[0]);
 #endif
-	MapTest_run();
+	if (argc < 2) {
+		unittest_run_all(suites);
+	} else {
+		unittest_run_interactive(suites);
+	}
 #ifdef MY_MALLOC
 	POOL_DUMP_LEAK(&pool, 0);
 #endif
