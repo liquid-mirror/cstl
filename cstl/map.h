@@ -34,6 +34,7 @@
 #define CSTL_MAP_H_INCLUDED
 
 #include <stdlib.h>
+#include <limits.h>
 #include "common.h"
 #include "rbtree.h"
 
@@ -282,7 +283,6 @@ int Name##_assoc_insert_range(Name *self, CstlIterInternal first, CstlIterIntern
 {\
 	CstlIterInternal i;\
 	register size_t j = 0;\
-	register size_t idx = 0;\
 	size_t n;\
 	unsigned char *insert_flags;\
 	CSTL_ASSERT(self && "Map_assoc_insert_range");\
@@ -295,7 +295,7 @@ int Name##_assoc_insert_range(Name *self, CstlIterInternal first, CstlIterIntern
 		n++;\
 	}\
 	if (!n) return 1;\
-	insert_flags = (unsigned char *) malloc(((n - 1) / 8) + 1);\
+	insert_flags = (unsigned char *) malloc(((n - 1) / CHAR_BIT) + 1);\
 	if (!insert_flags) return 0;\
 	for (i = first; CSTL_CAST_VPTR(Name, i.in_vptr)->ne(i.data, last.data); \
 			CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data), j++) {\
@@ -303,21 +303,15 @@ int Name##_assoc_insert_range(Name *self, CstlIterInternal first, CstlIterIntern
 		if (Name##_map_insert_ref(self, *CSTL_CAST_VPTR(Name, i.in_vptr)->key(i.data), \
 					CSTL_CAST_VPTR(Name, i.in_vptr)->val(i.data), 0, &success)) {\
 			if (success) {\
-				insert_flags[idx] |= (unsigned char)(1 << (j % 8));\
+				insert_flags[j / CHAR_BIT] |= (unsigned char)(1 << (j % CHAR_BIT));\
 			} else {\
-				insert_flags[idx] &= ~(unsigned char)(1 << (j % 8));\
-			}\
-			if ((j % 8) == 7) {\
-				idx++;\
+				insert_flags[j / CHAR_BIT] &= ~(unsigned char)(1 << (j % CHAR_BIT));\
 			}\
 		} else {\
 			register size_t k;\
-			for (i = first, k = 0, idx = 0; k < j; CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data), k++) {\
-				if (insert_flags[idx] & (unsigned char)(1 << (k % 8))) {\
+			for (i = first, k = 0; k < j; CSTL_CAST_VPTR(Name, i.in_vptr)->inc(&i.data), k++) {\
+				if (insert_flags[k / CHAR_BIT] & (unsigned char)(1 << (k % CHAR_BIT))) {\
 					Name##_erase_key(self, *CSTL_CAST_VPTR(Name, i.in_vptr)->key(i.data));\
-				}\
-				if ((k % 8) == 7) {\
-					idx++;\
 				}\
 			}\
 			free(insert_flags);\
