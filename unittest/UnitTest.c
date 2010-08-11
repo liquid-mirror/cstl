@@ -156,13 +156,10 @@ static int find_test_name(const TestCase *cases, const char *input_str)
 	int i;
 	for (i = 0; cases[i].name != 0; i++) {
 		if (strcmp(cases[i].name, input_str) == 0) {
-			break;
+			return i;
 		}
 	}
-	if (cases[i].name == 0) {
-		return -1;
-	}
-	return i;
+	return -1;
 }
 
 static int get_ncases(const TestCase *cases)
@@ -210,13 +207,10 @@ static int find_suite_name(const TestSuite *suites, const char *input_str)
 	int i;
 	for (i = 0; suites[i].name != 0; i++) {
 		if (strcmp(suites[i].name, input_str) == 0) {
-			break;
+			return i;
 		}
 	}
-	if (suites[i].name == 0) {
-		return -1;
-	}
-	return i;
+	return -1;
 }
 
 static int get_nsuites(const TestSuite *suites)
