@@ -45,10 +45,10 @@ enum TestSuiteErr TestSuite_test(const TestSuite *self, size_t *ncases, size_t *
 	size_t i;
 	int err;
 	*ncases = *ncases_failed = *nasserts = *nasserts_failed = 0;
-	PRINTF("Suite: %s\n", self->name);
+	PRINTF1("Suite: %s\n", self->name);
 	err = TestSuite_setup(self);
 	if (err) {
-		PRINTF("  SETUP FAILED: error[%d]\n", err);
+		PRINTF1("  SETUP FAILED: error[%d]\n", err);
 		PRINTF("\n");
 		return SETUP_NG;
 	}
@@ -64,7 +64,7 @@ enum TestSuiteErr TestSuite_test(const TestSuite *self, size_t *ncases, size_t *
 	(*ncases) += i;
 	err = TestSuite_teardown(self);
 	if (err) {
-		PRINTF("  TEARDOWN FAILED: error[%d]\n", err);
+		PRINTF1("  TEARDOWN FAILED: error[%d]\n", err);
 		PRINTF("\n");
 		return TEARDOWN_NG;
 	}
@@ -77,10 +77,10 @@ enum TestSuiteErr TestSuite_test_selected(const TestSuite *self, int case_idx, s
 {
 	int err;
 	*ncases = *ncases_failed = *nasserts = *nasserts_failed = 0;
-	PRINTF("Suite: %s\n", self->name);
+	PRINTF1("Suite: %s\n", self->name);
 	err = TestSuite_setup(self);
 	if (err) {
-		PRINTF("  SETUP FAILED: error[%d]\n", err);
+		PRINTF1("  SETUP FAILED: error[%d]\n", err);
 		PRINTF("\n");
 		return SETUP_NG;
 	}
@@ -91,7 +91,7 @@ enum TestSuiteErr TestSuite_test_selected(const TestSuite *self, int case_idx, s
 	*ncases = 1;
 	err = TestSuite_teardown(self);
 	if (err) {
-		PRINTF("  TEARDOWN FAILED: error[%d]\n", err);
+		PRINTF1("  TEARDOWN FAILED: error[%d]\n", err);
 		PRINTF("\n");
 		return TEARDOWN_NG;
 	}

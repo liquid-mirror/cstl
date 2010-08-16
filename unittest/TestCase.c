@@ -37,7 +37,7 @@ void TestCase_test(TestCase *self, size_t *nasserts, size_t *nasserts_failed)
 	current_case = self;
 	*nasserts = 0;
 	*nasserts_failed = 0;
-	PRINTF("  Test: %s ... ", self->name);
+	PRINTF1("  Test: %s ... ", self->name);
 	if (SETJMP(fatal_jmp) == 0) {
 		self->test();
 	}
@@ -49,7 +49,7 @@ void TestCase_test(TestCase *self, size_t *nasserts, size_t *nasserts_failed)
 				failed_flag = 1;
 				PRINTF("FAILED\n");
 			}
-			PRINTF("    %d. %s(%d) %s\n", n, pos->file, pos->line, pos->expr);
+			PRINTF4("    %d. %s(%d) %s\n", n, pos->file, pos->line, pos->expr);
 			n++;
 		}
 	}

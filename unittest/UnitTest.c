@@ -46,14 +46,14 @@ static void cleanup(const TestSuite *suites)
 static void print_result(void)
 {
 	PRINTF("Type       Total      Ran   Passed   Failed\n");
-	PRINTF("suites  %8d %8d      n/a %8d", suites_total, suites_ran, suites_failed);
+	PRINTF3("suites  %8d %8d      n/a %8d", suites_total, suites_ran, suites_failed);
 	if (setup_failed || teardown_failed) {
-		PRINTF("(setup:%d/teardown:%d)\n", setup_failed, teardown_failed);
+		PRINTF2("(setup:%d/teardown:%d)\n", setup_failed, teardown_failed);
 	} else {
 		PRINTF("\n");
 	}
-	PRINTF("tests   %8d %8d %8d %8d\n", tests_total, tests_ran, tests_ran - tests_failed, tests_failed);
-	PRINTF("asserts %8d %8d %8d %8d\n", asserts_total, asserts_ran, asserts_ran - asserts_failed, asserts_failed);
+	PRINTF4("tests   %8d %8d %8d %8d\n", tests_total, tests_ran, tests_ran - tests_failed, tests_failed);
+	PRINTF4("asserts %8d %8d %8d %8d\n", asserts_total, asserts_ran, asserts_ran - asserts_failed, asserts_failed);
 	PRINTF("\n");
 }
 
@@ -135,7 +135,7 @@ static void show_list_tests(const TestCase *cases)
 	PRINTF("List Tests\n");
 	PRINTF("  Number  Name\n");
 	for (i = 0; cases[i].name != 0; i++) {
-		PRINTF("  %-6d  %s\n", i + 1, cases[i].name);
+		PRINTF2("  %-6d  %s\n", i + 1, cases[i].name);
 	}
 	PRINTF("\n");
 }
@@ -146,7 +146,7 @@ static void show_list_suites(const TestSuite *suites)
 	PRINTF("List Suites\n");
 	PRINTF("  Number  Name\n");
 	for (i = 0; suites[i].name != 0; i++) {
-		PRINTF("  %-6d  %s\n", i + 1, suites[i].name);
+		PRINTF2("  %-6d  %s\n", i + 1, suites[i].name);
 	}
 	PRINTF("\n");
 }
@@ -253,7 +253,7 @@ static void select_suite(const TestSuite *suites)
 
 	PRINTF("\n");
 	while (1) {
-		PRINTF("================== Suite : %s ==================\n", selected_suite->name);
+		PRINTF1("================== Suite : %s ==================\n", selected_suite->name);
 		PRINTF("(R)un all, (S)elect test, (L)ist tests, (M)ove up, (Q)uit\n");
 		PRINTF("Enter Command : ");
 		FGETS(input_buf, sizeof input_buf, stdin);
