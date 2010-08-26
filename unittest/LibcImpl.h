@@ -4,7 +4,7 @@
 
 #ifndef NO_STD_PRINTF
 # include <stdio.h>
-# define PRINTF		printf
+# define PRINTF0	printf
 # define PRINTF1	printf
 # define PRINTF2	printf
 # define PRINTF3	printf
@@ -18,14 +18,14 @@
 # define FGETS	LibcImpl_fgets
 char *LibcImpl_fgets(char *s, int size, void *stream);
 # ifdef STD_VSPRINTF
-#  define PRINTF	LibcImpl_printf
+#  define PRINTF0	LibcImpl_printf
 #  define PRINTF1	LibcImpl_printf
 #  define PRINTF2	LibcImpl_printf
 #  define PRINTF3	LibcImpl_printf
 #  define PRINTF4	LibcImpl_printf
 int LibcImpl_printf(const char *format, ...);
 # else
-#  define PRINTF(f)						LibcImpl_printf(f, 0, 0, 0, 0)
+#  define PRINTF0(f)					LibcImpl_printf(f, 0, 0, 0, 0)
 #  define PRINTF1(f, a1)				LibcImpl_printf(f, (void *)(a1), 0, 0, 0)
 #  define PRINTF2(f, a1, a2)			LibcImpl_printf(f, (void *)(a1), (void *)(a2), 0, 0)
 #  define PRINTF3(f, a1, a2, a3)		LibcImpl_printf(f, (void *)(a1), (void *)(a2), (void *)(a3), 0)

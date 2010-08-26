@@ -45,16 +45,16 @@ static void cleanup(const TestSuite *suites)
 
 static void print_result(void)
 {
-	PRINTF("Type       Total      Ran   Passed   Failed\n");
+	PRINTF0("Type       Total      Ran   Passed   Failed\n");
 	PRINTF3("suites  %8d %8d      n/a %8d", suites_total, suites_ran, suites_failed);
 	if (setup_failed || teardown_failed) {
 		PRINTF2("(setup:%d/teardown:%d)\n", setup_failed, teardown_failed);
 	} else {
-		PRINTF("\n");
+		PRINTF0("\n");
 	}
 	PRINTF4("tests   %8d %8d %8d %8d\n", tests_total, tests_ran, tests_ran - tests_failed, tests_failed);
 	PRINTF4("asserts %8d %8d %8d %8d\n", asserts_total, asserts_ran, asserts_ran - asserts_failed, asserts_failed);
-	PRINTF("\n");
+	PRINTF0("\n");
 }
 
 static void run_all(const TestSuite *suites)
@@ -132,23 +132,23 @@ static void run_suite(const TestSuite *suites, int suite_idx)
 static void show_list_tests(const TestCase *cases)
 {
 	size_t i;
-	PRINTF("List Tests\n");
-	PRINTF("  Number  Name\n");
+	PRINTF0("List Tests\n");
+	PRINTF0("  Number  Name\n");
 	for (i = 0; cases[i].name != 0; i++) {
 		PRINTF2("  %-6d  %s\n", i + 1, cases[i].name);
 	}
-	PRINTF("\n");
+	PRINTF0("\n");
 }
 
 static void show_list_suites(const TestSuite *suites)
 {
 	size_t i;
-	PRINTF("List Suites\n");
-	PRINTF("  Number  Name\n");
+	PRINTF0("List Suites\n");
+	PRINTF0("  Number  Name\n");
 	for (i = 0; suites[i].name != 0; i++) {
 		PRINTF2("  %-6d  %s\n", i + 1, suites[i].name);
 	}
-	PRINTF("\n");
+	PRINTF0("\n");
 }
 
 static int find_test_name(const TestCase *cases, const char *input_str)
@@ -184,7 +184,7 @@ static void select_test(const TestSuite *suites, int suite_idx)
 	int idx;
 	char *p;
 	const TestSuite *suite = &suites[suite_idx];
-	PRINTF("Enter Test's Number or Name : ");
+	PRINTF0("Enter Test's Number or Name : ");
 	FGETS(input_buf, sizeof input_buf, stdin);
 	p = strpbrk(input_buf, "\r\n");
 	if (p) *p = '\0';
@@ -193,11 +193,11 @@ static void select_test(const TestSuite *suites, int suite_idx)
 	if (idx == -1) {
 		idx = find_test_name(suite->test_cases, input_buf);
 		if (idx == -1) {
-			PRINTF("\nTest not found.\n");
+			PRINTF0("\nTest not found.\n");
 			return;
 		}
 	}
-	PRINTF("\n");
+	PRINTF0("\n");
 
 	run_suite_selected(suites, suite_idx, idx);
 }
@@ -235,7 +235,7 @@ static void select_suite(const TestSuite *suites)
 	int idx;
 	char *p;
 	const TestSuite *selected_suite;
-	PRINTF("Enter Suite's Number or Name : ");
+	PRINTF0("Enter Suite's Number or Name : ");
 	FGETS(input_buf, sizeof input_buf, stdin);
 	p = strpbrk(input_buf, "\r\n");
 	if (p) *p = '\0';
@@ -244,20 +244,20 @@ static void select_suite(const TestSuite *suites)
 	if (idx == -1) {
 		idx = find_suite_name(suites, input_buf);
 		if (idx == -1) {
-			PRINTF("\nSuite not found.\n");
+			PRINTF0("\nSuite not found.\n");
 			return;
 		}
 	}
 
 	selected_suite = &suites[idx];
 
-	PRINTF("\n");
+	PRINTF0("\n");
 	while (1) {
 		PRINTF1("================== Suite : %s ==================\n", selected_suite->name);
-		PRINTF("(R)un all, (S)elect test, (L)ist tests, (M)ove up, (Q)uit\n");
-		PRINTF("Enter Command : ");
+		PRINTF0("(R)un all, (S)elect test, (L)ist tests, (M)ove up, (Q)uit\n");
+		PRINTF0("Enter Command : ");
 		FGETS(input_buf, sizeof input_buf, stdin);
-		PRINTF("\n");
+		PRINTF0("\n");
 		switch (input_buf[0]) {
 		case 'r':
 		case 'R':
@@ -281,7 +281,7 @@ static void select_suite(const TestSuite *suites)
 		default:
 			break;
 		}
-		PRINTF("\n");
+		PRINTF0("\n");
 	}
 }
 
@@ -293,11 +293,11 @@ void unittest_run_interactive(const TestSuite *suites)
 		return;
 	}
 	while (1) {
-		PRINTF("****************** Unit Test ******************\n");
-		PRINTF("(R)un all, (S)elect suite, (L)ist suites, (Q)uit\n");
-		PRINTF("Enter Command : ");
+		PRINTF0("****************** Unit Test ******************\n");
+		PRINTF0("(R)un all, (S)elect suite, (L)ist suites, (Q)uit\n");
+		PRINTF0("Enter Command : ");
 		FGETS(input_buf, sizeof input_buf, stdin);
-		PRINTF("\n");
+		PRINTF0("\n");
 		switch (input_buf[0]) {
 		case 'r':
 		case 'R':
@@ -317,15 +317,15 @@ void unittest_run_interactive(const TestSuite *suites)
 		default:
 			break;
 		}
-		PRINTF("\n");
+		PRINTF0("\n");
 	}
 }
 
 
 void unittest_run_all(const TestSuite *suites)
 {
-	PRINTF("****************** Unit Test ******************\n");
-	PRINTF("\n");
+	PRINTF0("****************** Unit Test ******************\n");
+	PRINTF0("\n");
 	init(suites);
 	run_all(suites);
 }

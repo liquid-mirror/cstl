@@ -47,14 +47,14 @@ void TestCase_test(TestCase *self, size_t *nasserts, size_t *nasserts_failed)
 			(*nasserts_failed)++;
 			if (!failed_flag) {
 				failed_flag = 1;
-				PRINTF("FAILED\n");
+				PRINTF0("FAILED\n");
 			}
 			PRINTF4("    %d. %s(%d) %s\n", n, pos->file, pos->line, pos->expr);
 			n++;
 		}
 	}
 	if (!failed_flag) {
-		PRINTF("passed\n");
+		PRINTF0("passed\n");
 	}
 }
 
@@ -74,7 +74,7 @@ static TestAssertion *TestAssertion_new(int passed_flag, const char *expr, const
 {
 	TestAssertion *self = (TestAssertion *) MALLOC(sizeof(TestAssertion));
 	if (!self) {
-		PRINTF("malloc failed!!\n");
+		PRINTF0("malloc failed!!\n");
 		return 0;
 	}
 	self->passed_flag = passed_flag;
