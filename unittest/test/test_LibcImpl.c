@@ -25,8 +25,13 @@ void test_LibcImpl_sprintf(void)
 	printf("%s\n", buf);
 	assert(strcmp(buf, sp_buf) == 0);
 
-	sprintf(sp_buf, "%d", 9999);
-	LibcImpl_sprintf(buf, "%d", (void *)9999, 0, 0, 0);
+	sprintf(sp_buf, "%d, %d, %d, \"%8d\"", 9999, 0, -1, -1234);
+	LibcImpl_sprintf(buf, "%d, %d, %d, \"%8d\"", (void *)9999, (void*)0, (void*)-1, (void*)-1234);
+	printf("%s\n", buf);
+	assert(strcmp(buf, sp_buf) == 0);
+
+	sprintf(sp_buf, "%u, %u, %-d, \"%-8d\"", 12345, 0, -123, -111);
+	LibcImpl_sprintf(buf, "%u, %u, %-d, \"%-8d\"", (void *)12345, (void*)0, (void*)-123, (void*)-111);
 	printf("%s\n", buf);
 	assert(strcmp(buf, sp_buf) == 0);
 
@@ -39,6 +44,26 @@ void test_LibcImpl_sprintf(void)
 	LibcImpl_sprintf(buf, "\"%s\", \"%9d\", \"%s\", \"%s\"", "foo", (void *)1234567890, "bar", "abcd");
 	printf("%s\n", buf);
 	assert(strcmp(buf, sp_buf) == 0);
+
+	sprintf(sp_buf, "%x, \"%8x\", \"%08X\", \"%10d\"", 0x1234, 0x5678, 0xABCD, 12345);
+	LibcImpl_sprintf(buf, "%x, \"%8x\", \"%08X\", \"%10d\"", (void *)0x1234, (void*)0x5678, (void*)0xABCD, (void*)12345);
+	printf("%s\n", buf);
+	assert(strcmp(buf, sp_buf) == 0);
+
+	sprintf(sp_buf, "%x, \"%8x\", \"%-8X\", \"%-10d\"", 0x0, 0x5678, 0xABCD, 12345);
+	LibcImpl_sprintf(buf, "%x, \"%8x\", \"%-8X\", \"%-10d\"", (void *)0x0, (void*)0x5678, (void*)0xABCD, (void*)12345);
+	printf("%s\n", buf);
+	assert(strcmp(buf, sp_buf) == 0);
+
+	sprintf(sp_buf, "%c, %c, %c, %c", 'a', '#', '\\', '9');
+	LibcImpl_sprintf(buf, "%c, %c, %c, %c", (void *)'a', (void*)'#', (void*)'\\', (void*)'9');
+	printf("%s\n", buf);
+	assert(strcmp(buf, sp_buf) == 0);
+
+	sprintf(sp_buf, "%p, %p, %p, %p", (void*)0, (void*)buf, (void*)sp_buf, (void*)0);
+	LibcImpl_sprintf(buf, "%p, %p, %p, %p", (void *)0, (void*)buf, (void*)sp_buf, (void*)0);
+	printf("%s\n", sp_buf);
+	printf("%s\n", buf);
 
 }
 

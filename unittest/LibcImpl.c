@@ -42,49 +42,83 @@ int LibcImpl_printf(const char *format, void *arg1, void *arg2, void *arg3, void
 	return 0;
 }
 
-static size_t dec2ascii(char *ascii, unsigned int dec, size_t width, int left_flag)
+static size_t set_ascii(char *ascii, const char *tmp, size_t size, size_t width, int left_flag, int zero_flag)
 {
 	size_t i;
-	size_t ret;
-	char tmp[16];
-	for (i = 0; dec > 0 && i < 16; i++) {
-		tmp[i] = dec % 10;
-		dec /= 10;
-	}
-	ret = i;
-
 	if (width > 1) {
 		if (left_flag) {
-			for (i = 0; i < ret; i++) {
-				ascii[i] = tmp[ret - i - 1] + '0';
+			for (i = 0; i < size; i++) {
+				ascii[i] = tmp[size - i - 1];
 			}
-			if (width > ret) {
-				for (i = 0; i < width - ret; i++) {
-					ascii[ret + i] = ' ';
+			if (width > size) {
+				for (i = 0; i < width - size; i++) {
+					ascii[size + i] = ' ';
 				}
-				ret += width - ret;
+				size += width - size;
 			}
 		} else {
-			if (width > ret) {
-				for (i = 0; i < width - ret; i++) {
-					ascii[i] = ' ';
+			if (width > size) {
+				for (i = 0; i < width - size; i++) {
+					ascii[i] = zero_flag ? '0' : ' ';
 				}
-				for (i = 0; i < ret; i++) {
-					ascii[width - ret + i] = tmp[ret - i - 1] + '0';
+				for (i = 0; i < size; i++) {
+					ascii[width - size + i] = tmp[size - i - 1];
 				}
-				ret += width - ret;
+				size += width - size;
 			} else {
-				for (i = 0; i < ret; i++) {
-					ascii[i] = tmp[ret - i - 1] + '0';
+				for (i = 0; i < size; i++) {
+					ascii[i] = tmp[size - i - 1];
 				}
 			}
 		}
 	} else {
-		for (i = 0; i < ret; i++) {
-			ascii[i] = tmp[ret - i - 1] + '0';
+		for (i = 0; i < size; i++) {
+			ascii[i] = tmp[size - i - 1];
 		}
 	}
-	return ret;
+	return size;
+}
+
+static size_t dec2ascii(char *ascii, unsigned int dec, size_t width, int left_flag, int zero_flag, int signed_flag)
+{
+	size_t i;
+	char tmp[16];
+	const char *num_str = "0123456789";
+	int signed_dec = (int) dec;
+	if (dec == 0) {
+		tmp[0] = '0';
+		i = 1;
+	} else if (signed_flag && signed_dec < 0) {
+		signed_dec = -signed_dec;
+		for (i = 0; signed_dec > 0 && i < 15; i++) {
+			tmp[i] = num_str[signed_dec % 10];
+			signed_dec /= 10;
+		}
+		tmp[i++] = '-';
+	} else {
+		for (i = 0; dec > 0 && i < 16; i++) {
+			tmp[i] = num_str[dec % 10];
+			dec /= 10;
+		}
+	}
+	return set_ascii(ascii, tmp, i, width, left_flag, zero_flag);
+}
+
+static size_t hex2ascii(char *ascii, unsigned int hex, size_t width, int left_flag, int zero_flag, int case_char)
+{
+	size_t i;
+	char tmp[16];
+	const char *num_str = (case_char == 'X') ? "0123456789ABCDEF" : "0123456789abcdef";
+	if (hex == 0) {
+		tmp[0] = '0';
+		i = 1;
+	} else {
+		for (i = 0; hex > 0 && i < 16; i++) {
+			tmp[i] = num_str[hex & 0xf];
+			hex >>= 4;
+		}
+	}
+	return set_ascii(ascii, tmp, i, width, left_flag, zero_flag);
 }
 
 int LibcImpl_sprintf(char *buf, const char *format, void *arg1, void *arg2, void *arg3, void *arg4)
@@ -96,6 +130,7 @@ int LibcImpl_sprintf(char *buf, const char *format, void *arg1, void *arg2, void
 	const char *tmp_str;
 	unsigned int tmp_val;
 	int left_flag;
+	int zero_flag;
 	size_t width;
 	size_t inc;
 
@@ -106,46 +141,72 @@ int LibcImpl_sprintf(char *buf, const char *format, void *arg1, void *arg2, void
 
 	i = 0;
 	while (*p != '\0') {
+		if (*p != '%') {
+			buf[i++] = *(p++);
+			continue;
+		}
+		p++;
 		if (*p == '%') {
+			buf[i++] = *(p++);
+			continue;
+		}
+		if (*p == '-') {
+			left_flag = 1;
 			p++;
-			if (*p == '%') {
-				buf[i++] = *(p++);
-			} else {
-				if (*p == '-') {
-					left_flag = 1;
-					p++;
-				} else {
-					left_flag = 0;
-				}
-				if ('1' <= *p && *p <= '9') {
-					width = *p - '0';
-					p++;
-				} else {
-					width = 0;
-				}
-				switch (*p) {
-				case 'd':
-					tmp_val = (unsigned int) arg_list[arg_idx];
-					inc = dec2ascii(&buf[i], tmp_val, width, left_flag);
-					i += inc;
-					p++;
-					arg_idx++;
-					break;
-				case 's':
-					tmp_str = (const char *) arg_list[arg_idx];
-					while (*tmp_str != '\0') {
-						buf[i++] = *(tmp_str++);
-					}
-					p++;
-					arg_idx++;
-					break;
-				default:
-					p++;
-					break;
-				}
+		} else {
+			left_flag = 0;
+		}
+		if (*p == '0') {
+			zero_flag = 1;
+			p++;
+		} else {
+			zero_flag = 0;
+		}
+		if ('1' <= *p && *p <= '9') {
+			width = *p - '0';
+			p++;
+			if ('0' <= *p && *p <= '9') {
+				width = 10 * width + (*p - '0');
+				p++;
 			}
 		} else {
-			buf[i++] = *(p++);
+			width = 0;
+		}
+		switch (*p) {
+		case 'c':
+			buf[i++] = (int) arg_list[arg_idx++];
+			p++;
+			break;
+		case 'd':
+		case 'i':
+		case 'u':
+			tmp_val = (unsigned int) arg_list[arg_idx++];
+			inc = dec2ascii(&buf[i], tmp_val, width, left_flag, zero_flag, (*p == 'u') ? 0 : 1);
+			i += inc;
+			p++;
+			break;
+		case 'p':
+			buf[i++] = '0';
+			buf[i++] = 'x';
+			zero_flag = 1;
+			width = 8;
+		case 'x':
+		case 'X':
+			tmp_val = (unsigned int) arg_list[arg_idx++];
+			inc = hex2ascii(&buf[i], tmp_val, width, left_flag, zero_flag, *p);
+			i += inc;
+			p++;
+			break;
+		case 's':
+			tmp_str = (const char *) arg_list[arg_idx++];
+			while (*tmp_str != '\0') {
+				buf[i++] = *(tmp_str++);
+			}
+			p++;
+			break;
+		default:
+			p++;
+			break;
 		}
 	}
 	buf[i] = '\0';
