@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include "UnitTest.h"
 #include "TestSuite.h"
 #include "LibcImpl.h"
 

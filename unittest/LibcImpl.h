@@ -1,6 +1,7 @@
 #ifndef LIBCIMPL_H_INCLUDED
 #define LIBCIMPL_H_INCLUDED
 
+#include <stddef.h>
 
 #ifndef NO_STD_PRINTF
 # include <stdio.h>
@@ -26,12 +27,12 @@ char *LibcImpl_fgets(char *s, int size, void *stream);
 int LibcImpl_printf(const char *format, ...);
 # else
 #  define PRINTF0(f)					LibcImpl_printf(f, 0, 0, 0, 0)
-#  define PRINTF1(f, a1)				LibcImpl_printf(f, (void *)(a1), 0, 0, 0)
-#  define PRINTF2(f, a1, a2)			LibcImpl_printf(f, (void *)(a1), (void *)(a2), 0, 0)
-#  define PRINTF3(f, a1, a2, a3)		LibcImpl_printf(f, (void *)(a1), (void *)(a2), (void *)(a3), 0)
-#  define PRINTF4(f, a1, a2, a3, a4)	LibcImpl_printf(f, (void *)(a1), (void *)(a2), (void *)(a3), (void *)(a4))
-int LibcImpl_printf(const char *format, void *arg1, void *arg2, void *arg3, void *arg4);
-int LibcImpl_sprintf(char *buf, const char *format, void *arg1, void *arg2, void *arg3, void *arg4);
+#  define PRINTF1(f, a1)				LibcImpl_printf(f, (unsigned long)(a1), 0, 0, 0)
+#  define PRINTF2(f, a1, a2)			LibcImpl_printf(f, (unsigned long)(a1), (unsigned long)(a2), 0, 0)
+#  define PRINTF3(f, a1, a2, a3)		LibcImpl_printf(f, (unsigned long)(a1), (unsigned long)(a2), (unsigned long)(a3), 0)
+#  define PRINTF4(f, a1, a2, a3, a4)	LibcImpl_printf(f, (unsigned long)(a1), (unsigned long)(a2), (unsigned long)(a3), (unsigned long)(a4))
+int LibcImpl_printf(const char *format, unsigned long arg1, unsigned long arg2, unsigned long arg3, unsigned long arg4);
+int LibcImpl_sprintf(char *buf, const char *format, unsigned long arg1, unsigned long arg2, unsigned long arg3, unsigned long arg4);
 # endif
 #endif
 

@@ -2,6 +2,8 @@
 
 #ifdef NO_STD_PRINTF
 
+#define BUF_SIZE	512
+
 char *LibcImpl_fgets(char *s, int size, void *stream)
 {
 	/* TODO */
@@ -11,13 +13,14 @@ char *LibcImpl_fgets(char *s, int size, void *stream)
 }
 
 #ifdef STD_VSPRINTF
+#undef stdin
 #include <stdarg.h>
 #include <stdio.h>
 
 int LibcImpl_printf(const char *format, ...)
 {
 	/* NOTE: attention to buffer overflow */
-	static char buf[1024];
+	static char buf[BUF_SIZE];
 	va_list ap;
 	va_start(ap, format);
 	vsprintf(buf, format, ap);
@@ -30,10 +33,10 @@ int LibcImpl_printf(const char *format, ...)
 }
 
 #else
-int LibcImpl_printf(const char *format, void *arg1, void *arg2, void *arg3, void *arg4)
+int LibcImpl_printf(const char *format, unsigned long arg1, unsigned long arg2, unsigned long arg3, unsigned long arg4)
 {
 	/* NOTE: attention to buffer overflow */
-	static char buf[1024];
+	static char buf[BUF_SIZE];
 	LibcImpl_sprintf(buf, format, arg1, arg2, arg3, arg4);
 
 	/* TODO */
@@ -104,7 +107,7 @@ static size_t dec2ascii(char *ascii, unsigned int dec, size_t width, int left_fl
 	return set_ascii(ascii, tmp, i, width, left_flag, zero_flag);
 }
 
-static size_t hex2ascii(char *ascii, unsigned int hex, size_t width, int left_flag, int zero_flag, int case_char)
+static size_t hex2ascii(char *ascii, unsigned long hex, size_t width, int left_flag, int zero_flag, char case_char)
 {
 	size_t i;
 	char tmp[16];
@@ -121,14 +124,14 @@ static size_t hex2ascii(char *ascii, unsigned int hex, size_t width, int left_fl
 	return set_ascii(ascii, tmp, i, width, left_flag, zero_flag);
 }
 
-int LibcImpl_sprintf(char *buf, const char *format, void *arg1, void *arg2, void *arg3, void *arg4)
+int LibcImpl_sprintf(char *buf, const char *format, unsigned long arg1, unsigned long arg2, unsigned long arg3, unsigned long arg4)
 {
 	size_t i;
 	const char *p = format;
-	void *arg_list[4];
+	unsigned long arg_list[4];
 	size_t arg_idx = 0;
 	const char *tmp_str;
-	unsigned int tmp_val;
+	unsigned long tmp_val;
 	int left_flag;
 	int zero_flag;
 	size_t width;
@@ -174,14 +177,14 @@ int LibcImpl_sprintf(char *buf, const char *format, void *arg1, void *arg2, void
 		}
 		switch (*p) {
 		case 'c':
-			buf[i++] = (int) arg_list[arg_idx++];
+			buf[i++] = (char) arg_list[arg_idx++];
 			p++;
 			break;
 		case 'd':
 		case 'i':
 		case 'u':
-			tmp_val = (unsigned int) arg_list[arg_idx++];
-			inc = dec2ascii(&buf[i], tmp_val, width, left_flag, zero_flag, (*p == 'u') ? 0 : 1);
+			tmp_val = arg_list[arg_idx++];
+			inc = dec2ascii(&buf[i], (unsigned int) tmp_val, width, left_flag, zero_flag, (*p == 'u') ? 0 : 1);
 			i += inc;
 			p++;
 			break;
@@ -192,7 +195,7 @@ int LibcImpl_sprintf(char *buf, const char *format, void *arg1, void *arg2, void
 			width = 8;
 		case 'x':
 		case 'X':
-			tmp_val = (unsigned int) arg_list[arg_idx++];
+			tmp_val = arg_list[arg_idx++];
 			inc = hex2ascii(&buf[i], tmp_val, width, left_flag, zero_flag, *p);
 			i += inc;
 			p++;
