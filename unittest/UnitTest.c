@@ -99,26 +99,35 @@ static void get_result(TestSuite *suites)
 	size_t j;
 	for (i = 0; suites[i].name != 0; i++) {
 		TestSuite *suite = &suites[i];
-		PRINTF1("Suite: %s\n", suite->name);
+		PRINTF0("================================\n");
+		PRINTF1("* %s\n", suite->name);
 		if (suite->setup_error) {
-		}
-		if (suite->teardown_error) {
+			PRINTF2("%s: SETUP ERROR[%d]\n", suite->name, suite->setup_error);
+			PRINTF0("\n");
+			continue;
 		}
 		for (j = 0; suite->test_cases[j].name != 0; j++) {
 			TestCase *tc = &suite->test_cases[j];
-			if (tc->setup_error || tc->teardown_error) {
+			PRINTF0(".");
+			if (tc->setup_error) {
 				PRINTF0("E");
-			} else if (tc->result.num_asserts_failed == 0) {
-				PRINTF0(".");
-			} else {
+			}
+			if (tc->result.num_asserts_failed > 0) {
 				PRINTF0("F");
+			}
+			if (tc->teardown_error) {
+				PRINTF0("E");
 			}
 		}
 		PRINTF0("\n");
-		if (suite->result.num_tests_failed == 0) {
+		if (suite->result.num_tests_failed == 0 && 
+				suite->result.case_result.num_errors_setup == 0 && 
+				suite->result.case_result.num_errors_teardown == 0) {
 			PRINTF1("OK (%d Tests)\n", suite->result.num_tests_ran);
 		} else {
-			PRINTF2("NG (%d Tests, %d Failures)\n", suite->result.num_tests_ran, suite->result.num_tests_failed);
+			PRINTF2("NG (%d Tests, %d Failures, %d Errors)\n", 
+					suite->result.num_tests_ran, suite->result.num_tests_failed, 
+					suite->result.case_result.num_errors_setup + suite->result.case_result.num_errors_teardown);
 			for (j = 0; suite->test_cases[j].name != 0; j++) {
 				TestCase *tc = &suite->test_cases[j];
 				TestAssertion *pos;
@@ -127,34 +136,28 @@ static void get_result(TestSuite *suites)
 				for (pos = LIST_BEGIN(list); pos != LIST_END(list); pos = pos->next) {
 					if (!pos->passed_flag) {
 						if (!name_printed) {
-							PRINTF1("\nTest: %s\n", tc->name);
+							PRINTF1("\n  ** %s\n", tc->name);
 							name_printed = 1;
 						}
 						PRINTF3("  %s(%d) %s\n", pos->file, pos->line, pos->expr);
 					}
 				}
+				if (tc->setup_error) {
+					PRINTF1("\n  ** %s\n", tc->name);
+					PRINTF1("  SETUP ERROR[%d]\n", tc->setup_error);
+				} else if (tc->teardown_error) {
+					if (!name_printed) {
+						PRINTF1("\n  ** %s\n", tc->name);
+					}
+					PRINTF1("  TEARDOWN ERROR[%d]\n", tc->teardown_error);
+				}
 			}
 		}
+		if (suite->teardown_error) {
+			PRINTF0("\n");
+			PRINTF2("%s: TEARDOWN ERROR[%d]\n", suite->name, suite->teardown_error);
+		}
 		PRINTF0("\n");
-
-/*            PRINTF1("Test: %s\n", tc->name);*/
-/*            for (pos = LIST_BEGIN(list); pos != LIST_END(list); pos = pos->next) {*/
-/*                if (!pos->passed_flag) {*/
-/*                    PRINTF3("  %s(%d) %s\n", pos->file, pos->line, pos->expr);*/
-/*                }*/
-/*            }*/
-/*            PRINTF0("\n");*/
-/*            if (tc->result.num_asserts_failed == 0) {*/
-/*                PRINTF1("OK (%d Tests)\n", tc->result.num_asserts_ran);*/
-/*            } else {*/
-/*                PRINTF2("NG (%d Failures / %d Tests)\n", tc->result.num_asserts_failed, tc->result.num_asserts_ran);*/
-/*                for (pos = LIST_BEGIN(list); pos != LIST_END(list); pos = pos->next) {*/
-/*                    if (!pos->passed_flag) {*/
-/*                        PRINTF3("  %s(%d) %s\n", pos->file, pos->line, pos->expr);*/
-/*                    }*/
-/*                }*/
-/*            }*/
-/*            PRINTF0("\n");*/
 	}
 }
 
@@ -201,7 +204,7 @@ static void run_all(TestSuite *suites)
 		}
 	}
 	suites_ran = i;
-	print_result();
+/*    print_result();*/
 	get_result(suites);
 	cleanup(suites);
 }
@@ -229,7 +232,7 @@ static void run_suite_selected(TestSuite *suites, int suite_idx, int case_idx)
 		}
 	}
 	suites_ran = 1;
-	print_result();
+/*    print_result();*/
 	get_result(suites);
 	cleanup(suites);
 }
@@ -257,7 +260,7 @@ static void run_suite(TestSuite *suites, int suite_idx)
 		}
 	}
 	suites_ran = 1;
-	print_result();
+/*    print_result();*/
 	get_result(suites);
 	cleanup(suites);
 }
@@ -457,8 +460,8 @@ void unittest_run_interactive(TestSuite *suites)
 
 void unittest_run_all(TestSuite *suites)
 {
-	PRINTF0("****************** Unit Test ******************\n");
-	PRINTF0("\n");
+/*    PRINTF0("****************** Unit Test ******************\n");*/
+/*    PRINTF0("\n");*/
 	init(suites);
 	run_all(suites);
 }

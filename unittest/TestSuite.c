@@ -56,11 +56,11 @@ enum TestSuiteErr TestSuite_test(TestSuite *self, size_t *ncases, size_t *ncases
 {
 	size_t i;
 	*ncases = *ncases_failed = *nasserts = *nasserts_failed = 0;
-	PRINTF1("Suite: %s\n", self->name);
+/*    PRINTF1("Suite: %s\n", self->name);*/
 	self->setup_error = TestSuite_setup(self);
 	if (self->setup_error) {
-		PRINTF1("  SETUP ERROR[%d]\n", self->setup_error);
-		PRINTF0("\n");
+/*        PRINTF1("  SETUP ERROR[%d]\n", self->setup_error);*/
+/*        PRINTF0("\n");*/
 		self->result.num_errors_setup++;
 		return SETUP_NG;
 	}
@@ -87,12 +87,12 @@ enum TestSuiteErr TestSuite_test(TestSuite *self, size_t *ncases, size_t *ncases
 	(*ncases) += i;
 	self->teardown_error = TestSuite_teardown(self);
 	if (self->teardown_error) {
-		PRINTF1("  TEARDOWN ERROR[%d]\n", self->teardown_error);
-		PRINTF0("\n");
+/*        PRINTF1("  TEARDOWN ERROR[%d]\n", self->teardown_error);*/
+/*        PRINTF0("\n");*/
 		self->result.num_errors_teardown++;
 		return TEARDOWN_NG;
 	}
-	PRINTF0("\n");
+/*    PRINTF0("\n");*/
 	return SUITE_OK;
 }
 
@@ -101,11 +101,11 @@ enum TestSuiteErr TestSuite_test_selected(TestSuite *self, int case_idx, size_t 
 {
 	TestCaseResult case_result;
 	*ncases = *ncases_failed = *nasserts = *nasserts_failed = 0;
-	PRINTF1("Suite: %s\n", self->name);
+/*    PRINTF1("Suite: %s\n", self->name);*/
 	self->setup_error = TestSuite_setup(self);
 	if (self->setup_error) {
-		PRINTF1("  SETUP ERROR[%d]\n", self->setup_error);
-		PRINTF0("\n");
+/*        PRINTF1("  SETUP ERROR[%d]\n", self->setup_error);*/
+/*        PRINTF0("\n");*/
 		self->result.num_errors_setup++;
 		return SETUP_NG;
 	}
@@ -126,12 +126,12 @@ enum TestSuiteErr TestSuite_test_selected(TestSuite *self, int case_idx, size_t 
 	*ncases = 1;
 	self->teardown_error = TestSuite_teardown(self);
 	if (self->teardown_error) {
-		PRINTF1("  TEARDOWN ERROR[%d]\n", self->teardown_error);
-		PRINTF0("\n");
+/*        PRINTF1("  TEARDOWN ERROR[%d]\n", self->teardown_error);*/
+/*        PRINTF0("\n");*/
 		self->result.num_errors_teardown++;
 		return TEARDOWN_NG;
 	}
-	PRINTF0("\n");
+/*    PRINTF0("\n");*/
 	return SUITE_OK;
 }
 

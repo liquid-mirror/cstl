@@ -62,10 +62,10 @@ void TestCase_test(TestCase *self, size_t *nasserts, size_t *nasserts_failed)
 	current_case = self;
 	*nasserts = 0;
 	*nasserts_failed = 0;
-	PRINTF1("  Test: %s ... ", self->name);
+/*    PRINTF1("  Test: %s ... ", self->name);*/
 	self->setup_error = TestCase_setup(self);
 	if (self->setup_error) {
-		PRINTF1("SETUP ERROR[%d]\n", self->setup_error);
+/*        PRINTF1("SETUP ERROR[%d]\n", self->setup_error);*/
 		self->result.num_errors_setup++;
 		return;
 	}
@@ -81,18 +81,18 @@ void TestCase_test(TestCase *self, size_t *nasserts, size_t *nasserts_failed)
 			(*nasserts_failed)++;
 			if (!failed_flag) {
 				failed_flag = 1;
-				PRINTF0("FAILED\n");
+/*                PRINTF0("FAILED\n");*/
 			}
-			PRINTF4("    %d. %s(%d) %s\n", n, pos->file, pos->line, pos->expr);
+/*            PRINTF4("    %d. %s(%d) %s\n", n, pos->file, pos->line, pos->expr);*/
 			n++;
 		}
 	}
 	if (!failed_flag) {
-		PRINTF0("passed\n");
+/*        PRINTF0("passed\n");*/
 	}
 	self->teardown_error = TestCase_teardown(self);
 	if (self->teardown_error) {
-		PRINTF1("    TEARDOWN ERROR[%d]\n", self->teardown_error);
+/*        PRINTF1("    TEARDOWN ERROR[%d]\n", self->teardown_error);*/
 		self->result.num_errors_teardown++;
 		return;
 	}
@@ -119,7 +119,7 @@ static TestAssertion *TestAssertion_new(int passed_flag, const char *expr, const
 {
 	TestAssertion *self = (TestAssertion *) MALLOC(sizeof(TestAssertion));
 	if (!self) {
-		PRINTF0("malloc failed!!\n");
+/*        PRINTF0("malloc failed!!\n");*/
 		return 0;
 	}
 	self->passed_flag = passed_flag;
