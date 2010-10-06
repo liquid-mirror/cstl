@@ -19,35 +19,67 @@ typedef struct TestAssertion {
 	struct TestAssertion *prev;
 } TestAssertion;
 
+typedef struct {
+	size_t num_asserts;
+	size_t num_asserts_ran;
+	size_t num_asserts_failed;
+	size_t num_errors_setup;
+	size_t num_errors_teardown;
+} TestCaseResult;
+
+typedef struct {
+	size_t num_tests;
+	size_t num_tests_ran;
+	size_t num_tests_failed;
+	size_t num_errors_setup;
+	size_t num_errors_teardown;
+	TestCaseResult case_result;
+} TestSuiteResult;
+
+typedef struct {
+	size_t num_suites;
+	size_t num_suites_ran;
+	size_t num_suites_failed;
+	TestSuiteResult suite_result;
+} TestResult;
 
 /* 
  * public
  */
 #define TEST_SUITE_NULL	{0, 0, 0, 0}
-#define TEST_CASE_NULL	{0, 0}
+#define TEST_CASE_NULL	{0, 0, 0, 0}
 
 typedef struct {
 	/* public */
 	const char *name;
 	void (*test)(void);
+	int (*setup)(void);
+	int (*teardown)(void);
 	/* private */
+	int setup_error;
+	int teardown_error;
+	TestCaseResult result;
 	TestAssertion assertion_list;
 } TestCase;
 
 typedef struct {
 	/* public */
 	const char *name;
+	TestCase *test_cases;
 	int (*setup)(void);
 	int (*teardown)(void);
-	TestCase *test_cases;
+	/* private */
+	int setup_error;
+	int teardown_error;
+	TestSuiteResult result;
 } TestSuite;
 
 
 /* 
  * Unit Test API
  */
-void unittest_run_interactive(const TestSuite *suites);
-void unittest_run_all(const TestSuite *suites);
+void unittest_run_interactive(TestSuite *suites);
+void unittest_run_all(TestSuite *suites);
 
 
 /* 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "UnitTest.h"
 #include "TestSuite.h"
+#include "TestCase.h"
 #include "LibcImpl.h"
 
 static char input_buf[64];
@@ -11,6 +12,7 @@ static size_t suites_total, suites_ran, suites_failed;
 static size_t tests_total, tests_ran, tests_failed;
 static size_t asserts_total, asserts_ran, asserts_failed;
 static size_t setup_failed, teardown_failed;
+static TestResult result;
 
 static void clear_values(void)
 {
@@ -18,28 +20,37 @@ static void clear_values(void)
 	tests_total = tests_ran = tests_failed = 0;
 	asserts_total = asserts_ran = asserts_failed = 0;
 	setup_failed = teardown_failed = 0;
+	memset(&result, 0, sizeof(result));
 }
 
-static void init(const TestSuite *suites)
+static void init(TestSuite *suites)
 {
 	size_t i;
 	clear_values();
 	for (i = 0; suites[i].name != 0; i++) {
 		size_t ncases;
+		TestSuiteResult suite_result;
 		ncases = TestSuite_init(&suites[i]);
+		TestSuite_get_result(&suites[i], &suite_result);
 		tests_total += ncases;
+		result.num_suites++;
+		result.suite_result.num_tests += suite_result.num_tests;
 	}
 	suites_total += i;
 }
 
-static void cleanup(const TestSuite *suites)
+static void cleanup(TestSuite *suites)
 {
 	size_t i;
 	clear_values();
 	for (i = 0; suites[i].name != 0; i++) {
 		size_t ncases;
+		TestSuiteResult suite_result;
 		ncases = TestSuite_cleanup(&suites[i]);
+		TestSuite_get_result(&suites[i], &suite_result);
 		tests_total += ncases;
+		result.num_suites++;
+		result.suite_result.num_tests += suite_result.num_tests;
 	}
 	suites_total += i;
 }
@@ -56,15 +67,125 @@ static void print_result(void)
 	PRINTF4("tests   %8d %8d %8d %8d\n", tests_total, tests_ran, tests_ran - tests_failed, tests_failed);
 	PRINTF4("asserts %8d %8d %8d %8d\n", asserts_total, asserts_ran, asserts_ran - asserts_failed, asserts_failed);
 	PRINTF0("\n");
+
+
+	PRINTF0("Result\n");
+	PRINTF0("Type       Total      Ran   Passed   Failed    Error\n");
+	PRINTF3("suites  %8d %8d      n/a %8d %8d\n", 
+			result.num_suites, result.num_suites_ran, result.num_suites_failed, 
+			result.suite_result.num_errors_setup + result.suite_result.num_errors_teardown);
+	PRINTF4("tests   %8d %8d %8d %8d %8d\n", 
+			result.suite_result.num_tests, 
+			result.suite_result.num_tests_ran, 
+			result.suite_result.num_tests_ran - result.suite_result.num_tests_failed, 
+			result.suite_result.num_tests_failed, 
+			result.suite_result.case_result.num_errors_setup + result.suite_result.case_result.num_errors_teardown);
+	PRINTF4("asserts %8d %8d %8d %8d        -\n", 
+			result.suite_result.case_result.num_asserts, 
+			result.suite_result.case_result.num_asserts_ran, 
+			result.suite_result.case_result.num_asserts_ran - result.suite_result.case_result.num_asserts_failed, 
+			result.suite_result.case_result.num_asserts_failed);
+	PRINTF0("\n");
+
+	if (result.suite_result.num_errors_setup + result.suite_result.num_errors_teardown > 0) {
+	}
+	if (result.num_suites_failed) {
+	}
 }
 
-static void run_all(const TestSuite *suites)
+static void get_result(TestSuite *suites)
+{
+	size_t i;
+	size_t j;
+	for (i = 0; suites[i].name != 0; i++) {
+		TestSuite *suite = &suites[i];
+		PRINTF1("Suite: %s\n", suite->name);
+		if (suite->setup_error) {
+		}
+		if (suite->teardown_error) {
+		}
+		for (j = 0; suite->test_cases[j].name != 0; j++) {
+			TestCase *tc = &suite->test_cases[j];
+			if (tc->setup_error || tc->teardown_error) {
+				PRINTF0("E");
+			} else if (tc->result.num_asserts_failed == 0) {
+				PRINTF0(".");
+			} else {
+				PRINTF0("F");
+			}
+		}
+		PRINTF0("\n");
+		if (suite->result.num_tests_failed == 0) {
+			PRINTF1("OK (%d Tests)\n", suite->result.num_tests_ran);
+		} else {
+			PRINTF2("NG (%d Tests, %d Failures)\n", suite->result.num_tests_ran, suite->result.num_tests_failed);
+			for (j = 0; suite->test_cases[j].name != 0; j++) {
+				TestCase *tc = &suite->test_cases[j];
+				TestAssertion *pos;
+				TestAssertion *list = &tc->assertion_list;
+				int name_printed = 0;
+				for (pos = LIST_BEGIN(list); pos != LIST_END(list); pos = pos->next) {
+					if (!pos->passed_flag) {
+						if (!name_printed) {
+							PRINTF1("\nTest: %s\n", tc->name);
+							name_printed = 1;
+						}
+						PRINTF3("  %s(%d) %s\n", pos->file, pos->line, pos->expr);
+					}
+				}
+			}
+		}
+		PRINTF0("\n");
+
+/*            PRINTF1("Test: %s\n", tc->name);*/
+/*            for (pos = LIST_BEGIN(list); pos != LIST_END(list); pos = pos->next) {*/
+/*                if (!pos->passed_flag) {*/
+/*                    PRINTF3("  %s(%d) %s\n", pos->file, pos->line, pos->expr);*/
+/*                }*/
+/*            }*/
+/*            PRINTF0("\n");*/
+/*            if (tc->result.num_asserts_failed == 0) {*/
+/*                PRINTF1("OK (%d Tests)\n", tc->result.num_asserts_ran);*/
+/*            } else {*/
+/*                PRINTF2("NG (%d Failures / %d Tests)\n", tc->result.num_asserts_failed, tc->result.num_asserts_ran);*/
+/*                for (pos = LIST_BEGIN(list); pos != LIST_END(list); pos = pos->next) {*/
+/*                    if (!pos->passed_flag) {*/
+/*                        PRINTF3("  %s(%d) %s\n", pos->file, pos->line, pos->expr);*/
+/*                    }*/
+/*                }*/
+/*            }*/
+/*            PRINTF0("\n");*/
+	}
+}
+
+static void add_result(const TestSuiteResult *s_result)
+{
+	result.suite_result.num_tests_ran       += s_result->num_tests_ran;
+	result.suite_result.num_tests_failed    += s_result->num_tests_failed;
+	result.suite_result.num_errors_setup    += s_result->num_errors_setup;
+	result.suite_result.num_errors_teardown += s_result->num_errors_teardown;
+	result.suite_result.case_result.num_asserts         += s_result->case_result.num_asserts;
+	result.suite_result.case_result.num_asserts_ran     += s_result->case_result.num_asserts_ran;
+	result.suite_result.case_result.num_asserts_failed  += s_result->case_result.num_asserts_failed;
+	result.suite_result.case_result.num_errors_setup    += s_result->case_result.num_errors_setup;
+	result.suite_result.case_result.num_errors_teardown += s_result->case_result.num_errors_teardown;
+	result.num_suites_ran++;
+	if (s_result->num_tests_failed > 0) {
+		result.num_suites_failed++;
+	}
+}
+
+static void run_all(TestSuite *suites)
 {
 	size_t i;
 	for (i = 0; suites[i].name != 0; i++) {
 		size_t nc, ncf, na, naf;
 		enum TestSuiteErr ret;
+		TestSuiteResult suite_result;
 		ret = TestSuite_test(&suites[i], &nc, &ncf, &na, &naf);
+		TestSuite_get_result(&suites[i], &suite_result);
+		add_result(&suite_result);
+
 		asserts_total += na;
 		asserts_ran += na;
 		asserts_failed += naf;
@@ -81,14 +202,19 @@ static void run_all(const TestSuite *suites)
 	}
 	suites_ran = i;
 	print_result();
+	get_result(suites);
 	cleanup(suites);
 }
 
-static void run_suite_selected(const TestSuite *suites, int suite_idx, int case_idx)
+static void run_suite_selected(TestSuite *suites, int suite_idx, int case_idx)
 {
 	size_t nc, ncf, na, naf;
 	enum TestSuiteErr ret;
+	TestSuiteResult suite_result;
 	ret = TestSuite_test_selected(&suites[suite_idx], case_idx, &nc, &ncf, &na, &naf);
+	TestSuite_get_result(&suites[suite_idx], &suite_result);
+	add_result(&suite_result);
+
 	asserts_total = na;
 	asserts_ran = na;
 	asserts_failed = naf;
@@ -104,14 +230,19 @@ static void run_suite_selected(const TestSuite *suites, int suite_idx, int case_
 	}
 	suites_ran = 1;
 	print_result();
+	get_result(suites);
 	cleanup(suites);
 }
 
-static void run_suite(const TestSuite *suites, int suite_idx)
+static void run_suite(TestSuite *suites, int suite_idx)
 {
 	size_t nc, ncf, na, naf;
 	enum TestSuiteErr ret;
+	TestSuiteResult suite_result;
 	ret = TestSuite_test(&suites[suite_idx], &nc, &ncf, &na, &naf);
+	TestSuite_get_result(&suites[suite_idx], &suite_result);
+	add_result(&suite_result);
+
 	asserts_total = na;
 	asserts_ran = na;
 	asserts_failed = naf;
@@ -127,6 +258,7 @@ static void run_suite(const TestSuite *suites, int suite_idx)
 	}
 	suites_ran = 1;
 	print_result();
+	get_result(suites);
 	cleanup(suites);
 }
 
@@ -180,11 +312,11 @@ static int find_test_number(const TestCase *cases, const char *input_str)
 	return n - 1;
 }
 
-static void select_test(const TestSuite *suites, int suite_idx)
+static void select_test(TestSuite *suites, int suite_idx)
 {
 	int idx;
 	char *p;
-	const TestSuite *suite = &suites[suite_idx];
+	TestSuite *suite = &suites[suite_idx];
 	PRINTF0("Enter Test's Number or Name : ");
 	FGETS(input_buf, sizeof input_buf, stdin);
 	p = strpbrk(input_buf, "\r\n");
@@ -231,11 +363,11 @@ static int find_suite_number(const TestSuite *suites, const char *input_str)
 	return n - 1;
 }
 
-static void select_suite(const TestSuite *suites)
+static void select_suite(TestSuite *suites)
 {
 	int idx;
 	char *p;
-	const TestSuite *selected_suite;
+	TestSuite *selected_suite;
 	PRINTF0("Enter Suite's Number or Name : ");
 	FGETS(input_buf, sizeof input_buf, stdin);
 	p = strpbrk(input_buf, "\r\n");
@@ -286,7 +418,7 @@ static void select_suite(const TestSuite *suites)
 	}
 }
 
-void unittest_run_interactive(const TestSuite *suites)
+void unittest_run_interactive(TestSuite *suites)
 {
 	init(suites);
 	if (SETJMP(quit_jmp)) {
@@ -323,7 +455,7 @@ void unittest_run_interactive(const TestSuite *suites)
 }
 
 
-void unittest_run_all(const TestSuite *suites)
+void unittest_run_all(TestSuite *suites)
 {
 	PRINTF0("****************** Unit Test ******************\n");
 	PRINTF0("\n");
