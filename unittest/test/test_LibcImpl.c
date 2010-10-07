@@ -30,6 +30,11 @@ void test_LibcImpl_sprintf(void)
 	printf("%s\n", buf);
 	assert(strcmp(buf, sp_buf) == 0);
 
+	sprintf(sp_buf, "%hd, %ld, %ld, \"%8ld\"", 9999, 0L, -1L, -1234L);
+	LibcImpl_sprintf(buf, "%hd, %ld, %ld, \"%8ld\"", 9999, 0L, -1L, -1234L);
+	printf("%s\n", buf);
+	assert(strcmp(buf, sp_buf) == 0);
+
 	sprintf(sp_buf, "%u, %u, %-d, \"%-8d\"", 12345, 0, -123, -111);
 	LibcImpl_sprintf(buf, "%u, %u, %-d, \"%-8d\"", 12345, 0, -123, -111);
 	printf("%s\n", buf);

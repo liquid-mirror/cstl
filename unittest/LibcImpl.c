@@ -175,6 +175,9 @@ int LibcImpl_sprintf(char *buf, const char *format, unsigned long arg1, unsigned
 		} else {
 			width = 0;
 		}
+		if (*p == 'h' || *p == 'l') {
+			p++;
+		}
 		switch (*p) {
 		case 'c':
 			buf[i++] = (char) arg_list[arg_idx++];
