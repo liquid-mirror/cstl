@@ -134,12 +134,33 @@ static void get_result(TestSuite *suites)
 				TestAssertion *list = &tc->assertion_list;
 				int name_printed = 0;
 				for (pos = LIST_BEGIN(list); pos != LIST_END(list); pos = pos->next) {
-					if (!pos->passed_flag) {
-						if (!name_printed) {
-							PRINTF1("\n  ** %s\n", tc->name);
-							name_printed = 1;
-						}
-						PRINTF3("  %s(%d) %s\n", pos->file, pos->line, pos->expr);
+					unsigned long type;
+					unsigned long not_flag;
+					const char *true_str = "true";
+					const char *false_str = "false";
+					if (!name_printed) {
+						PRINTF1("\n  ** %s\n", tc->name);
+						name_printed = 1;
+					}
+					PRINTF3("  %s(%d) %s\n", pos->file, pos->line, pos->expr);
+					type = GET_ASSERT_TYPE(pos->type);
+					not_flag = GET_NOT_FLAG(pos->type);
+					switch (type) {
+					case T_BOOL:
+						printf("    expected<%s>, actual<%s>\n", pos->expected.num ? true_str : false_str, pos->actual.num ? true_str : false_str);
+						break;
+					case T_NUM:
+						printf("    %s expected<%ld(0x%lx)>, actual<%ld(0x%lx)>\n", not_flag ? "not" : "", pos->expected.num, pos->expected.num, pos->actual.num, pos->actual.num);
+						break;
+					case T_PTR:
+						printf("    %s expected<%p>, actual<%p>\n", not_flag ? "not" : "", pos->expected.ptr, pos->actual.ptr);
+						break;
+					case T_STR:
+						printf("    %s expected<\"%s\">, actual<\"%s\">\n", not_flag ? "not" : "", pos->expected.str, pos->actual.str);
+						break;
+					case T_NSTR:
+						printf("    %s expected<\"%s\">, actual<\"%s\">, num<%ld>\n", not_flag ? "not" : "", pos->expected.str, pos->actual.str, GET_NSTR_LEN(pos->type));
+						break;
 					}
 				}
 				if (tc->setup_error) {
