@@ -41,11 +41,17 @@ int LibcImpl_sprintf(char *buf, const char *format, unsigned long arg1, unsigned
 # include <stdlib.h>
 # define MALLOC	malloc
 # define FREE	free
+# define STR_MALLOC	malloc
+# define STR_FREE	free
 #else
 # define MALLOC	LibcImpl_malloc
 # define FREE	LibcImpl_free
+# define STR_MALLOC	LibcImpl_str_malloc
+# define STR_FREE	LibcImpl_str_free
 void *LibcImpl_malloc(size_t size);
 void LibcImpl_free(void *ptr);
+char *LibcImpl_str_malloc(size_t size);
+void LibcImpl_str_free(char *ptr);
 #endif
 
 

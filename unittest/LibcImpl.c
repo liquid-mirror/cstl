@@ -251,6 +251,28 @@ void LibcImpl_free(void *ptr)
 	if (!ptr) return;
 	((TestAssertionBlock *) ptr)->used_flag = 0;
 }
+
+#define STR_POOL_SIZE	4096
+static char str_pool[STR_POOL_SIZE];
+static const char *str_pool_end_ptr = &str_pool[STR_POOL_SIZE];
+static char *str_pool_next_ptr = str_pool;
+
+char *LibcImpl_str_malloc(size_t size)
+{
+	char *p = str_pool_next_ptr;
+	if (str_pool_next_ptr + size > str_pool_end_ptr) {
+		return 0;
+	}
+	str_pool_next_ptr += size;
+	return p;
+}
+
+void LibcImpl_str_free(char *ptr)
+{
+	(void) ptr;
+	str_pool_next_ptr = str_pool;
+}
+
 #endif
 
 
