@@ -2,8 +2,8 @@
 #include "test.h"
 
 TestSuite suites[] = {
-	{ "test_1", test_1_setup, test_1_teardown, test_1_cases },
-	{ "test_2", 0, 0, test_2_cases },
+	{ "test_1", test_1_cases, test_1_setup, test_1_teardown },
+	{ "test_2", test_2_cases, test_1_setup, 0 },
 	TEST_SUITE_NULL,
 };
 

@@ -33,12 +33,12 @@ clean:
 
 main.o: ../UnitTest.h test.h
 test.h: ../UnitTest.h
-test_1.o: test.h
-test_2.o: test.h
+test_1.o: test.h ../UnitTest.h
+test_2.o: test.h ../UnitTest.h
 
 ../UnitTest.o: ../TestSuite.h ../LibcImpl.h
 ../TestCase.h: ../UnitTest.h
-../TestCase.o: ../TestCase.h ../LibcImpl.h
+../TestCase.o: ../TestCase.h ../LibcImpl.h ../UnitTest.h
 ../TestSuite.h: ../UnitTest.h
-../TestSuite.o: ../TestCase.h ../TestSuite.h ../LibcImpl.h
+../TestSuite.o: ../TestCase.h ../TestSuite.h ../LibcImpl.h ../UnitTest.h
 ../LibcImpl.o: ../LibcImpl.h ../UnitTest.h

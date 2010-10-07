@@ -22,9 +22,9 @@ $(PROG): $(OBJS)
 clean:
 	rm -f *.o *.a
 
-UnitTest.o: TestSuite.h LibcImpl.h
+UnitTest.o: TestSuite.h LibcImpl.h UnitTest.h
 TestCase.h: UnitTest.h
-TestCase.o: TestCase.h LibcImpl.h
+TestCase.o: TestCase.h LibcImpl.h UnitTest.h
 TestSuite.h: UnitTest.h
-TestSuite.o: TestCase.h TestSuite.h LibcImpl.h
+TestSuite.o: TestCase.h TestSuite.h LibcImpl.h UnitTest.h
 LibcImpl.o: LibcImpl.h UnitTest.h
